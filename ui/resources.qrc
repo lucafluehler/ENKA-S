@@ -1,0 +1,31 @@
+<RCC>
+    <qresource prefix="/MainWindow">
+        <file>img/titel.png</file>
+        <file>img/icon.png</file>
+    </qresource>
+    <qresource prefix="/LoadDiagnosticsTab">
+        <file>img/checked.png</file>
+        <file>img/corrupted.png</file>
+        <file>img/not_found.png</file>
+        <file>img/loading.gif</file>
+        <file>img/open.png</file>
+    </qresource>
+    <qresource prefix="/SimulationWindow">
+        <file>img/camera.png</file>
+        <file>img/gear.png</file>
+        <file>img/left.png</file>
+        <file>img/left_double.png</file>
+        <file>img/pause.png</file>
+        <file>img/play.png</file>
+        <file>img/right.png</file>
+        <file>img/right_double.png</file>
+        <file>img/movie.png</file>
+    </qresource>
+    <qresource prefix="/NewSimulationTab">
+        <file>img/gm_normal_sphere.png</file>
+        <file>img/gm_uniform_cube.png</file>
+        <file>img/reset.png</file>
+        <file>img/load.png</file>
+        <file>img/randomize.png</file>
+    </qresource>
+</RCC>
