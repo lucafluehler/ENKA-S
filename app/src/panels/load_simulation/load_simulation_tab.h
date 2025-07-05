@@ -1,5 +1,4 @@
-#ifndef LOAD_SIMULATION_TAB_H_
-#define LOAD_SIMULATION_TAB_H_
+#pragma once
 
 #include <QWidget>
 #include <QThread>
@@ -59,5 +58,3 @@ private:
 
     QTimer *preview_timer;
 };
-
-#endif // LOAD_SIMULATION_TAB_H_

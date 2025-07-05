@@ -1,5 +1,4 @@
-#ifndef SIMULATOR_H_
-#define SIMULATOR_H_
+#pragma once
 
 #include "utils.h"
 
@@ -23,5 +22,3 @@ public:
 protected:
     bool is_abortion_requested = false;
 };
-
-#endif // SIMULATOR_H_

@@ -1,5 +1,4 @@
-#ifndef SIMULATION_FACTORY_H_
-#define SIMULATION_FACTORY_H_
+#pragma once
 
 #include <memory>
 
@@ -10,5 +9,3 @@ class SimulationFactory {
 public:
     static std::shared_ptr<Simulator> create(const SimulationSettings& settings);
 };
-
-#endif // SIMULATION_FACTORY_H_

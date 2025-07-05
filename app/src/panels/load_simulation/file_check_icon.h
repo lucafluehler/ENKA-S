@@ -1,5 +1,4 @@
-#ifndef FILE_CHECK_ICON_H_
-#define FILE_CHECK_ICON_H_
+#pragma once
 
 #include <QLabel>
 
@@ -25,5 +24,3 @@ private:
 
     Mode mode;
 };
-
-#endif // FILE_CHECK_ICON_H_

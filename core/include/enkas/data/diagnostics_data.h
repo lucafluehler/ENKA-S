@@ -1,5 +1,4 @@
-#ifndef DIAGNOSTICS_DATA_H_
-#define DIAGNOSTICS_DATA_H_
+#pragma once
 
 #include "geometric_algebra.h"
 
@@ -15,5 +14,3 @@ struct DiagnosticsData
     double ms_vel;          // mean square velocity
     double t_cr;            // crossing time
 };
-
-#endif // DIAGNOSTICS_DATA_H_

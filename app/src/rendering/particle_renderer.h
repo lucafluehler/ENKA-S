@@ -1,5 +1,4 @@
-#ifndef PARTICLE_RENDERER_H_
-#define PARTICLE_RENDERER_H_
+#pragma once
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
@@ -63,5 +62,3 @@ private:
 
     GLuint circleVBO;
 };
-
-#endif // PARTICLE_RENDERER_H_

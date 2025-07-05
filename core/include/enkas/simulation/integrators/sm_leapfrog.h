@@ -1,5 +1,4 @@
-#ifndef SM_LEAPFROG_METHOD_H_
-#define SM_LEAPFROG_METHOD_H_
+#pragma once
 
 #include <vector>
 
@@ -54,5 +53,3 @@ private:
     double e_pot;            // total potential energy of the system
     const double c_SOFT_SQR; // squared softening parameters
 };
-
-#endif // SM_LEAPFROG_METHOD_H_

@@ -1,5 +1,4 @@
-#ifndef MAIN_WINDOW_H_
-#define MAIN_WINDOW_H_
+#pragma once
 
 #include <QMainWindow>
 
@@ -21,5 +20,3 @@ private:
     QTimer *home_timer;
     Ui::MainWindow *ui;
 };
-
-#endif // MAIN_WINDOW_H_

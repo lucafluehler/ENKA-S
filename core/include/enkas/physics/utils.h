@@ -1,5 +1,4 @@
-#ifndef UTILS_H_
-#define UTILS_H_
+#pragma once
 
 #include <random>
 #include <vector>
@@ -310,5 +309,3 @@ inline AnalyticsData getAnalyticsData(double global_time, const std::vector<T> p
 }
 
 } // namespace utils
-
-#endif // UTILS_H_

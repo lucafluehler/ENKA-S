@@ -1,5 +1,4 @@
-#ifndef ANALYTICS_DATA_H_
-#define ANALYTICS_DATA_H_
+#pragma once
 
 struct AnalyticsData
 {
@@ -15,5 +14,3 @@ struct AnalyticsData
     double t_rh; // half-mass relaxation time
     double t_dh; // dynamical time
 };
-
-#endif // ANALYTICS_DATA_H_

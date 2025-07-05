@@ -1,5 +1,4 @@
-#ifndef DATA_PTR_H_
-#define DATA_PTR_H_
+#pragma once
 
 #include <memory>
 
@@ -18,5 +17,3 @@ struct DataPtr
     std::shared_ptr<DiagnosticsData> diagnostics_data = nullptr;
     std::shared_ptr<AnalyticsData> analytics_data = nullptr;
 };
-
-#endif // DATA_PTR_H_

@@ -1,5 +1,4 @@
-#ifndef UTILS_H_
-#define UTILS_H_
+#pragma once
 
 #include "geometric_algebra.h"
 
@@ -12,5 +11,3 @@ struct CenterOfMass
 };
 
 } // namespace utils
-
-#endif // UTILS_H_

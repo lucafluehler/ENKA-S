@@ -1,5 +1,4 @@
-#ifndef SIMULATION_SETTINGS_H_
-#define SIMULATION_SETTINGS_H_
+#pragma once
 
 #include "sm_euler.h"
 #include "sm_leapfrog.h"
@@ -45,5 +44,3 @@ struct SimulationSettings
         return false;
     }
 };
-
-#endif // SIMULATION_SETTINGS_H_

@@ -1,5 +1,4 @@
-#ifndef VECTOR3D_H_
-#define VECTOR3D_H_
+#pragma once
 
 #include <cmath>
 
@@ -69,5 +68,3 @@ public:
 };
 
 } // namespace geometricAlgebra
-
-#endif // VECTOR3D_H_

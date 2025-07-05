@@ -1,5 +1,4 @@
-#ifndef FILE_CHECKER_H_
-#define FILE_CHECKER_H_
+#pragma once
 
 #include <QObject>
 
@@ -36,5 +35,3 @@ signals:
 private:
 
 };
-
-#endif // FILE_CHECKER_H_

@@ -1,5 +1,4 @@
-#ifndef BHLEAPFROG_H_
-#define BHLEAPFROG_H_
+#pragma once
 
 #include <vector>
 #include <thread>
@@ -50,5 +49,3 @@ private:
     double global_time;      // current time of the system
     const double c_SOFT_SQR; // squared softening parameters
 };
-
-#endif // BHLEAPFROG_H_

@@ -1,5 +1,4 @@
-#ifndef SIMULATION_WINDOW_H_
-#define SIMULATION_WINDOW_H_
+#pragma once
 
 #include <QMainWindow>
 #include <QString>
@@ -72,5 +71,3 @@ private:
 
     Ui::SimulationWindow *ui;
 };
-
-#endif // SIMULATION_WINDOW_H_

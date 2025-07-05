@@ -1,5 +1,4 @@
-#ifndef CAMERA_H_
-#define CAMERA_H_
+#pragma once
 
 #include "geometric_algebra.h"
 
@@ -9,5 +8,3 @@ struct Camera
     float target_distance = 6.0f;
     ga::Rotor3D rel_rotation;
 };
-
-#endif // CAMERA_H_

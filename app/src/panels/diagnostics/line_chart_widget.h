@@ -1,5 +1,4 @@
-#ifndef LINECHARTWIDGET_H_
-#define LINECHARTWIDGET_H_
+#pragma once
 
 #include <QGroupBox>
 #include <QGroupBox>
@@ -56,5 +55,3 @@ private:
     QVector<LabelData> labels;
     QMap<QString, QLineSeries*> data;
 };
-
-#endif // LINECHARTWIDGET_H_

@@ -1,5 +1,4 @@
-#ifndef ROTOR3D_H_
-#define ROTOR3D_H_
+#pragma once
 
 #include <cmath>
 
@@ -58,5 +57,3 @@ public:
 };
 
 } // namespace geometricAlgebra
-
-#endif // ROTOR3D_H_

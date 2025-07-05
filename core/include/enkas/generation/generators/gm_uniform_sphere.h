@@ -1,5 +1,4 @@
-#ifndef GM_UNIFORM_SPHERE_H_
-#define GM_UNIFORM_SPHERE_H_
+#pragma once
 
 #include <vector>
 
@@ -31,5 +30,3 @@ private:
     Settings settings;
     unsigned int seed;
 };
-
-#endif // GM_UNIFORM_SPHERE_H_

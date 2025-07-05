@@ -1,5 +1,4 @@
-#ifndef GM_FLYBY_MODEL_H_
-#define GM_FLYBY_MODEL_H_
+#pragma once
 
 #include <vector>
 
@@ -33,5 +32,3 @@ private:
     Settings settings;
     unsigned int seed;
 };
-
-#endif // GM_FLYBY_MODEL_H_

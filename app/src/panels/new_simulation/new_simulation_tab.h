@@ -1,5 +1,4 @@
-#ifndef NEW_SIMULATION_TAB_H_
-#define NEW_SIMULATION_TAB_H_
+#pragma once
 
 #include <QWidget>
 #include <QString>
@@ -62,5 +61,3 @@ private:
     QTimer *progress_timer;
     Ui::NewSimulationTab *ui;
 };
-
-#endif // NEW_SIMULATION_TAB_H_

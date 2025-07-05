@@ -1,5 +1,4 @@
-#ifndef GEOMETRIC_ALGEBRA_H_
-#define GEOMETRIC_ALGEBRA_H_
+#pragma once
 
 #include "vector3d.h"
 #include "bivector3d.h"
@@ -39,5 +38,3 @@ inline Bivector3D wedge(const Vector3D& lhs, const Vector3D& rhs)
 }
 
 } // namespace geometricAlgebra
-
-#endif // GEOMETRIC_ALGEBRA_H_

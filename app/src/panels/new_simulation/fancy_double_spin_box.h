@@ -1,5 +1,4 @@
-#ifndef FANCY_DOUBLE_SPIN_BOX_H_
-#define FANCY_DOUBLE_SPIN_BOX_H_
+#pragma once
 
 #include <QDoubleSpinBox>
 
@@ -18,5 +17,3 @@ private:
     QRegularExpression trailingDot;
     QRegularExpression thousandsSeperators;
 };
-
-#endif // FANCY_DOUBLE_SPIN_BOX_H_

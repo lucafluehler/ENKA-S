@@ -1,5 +1,4 @@
-#ifndef SIMULATION_WORKER_H_
-#define SIMULATION_WORKER_H_
+#pragma once
 
 #include <QObject>
 #include <memory>
@@ -36,5 +35,3 @@ private:
 
     utils::InitialSystem initial_system;
 };
-
-#endif // SIMULATION_WORKER_H_

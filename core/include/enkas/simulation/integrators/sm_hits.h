@@ -1,5 +1,4 @@
-#ifndef SM_HITS_H_
-#define SM_HITS_H_
+#pragma once
 
 #include <vector>
 #include <map>
@@ -68,5 +67,3 @@ private:
     double global_time;      // current time of the system
     const double c_SOFT_SQR; // squared softening parameters
 };
-
-#endif // SM_HITS_H_

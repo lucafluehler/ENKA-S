@@ -1,5 +1,4 @@
-#ifndef DIAGNOSTICS_TAB_H
-#define DIAGNOSTICS_TAB_H
+#pragma once
 
 #include <QWidget>
 #include <QString>
@@ -41,5 +40,3 @@ private:
     QVector<LineChartWidget*> line_charts;
     Ui::DiagnosticsTab *ui;
 };
-
-#endif // DIAGNOSTICS_TAB_H

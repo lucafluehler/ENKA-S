@@ -1,5 +1,4 @@
-#ifndef SETTINGS_H_
-#define SETTINGS_H_
+#pragma once
 
 #include <QString>
 #include <QMap>
@@ -69,5 +68,3 @@ private:
 
     QMap<QString, Setting> settings;
 };
-
-#endif // SETTINGS_H_

@@ -1,5 +1,4 @@
-#ifndef GM_COLLISION_MODEL_H_
-#define GM_COLLISION_MODEL_H_
+#pragma once
 
 #include <vector>
 
@@ -35,5 +34,3 @@ private:
     Settings settings;
     unsigned int seed;
 };
-
-#endif // GM_COLLISION_MODEL_H_

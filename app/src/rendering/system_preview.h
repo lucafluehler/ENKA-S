@@ -1,5 +1,4 @@
-#ifndef SYSTEM_PREVIEW_H_
-#define SYSTEM_PREVIEW_H_
+#pragma once
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
@@ -25,5 +24,3 @@ private:
     void setMethodSettings();
     void setHomeScreenSettings();
 };
-
-#endif // SYSTEM_PREVIEW_H_

@@ -1,5 +1,4 @@
-#ifndef RENDER_SETTINGS_WIDGET_H
-#define RENDER_SETTINGS_WIDGET_H
+#pragma once
 
 #include <QWidget>
 #include <QMap>
@@ -36,5 +35,3 @@ private:
 
     Ui::RenderSettingsWidget *ui;
 };
-
-#endif // RENDER_SETTINGS_WIDGET_H

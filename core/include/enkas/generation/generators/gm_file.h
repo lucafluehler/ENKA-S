@@ -1,5 +1,4 @@
-#ifndef GM_FILE_H_
-#define GM_FILE_H_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -28,5 +27,3 @@ public:
 private:
     Settings settings;
 };
-
-#endif // GM_FILE_H_

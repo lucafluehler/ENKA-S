@@ -1,5 +1,4 @@
-#ifndef GM_UNIFORM_CUBE_H_
-#define GM_UNIFORM_CUBE_H_
+#pragma once
 
 #include <vector>
 
@@ -31,5 +30,3 @@ private:
     Settings settings;
     unsigned int seed;
 };
-
-#endif // GM_UNIFORM_CUBE_H_

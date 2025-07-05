@@ -1,5 +1,4 @@
-#ifndef DATA_SAVER_H_
-#define DATA_SAVER_H_
+#pragma once
 
 #include <QObject>
 #include <QDir>
@@ -31,5 +30,3 @@ private:
     std::shared_ptr<DataPtr> data_ptr;
     std::unique_ptr<QDir> output_dir;
 };
-
-#endif // DATA_SAVER_H_

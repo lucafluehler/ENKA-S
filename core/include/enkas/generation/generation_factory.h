@@ -1,5 +1,4 @@
-#ifndef GENERATION_FACTORY_H_
-#define GENERATION_FACTORY_H_
+#pragma once
 
 #include <memory>
 
@@ -10,5 +9,3 @@ class GenerationFactory {
 public:
     static std::unique_ptr<Generator> create(const GenerationSettings& settings);
 };
-
-#endif // GENERATION_FACTORY_H_

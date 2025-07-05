@@ -1,5 +1,4 @@
-#ifndef GENERATION_SETTINGS_H_
-#define GENERATION_SETTINGS_H_
+#pragma once
 
 #include "gm_file.h"
 #include "gm_normal_sphere.h"
@@ -53,5 +52,3 @@ struct GenerationSettings
         return false;
     }
 };
-
-#endif // GENERATION_SETTINGS_H_

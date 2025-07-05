@@ -1,5 +1,4 @@
-#ifndef GM_PLUMMER_SPHERE_H_
-#define GM_PLUMMER_SPHERE_H_
+#pragma once
 
 #include <random>
 #include <vector>
@@ -39,5 +38,3 @@ private:
     Settings settings;
     unsigned int seed;
 };
-
-#endif // GM_PLUMMER_SPHERE_H_

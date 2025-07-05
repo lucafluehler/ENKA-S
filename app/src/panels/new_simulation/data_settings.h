@@ -1,5 +1,4 @@
-#ifndef DATA_SETTINGS_H_
-#define DATA_SETTINGS_H_
+#pragma once
 
 struct DataSettings
 {
@@ -12,5 +11,3 @@ struct DataSettings
     bool save_analytics_data;
     bool save_folder;
 };
-
-#endif // DATA_SETTINGS_H_

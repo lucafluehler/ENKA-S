@@ -1,5 +1,4 @@
-#ifndef SIMULATION_MANAGER_H_
-#define SIMULATION_MANAGER_H_
+#pragma once
 
 #include <QObject>
 #include <QThread>
@@ -88,5 +87,3 @@ private:
 
     bool aborted;
 };
-
-#endif // SIMULATION_MANAGER_H_

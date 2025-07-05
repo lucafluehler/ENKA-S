@@ -1,5 +1,4 @@
-#ifndef BIVECTOR3D_H_
-#define BIVECTOR3D_H_
+#pragma once
 
 #include <cmath>
 
@@ -45,5 +44,3 @@ public:
 };
 
 }
-
-#endif // BIVECTOR3D_H_

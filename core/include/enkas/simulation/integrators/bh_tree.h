@@ -1,5 +1,4 @@
-#ifndef BH_TREE_H_
-#define BH_TREE_H_
+#pragma once
 
 #include "utils.h"
 
@@ -69,5 +68,3 @@ private:
     std::shared_ptr<System> system;
     BHNode root;
 };
-
-#endif // BH_TREE_H_

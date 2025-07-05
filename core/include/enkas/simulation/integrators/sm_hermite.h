@@ -1,5 +1,4 @@
-#ifndef SM_HERMITE_H_
-#define SM_HERMITE_H_
+#pragma once
 
 #include <vector>
 #include <map>
@@ -56,5 +55,3 @@ private:
     double e_pot;            // total potential energy of the system
     const double c_SOFT_SQR; // squared softening parameters
 };
-
-#endif // SM_HERMITE_H_

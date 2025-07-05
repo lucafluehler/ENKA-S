@@ -1,5 +1,4 @@
-#ifndef GM_SPIRAL_GALAXY_H_
-#define GM_SPIRAL_GALAXY_H_
+#pragma once
 
 #include <vector>
 
@@ -35,5 +34,3 @@ private:
     Settings settings;
     unsigned int seed;
 };
-
-#endif // GM_SPIRAL_GALAXY_H_

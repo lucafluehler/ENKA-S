@@ -1,5 +1,4 @@
-#ifndef RENDER_SETTINGS_H_
-#define RENDER_SETTINGS_H_
+#pragma once
 
 enum class AnimationStyle
 {
@@ -32,5 +31,3 @@ struct RenderSettings
     int max_fps = 60;
     int fov = 90;
 };
-
-#endif // RENDER_SETTINGS_H_
