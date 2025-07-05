@@ -1,29 +1,33 @@
 #include <random>
 #include <vector>
 
-#include "utils.h"
-#include "gm_collision_model.h"
-#include "gm_plummer_sphere.h"
+#include <enkas/data/initial_system.h>
+#include <enkas/generation/generators/collision_model_generator.h>
+#include <enkas/generation/generators/plummer_sphere_generator.h>
+#include <enkas/physics/physics_helpers.h>
 
-GM_CollisionModel::GM_CollisionModel(const Settings& settings, unsigned int seed)
+namespace enkas {
+namespace generation {
+
+CollisionModelGenerator::CollisionModelGenerator(const CollisionModelSettings& settings, unsigned int seed)
     : settings(settings)
     , seed(seed)
 {}
 
-utils::InitialSystem GM_CollisionModel::createSystem()
+data::InitialSystem CollisionModelGenerator::createSystem()
 {
     const double c_AVG_RADIUS = (settings.radius_1 + settings.radius_2)/2.0;
     const double c_HALF_DISTANCE = std::pow(c_AVG_RADIUS, 1.0/3.0)*1.2;
 
     // Generate first Plummer sphere
-    auto plummer_1_settings = GM_PlummerSphere::Settings();
+    auto plummer_1_settings = PlummerSphereSettings();
     plummer_1_settings.N = settings.N_1;
     plummer_1_settings.radius = settings.radius_1;
     plummer_1_settings.total_mass = settings.total_mass_1;
 
-    auto sphere_1 = GM_PlummerSphere(plummer_1_settings, seed).createSystem();
+    auto sphere_1 = PlummerSphereGenerator(plummer_1_settings, seed).createSystem();
 
-    centerParticles(sphere_1);
+    physics::centerParticles(sphere_1);
 
     // Move particles in positive x_direction and add drift in opposite direction
     for (auto& particle: sphere_1) {
@@ -33,14 +37,14 @@ utils::InitialSystem GM_CollisionModel::createSystem()
     }
 
     // Generate second centered Plummer sphere
-    auto plummer_2_settings = GM_PlummerSphere::Settings();
+    auto plummer_2_settings = PlummerSphereSettings();
     plummer_2_settings.N = settings.N_2;
     plummer_2_settings.radius = settings.radius_2;
     plummer_2_settings.total_mass = settings.total_mass_2;
 
-    auto sphere_2 = GM_PlummerSphere(plummer_2_settings, seed).createSystem();
+    auto sphere_2 = PlummerSphereGenerator(plummer_2_settings, seed).createSystem();
 
-    centerParticles(sphere_2);
+    physics::centerParticles(sphere_2);
 
     // Move particles in negative x_direction and add drift in opposite direction
     for (auto& particle: sphere_2) {
@@ -50,13 +54,16 @@ utils::InitialSystem GM_CollisionModel::createSystem()
     }
 
     // Combine both systems and center
-    utils::InitialSystem initial_system;
+    data::InitialSystem initial_system;
     initial_system.reserve(settings.N_1 + settings.N_2);
 
     initial_system.insert(initial_system.end(), sphere_1.begin(), sphere_1.end());
     initial_system.insert(initial_system.end(), sphere_2.begin(), sphere_2.end());
 
-    centerParticles(initial_system);
+    physics::centerParticles(initial_system);
 
     return initial_system;
 }
+
+} // namespace generation
+} // namespace enkas
