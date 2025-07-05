@@ -1,18 +1,21 @@
 #include <random>
 #include <vector>
-#include <utils.h>
 
-#include "gm_uniform_cube.h"
-#include "geometric_algebra.h"
+#include <enkas/data/initial_system.h>
+#include <enkas/generation/generators/uniform_cube_generator.h>
+#include <enkas/physics/physics_helpers.h>
 
-GM_UniformCube::GM_UniformCube(const Settings& settings, unsigned int seed)
+namespace enkas {
+namespace generation {
+
+UniformCubeGenerator::UniformCubeGenerator(const UniformCubeSettings& settings, unsigned int seed)
     : settings(settings)
     , seed(seed)
 {}
 
-utils::InitialSystem GM_UniformCube::createSystem()
+data::InitialSystem UniformCubeGenerator::createSystem()
 {
-    utils::InitialSystem initial_system;
+    data::InitialSystem initial_system;
     initial_system.reserve(settings.N);
 
     std::mt19937 gen(seed);
@@ -22,7 +25,7 @@ utils::InitialSystem GM_UniformCube::createSystem()
     std::uniform_real_distribution<double> vel_dist(0.0, 1.0);
 
     for (size_t i = 0; i < settings.N; i++) {
-        utils::BaseParticle particle;
+        data::BaseParticle particle;
 
         // POSITION
         particle.pos = math::Vector3D(pos_dist(gen), pos_dist(gen), pos_dist(gen));
@@ -37,7 +40,10 @@ utils::InitialSystem GM_UniformCube::createSystem()
         initial_system.push_back(particle);
     }
 
-    centerParticles(initial_system);
+    physics::centerParticles(initial_system);
 
     return initial_system;
 }
+
+} // namespace generation
+} // namespace enkas
