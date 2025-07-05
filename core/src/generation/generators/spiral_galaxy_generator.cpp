@@ -1,17 +1,18 @@
 #include <random>
 #include <vector>
 
-#include "gm_spiral_galaxy.h"
-#include "utils.h"
+#include <enkas/data/initial_system.h>
+#include <enkas/generation/generators/spiral_galaxy_generator.h>
+#include <enkas/physics/physics_helpers.h>
 
-GM_SpiralGalaxy::GM_SpiralGalaxy(const Settings& settings, unsigned int seed)
+SpiralGalaxyGenerator::SpiralGalaxyGenerator(const SpiralGalaxySettings& settings, unsigned int seed)
     : settings(settings)
     , seed(seed)
 {}
 
-utils::InitialSystem GM_SpiralGalaxy::createSystem()
+data::InitialSystem SpiralGalaxyGenerator::createSystem()
 {
-    utils::InitialSystem initial_system;
+    data::InitialSystem initial_system;
     initial_system.reserve(settings.N + 1); // add one for the black hole
 
     const double c_STELLAR_MASS = settings.total_mass/settings.N;
@@ -25,7 +26,7 @@ utils::InitialSystem GM_SpiralGalaxy::createSystem()
 
     for (size_t k = 0; k < settings.arms; k++) {
         for (size_t i = 0; i < c_N_PER_ARM; i++) {
-            utils::BaseParticle particle;
+            data::BaseParticle particle;
 
             // Mass
             particle.mass = c_STELLAR_MASS;
@@ -71,11 +72,11 @@ utils::InitialSystem GM_SpiralGalaxy::createSystem()
     }
 
     // Add black hole to center
-    utils::BaseParticle black_hole;
+    data::BaseParticle black_hole;
     black_hole.mass = settings.bh_mass;
     initial_system.push_back(black_hole);
 
-    centerParticles(initial_system);
+    physics::centerParticles(initial_system);
 
     return initial_system;
 }
