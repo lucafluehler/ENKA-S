@@ -45,7 +45,7 @@ data::InitialSystem UniformSphereGenerator::createSystem()
         initial_system.push_back(particle);
     }
 
-    centerParticles(initial_system);
+    physics::centerParticles(initial_system);
 
     return initial_system;
 }
