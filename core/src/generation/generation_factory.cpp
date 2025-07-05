@@ -32,28 +32,28 @@ std::unique_ptr<Generator> GenerationFactory::create(const GenerationConfig& con
 
             // Depending on the type of settings, create the corresponding generator.
             if constexpr (std::is_same_v<SettingsType, FileSettings>) {
-                return std::make_unique<FileGenerator>(specific_settings);
+                return std::make_unique<FileGenerator>(specific_settings, config.seed);
             }
             if constexpr (std::is_same_v<SettingsType, NormalSphereSettings>) {
-                return std::make_unique<NormalSphereGenerator>(specific_settings);
+                return std::make_unique<NormalSphereGenerator>(specific_settings, config.seed);
             }
             if constexpr (std::is_same_v<SettingsType, UniformCubeSettings>) {
-                return std::make_unique<UniformCubeGenerator>(specific_settings);
+                return std::make_unique<UniformCubeGenerator>(specific_settings, config.seed);
             }
             if constexpr (std::is_same_v<SettingsType, UniformSphereSettings>) {
-                return std::make_unique<UniformSphereGenerator>(specific_settings);
+                return std::make_unique<UniformSphereGenerator>(specific_settings, config.seed);
             }
             if constexpr (std::is_same_v<SettingsType, PlummerSphereSettings>) {
-                return std::make_unique<PlummerSphereGenerator>(specific_settings);
+                return std::make_unique<PlummerSphereGenerator>(specific_settings, config.seed);
             }
             if constexpr (std::is_same_v<SettingsType, SpiralGalaxySettings>) {
-                return std::make_unique<SpiralGalaxyGenerator>(specific_settings);
+                return std::make_unique<SpiralGalaxyGenerator>(specific_settings, config.seed);
             }
             if constexpr (std::is_same_v<SettingsType, CollisionModelSettings>) {
-                return std::make_unique<CollisionModelGenerator>(specific_settings);
+                return std::make_unique<CollisionModelGenerator>(specific_settings, config.seed);
             }
             if constexpr (std::is_same_v<SettingsType, FlybyModelSettings>) {
-                return std::make_unique<FlybyModelGenerator>(specific_settings);
+                return std::make_unique<FlybyModelGenerator>(specific_settings, config.seed);
             }
             else {
                 return nullptr;
