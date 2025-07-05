@@ -10,10 +10,10 @@ namespace math {
 
 class Rotor3D {
 public:
-    double s;
-    double b_xy;
-    double b_xz;
-    double b_yz;
+    double s = 1.0;
+    double b_xy = 0.0;
+    double b_xz = 0.0;
+    double b_yz = 0.0;
 
     Rotor3D(double s = 1.0, double b_xy = 0.0, double b_xz = 0.0, double b_yz = 0.0);
     Rotor3D(double angle, const Bivector3D& plane);
@@ -52,8 +52,19 @@ public:
     Rotor3D get_reverse() const;
 
 public:
+    /**
+     * @brief Creates a Rotor3D over the xy-plane with a specified xy value.
+     */
     static Rotor3D XY(double xy_val = 1.0) { return Rotor3D(1.0, xy_val, 0.0, 0.0); }
+
+    /**
+     * @brief Creates a Rotor3D over the xz-plane with a specified xz value.
+     */
     static Rotor3D XZ(double xz_val = 1.0) { return Rotor3D(1.0, 0.0, xz_val, 0.0); }
+
+    /**
+     * @brief Creates a Rotor3D over the yz-plane with a specified yz value.
+     */
     static Rotor3D YZ(double yz_val = 1.0) { return Rotor3D(1.0, 0.0, 0.0, yz_val); }
 };
 
