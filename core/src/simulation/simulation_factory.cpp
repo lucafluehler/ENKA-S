@@ -1,47 +1,53 @@
-#include "simulation_factory.h"
-#include "simulation_settings.h"
-#include "simulator.h"
+#include <enkas/simulation/simulation_factory.h>
+#include <enkas/simulation/simulator.h>
+#include <enkas/simulation/simulation_config.h>
 
-#include "sm_euler.h"
-#include "sm_leapfrog.h"
-#include "sm_hermite.h"
-#include "sm_hits.h"
-#include "sm_hacs.h"
-#include "sm_bhleapfrog.h"
+#include <enkas/simulation/euler_simulator.h>
+#include <enkas/simulation/leapfrog_simulator.h>
+#include <enkas/simulation/hermite_simulator.h>
+#include <enkas/simulation/hits_simulator.h>
+#include <enkas/simulation/hacs_simulator.h>
+#include <enkas/simulation/bhleapfrog_simulator.h>
 
-std::shared_ptr<Simulator> SimulationFactory::create(const SimulationSettings& settings)
+namespace enkas::simulation {
+
+std::shared_ptr<Simulator> SimulationFactory::create(const SimulationConfig& config)
 {
-    if (!settings.isValid()) return nullptr;
+    if (!config.isValid()) {
+        return nullptr;
+    }
 
-    switch (settings.method)
-    {
-        case SimulationMethod::Euler:
-            return std::make_shared<SM_Euler>(settings.euler_settings);
-            break;
+    return std::visit(
+        [&config](const auto& specific_settings) -> std::shared_ptr<Simulator> {
 
-        case SimulationMethod::Leapfrog:
-            return std::make_shared<SM_Leapfrog>(settings.leapfrog_settings);
-            break;
+            // Get the concrete type of the settings object we were passed.
+            using SettingsType = std::decay_t<decltype(specific_settings)>;
 
-        case SimulationMethod::Hermite:
-            return std::make_shared<SM_Hermite>(settings.hermite_settings);
-            break;
-
-        case SimulationMethod::HITS:
-            return std::make_shared<SM_HITS>(settings.hits_settings);
-            break;
-
-        case SimulationMethod::HACS:
-            return std::make_shared<SM_HACS>(settings.hacs_settings);;
-            break;
-
-        case SimulationMethod::BHLeapfrog:
-            return std::make_shared<SM_BHLeapfrog>(settings.bhleapfrog_settings);
-            break;
-
-        default:
-            break;
-    };
-
-    return nullptr;
+            // Depending on the type of settings, create the corresponding simulator.
+            if constexpr (std::is_same_v<SettingsType, EulerSettings>) {
+                return std::make_shared<EulerSimulator>(specific_settings);
+            }
+            if constexpr (std::is_same_v<SettingsType, LeapfrogSettings>) {
+                return std::make_shared<LeapfrogSimulator>(specific_settings);
+            }
+            if constexpr (std::is_same_v<SettingsType, HermiteSettings>) {
+                return std::make_shared<HermiteSimulator>(specific_settings);
+            }
+            if constexpr (std::is_same_v<SettingsType, HitsSettings>) {
+                return std::make_shared<HitsSimulator>(specific_settings);
+            }
+            if constexpr (std::is_same_v<SettingsType, HacsSettings>) {
+                return std::make_shared<HacsSimulator>(specific_settings);
+            }
+            if constexpr (std::is_same_v<SettingsType, BhLeapfrogSettings>) {
+                return std::make_shared<BhLeapfrogSimulator>(specific_settings);
+            }
+            else {
+                return nullptr;
+            }
+        },
+        config.specific_settings
+    );
 }
+
+} // namespace enkas::simulation
