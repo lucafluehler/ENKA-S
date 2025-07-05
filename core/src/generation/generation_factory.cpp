@@ -1,57 +1,67 @@
-#include "generation_factory.h"
+#include <variant>
+#include <type_traits>
 
-#include "generation_settings.h"
-#include "generator.h"
+#include <enkas/generation/generation_factory.h>
 
-#include "gm_file.h"
-#include "gm_normal_sphere.h"
-#include "gm_uniform_cube.h"
-#include "gm_uniform_sphere.h"
-#include "gm_plummer_sphere.h"
-#include "gm_spiral_galaxy.h"
-#include "gm_collision_model.h"
-#include "gm_flyby_model.h"
+#include <enkas/generation/config.h>
 
-std::unique_ptr<Generator> GenerationFactory::create(const GenerationSettings& settings)
+#include <enkas/generation/file_generator.h>
+#include <enkas/generation/normal_sphere_generator.h>
+#include <enkas/generation/uniform_cube_generator.h>
+#include <enkas/generation/uniform_sphere_generator.h>
+#include <enkas/generation/plummer_sphere_generator.h>
+#include <enkas/generation/spiral_galaxy_generator.h>
+#include <enkas/generation/collision_model_generator.h>
+#include <enkas/generation/flyby_model_generator.h>
+
+namespace enkas {
+namespace generation {
+
+std::unique_ptr<Generator> GenerationFactory::create(const GenerationConfig& config)
 {
-    if (!settings.isValid()) return nullptr;
+    if (!config.isValid()) {
+        return nullptr;
+    }
 
-    switch (settings.method)
-    {
-    case GenerationMethod::File:
-        return std::make_unique<GM_File>(settings.file_settings);
-        break;
+    return std::visit(
+        [&config](const auto& specific_settings) -> std::unique_ptr<Generator> {
+            
+            // Get the concrete type of the settings object we were passed.
+            using SettingsType = std::decay_t<decltype(specific_settings)>;
 
-    case GenerationMethod::NormalSphere:
-        return std::make_unique<GM_NormalSphere>(settings.normal_sphere_settings, settings.seed);
-        break;
+            // Depending on the type of settings, create the corresponding generator.
+            if constexpr (std::is_same_v<SettingsType, FileSettings>) {
+                return std::make_unique<FileGenerator>(specific_settings);
+            }
+            if constexpr (std::is_same_v<SettingsType, NormalSphereSettings>) {
+                return std::make_unique<NormalSphereGenerator>(specific_settings);
+            }
+            if constexpr (std::is_same_v<SettingsType, UniformCubeSettings>) {
+                return std::make_unique<UniformCubeGenerator>(specific_settings);
+            }
+            if constexpr (std::is_same_v<SettingsType, UniformSphereSettings>) {
+                return std::make_unique<UniformSphereGenerator>(specific_settings);
+            }
+            if constexpr (std::is_same_v<SettingsType, PlummerSphereSettings>) {
+                return std::make_unique<PlummerSphereGenerator>(specific_settings);
+            }
+            if constexpr (std::is_same_v<SettingsType, SpiralGalaxySettings>) {
+                return std::make_unique<SpiralGalaxyGenerator>(specific_settings);
+            }
+            if constexpr (std::is_same_v<SettingsType, CollisionModelSettings>) {
+                return std::make_unique<CollisionModelGenerator>(specific_settings);
+            }
+            if constexpr (std::is_same_v<SettingsType, FlybyModelSettings>) {
+                return std::make_unique<FlybyModelGenerator>(specific_settings);
+            }
+            else {
+                return nullptr;
+            }
 
-    case GenerationMethod::UniformCube:
-        return std::make_unique<GM_UniformCube>(settings.uniform_cube_settings, settings.seed);
-        break;
-
-    case GenerationMethod::UniformSphere:
-        return std::make_unique<GM_UniformSphere>(settings.uniform_sphere_settings, settings.seed);
-        break;
-
-    case GenerationMethod::PlummerSphere:
-        return std::make_unique<GM_PlummerSphere>(settings.plummer_sphere_settings, settings.seed);
-
-    case GenerationMethod::SpiralGalaxy:
-        return std::make_unique<GM_SpiralGalaxy>(settings.spiral_galaxy_settings, settings.seed);
-        break;
-
-    case GenerationMethod::CollisionModel:
-        return std::make_unique<GM_CollisionModel>(settings.collision_model_settings, settings.seed);
-        break;
-
-    case GenerationMethod::FlybyModel:
-        return std::make_unique<GM_FlybyModel>(settings.flyby_model_settings, settings.seed);
-        break;
-
-    default:
-        break;
-    };
-
-    return nullptr;
+        },
+        config.specific_settings
+    );
 }
+
+} // namespace generation
+} // namespace enkas
