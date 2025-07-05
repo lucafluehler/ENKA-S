@@ -14,7 +14,5 @@ struct BaseParticle
     double mass = 0.0;
 };
 
-using InitialSystem = std::vector<BaseParticle>;
-
 } // namespace data
 } // namespace enkas
