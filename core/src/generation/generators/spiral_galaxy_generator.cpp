@@ -5,6 +5,9 @@
 #include <enkas/generation/generators/spiral_galaxy_generator.h>
 #include <enkas/physics/physics_helpers.h>
 
+namespace enkas {
+namespace generation {
+
 SpiralGalaxyGenerator::SpiralGalaxyGenerator(const SpiralGalaxySettings& settings, unsigned int seed)
     : settings(settings)
     , seed(seed)
@@ -80,3 +83,6 @@ data::InitialSystem SpiralGalaxyGenerator::createSystem()
 
     return initial_system;
 }
+
+} // namespace generation
+} // namespace enkas
