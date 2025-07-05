@@ -1,20 +1,24 @@
 #include <random>
 #include <vector>
 
-#include "gm_plummer_sphere.h"
-#include "utils.h"
+#include <enkas/data/initial_system.h>
+#include <enkas/generation/generators/plummer_sphere_generator.h>
+#include <enkas/physics/physics_helpers.h>
 
-GM_PlummerSphere::GM_PlummerSphere(const Settings& settings, unsigned int seed)
+namespace enkas {
+namespace generation {
+
+PlummerSphereGenerator::PlummerSphereGenerator(const PlummerSphereSettings& settings, unsigned int seed)
     : settings(settings)
     , seed(seed)
 {}
 
-utils::InitialSystem GM_PlummerSphere::createSystem()
+data::InitialSystem PlummerSphereGenerator::createSystem()
 {
-    utils::InitialSystem initial_system;
+    data::InitialSystem initial_system;
     initial_system.reserve(settings.N);
 
-    const double c_GRAV_MASS = std::sqrt(2.0*utils::G*settings.total_mass);
+    const double c_GRAV_MASS = std::sqrt(2.0*physics::G*settings.total_mass);
     const double c_PLUMMER_RADIUS_SQR = settings.radius*settings.radius;
 
     std::mt19937 gen(seed);
@@ -24,7 +28,7 @@ utils::InitialSystem GM_PlummerSphere::createSystem()
     double cumulative_mass_max = 1.0/settings.N;
 
     for (size_t i = 0; i < settings.N; i++) {
-        utils::BaseParticle particle;
+        data::BaseParticle particle;
 
         // MASS
         particle.mass = settings.total_mass/settings.N;
@@ -56,7 +60,10 @@ utils::InitialSystem GM_PlummerSphere::createSystem()
         initial_system.push_back(particle);
     }
 
-    centerParticles(initial_system);
+    physics::centerParticles(initial_system);
 
     return initial_system;
 }
+
+} // namespace generation
+} // namespace enkas
