@@ -14,26 +14,13 @@ public:
     Vector3D(double p_x = 0.0, double p_y = 0.0, double p_z = 0.0);
     Vector3D(const Vector3D& rhs);
 
-public: // operators
-    // Vector addition and subtraction
-    Vector3D operator+(const Vector3D& rhs) const;
-    Vector3D operator+=(const Vector3D& rhs);
-    Vector3D operator-(const Vector3D& rhs) const;
-    Vector3D operator-=(const Vector3D& rhs);
+public: // Compound assignment operators
+    Vector3D& operator+=(const Vector3D& rhs);
+    Vector3D& operator-=(const Vector3D& rhs);
+    Vector3D& operator*=(double rhs);
+    Vector3D& operator/=(double rhs);
 
-    // Scalar operations
-    Vector3D operator+(double rhs) const;
-    Vector3D operator+=(double rhs);
-    Vector3D operator-(double rhs) const;
-    Vector3D operator-=(double rhs);
-    Vector3D operator*(double rhs) const;
-    Vector3D operator*=(double rhs);
-    Vector3D operator/(double rhs) const;
-    Vector3D operator/=(double rhs);
-
-    Vector3D& operator=(const Vector3D& rhs);
-
-public: // utility functions
+public: // Utility functions
     /**
      * @brief Calculates the squared norm of the Vector3D
      */
@@ -67,6 +54,33 @@ public:
     static Vector3D Y(double y_val = 1.0) { return Vector3D(0.0, y_val, 0.0); }
     static Vector3D Z(double z_val = 1.0) { return Vector3D(0.0, 0.0, z_val); }
 };
+
+// Binary operators
+inline Vector3D operator+(Vector3D lhs, const Vector3D& rhs) {
+    lhs += rhs;
+    return lhs;
+}
+
+inline Vector3D operator-(Vector3D lhs, const Vector3D& rhs) {
+    lhs -= rhs;
+    return lhs;
+}
+
+inline Vector3D operator*(Vector3D lhs, double rhs) {
+    lhs *= rhs;
+    return lhs;
+}
+
+// Allow for `2.0 * my_vector`
+inline Vector3D operator*(double lhs, Vector3D rhs) {
+    rhs *= lhs;
+    return rhs;
+}
+
+inline Vector3D operator/(Vector3D lhs, double rhs) {
+    lhs /= rhs;
+    return lhs;
+}
 
 } // namespace math
 } // namespace enkas
