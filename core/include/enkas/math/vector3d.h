@@ -37,12 +37,12 @@ public: // utility functions
     /**
      * @brief Calculates the squared norm of the Vector3D
      */
-    double norm2() const;
+    [[nodiscard]] double norm2() const;
 
     /**
      * @brief Calculates the norm of the Vector3D
      */
-    double norm() const;
+    [[nodiscard]] double norm() const;
 
     /**
      * @brief Set the norm of the 3D vector to a specified value.
