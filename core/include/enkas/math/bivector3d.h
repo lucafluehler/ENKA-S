@@ -21,9 +21,11 @@ public:
     Bivector3D(Bivector3D&& rhs) noexcept = default;
     Bivector3D& operator=(Bivector3D&& rhs) noexcept = default;
 
-public:
-    Bivector3D operator+(const Bivector3D& rhs) const;
-    Bivector3D operator+=(const Bivector3D& rhs);
+public: // Compound assignment operators
+    Bivector3D& operator+=(const Bivector3D& rhs);
+    Bivector3D& operator-=(const Bivector3D& rhs);
+    Bivector3D& operator*=(double scalar);
+    Bivector3D& operator/=(double scalar);
 
 public:
     /**
@@ -60,6 +62,33 @@ public:
      */
     static Bivector3D YZ(double yz_val = 1.0) { return Bivector3D(0.0, 0.0, yz_val); }
 };
+
+// Binary operators
+
+inline Bivector3D operator+(Bivector3D lhs, const Bivector3D& rhs) {
+    lhs += rhs;
+    return lhs;
+}
+
+inline Bivector3D operator-(Bivector3D lhs, const Bivector3D& rhs) {
+    lhs -= rhs;
+    return lhs;
+}
+
+inline Bivector3D operator*(Bivector3D lhs, double scalar) {
+    lhs *= scalar;
+    return lhs;
+}
+
+inline Bivector3D operator*(double scalar, Bivector3D rhs) {
+    rhs *= scalar;
+    return rhs;
+}
+
+inline Bivector3D operator/(Bivector3D lhs, double scalar) {
+    lhs /= scalar;
+    return lhs;
+}
 
 } // namespace math
 } // namespace enkas
