@@ -31,7 +31,7 @@ public: // operators
     Vector3D operator/(double rhs) const;
     Vector3D operator/=(double rhs);
 
-    void operator=(const Vector3D& rhs);
+    Vector3D& operator=(const Vector3D& rhs);
 
 public: // utility functions
     /**
