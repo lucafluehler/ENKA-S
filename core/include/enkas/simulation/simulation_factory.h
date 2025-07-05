@@ -3,16 +3,13 @@
 #include <memory>
 
 // Forward declarations
-namespace enkas {
-namespace generation {
-class Generator;
-struct GenerationConfig;
-} // namespace generation
-} // namespace enkas
+namespace enkas::simulation {
+class Simulator;
+struct SimulationConfig;
+} // namespace enkas::simulation
 
 
-namespace enkas {
-namespace simulation {
+namespace enkas::simulation {
 
 class SimulationFactory {
 public:
@@ -24,5 +21,5 @@ public:
     [[nodiscard]] static std::shared_ptr<Simulator> create(const SimulationConfig& config);
 };
 
-} // namespace simulation
-} // namespace enkas
+
+} // namespace enkas::simulation

@@ -9,8 +9,7 @@
 #include <enkas/simulation/settings/hacs_settings.h>
 #include <enkas/simulation/settings/bhleapfrog_settings.h>
 
-namespace enkas {
-namespace simulation {
+namespace enkas::simulation {
 
 using SettingsVariant = std::variant<
     EulerSettings,
@@ -32,5 +31,4 @@ struct SimulationConfig {
     }
 };
 
-} // namespace simulation
-} // namespace enkas
+} // namespace enkas::simulation
