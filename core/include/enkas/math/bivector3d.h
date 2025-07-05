@@ -2,9 +2,10 @@
 
 #include <cmath>
 
-#include "vector3d.h"
+#include <enkas/math/vector3d.h>
 
-namespace geometricAlgebra {
+namespace enkas {
+namespace math {
 
 class Bivector3D {
 public:
@@ -43,4 +44,5 @@ public:
     static Bivector3D YZ(double yz_val = 1.0) { return Bivector3D(0.0, 0.0, yz_val); }
 };
 
-}
+} // namespace math
+} // namespace enkas
