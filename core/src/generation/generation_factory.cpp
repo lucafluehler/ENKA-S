@@ -54,7 +54,6 @@ std::unique_ptr<Generator> GenerationFactory::create(const GenerationConfig& con
             else {
                 return nullptr;
             }
-
         },
         config.specific_settings
     );
