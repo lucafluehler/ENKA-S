@@ -29,12 +29,12 @@ public:
     /**
      * @brief Calculates the squared norm of the Bivector
      */
-    double norm2() const;
+    [[nodiscard]] double norm2() const;
 
     /**
      * @brief Calculates the norm of the Bivector
      */
-    double norm() const;
+    [[nodiscard]] double norm() const;
 
     /**
      * @brief Calculates the vector perpendicular to the plane represented by the bivector.
@@ -42,11 +42,22 @@ public:
      * This function computes the Hodge dual of the bivector to find the perpendicular vector
      * to the plane represented by the bivector in 3D space.
      */
-    Vector3D getPerpendicular() const;
+    [[nodiscard]] Vector3D getPerpendicular() const;
 
 public:
+    /**
+     * @brief Creates a Bivector3D parallel to the xy-plane with a specified xy value.
+     */
     static Bivector3D XY(double xy_val = 1.0) { return Bivector3D(xy_val, 0.0, 0.0); }
+    
+    /**
+     * @brief Creates a Bivector3D parallel to the xz-plane with a specified xz value.
+     */
     static Bivector3D XZ(double xz_val = 1.0) { return Bivector3D(0.0, xz_val, 0.0); }
+    
+    /**
+     * @brief Creates a Bivector3D parallel to the yz-plane with a specified yz value.
+     */
     static Bivector3D YZ(double yz_val = 1.0) { return Bivector3D(0.0, 0.0, yz_val); }
 };
 
