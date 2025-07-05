@@ -15,22 +15,28 @@ public:
     double b_xz = 0.0;
     double b_yz = 0.0;
 
-    Rotor3D(double s = 1.0, double b_xy = 0.0, double b_xz = 0.0, double b_yz = 0.0);
-    Rotor3D(double angle, const Bivector3D& plane);
+    Rotor3D() = default;
+    Rotor3D(double p_s, double p_b_xy, double p_b_xz, double p_b_yz);
+    Rotor3D(double angle_rad, const Bivector3D& plane);
 
-public:
-    Rotor3D operator*(const Rotor3D& rhs) const;
+    Rotor3D(const Rotor3D& rhs) = default;
+    Rotor3D& operator=(const Rotor3D& rhs) = default;
+    Rotor3D(Rotor3D&& rhs) noexcept = default;
+    Rotor3D& operator=(Rotor3D&& rhs) noexcept = default;
+
+public: // Compound assignment operators
+    Rotor3D& operator*=(const Rotor3D& rhs);
 
 public:
     /**
      * @brief Calculates the squared norm of the Rotor3D
      */
-    double norm2() const;
+    [[nodiscard]] double norm2() const;
 
     /**
      * @brief Calculates the norm of the Rotor3D
      */
-    double norm() const;
+    [[nodiscard]] double norm() const;
 
     /**
      * @brief Rotates a 3D vector using this Rotor3D.
@@ -39,17 +45,17 @@ public:
      *
      * @return The rotated 3D vector.
      */
-    Vector3D rotate(const Vector3D& vec) const;
+    [[nodiscard]] Vector3D rotate(const Vector3D& vec) const;
 
     /**
      * @brief Normalizes the Rotor3D, making it have a unit length.
      */
-    Rotor3D normalize();
+    Rotor3D& normalize();
 
     /**
      * @brief Get the reverse of this Rotor3D.
      */
-    Rotor3D get_reverse() const;
+    [[nodiscard]] Rotor3D get_reverse() const;
 
 public:
     /**
@@ -67,6 +73,13 @@ public:
      */
     static Rotor3D YZ(double yz_val = 1.0) { return Rotor3D(1.0, 0.0, 0.0, yz_val); }
 };
+
+// Binary operator
+
+inline Rotor3D operator*(Rotor3D lhs, const Rotor3D& rhs) {
+    lhs *= rhs;
+    return lhs;
+}
 
 } // namespace math
 } // namespace enkas
