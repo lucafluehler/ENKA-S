@@ -8,7 +8,7 @@
 namespace enkas {
 namespace generation {
 
-UniformSphereGenerator::UniformSphereGenerator(const Settings& settings, unsigned int seed)
+UniformSphereGenerator::UniformSphereGenerator(const UniformSphereSettings& settings, unsigned int seed)
     : settings(settings)
     , seed(seed)
 {}
