@@ -2,10 +2,23 @@
 
 #include <memory>
 
-#include "generator.h"
-#include "generation_settings.h"
+// Forward declarations
+namespace enkas {
+namespace generation {
+
+class Generator;
+struct GenerationConfig;
+
+} // namespace generation
+} // namespace enkas
+
+namespace enkas {
+namespace generation {
 
 class GenerationFactory {
 public:
-    static std::unique_ptr<Generator> create(const GenerationSettings& settings);
+    [[nodiscard]] static std::unique_ptr<Generator> create(const GenerationConfig& config);
 };
+
+} // namespace generation
+} // namespace enkas
