@@ -9,29 +9,43 @@ Vector3D::Vector3D(double p_x, double p_y, double p_z)
     // so empty out here
 }
 
-Vector3D Vector3D::operator+=(const Vector3D& rhs)
+
+// --- Compound Assignment Operators ---
+
+Vector3D& Vector3D::operator+=(const Vector3D& rhs)
 {
-    (*this) = (*this) + rhs;
+    x += rhs.x;
+    y += rhs.y;
+    z += rhs.z;
     return *this;
 }
 
-Vector3D Vector3D::operator-=(const Vector3D& rhs)
+Vector3D& Vector3D::operator-=(const Vector3D& rhs)
 {
-    (*this) = (*this) - rhs;
+    x -= rhs.x;
+    y -= rhs.y;
+    z -= rhs.z;
     return *this;
 }
 
-Vector3D Vector3D::operator*=(double rhs)
+Vector3D& Vector3D::operator*=(double rhs)
 {
-    (*this) = (*this)*rhs;
+    x *= rhs;
+    y *= rhs;
+    z *= rhs;
     return *this;
 }
 
-Vector3D Vector3D::operator/=(double rhs)
+Vector3D& Vector3D::operator/=(double rhs)
 {
-    (*this) = (*this)/rhs;
+    x /= rhs;
+    y /= rhs;
+    z /= rhs;
     return *this;
 }
+
+
+// --- Utility Functions ---
 
 double Vector3D::norm2() const
 {
@@ -45,9 +59,10 @@ double Vector3D::norm() const
 
 Vector3D& Vector3D::set_norm(double new_norm)
 {
-    double current_norm = norm();
-    if (current_norm != 0.0) (*this) *= new_norm/current_norm;
-
+    const double current_norm = norm();
+    if (current_norm != 0.0) {
+        *this *= (new_norm / current_norm);
+    }
     return *this;
 }
 
