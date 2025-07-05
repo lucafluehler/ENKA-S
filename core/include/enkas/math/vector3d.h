@@ -58,7 +58,7 @@ public: // utility functions
     Vector3D& set_norm(double new_norm);
 
     /**
-     * @brief Calculates the squared norm of the Vector3D
+     * @brief Fills all components of the vector with a specified value.
      */
     void fill(double value);
 
