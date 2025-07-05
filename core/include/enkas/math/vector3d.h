@@ -2,7 +2,8 @@
 
 #include <cmath>
 
-namespace geometricAlgebra {
+namespace enkas {
+namespace math {
 
 class Vector3D {
 public:
@@ -67,4 +68,5 @@ public:
     static Vector3D Z(double z_val = 1.0) { return Vector3D(0.0, 0.0, z_val); }
 };
 
-} // namespace geometricAlgebra
+} // namespace math
+} // namespace enkas
