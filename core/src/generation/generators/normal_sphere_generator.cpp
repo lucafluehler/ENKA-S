@@ -1,7 +1,7 @@
 #include <random>
 #include <vector>
 
-#include <enkas/data/base_particle.h>
+#include <enkas/data/initial_system.h>
 #include <enkas/generation/generators/normal_sphere_generator.h>
 #include <enkas/physics/physics_helpers.h>
 
