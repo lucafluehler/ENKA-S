@@ -1,18 +1,21 @@
 #include <random>
 #include <vector>
-#include <utils.h>
 
-#include "gm_uniform_sphere.h"
-#include "geometric_algebra.h"
+#include <enkas/data/initial_system.h>
+#include <enkas/generation/generators/uniform_sphere_generator.h>
+#include <enkas/physics/physics_helpers.h>
 
-GM_UniformSphere::GM_UniformSphere(const Settings& settings, unsigned int seed)
+namespace enkas {
+namespace generation {
+
+UniformSphereGenerator::UniformSphereGenerator(const Settings& settings, unsigned int seed)
     : settings(settings)
     , seed(seed)
 {}
 
-utils::InitialSystem GM_UniformSphere::createSystem()
+data::InitialSystem UniformSphereGenerator::createSystem()
 {
-    utils::InitialSystem initial_system;
+    data::InitialSystem initial_system;
     initial_system.reserve(settings.N);
 
     std::mt19937 gen(seed);
@@ -20,7 +23,7 @@ utils::InitialSystem GM_UniformSphere::createSystem()
     std::uniform_real_distribution<double> vel_dist(0.0, 1.0);
 
     for (size_t i = 0; i < settings.N; i++) {
-        utils::BaseParticle particle;
+        data::BaseParticle particle;
 
         // POSITION
         math::Vector3D position;
@@ -46,3 +49,6 @@ utils::InitialSystem GM_UniformSphere::createSystem()
 
     return initial_system;
 }
+
+} // namespace generation
+} // namespace enkas
