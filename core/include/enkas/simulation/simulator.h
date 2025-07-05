@@ -1,24 +1,42 @@
 #pragma once
 
-#include "utils.h"
+#include <atomic>
 
-#include "render_data.h"
-#include "diagnostics_data.h"
-#include "analytics_data.h"
+#include <enkas/data/initial_system.h>
+#include <enkas/data/render_data.h>
+#include <enkas/data/diagnostics_data.h>
+#include <enkas/data/analytics_data.h>
+
+namespace enkas::simulation {
 
 class Simulator
 {
 public:
-    virtual void initializeSystem(const utils::InitialSystem& initial_system) = 0;
+    virtual ~Simulator() = default;
+
+    /**
+     * @brief Initializes the simulator with a set of particles.
+     * @param initial_system The initial state of the system to simulate.
+     */
+    virtual void initializeSystem(const data::InitialSystem& initial_system) = 0;
+
+    /**
+     * @brief Advances the simulation by one or more internal time steps.
+     */
     virtual void evolveSystem() = 0;
 
-    virtual void requestAbortion() { is_abortion_requested = true; }
+    /**
+     * @brief Signals the simulator to stop its work at the next safe opportunity.
+     */
+    void requestStop() { stop_requested.store(true); }
 
-    virtual double getGlobalTime() const = 0;
-    virtual RenderData getRenderData() const = 0;
-    virtual DiagnosticsData getDiagnosticsData() const = 0;
-    virtual AnalyticsData getAnalyticsData() const = 0;
+    [[nodiscard]] virtual double getGlobalTime() const = 0;
+    [[nodiscard]] virtual data::RenderData getRenderData() const = 0;
+    [[nodiscard]] virtual data::DiagnosticsData getDiagnosticsData() const = 0;
+    [[nodiscard]] virtual data::AnalyticsData getAnalyticsData() const = 0;
 
 protected:
-    bool is_abortion_requested = false;
+    std::atomic_bool stop_requested{false};
 };
+
+} // namespace enkas::simulation
