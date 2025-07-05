@@ -1,11 +1,12 @@
 #include <variant>
 #include <type_traits>
+#include <iostream>
 
 #include <enkas/generation/generation_factory.h>
 
 #include <enkas/generation/config.h>
 
-#include <enkas/generation/file_generator.h>
+#include <enkas/generation/stream_generator.h>
 #include <enkas/generation/normal_sphere_generator.h>
 #include <enkas/generation/uniform_cube_generator.h>
 #include <enkas/generation/uniform_sphere_generator.h>
@@ -61,6 +62,15 @@ std::unique_ptr<Generator> GenerationFactory::create(const GenerationConfig& con
         },
         config.specific_settings
     );
+}
+
+std::unique_ptr<Generator> GenerationFactory::create(std::istream& stream)
+{
+    if (!stream) {
+        return nullptr;
+    }
+
+    return std::make_unique<StreamGenerator>(stream);
 }
 
 } // namespace generation
