@@ -7,12 +7,17 @@ namespace math {
 
 class Vector3D {
 public:
-    double x;
-    double y;
-    double z;
+    double x = 0.0;
+    double y = 0.0;
+    double z = 0.0;
 
-    Vector3D(double p_x = 0.0, double p_y = 0.0, double p_z = 0.0);
-    Vector3D(const Vector3D& rhs);
+    Vector3D() = default;
+    Vector3D(double p_x, double p_y, double p_z);
+
+    Vector3D(const Vector3D& rhs) = default;
+    Vector3D& operator=(const Vector3D& rhs) = default;
+    Vector3D(Vector3D&& rhs) noexcept = default;
+    Vector3D& operator=(Vector3D&& rhs) noexcept = default;
 
 public: // Compound assignment operators
     Vector3D& operator+=(const Vector3D& rhs);
