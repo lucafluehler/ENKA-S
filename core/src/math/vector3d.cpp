@@ -1,7 +1,6 @@
 #include <enkas/math/vector3d.h>
 
-namespace enkas {
-namespace math {
+namespace enkas::math {
 
 Vector3D::Vector3D(double p_x, double p_y, double p_z)
     : x(p_x), y(p_y), z(p_z)
@@ -70,5 +69,4 @@ void Vector3D::fill(double value) {
     x = y = z = value;
 }
 
-} // namespace math
-} // namespace enkas
+} // namespace enkas::math

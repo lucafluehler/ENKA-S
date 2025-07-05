@@ -4,8 +4,7 @@
 #include <enkas/generation/generator.h>
 #include <enkas/generation/settings/normal_sphere_settings.h>
 
-namespace enkas {
-namespace generation {
+namespace enkas::generation {
 
 class NormalSphereGenerator : public Generator
 {
@@ -19,5 +18,4 @@ private:
     unsigned int seed;
 };
 
-} // namespace generation
-} // namespace enkas
+} // namespace enkas::generation

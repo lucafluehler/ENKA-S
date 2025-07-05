@@ -6,8 +6,7 @@
 #include <enkas/data/initial_system.h>
 #include <enkas/generation/generator.h>
 
-namespace enkas {
-namespace generation {
+namespace enkas::generation {
 
 class StreamGenerator : public Generator
 {
@@ -20,5 +19,4 @@ private:
     std::istream& stream;
 };
 
-} // namespace generation
-} // namespace enkas
+} // namespace enkas::generation

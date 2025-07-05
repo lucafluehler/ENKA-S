@@ -4,8 +4,7 @@
 
 #include <enkas/math/vector3d.h>
 
-namespace enkas {
-namespace data {
+namespace enkas::data {
 
 struct BaseParticle
 {
@@ -14,5 +13,4 @@ struct BaseParticle
     double mass = 0.0;
 };
 
-} // namespace data
-} // namespace enkas
+} // namespace enkas::data

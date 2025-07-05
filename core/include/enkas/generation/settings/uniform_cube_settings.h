@@ -1,7 +1,6 @@
 #pragma once
 
-namespace enkas {
-namespace generation {
+namespace enkas::generation {
 
 struct UniformCubeSettings {
     int N;
@@ -15,5 +14,4 @@ struct UniformCubeSettings {
     }
 };
 
-} // namespace generation
-} // namespace enkas
+} // namespace enkas::generation

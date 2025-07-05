@@ -4,16 +4,13 @@
 #include <iosfwd>
 
 // Forward declarations
-namespace enkas {
-namespace generation {
+namespace enkas::generation {
 class Generator;
 struct GenerationConfig;
-} // namespace generation
-} // namespace enkas
+} // namespace enkas::generation
 
 
-namespace enkas {
-namespace generation {
+namespace enkas::generation {
 
 class GenerationFactory {
 public:
@@ -32,5 +29,4 @@ public:
     [[nodiscard]] static std::unique_ptr<Generator> create(std::istream& stream);
 };
 
-} // namespace generation
-} // namespace enkas
+} // namespace enkas::generation

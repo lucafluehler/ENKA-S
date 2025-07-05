@@ -6,8 +6,7 @@
 #include <enkas/generation/generator.h>
 #include <enkas/generation/settings/spiral_galaxy_settings.h>
 
-namespace enkas {
-namespace generation {
+namespace enkas::generation {
 
 class SpiralGalaxyGenerator : public Generator
 {
@@ -21,5 +20,4 @@ private:
     unsigned int seed;
 };
 
-} // namespace generation
-} // namespace enkas
+} // namespace enkas::generation

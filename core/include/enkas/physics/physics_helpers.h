@@ -6,8 +6,7 @@
 #include <enkas/math/vector3d.h>
 #include <enkas/math/bivector3d.h>
 
-namespace enkas {
-namespace physics {
+namespace enkas::physics {
 
 // Gravitational constant in pc, solar masses and km/s
 const double G = 0.004300917271;
@@ -126,5 +125,4 @@ inline void centerParticles(std::vector<BaseParticle>& particles)
     }
 }
 
-} // namespace physics
-} // namespace enkas
+} // namespace enkas::physics

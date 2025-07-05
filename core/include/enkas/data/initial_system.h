@@ -4,10 +4,8 @@
 #include <vector>
 #include <enkas/data/base_particle.h>
 
-namespace enkas {
-namespace data {
+namespace enkas ::data {
 
 using InitialSystem = std::vector<BaseParticle>;
 
-} // namespace data
-} // namespace enkas
+} // namespace enkas::data

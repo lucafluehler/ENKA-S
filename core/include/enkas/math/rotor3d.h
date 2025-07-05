@@ -5,8 +5,7 @@
 #include <enkas/math/vector3d.h>
 #include <enkas/math/bivector3d.h>
 
-namespace enkas {
-namespace math {
+namespace enkas::math {
 
 class Rotor3D {
 public:
@@ -81,5 +80,4 @@ inline Rotor3D operator*(Rotor3D lhs, const Rotor3D& rhs) {
     return lhs;
 }
 
-} // namespace math
-} // namespace enkas
+} // namespace enkas::math

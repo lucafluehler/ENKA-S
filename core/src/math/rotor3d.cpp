@@ -2,8 +2,7 @@
 
 #include <enkas/math/rotor3d.h>
 
-namespace enkas {
-namespace math {
+namespace enkas::math {
 
 Rotor3D::Rotor3D(double p_s, double p_b_xy, double p_b_xz, double p_b_yz)
     : s(p_s), b_xy(p_b_xy), b_xz(p_b_xz), b_yz(p_b_yz)
@@ -85,5 +84,4 @@ Vector3D Rotor3D::rotate(const Vector3D& vec) const
                    , s*tmp.z + t_xyz*b_xy - tmp.x*b_xz - tmp.y*b_yz );
 }
 
-} // namespace math
-} // namespace enkas
+} // namespace enkas::math

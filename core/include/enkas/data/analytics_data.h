@@ -1,5 +1,7 @@
 #pragma once
 
+namespace enkas::data {
+
 struct AnalyticsData
 {
     double time;
@@ -14,3 +16,5 @@ struct AnalyticsData
     double t_rh; // half-mass relaxation time
     double t_dh; // dynamical time
 };
+
+} // namespace enkas::data

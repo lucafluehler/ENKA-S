@@ -2,7 +2,7 @@
 
 #include "geometric_algebra.h"
 
-namespace utils {
+namespace enkas::physics {
 
 struct CenterOfMass
 {
@@ -10,4 +10,4 @@ struct CenterOfMass
     math::Vector3D vel;
 };
 
-} // namespace utils
+} // namespace enkas::physics

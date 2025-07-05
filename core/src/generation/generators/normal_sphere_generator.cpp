@@ -5,8 +5,7 @@
 #include <enkas/generation/generators/normal_sphere_generator.h>
 #include <enkas/physics/physics_helpers.h>
 
-namespace enkas {
-namespace generation {
+namespace enkas::generation {
 
 NormalSphereGenerator::NormalSphereGenerator(const NormalSphereSettings& settings, unsigned int seed)
     : settings(settings)
@@ -39,5 +38,4 @@ InitialSystem NormalSphereGenerator::createSystem()
     return initial_system;
 }
 
-} // namespace generation
-} // namespace enkas
+} // namespace enkas::generation

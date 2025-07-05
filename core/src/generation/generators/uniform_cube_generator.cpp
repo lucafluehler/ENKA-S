@@ -5,8 +5,7 @@
 #include <enkas/generation/generators/uniform_cube_generator.h>
 #include <enkas/physics/physics_helpers.h>
 
-namespace enkas {
-namespace generation {
+namespace enkas::generation {
 
 UniformCubeGenerator::UniformCubeGenerator(const UniformCubeSettings& settings, unsigned int seed)
     : settings(settings)
@@ -45,5 +44,4 @@ data::InitialSystem UniformCubeGenerator::createSystem()
     return initial_system;
 }
 
-} // namespace generation
-} // namespace enkas
+} // namespace enkas::generation

@@ -1,7 +1,6 @@
 #pragma once
 
-namespace enkas {
-namespace generation {
+namespace enkas::generation {
 
 struct NormalSphereSettings {
     int N;
@@ -17,5 +16,4 @@ struct NormalSphereSettings {
     }
 };
 
-} // namespace generation
-} // namespace enkas
+} // namespace enkas::generation

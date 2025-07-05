@@ -2,6 +2,8 @@
 
 #include "geometric_algebra.h"
 
+namespace enkas::data {
+
 struct DiagnosticsData
 {
     double time;            // time stamp
@@ -14,3 +16,5 @@ struct DiagnosticsData
     double ms_vel;          // mean square velocity
     double t_cr;            // crossing time
 };
+
+} // namespace enkas::data

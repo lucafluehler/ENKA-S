@@ -1,7 +1,6 @@
 #pragma once
 
-namespace enkas {
-namespace generation {
+namespace enkas::generation {
 
 struct SpiralGalaxySettings{
     int N;
@@ -19,5 +18,4 @@ struct SpiralGalaxySettings{
     }
 };
 
-} // namespace generation
-} // namespace enkas
+} // namespace enkas::generation

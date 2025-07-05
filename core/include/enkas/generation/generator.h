@@ -4,8 +4,7 @@
 
 #include <enkas/data/particle.h>
 
-namespace enkas {
-namespace generation {
+namespace enkas::generation {
 
 class Generator
 {
@@ -14,5 +13,4 @@ public:
     [[nodiscard]] virtual InitialSystem createSystem() = 0;
 };
 
-} // namespace generation
-} // namespace enkas
+} // namespace enkas::generation

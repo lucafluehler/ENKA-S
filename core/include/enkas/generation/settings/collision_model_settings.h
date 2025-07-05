@@ -1,7 +1,6 @@
 #pragma once
 
-namespace enkas {
-namespace generation {
+namespace enkas::generation {
 
 struct CollisionModelsSettings {
     int N_1;
@@ -19,5 +18,4 @@ struct CollisionModelsSettings {
     }
 };
 
-} // namespace generation
-} // namespace enkas
+} // namespace enkas::generation

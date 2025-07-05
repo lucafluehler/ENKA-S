@@ -5,8 +5,7 @@
 #include <enkas/generation/generators/uniform_sphere_generator.h>
 #include <enkas/physics/physics_helpers.h>
 
-namespace enkas {
-namespace generation {
+namespace enkas::generation {
 
 UniformSphereGenerator::UniformSphereGenerator(const UniformSphereSettings& settings, unsigned int seed)
     : settings(settings)
@@ -50,5 +49,4 @@ data::InitialSystem UniformSphereGenerator::createSystem()
     return initial_system;
 }
 
-} // namespace generation
-} // namespace enkas
+} // namespace enkas::generation

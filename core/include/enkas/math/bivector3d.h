@@ -4,8 +4,7 @@
 
 #include <enkas/math/vector3d.h>
 
-namespace enkas {
-namespace math {
+namespace enkas::math {
 
 class Bivector3D {
 public:
@@ -108,5 +107,4 @@ inline Bivector3D wedge(const Vector3D& lhs, const Vector3D& rhs)
                      , lhs.y*rhs.z - lhs.z*rhs.y );
 }
 
-} // namespace math
-} // namespace enkas
+} // namespace enkas::math

@@ -2,8 +2,7 @@
 
 #include <cmath>
 
-namespace enkas {
-namespace math {
+namespace enkas::math {
 
 class Vector3D {
 public:
@@ -108,5 +107,4 @@ inline double dotProduct(const Vector3D& lhs, const Vector3D& rhs)
     return lhs.x*rhs.x + lhs.y*rhs.y + lhs.z*rhs.z;
 }
 
-} // namespace math
-} // namespace enkas
+} // namespace enkas::math

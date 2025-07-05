@@ -15,8 +15,7 @@
 #include <enkas/generation/collision_model_generator.h>
 #include <enkas/generation/flyby_model_generator.h>
 
-namespace enkas {
-namespace generation {
+namespace enkas::generation {
 
 std::unique_ptr<Generator> GenerationFactory::create(const GenerationConfig& config)
 {
@@ -70,5 +69,4 @@ std::unique_ptr<Generator> GenerationFactory::create(std::istream& stream)
     return std::make_unique<StreamGenerator>(stream);
 }
 
-} // namespace generation
-} // namespace enkas
+} // namespace enkas::generation

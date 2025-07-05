@@ -1,7 +1,6 @@
 #include <enkas/math/bivector3d.h>
 
-namespace enkas {
-namespace math {
+namespace enkas::math {
 
 Bivector3D::Bivector3D(double xy, double xz, double yz)
     : xy(xy), xz(xz), yz(yz)
@@ -62,5 +61,4 @@ Vector3D Bivector3D::getPerpendicular() const
     return Vector3D(yz, -xz, xy);
 }
 
-} // namespace math
-} // namespace enkas
+} // namespace enkas::math

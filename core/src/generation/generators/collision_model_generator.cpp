@@ -6,8 +6,7 @@
 #include <enkas/generation/generators/plummer_sphere_generator.h>
 #include <enkas/physics/physics_helpers.h>
 
-namespace enkas {
-namespace generation {
+namespace enkas::generation {
 
 CollisionModelGenerator::CollisionModelGenerator(const CollisionModelSettings& settings, unsigned int seed)
     : settings(settings)
@@ -65,5 +64,4 @@ data::InitialSystem CollisionModelGenerator::createSystem()
     return initial_system;
 }
 
-} // namespace generation
-} // namespace enkas
+} // namespace enkas::generation

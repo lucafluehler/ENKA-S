@@ -5,8 +5,7 @@
 #include <enkas/generation/generators/plummer_sphere_generator.h>
 #include <enkas/physics/physics_helpers.h>
 
-namespace enkas {
-namespace generation {
+namespace enkas::generation {
 
 PlummerSphereGenerator::PlummerSphereGenerator(const PlummerSphereSettings& settings, unsigned int seed)
     : settings(settings)
@@ -65,5 +64,4 @@ data::InitialSystem PlummerSphereGenerator::createSystem()
     return initial_system;
 }
 
-} // namespace generation
-} // namespace enkas
+} // namespace enkas::generation

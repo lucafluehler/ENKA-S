@@ -11,8 +11,7 @@
 #include <enkas/generation/settings/flyby_model_settings.h>
 #include <enkas/generation/settings/collision_model_settings.h>
 
-namespace enkas {
-namespace generation {
+namespace enkas::generation {
 
 using SettingsVariant = std::variant<
     FileSettings,
@@ -36,5 +35,4 @@ struct GenerationConfig {
     }
 };
 
-} // namespace generation
-} // namespace enkas
+} // namespace enkas::generation

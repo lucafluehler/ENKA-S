@@ -1,7 +1,6 @@
 #pragma once
 
-namespace enkas {
-namespace generation {
+namespace enkas::generation {
 
 struct FlybyModelSettings
 {
@@ -18,5 +17,4 @@ struct FlybyModelSettings
     }
 };
 
-} // namespace generation
-} // namespace enkas
+} // namespace enkas::generation

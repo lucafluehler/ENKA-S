@@ -4,8 +4,7 @@
 #include <enkas/generation/stream_generator.h>
 #include <enkas/data/initial_system.h>
 
-namespace enkas {
-namespace generation {
+namespace enkas::generation {
 
 StreamGenerator::StreamGenerator(std::istream& stream)
     : stream(stream)
@@ -61,5 +60,4 @@ data::InitialSystem StreamGenerator::createSystem()
     return initial_system;
 }
 
-} // namespace generation
-} // namespace enkas
+} // namespace enkas::generation

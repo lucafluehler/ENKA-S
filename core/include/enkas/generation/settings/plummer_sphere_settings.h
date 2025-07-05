@@ -1,7 +1,6 @@
 #pragma once
 
-namespace enkas {
-namespace generation {
+namespace enkas::generation {
 
 struct PlummerSphereSettings {
     int N;
@@ -13,5 +12,4 @@ struct PlummerSphereSettings {
     }
 };
 
-} // namespace generation
-} // namespace enkas
+} // namespace enkas::generation

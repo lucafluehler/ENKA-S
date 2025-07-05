@@ -6,8 +6,7 @@
 #include <enkas/generation/generator.h>
 #include <enkas/generation/settings/flyby_model_settings.h>
 
-namespace enkas {
-namespace generation {
+namespace enkas::generation {
 
 class FlybyModelGenerator : public Generator
 {
@@ -21,5 +20,4 @@ private:
     unsigned int seed;
 };
 
-} // namespace generation
-} // namespace enkas
+} // namespace enkas::generation

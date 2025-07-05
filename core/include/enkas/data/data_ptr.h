@@ -8,6 +8,8 @@
 #include "diagnostics_data.h"
 #include "analytics_data.h"
 
+namespace enkas::data {
+
 struct DataPtr
 {
     std::shared_ptr<Settings> settings = nullptr;
@@ -17,3 +19,5 @@ struct DataPtr
     std::shared_ptr<DiagnosticsData> diagnostics_data = nullptr;
     std::shared_ptr<AnalyticsData> analytics_data = nullptr;
 };
+
+} // namespace enkas::data
