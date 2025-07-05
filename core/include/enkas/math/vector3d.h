@@ -87,7 +87,6 @@ inline Vector3D operator*(Vector3D lhs, double rhs) {
     return lhs;
 }
 
-// Allow for `2.0 * my_vector`
 inline Vector3D operator*(double lhs, Vector3D rhs) {
     rhs *= lhs;
     return rhs;
@@ -96,6 +95,17 @@ inline Vector3D operator*(double lhs, Vector3D rhs) {
 inline Vector3D operator/(Vector3D lhs, double rhs) {
     lhs /= rhs;
     return lhs;
+}
+
+/**
+ * @brief Calculates the dot product of two Vector3D objects.
+ *
+ * @param lhs The left-hand Vector3D operand.
+ * @param rhs The right-hand Vector3D operand.
+ */
+inline double dotProduct(const Vector3D& lhs, const Vector3D& rhs)
+{
+    return lhs.x*rhs.x + lhs.y*rhs.y + lhs.z*rhs.z;
 }
 
 } // namespace math

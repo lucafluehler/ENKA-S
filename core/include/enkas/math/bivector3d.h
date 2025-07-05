@@ -90,5 +90,23 @@ inline Bivector3D operator/(Bivector3D lhs, double scalar) {
     return lhs;
 }
 
+/**
+ * @brief Calculates the wedge (exterior) product of two Vector3D objects.
+ *
+ * The wedge product of two vectors `lhs` and `rhs` results in a Bivector3D representing
+ * the oriented area spanned by the parallelogram defined by the vectors.
+ *
+ * @param lhs The left-hand Vector3D.
+ * @param rhs The right-hand Vector3D.
+ *
+ * @return A Bivector3D representing the wedge product of the input vectors.
+ */
+inline Bivector3D wedge(const Vector3D& lhs, const Vector3D& rhs)
+{
+    return Bivector3D( lhs.x*rhs.y - lhs.y*rhs.x
+                     , lhs.x*rhs.z - lhs.z*rhs.x
+                     , lhs.y*rhs.z - lhs.z*rhs.y );
+}
+
 } // namespace math
 } // namespace enkas
