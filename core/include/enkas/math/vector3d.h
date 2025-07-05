@@ -55,8 +55,19 @@ public: // Utility functions
     void fill(double value);
 
 public:
+    /**
+     * @brief Creates a Vector3D parallel to the x-axis with a specified x value.
+     */
     static Vector3D X(double x_val = 1.0) { return Vector3D(x_val, 0.0, 0.0); }
+
+    /**
+     * @brief Creates a Vector3D parallel to the y-axis with a specified y value.
+     */
     static Vector3D Y(double y_val = 1.0) { return Vector3D(0.0, y_val, 0.0); }
+    
+    /**
+     * @brief Creates a Vector3D parallel to the z-axis with a specified z value.
+     */
     static Vector3D Z(double z_val = 1.0) { return Vector3D(0.0, 0.0, z_val); }
 };
 
