@@ -69,7 +69,7 @@ void SM_Leapfrog::calculateAccEpot()
 
     // Set all accelerations to 0.0
     for (auto& particle : system) {
-        particle.acc = ga::Vector3D();
+        particle.acc = math::Vector3D();
     }
 
     // Calculate pair-wise accelerations and epot simultaneously
@@ -80,7 +80,7 @@ void SM_Leapfrog::calculateAccEpot()
         for (size_t j = i + 1; j < system.size(); j++) {
             auto& particle_j = system.at(j);
 
-            const ga::Vector3D c_POS_JI = particle_j.pos - particle_i.pos;
+            const math::Vector3D c_POS_JI = particle_j.pos - particle_i.pos;
             const double c_DIST_SQR = c_POS_JI.norm2() + c_SOFT_SQR;
             const double c_DIST     = std::sqrt(c_DIST_SQR);
             const double c_DIST_CUB = c_DIST*c_DIST_SQR;

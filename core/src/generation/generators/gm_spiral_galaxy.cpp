@@ -33,13 +33,13 @@ utils::InitialSystem GM_SpiralGalaxy::createSystem()
             // Position
             const double c_DISTANCE = c_INNER_RADIUS + settings.radius*i/settings.N;
             const double c_ANGLE = (settings.twist*M_PI*i/c_N_PER_ARM) + (2*M_PI*k/settings.arms);
-            particle.pos = ga::Vector3D(std::sin(c_ANGLE), std::cos(c_ANGLE), 0.0)
+            particle.pos = math::Vector3D(std::sin(c_ANGLE), std::cos(c_ANGLE), 0.0)
                            .set_norm(c_DISTANCE);
 
             // This can also be done with a thicc GA statement using Vectors, Bivectors
             // and Rotors
-            // particle.pos = ga::Rotor3D(c_ANGLE, ga::Bivector3D::XY()).normalize()
-            //                .rotate(ga::Vector3D::X(c_DISTANCE));
+            // particle.pos = math::Rotor3D(c_ANGLE, math::Bivector3D::XY()).normalize()
+            //                .rotate(math::Vector3D::X(c_DISTANCE));
 
             // Velocity
             const double eccentricity_mean = 0.4/(1 + std::exp((settings.N/50.0 - i)/4.0)) + 0.05;
@@ -55,13 +55,13 @@ utils::InitialSystem GM_SpiralGalaxy::createSystem()
             const double c_FIRST_TERM = utils::G*(settings.bh_mass + settings.total_mass);
             const double c_SECOND_TERM = (2.0/c_DISTANCE - 1.0/c_MAJOR_HALF_AXIS);
             const double c_VELOCITY = std::sqrt(c_FIRST_TERM*c_SECOND_TERM);
-            particle.vel = ga::Vector3D(particle.pos.y, -particle.pos.x, 0.0)
+            particle.vel = math::Vector3D(particle.pos.y, -particle.pos.x, 0.0)
                            .set_norm(c_VELOCITY)*(-1);
 
             // This can also be done using a GA statement by taking the Hodge Dual of the
             // Bivector spanned by wedging the position vector with the unit
             // z-axis vector... which is the same as the cross product *yuck*
-            // particle.vel = ga::wedge(particle.pos, ga::Vector3D::Z()).getPerpendicular()
+            // particle.vel = math::wedge(particle.pos, math::Vector3D::Z()).getPerpendicular()
             //               .set_norm(c_VELOCITY)*(-1);
 
             particle.pos.z = disk_thickness_dist(gen);

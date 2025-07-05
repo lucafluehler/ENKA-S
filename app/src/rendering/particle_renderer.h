@@ -42,9 +42,9 @@ private:
                    , const float c_X_ASPECT, const float c_Y_ASPECT
                    , float x, float y, float radius );
     void drawCross(float x, float y, float size);
-    ga::Vector3D getRelPos(const ga::Vector3D& pos);
+    math::Vector3D getRelPos(const math::Vector3D& pos);
     QPointF convertPosToLoc( const float c_ASPECT_RATIO, const float c_HALF_TAN_FOV
-                           , const ga::Vector3D& rel_pos, bool* is_visible);
+                           , const math::Vector3D& rel_pos, bool* is_visible);
     void animation();
 
     void setBackgroundColor();
@@ -54,7 +54,7 @@ private:
 
     QPoint last_mouse_pos;
 
-    std::vector<std::tuple<double, ga::Vector3D>> rel_positions;
+    std::vector<std::tuple<double, math::Vector3D>> rel_positions;
 
     RenderSettings settings;
     RenderData data;

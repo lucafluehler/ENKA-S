@@ -5,7 +5,7 @@ BHNode::BHNode()
     : children(8)
 {}
 
-BHNode::BHNode( const ga::Vector3D& p_max_point, const ga::Vector3D& p_min_point
+BHNode::BHNode( const math::Vector3D& p_max_point, const math::Vector3D& p_min_point
               , double p_edge_length )
     : max_point(p_max_point)
     , min_point(p_min_point)
@@ -31,14 +31,14 @@ void BHNode::updateMass()
     center_of_mass /= total_mass;
 }
 
-ga::Vector3D BHNode::sumAcc(const BHParticle& particle_i, double theta, double softening2) const {
+math::Vector3D BHNode::sumAcc(const BHParticle& particle_i, double theta, double softening2) const {
     if (num_particles == 1) 
         return calcAcc(particle_i, particle->pos, particle->mass, softening2);
 
     if (edge_length/(center_of_mass - particle_i.pos).norm() <= theta) 
         return calcAcc(particle_i, center_of_mass, total_mass, softening2);
 
-    ga::Vector3D acc;
+    math::Vector3D acc;
     for (const auto& child: children) {
         if (!child) continue;
         acc += child->sumAcc(particle_i, theta, softening2);
@@ -46,12 +46,12 @@ ga::Vector3D BHNode::sumAcc(const BHParticle& particle_i, double theta, double s
     return acc;
 }
 
-ga::Vector3D BHNode::calcAcc( const BHParticle& particle_i, const ga::Vector3D& particle_j_pos
+math::Vector3D BHNode::calcAcc( const BHParticle& particle_i, const math::Vector3D& particle_j_pos
               , double particle_j_mass, double softening2 ) const
 {
     if (&particle_i.pos == &particle_j_pos) return 0;
 
-    ga::Vector3D distance_ij = particle_i.pos - particle_j_pos;
+    math::Vector3D distance_ij = particle_i.pos - particle_j_pos;
 
     double softened_dist_2 = distance_ij.norm2() + softening2;
 
@@ -75,12 +75,12 @@ double BHNode::sumEpot(const BHParticle& particle_i, double theta, double soften
     return e_pot;
 }
 
-double BHNode::calcEpot( const BHParticle& particle_i, const ga::Vector3D& particle_j_pos
+double BHNode::calcEpot( const BHParticle& particle_i, const math::Vector3D& particle_j_pos
                , double particle_j_mass, double softening2 ) const
 {
     if (&particle_i.pos == &particle_j_pos) return 0.0;
 
-    ga::Vector3D distance_ij = particle_i.pos - particle_j_pos;
+    math::Vector3D distance_ij = particle_i.pos - particle_j_pos;
 
     const double c_SOFT_DIST2 = distance_ij.norm2() + softening2;
 
@@ -140,8 +140,8 @@ void BHTree::build(std::shared_ptr<System> p_system)
 
 void BHTree::resetRoot()
 {
-    ga::Vector3D max_point = system->at(0).pos;
-    ga::Vector3D min_point = system->at(0).pos;
+    math::Vector3D max_point = system->at(0).pos;
+    math::Vector3D min_point = system->at(0).pos;
 
     for (const auto& particle : *system) {
         max_point.x = std::max(particle.pos.x, max_point.x);
@@ -158,12 +158,12 @@ void BHTree::resetRoot()
                                              , max_point.y - min_point.y )
                                    , max_point.z - min_point.z);
 
-    ga::Vector3D center = (max_point + min_point)/2;
+    math::Vector3D center = (max_point + min_point)/2;
 
     root.max_point = center + root.edge_length/2;
     root.min_point = center - root.edge_length/2;
 
-    root.center_of_mass = ga::Vector3D();
+    root.center_of_mass = math::Vector3D();
     root.total_mass = 0.0;
     root.num_particles = 0;
     root.particle = nullptr;
@@ -202,12 +202,12 @@ void BHTree::addChildAndInsert(BHNode& node, BHParticle& particle)
 OctantData BHTree::getOctantData(const BHNode& node, const BHParticle& particle) const
 {
     OctantData octant_data;
-    ga::Vector3D node_center = (node.max_point + node.min_point)/2;
+    math::Vector3D node_center = (node.max_point + node.min_point)/2;
 
     // The translation vector defines where the center of the octant is located
     // relative to the center to the center of the node.
     // ergo node_center + translation*stretch = octant_center
-    ga::Vector3D translation( particle.pos.x > node_center.x ? 1 : -1
+    math::Vector3D translation( particle.pos.x > node_center.x ? 1 : -1
                             , particle.pos.y > node_center.y ? 1 : -1
                             , particle.pos.z > node_center.z ? 1 : -1 );
 

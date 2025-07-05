@@ -28,8 +28,8 @@ utils::InitialSystem GM_FlybyModel::createSystem()
 
     utils::BaseParticle massive_particle;
     massive_particle.mass = settings.body_mass;
-    massive_particle.pos = ga::Vector3D(c_DISTANCE, 3*settings.radius, 0.0);
-    massive_particle.vel = ga::Vector3D(-4.0, 0.0, 0.0);
+    massive_particle.pos = math::Vector3D(c_DISTANCE, 3*settings.radius, 0.0);
+    massive_particle.vel = math::Vector3D(-4.0, 0.0, 0.0);
     initial_system.push_back(massive_particle);
 
     centerParticles(initial_system);

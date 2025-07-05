@@ -36,7 +36,7 @@ public:
 private:
     struct Particle : public utils::BaseParticle
     {
-        ga::Vector3D acc;
+        math::Vector3D acc;
     };
 
     using System = std::vector<Particle>;

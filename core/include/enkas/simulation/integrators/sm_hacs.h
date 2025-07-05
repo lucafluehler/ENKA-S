@@ -41,21 +41,21 @@ public:
 private:
     struct Particle : public utils::BaseParticle
     {
-        ga::Vector3D acc; // acceleration
-        ga::Vector3D jrk; // jerk
+        math::Vector3D acc; // acceleration
+        math::Vector3D jrk; // jerk
 
-        ga::Vector3D irr_acc; // acceleration of the irregular step
-        ga::Vector3D irr_jrk; // jerk of the irregular step
-        ga::Vector3D irr_snp; // snap of the irregular step
-        ga::Vector3D irr_crk; // crackle of the irregular step
+        math::Vector3D irr_acc; // acceleration of the irregular step
+        math::Vector3D irr_jrk; // jerk of the irregular step
+        math::Vector3D irr_snp; // snap of the irregular step
+        math::Vector3D irr_crk; // crackle of the irregular step
 
         double irr_t = 0.0; // irregular particle time
         double irr_dt = 0.0; // irregular particle time step
 
-        ga::Vector3D reg_acc; // acceleration of the regular step
-        ga::Vector3D reg_jrk; // jerk of the regular step
-        ga::Vector3D reg_snp; // snap of the regular step
-        ga::Vector3D reg_crk; // crackle of the regular step
+        math::Vector3D reg_acc; // acceleration of the regular step
+        math::Vector3D reg_jrk; // jerk of the regular step
+        math::Vector3D reg_snp; // snap of the regular step
+        math::Vector3D reg_crk; // crackle of the regular step
 
         double reg_t = 0.0; // regular particle time
         double reg_dt = 0.0; // regular particle time step
@@ -73,10 +73,10 @@ private:
     using System = std::vector<Particle>;
 
     struct PairDifferences {
-        ga::Vector3D pos_ji;
-        ga::Vector3D vel_ji;
-        ga::Vector3D acc_ji;
-        ga::Vector3D jrk_ji;
+        math::Vector3D pos_ji;
+        math::Vector3D vel_ji;
+        math::Vector3D acc_ji;
+        math::Vector3D jrk_ji;
     };
 
 private:
@@ -115,12 +115,12 @@ private:
     void updateNeighborList(System& particles, size_t i);
     void predictParticles(System& particles, double time);
     void sumAccJrk( const System& particles, size_t i
-                  , ga::Vector3D& acc, ga::Vector3D& jrk );
+                  , math::Vector3D& acc, math::Vector3D& jrk );
     void getAccJrk( const Particle& particle_i, const Particle& particle_j
-                  , ga::Vector3D& acc, ga::Vector3D& jrk );
+                  , math::Vector3D& acc, math::Vector3D& jrk );
     void addJrkSnpCrk( const Particle& particle_i, const Particle& particle_j
                      , const PairDifferences& differences
-                     , ga::Vector3D& jrk, ga::Vector3D& snp, ga::Vector3D& crk );
+                     , math::Vector3D& jrk, math::Vector3D& snp, math::Vector3D& crk );
 
     System getSyncedSystem() const;
     double getPotentialEnergy(const System& system) const;

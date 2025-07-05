@@ -35,7 +35,7 @@ void SystemPreview::initializeMethod( GenerationMethod method
         render_data.positions.push_back(particle.pos);
     }
     render_data.time = 0.0;
-    render_data.com_position = ga::Vector3D();
+    render_data.com_position = math::Vector3D();
 
     updateData(std::make_shared<RenderData>(render_data));
 }
@@ -60,7 +60,7 @@ void SystemPreview::initializeHomeScreen()
         render_data.positions.push_back(particle.pos);
     }
     render_data.time = 0.0;
-    render_data.com_position = ga::Vector3D();
+    render_data.com_position = math::Vector3D();
 
     updateData(std::make_shared<RenderData>(render_data));
 }

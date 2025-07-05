@@ -115,7 +115,7 @@ void SM_HACS::initializeDerivatives()
                 {neighbor.jrk - particle.jrk}
             };
 
-            ga::Vector3D french; // garbage
+            math::Vector3D french; // garbage
             addJrkSnpCrk( particle, neighbor, c_DIFFERENCES
                         , french, particle.irr_snp, particle.irr_crk );
         }
@@ -143,7 +143,7 @@ void SM_HACS::initializeDerivatives()
                 {particle_j.jrk - particle.jrk}
             };
 
-            ga::Vector3D cross_product; // fuck em, we wedging
+            math::Vector3D cross_product; // fuck em, we wedging
             addJrkSnpCrk( particle, particle_j, c_DIFFERENCES
                         , cross_product, particle.reg_snp, particle.reg_crk );
         }
@@ -230,13 +230,13 @@ void SM_HACS::irregularCorrection(Particle& particle, const Particle& pred_parti
 
     // Hermite interpolation of irregular snap multiplied by (c_DT3 as to
     // avoid higher powers of c_DT)
-    const ga::Vector3D c_IRR_SNP_DT3 =
+    const math::Vector3D c_IRR_SNP_DT3 =
           (particle.irr_acc   - pred_particle.irr_acc  )*c_DT*(-6)
         - (particle.irr_jrk*4 + pred_particle.irr_jrk*2)*c_DT2;
 
     // Hermite interpolation of irregular crackle (multiplied by c_DT3 as to
     // avoid higher powers of c_DT)
-    const ga::Vector3D c_IRR_CRK_DT3 =
+    const math::Vector3D c_IRR_CRK_DT3 =
           (particle.irr_acc - pred_particle.irr_acc)*12
         + (particle.irr_jrk + pred_particle.irr_jrk)*6*c_DT;
 
@@ -340,20 +340,20 @@ void SM_HACS::regularCorrection(Particle& particle, const Particle& pred_particl
     const double c_DT2 = c_DT;
     const double c_DT3 = c_DT2*c_DT;
 
-    const ga::Vector3D c_ACC_DIFF =   (particle.reg_acc - pred_particle.reg_acc)
+    const math::Vector3D c_ACC_DIFF =   (particle.reg_acc - pred_particle.reg_acc)
                                     - (pred_particle.irr_acc - particle.irr_acc);
 
-    const ga::Vector3D c_OLD_JRK = particle.reg_jrk + pred_particle.reg_jrk;
-    const ga::Vector3D c_NEW_JRK = pred_particle.irr_jrk - particle.irr_jrk;
+    const math::Vector3D c_OLD_JRK = particle.reg_jrk + pred_particle.reg_jrk;
+    const math::Vector3D c_NEW_JRK = pred_particle.irr_jrk - particle.irr_jrk;
 
     // Hermite interpolation of irregular snap multiplied by c_DT3 as to
     // avoid higher powers of c_DT
-    const ga::Vector3D c_REG_SNP_DT3 =   c_ACC_DIFF*c_DT*(-6)
+    const math::Vector3D c_REG_SNP_DT3 =   c_ACC_DIFF*c_DT*(-6)
                                        - (c_OLD_JRK*4 + c_NEW_JRK*2)*c_DT2;
 
     // Hermite interpolation of irregular crackle multiplied by c_DT3 as to
     // avoid higher powers of c_DT
-    const ga::Vector3D c_REG_CRK_DT3 = c_ACC_DIFF*12 + (c_OLD_JRK + c_NEW_JRK)*6*c_DT;
+    const math::Vector3D c_REG_CRK_DT3 = c_ACC_DIFF*12 + (c_OLD_JRK + c_NEW_JRK)*6*c_DT;
 
     particle.pos += c_REG_SNP_DT3*c_DT/24 + c_REG_CRK_DT3*c_DT2/120;
     particle.vel += c_REG_SNP_DT3/6 + c_REG_CRK_DT3*c_DT/24;
@@ -390,18 +390,18 @@ void SM_HACS::neighborCorrection( Particle& particle, const Particle& pred_parti
             {neighbor.jrk - pred_particle.jrk}
         };
 
-        ga::Vector3D corr_jrk_neighbour;
-        ga::Vector3D corr_snp_neighbour;
-        ga::Vector3D corr_crk_neighbour;
+        math::Vector3D corr_jrk_neighbour;
+        math::Vector3D corr_snp_neighbour;
+        math::Vector3D corr_crk_neighbour;
 
         addJrkSnpCrk( pred_particle, neighbor, c_DIFFERENCES
                     , corr_jrk_neighbour, corr_snp_neighbour, corr_crk_neighbour );
 
         int sign = k < c_FIRST_NEW_IDX ? -1 : 1;
 
-        const ga::Vector3D c_JRK_CORRECTION = corr_jrk_neighbour*sign;
-        const ga::Vector3D c_SNP_CORRECTION = corr_snp_neighbour*sign;
-        const ga::Vector3D c_CRK_CORRECTION = corr_crk_neighbour*sign;
+        const math::Vector3D c_JRK_CORRECTION = corr_jrk_neighbour*sign;
+        const math::Vector3D c_SNP_CORRECTION = corr_snp_neighbour*sign;
+        const math::Vector3D c_CRK_CORRECTION = corr_crk_neighbour*sign;
 
         particle.irr_jrk += c_JRK_CORRECTION;
         particle.irr_snp += c_SNP_CORRECTION;
@@ -456,8 +456,8 @@ void SM_HACS::predictParticles(System& system, double time)
         const double c_DT2 = c_DT*c_DT;
         const double c_DT3 = c_DT2*c_DT;
 
-        const ga::Vector3D pred_particle_acc = pred_particle.irr_acc + pred_particle.reg_acc;
-        const ga::Vector3D pred_particle_jrk = pred_particle.irr_jrk + pred_particle.reg_jrk;
+        const math::Vector3D pred_particle_acc = pred_particle.irr_acc + pred_particle.reg_acc;
+        const math::Vector3D pred_particle_jrk = pred_particle.irr_jrk + pred_particle.reg_jrk;
 
         pred_particle.pos +=   pred_particle.vel*c_DT
                              + pred_particle_acc*c_DT2/2
@@ -469,7 +469,7 @@ void SM_HACS::predictParticles(System& system, double time)
 }
 
 void SM_HACS::sumAccJrk( const System& system, const size_t i
-                       , ga::Vector3D& acc, ga::Vector3D& jrk)
+                       , math::Vector3D& acc, math::Vector3D& jrk)
 {
     acc.fill(0.0);
     jrk.fill(0.0);
@@ -480,10 +480,10 @@ void SM_HACS::sumAccJrk( const System& system, const size_t i
 }
 
 void SM_HACS::getAccJrk( const Particle& particle_i, const Particle& particle_j
-                       , ga::Vector3D& acc, ga::Vector3D& jrk )
+                       , math::Vector3D& acc, math::Vector3D& jrk )
 {
-    const ga::Vector3D c_POS_JI = particle_j.pos - particle_i.pos;
-    const ga::Vector3D c_VEL_JI = particle_j.vel - particle_i.vel;
+    const math::Vector3D c_POS_JI = particle_j.pos - particle_i.pos;
+    const math::Vector3D c_VEL_JI = particle_j.vel - particle_i.vel;
 
     const double c_DIST_SQR = c_POS_JI.norm2() + c_SOFT_SQR;
     const double c_DIST_CUB = std::sqrt(c_DIST_SQR)*c_DIST_SQR;
@@ -495,7 +495,7 @@ void SM_HACS::getAccJrk( const Particle& particle_i, const Particle& particle_j
 
 void SM_HACS::addJrkSnpCrk( const Particle& particle_i, const Particle& particle_j
                           , const PairDifferences& d
-                          , ga::Vector3D& jrk, ga::Vector3D& snp, ga::Vector3D& crk )
+                          , math::Vector3D& jrk, math::Vector3D& snp, math::Vector3D& crk )
 {
     // I'm not proud of this function
 
@@ -505,7 +505,7 @@ void SM_HACS::addJrkSnpCrk( const Particle& particle_i, const Particle& particle
     const double c_RV2 = c_RV*c_RV;
     const double c_RV3 = c_RV2*c_RV;
 
-    const ga::Vector3D c_A = (d.vel_ji - d.pos_ji*c_RV*3.0);
+    const math::Vector3D c_A = (d.vel_ji - d.pos_ji*c_RV*3.0);
     const double c_B = (d.vel_ji.norm2() + d.pos_ji.norm()*d.acc_ji.norm())/c_DIST_SQR + c_RV2;
     const double c_E = d.pos_ji.norm()*d.jrk_ji.norm()*3.0;
     const double c_C = d.vel_ji.norm()*d.acc_ji.norm()*9.0 + c_E;
@@ -525,19 +525,19 @@ std::vector<SM_HACS::Particle> SM_HACS::getSyncedSystem() const
         const double c_DTIR2 = c_DTIR*c_DTIR;
         const double c_DTIR3 = c_DTIR2*c_DTIR;
 
-        const ga::Vector3D c_ACC =   synced_particle.irr_acc + synced_particle.reg_acc
+        const math::Vector3D c_ACC =   synced_particle.irr_acc + synced_particle.reg_acc
                                    + synced_particle.reg_jrk*c_DTIR
                                    + synced_particle.reg_snp*c_DTIR2/2
                                    + synced_particle.reg_crk*c_DTIR3/6;
 
-        const ga::Vector3D c_JRK =   synced_particle.irr_jrk + synced_particle.reg_jrk
+        const math::Vector3D c_JRK =   synced_particle.irr_jrk + synced_particle.reg_jrk
                                    + synced_particle.reg_snp*c_DTIR
                                    + synced_particle.reg_crk*c_DTIR2/2;
 
-        const ga::Vector3D c_SNP =   synced_particle.irr_snp + synced_particle.reg_snp
+        const math::Vector3D c_SNP =   synced_particle.irr_snp + synced_particle.reg_snp
                                    + synced_particle.reg_crk*c_DTIR;
 
-        const ga::Vector3D c_CRK = synced_particle.irr_crk + synced_particle.reg_crk;
+        const math::Vector3D c_CRK = synced_particle.irr_crk + synced_particle.reg_crk;
 
         const double c_DT  = global_time - synced_particle.irr_t;
         const double c_DT2 = c_DT*c_DT;
@@ -572,7 +572,7 @@ double SM_HACS::getPotentialEnergy(const System& system) const
         for (size_t j = i + 1; j < system.size(); j++) {
             auto& particle_j = system.at(j);
 
-            const ga::Vector3D c_POS_JI = particle_j.pos - particle_i.pos;
+            const math::Vector3D c_POS_JI = particle_j.pos - particle_i.pos;
             const double c_DIST_SQR = c_POS_JI.norm2() + c_SOFT_SQR;
 
             e_pot -= particle_i.mass*particle_j.mass/std::sqrt(c_DIST_SQR);

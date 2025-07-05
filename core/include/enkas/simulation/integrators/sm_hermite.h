@@ -37,8 +37,8 @@ public:
 private:
     struct Particle : public utils::BaseParticle
     {
-        ga::Vector3D acc; // acceleration
-        ga::Vector3D jrk; // jerk
+        math::Vector3D acc; // acceleration
+        math::Vector3D jrk; // jerk
     };
 
     using System = std::vector<Particle>;

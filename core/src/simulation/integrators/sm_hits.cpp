@@ -139,16 +139,16 @@ void SM_HITS::calculateAccJrk(const System& system, Particle& particle_i)
         if (&particle_i == &particle_j) continue;
 
         // Acceleration
-        const ga::Vector3D c_POS_JI = particle_j.pos - particle_i.pos;
+        const math::Vector3D c_POS_JI = particle_j.pos - particle_i.pos;
         const double c_DIST_SQR = c_POS_JI.norm2() + c_SOFT_SQR;
         const double c_DIST_CUB = std::sqrt(c_DIST_SQR)*c_DIST_SQR;
 
         particle_i.acc += c_POS_JI*particle_j.mass/c_DIST_CUB;
 
         // Jerk
-        const ga::Vector3D c_VEL_JI = particle_j.vel - particle_i.vel;
-        const double c_RV = ga::dotProduct(c_POS_JI, c_VEL_JI)/c_DIST_SQR;
-        const ga::Vector3D c_JRK_TERM = (c_VEL_JI - c_POS_JI*c_RV*3.0);
+        const math::Vector3D c_VEL_JI = particle_j.vel - particle_i.vel;
+        const double c_RV = math::dotProduct(c_POS_JI, c_VEL_JI)/c_DIST_SQR;
+        const math::Vector3D c_JRK_TERM = (c_VEL_JI - c_POS_JI*c_RV*3.0);
 
         particle_i.jrk += c_JRK_TERM*particle_j.mass/c_DIST_CUB;
     }
@@ -162,12 +162,12 @@ void SM_HITS::correctParticle(Particle& particle, const Particle& pred_particle)
 
     // Hermite interpolation of snap multiplied by c_DT3 as to avoid higher
     // powers of c_DT
-    const ga::Vector3D c_SNP_DT3 =   (particle.acc     - pred_particle.acc    )*c_DT*(-6.0)
+    const math::Vector3D c_SNP_DT3 =   (particle.acc     - pred_particle.acc    )*c_DT*(-6.0)
                                    - (particle.jrk*4.0 + pred_particle.jrk*2.0)*c_DT2;
 
     // Hermite interpolation of crackle multiplied by c_DT3 as to avoid higher
     // powers of c_DT
-    const ga::Vector3D c_CRK_DT3 =   (particle.acc - pred_particle.acc)*12.0
+    const math::Vector3D c_CRK_DT3 =   (particle.acc - pred_particle.acc)*12.0
                                    + (particle.jrk + pred_particle.jrk)*6.0*c_DT;
 
     particle.pos = pred_particle.pos + c_SNP_DT3*c_DT/24.0 + c_CRK_DT3*c_DT2/120.0;
@@ -216,7 +216,7 @@ double SM_HITS::getPotentialEnergy(const System& system) const
         for (size_t j = i + 1; j < system.size(); j++) {
             auto& particle_j = system.at(j);
 
-            const ga::Vector3D c_POS_JI = particle_j.pos - particle_i.pos;
+            const math::Vector3D c_POS_JI = particle_j.pos - particle_i.pos;
             const double c_DIST_SQR = c_POS_JI.norm2() + c_SOFT_SQR;
 
             e_pot -= particle_i.mass*particle_j.mass/std::sqrt(c_DIST_SQR);

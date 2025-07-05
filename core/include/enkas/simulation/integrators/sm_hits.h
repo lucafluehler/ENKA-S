@@ -37,10 +37,10 @@ public:
 private:
     struct Particle : public utils::BaseParticle
     {
-        ga::Vector3D acc; // acceleration
-        ga::Vector3D jrk; // jerk
-        ga::Vector3D snp; // snap; necessary for global synchronization
-        ga::Vector3D crk; // crackle; necessary for global synchronization
+        math::Vector3D acc; // acceleration
+        math::Vector3D jrk; // jerk
+        math::Vector3D snp; // snap; necessary for global synchronization
+        math::Vector3D crk; // crackle; necessary for global synchronization
 
         double t = 0.0; // particle time
         double dt = 0.0; // particle time step

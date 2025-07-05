@@ -6,8 +6,8 @@ namespace utils {
 
 struct CenterOfMass
 {
-    ga::Vector3D pos;
-    ga::Vector3D vel;
+    math::Vector3D pos;
+    math::Vector3D vel;
 };
 
 } // namespace utils

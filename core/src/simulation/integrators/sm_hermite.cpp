@@ -103,19 +103,19 @@ void SM_Hermite::calculateAccJrkEpot()
             auto& particle_j = system.at(j);
 
             // Acceleration
-            const ga::Vector3D c_POS_JI = particle_j.pos - particle_i.pos;
+            const math::Vector3D c_POS_JI = particle_j.pos - particle_i.pos;
             const double c_DIST_SQR = c_POS_JI.norm2() + c_SOFT_SQR;
             const double c_DIST     = std::sqrt(c_DIST_SQR);
             const double c_DIST_CUB = c_DIST*c_DIST_SQR;
-            const ga::Vector3D c_ACC_TERM = c_POS_JI/c_DIST_CUB;
+            const math::Vector3D c_ACC_TERM = c_POS_JI/c_DIST_CUB;
 
             particle_i.acc += c_ACC_TERM*particle_j.mass;
             particle_j.acc -= c_ACC_TERM*particle_i.mass;
 
             // Jerk
-            const ga::Vector3D c_VEL_JI = particle_j.vel - particle_i.vel;
-            const double c_RV = ga::dotProduct(c_POS_JI, c_VEL_JI)/c_DIST_SQR;
-            const ga::Vector3D c_JRK_TERM = (c_VEL_JI - c_POS_JI*c_RV*3.0)/c_DIST_CUB;
+            const math::Vector3D c_VEL_JI = particle_j.vel - particle_i.vel;
+            const double c_RV = math::dotProduct(c_POS_JI, c_VEL_JI)/c_DIST_SQR;
+            const math::Vector3D c_JRK_TERM = (c_VEL_JI - c_POS_JI*c_RV*3.0)/c_DIST_CUB;
 
             particle_i.jrk += c_JRK_TERM*particle_j.mass;
             particle_j.jrk -= c_JRK_TERM*particle_i.mass;

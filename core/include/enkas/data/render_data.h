@@ -6,6 +6,6 @@
 struct RenderData
 {
     double time;
-    std::vector<ga::Vector3D> positions; // Positions of all particles in system
-    ga::Vector3D com_position; // Center of mass position
+    std::vector<math::Vector3D> positions; // Positions of all particles in system
+    math::Vector3D com_position; // Center of mass position
 };

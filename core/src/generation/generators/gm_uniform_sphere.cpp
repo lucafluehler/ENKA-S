@@ -23,17 +23,17 @@ utils::InitialSystem GM_UniformSphere::createSystem()
         utils::BaseParticle particle;
 
         // POSITION
-        ga::Vector3D position;
+        math::Vector3D position;
 
         // Use a rejection technique to carve out a homogeneous sphere from a homogeneous cube.
         do {
-            position = ga::Vector3D(pos_dist(gen), pos_dist(gen), pos_dist(gen));
+            position = math::Vector3D(pos_dist(gen), pos_dist(gen), pos_dist(gen));
         } while (position.norm() > settings.radius);
 
         particle.pos = position;
 
         // VELOCITY
-        particle.vel = ga::Vector3D(vel_dist(gen), vel_dist(gen), vel_dist(gen));
+        particle.vel = math::Vector3D(vel_dist(gen), vel_dist(gen), vel_dist(gen));
         particle.vel.set_norm(settings.vel);
 
         // MASS

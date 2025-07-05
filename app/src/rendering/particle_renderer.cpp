@@ -96,7 +96,7 @@ void ParticleRenderer::paintGL()
 
     if (settings.show_center_of_mass) {
         setCOMColor();
-        ga::Vector3D rel_pos = getRelPos(data.com_position);
+        math::Vector3D rel_pos = getRelPos(data.com_position);
 
         const float c_ASPECT_RATIO = static_cast<float>(width())/height();
         const float c_HALF_TAN_FOV = std::tan(settings.fov*M_PI/180.0f/2.0f);
@@ -128,7 +128,7 @@ void ParticleRenderer::mouseMoveEvent(QMouseEvent* event)
 
     if (event->buttons() & Qt::LeftButton)
     {
-        camera.rel_rotation = ga::Rotor3D(1.0, 0.0, -dx*mu, dy*mu*1.5).normalize()
+        camera.rel_rotation = math::Rotor3D(1.0, 0.0, -dx*mu, dy*mu*1.5).normalize()
                               *camera.rel_rotation;
 
         last_mouse_pos = event->pos();
@@ -136,7 +136,7 @@ void ParticleRenderer::mouseMoveEvent(QMouseEvent* event)
 
     if (event->buttons() & Qt::RightButton)
     {
-        camera.rel_rotation = ga::Rotor3D(1.0, dy*mu, 0.0, 0.0).normalize()
+        camera.rel_rotation = math::Rotor3D(1.0, dy*mu, 0.0, 0.0).normalize()
                               *camera.rel_rotation;
 
         last_mouse_pos = event->pos();
@@ -151,7 +151,7 @@ void ParticleRenderer::wheelEvent(QWheelEvent* event)
 
 void ParticleRenderer::keyPressEvent(QKeyEvent *event)
 {
-    ga::Vector3D movement;
+    math::Vector3D movement;
 
     const float c_MOVE = 0.02*camera.target_distance;
 
@@ -176,7 +176,7 @@ void ParticleRenderer::drawParticles()
     rel_positions.clear();
 
     for (const auto& pos: data.positions) {
-        ga::Vector3D rel_pos = getRelPos(pos);
+        math::Vector3D rel_pos = getRelPos(pos);
         rel_positions.push_back(std::make_tuple(rel_pos.norm(), rel_pos));
     }
 
@@ -302,16 +302,16 @@ void ParticleRenderer::drawCross(float x, float y, float size)
     glDeleteBuffers(1, &vbo);
 }
 
-ga::Vector3D ParticleRenderer::getRelPos(const ga::Vector3D& pos)
+math::Vector3D ParticleRenderer::getRelPos(const math::Vector3D& pos)
 {
-    ga::Vector3D rel_pos = camera.rel_rotation.rotate(camera.target_pos - pos)
-                           - ga::Vector3D(0.0, 0.0, -camera.target_distance);
+    math::Vector3D rel_pos = camera.rel_rotation.rotate(camera.target_pos - pos)
+                           - math::Vector3D(0.0, 0.0, -camera.target_distance);
     return rel_pos;
 }
 
 QPointF ParticleRenderer::convertPosToLoc( const float c_ASPECT_RATIO
                                          , const float c_HALF_TAN_FOV
-                                         , const ga::Vector3D& rel_pos
+                                         , const math::Vector3D& rel_pos
                                          , bool* is_visible )
 {
     // Check if particle is behind camera
@@ -337,16 +337,16 @@ void ParticleRenderer::animation()
 {
     double s = 0.002*settings.animation_speed; // speed parameter
 
-    ga::Rotor3D animation;
+    math::Rotor3D animation;
 
     switch (settings.animation_style) {
-    case AnimationStyle::RIGHT:     animation = ga::Rotor3D(1.0, 0.0,  -s, 0.0); break;
-    case AnimationStyle::LEFT:      animation = ga::Rotor3D(1.0, 0.0,   s, 0.0); break;
-    case AnimationStyle::UP:        animation = ga::Rotor3D(1.0, 0.0, 0.0,  -s); break;
-    case AnimationStyle::DOWN:      animation = ga::Rotor3D(1.0, 0.0, 0.0,   s); break;
-    case AnimationStyle::CWISE:     animation = ga::Rotor3D(1.0,   s, 0.0, 0.0); break;
-    case AnimationStyle::CNTRCWISE: animation = ga::Rotor3D(1.0,  -s, 0.0, 0.0); break;
-    case AnimationStyle::TUTTI:     animation = ga::Rotor3D(1.0,   s,   s,   s); break;
+    case AnimationStyle::RIGHT:     animation = math::Rotor3D(1.0, 0.0,  -s, 0.0); break;
+    case AnimationStyle::LEFT:      animation = math::Rotor3D(1.0, 0.0,   s, 0.0); break;
+    case AnimationStyle::UP:        animation = math::Rotor3D(1.0, 0.0, 0.0,  -s); break;
+    case AnimationStyle::DOWN:      animation = math::Rotor3D(1.0, 0.0, 0.0,   s); break;
+    case AnimationStyle::CWISE:     animation = math::Rotor3D(1.0,   s, 0.0, 0.0); break;
+    case AnimationStyle::CNTRCWISE: animation = math::Rotor3D(1.0,  -s, 0.0, 0.0); break;
+    case AnimationStyle::TUTTI:     animation = math::Rotor3D(1.0,   s,   s,   s); break;
     case AnimationStyle::NONE: return;
     default: break;
     }

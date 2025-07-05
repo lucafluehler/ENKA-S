@@ -25,10 +25,10 @@ utils::InitialSystem GM_UniformCube::createSystem()
         utils::BaseParticle particle;
 
         // POSITION
-        particle.pos = ga::Vector3D(pos_dist(gen), pos_dist(gen), pos_dist(gen));
+        particle.pos = math::Vector3D(pos_dist(gen), pos_dist(gen), pos_dist(gen));
 
         // VELOCITY
-        particle.vel = ga::Vector3D(vel_dist(gen), vel_dist(gen), vel_dist(gen));
+        particle.vel = math::Vector3D(vel_dist(gen), vel_dist(gen), vel_dist(gen));
         particle.vel.set_norm(settings.vel);
 
         // MASS
