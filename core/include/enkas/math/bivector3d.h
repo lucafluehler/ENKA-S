@@ -9,11 +9,17 @@ namespace math {
 
 class Bivector3D {
 public:
-    double xy;
-    double xz;
-    double yz;
+    double xy = 0.0;
+    double xz = 0.0;
+    double yz = 0.0;
 
-    Bivector3D(double xy = 0.0, double xz = 0.0, double yz = 0.0);
+    Bivector3D() = default;
+    Bivector3D(double p_xy, double p_xz, double p_yz);
+
+    Bivector3D(const Bivector3D& rhs) = default;
+    Bivector3D& operator=(const Bivector3D& rhs) = default;
+    Bivector3D(Bivector3D&& rhs) noexcept = default;
+    Bivector3D& operator=(Bivector3D&& rhs) noexcept = default;
 
 public:
     Bivector3D operator+(const Bivector3D& rhs) const;
