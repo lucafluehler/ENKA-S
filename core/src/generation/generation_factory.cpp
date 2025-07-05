@@ -31,9 +31,6 @@ std::unique_ptr<Generator> GenerationFactory::create(const GenerationConfig& con
             using SettingsType = std::decay_t<decltype(specific_settings)>;
 
             // Depending on the type of settings, create the corresponding generator.
-            if constexpr (std::is_same_v<SettingsType, FileSettings>) {
-                return std::make_unique<FileGenerator>(specific_settings, config.seed);
-            }
             if constexpr (std::is_same_v<SettingsType, NormalSphereSettings>) {
                 return std::make_unique<NormalSphereGenerator>(specific_settings, config.seed);
             }
