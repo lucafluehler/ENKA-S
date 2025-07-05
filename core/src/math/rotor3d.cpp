@@ -1,8 +1,9 @@
 #include <cmath>
 
-#include "rotor3d.h"
+#include <enkas/math/rotor3d.h>
 
-namespace geometricAlgebra {
+namespace enkas {
+namespace math {
 
 Rotor3D::Rotor3D(double s, double b_xy, double b_xz, double b_yz)
     : s(s), b_xy(b_xy), b_xz(b_xz), b_yz(b_yz)
@@ -69,4 +70,5 @@ Rotor3D Rotor3D::operator*(const Rotor3D& rhs) const
                   , b_yz*rhs.s + s*rhs.b_yz + b_xz*rhs.b_xy - b_xy*rhs.b_xz );
 }
 
-} // namespace geometricAlgebra
+} // namespace math
+} // namespace enkas

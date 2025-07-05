@@ -2,10 +2,11 @@
 
 #include <cmath>
 
-#include "bivector3d.h"
-#include "vector3d.h"
+#include <enkas/math/vector3d.h>
+#include <enkas/math/bivector3d.h>
 
-namespace geometricAlgebra {
+namespace enkas {
+namespace math {
 
 class Rotor3D {
 public:
@@ -56,4 +57,5 @@ public:
     static Rotor3D YZ(double yz_val = 1.0) { return Rotor3D(1.0, 0.0, 0.0, yz_val); }
 };
 
-} // namespace geometricAlgebra
+} // namespace math
+} // namespace enkas
