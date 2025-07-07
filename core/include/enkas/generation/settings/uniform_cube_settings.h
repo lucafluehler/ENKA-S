@@ -3,14 +3,18 @@
 namespace enkas::generation {
 
 struct UniformCubeSettings {
-    int N;
+    int particle_count;
     double side_length;
-    double vel;
+    double initial_velocity;
     double total_mass;
 
-    bool isValid() const
-    {
-        return ( N > 0 && side_length > 0.0 && vel > 0.0 && total_mass > 0.0);
+    [[nodiscard]] bool isValid() const {
+        return ( 
+            particle_count > 0 && 
+            side_length > 0.0 && 
+            initial_velocity > 0.0 && 
+            total_mass > 0.0
+        );
     }
 };
 

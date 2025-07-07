@@ -2,17 +2,20 @@
 
 namespace enkas::generation {
 
-struct UniformSphereSettings
-    {
-        int N;
-        double radius;
-        double vel;
-        double total_mass;
+struct UniformSphereSettings {
+    int particle_count;
+    double sphere_radius;
+    double initial_velocity;
+    double total_mass;
 
-        bool isValid() const
-        {
-            return ( N > 0 && radius > 0.0 && vel > 0.0 && total_mass > 0.0);
-        }
-    };
+    [[nodiscard]] bool isValid() const{
+        return ( 
+            particle_count > 0 && 
+            sphere_radius > 0.0 && 
+            initial_velocitys > 0.0 && 
+            total_mass > 0.0
+        );
+    }
+};
 
 } // namespace enkas::generation

@@ -3,18 +3,24 @@
 namespace enkas::generation {
 
 struct CollisionModelsSettings {
-    int N_1;
-    double radius_1;
+    int particle_count_1;
+    double sphere_radius_1;
     double total_mass_1;
 
-    int N_2;
-    double radius_2;
+    int particle_count_2;
+    double sphere_radius_2;
     double total_mass_2;
 
-    bool isValid() const
-    {
-        return (   N_1 > 0 && radius_1 > 0.0 && total_mass_1 > 0.0
-                && N_2 > 0 && radius_2 > 0.0 && total_mass_2 > 0.0 );
+    [[nodiscard]] bool isValid() const {
+        return ( 
+            particle_count_1 > 0 &&
+            sphere_radius_1 > 0.0 &&
+            total_mass_1 > 0.0 &&
+
+            particle_count_2 > 0 &&
+            sphere_radius_2 > 0.0 &&
+            total_mass_2 > 0.0
+        );
     }
 };
 

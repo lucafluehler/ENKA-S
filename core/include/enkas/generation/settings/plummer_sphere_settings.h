@@ -3,12 +3,16 @@
 namespace enkas::generation {
 
 struct PlummerSphereSettings {
-    int N;
-    double radius;
+    int particle_count;
+    double sphere_radius;
     double total_mass;
 
-    bool isValid() const {
-        return ( N > 0 && radius > 0.0 && total_mass > 0.0);
+    [[nodiscard]] bool isValid() const {
+        return (
+            particle_count > 0 &&
+            sphere_radius > 0.0 &&
+            total_mass > 0.0
+        );
     }
 };
 
