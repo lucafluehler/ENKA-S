@@ -4,8 +4,8 @@ namespace enkas::generation {
 
 struct NormalSphereSettings {
     int particle_count;
-    double pos_std_dev;
-    double vel_std_dev;
+    double position_std_dev;
+    double velocity_std_dev;
     double mass_mean;
     double mass_std_dev;
 
