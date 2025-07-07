@@ -3,6 +3,9 @@
 namespace enkas::generation {
 
 struct CollisionModelsSettings {
+    double impact_parameter;
+    double relative_velocity;
+
     int particle_count_1;
     double sphere_radius_1;
     double total_mass_1;
