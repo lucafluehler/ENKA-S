@@ -1,8 +1,10 @@
 #pragma once
 
 #include <vector>
+#include <numeric>
+#include <cmath>
 
-#include <enkas/data/base_particle.h>
+#include <enkas/data/system.h>
 #include <enkas/math/vector3d.h>
 #include <enkas/math/bivector3d.h>
 
@@ -12,116 +14,111 @@ namespace enkas::physics {
 const double G = 0.004300917271;
 
 /**
- * @brief Calculates the total kinetic energy of a system
- *
- * This function calculates the total kinetic energy of particles in a container,
- * where each particle type must be derived from BaseParticle.
- *
- * @tparam T The particle type.
- * @param particles The container of particles.
- *
- * @return The total kinetic energy.
+ * @brief Calculates the total kinetic energy of a system.
+ * @param system The system containing the particles.
+ * @return The total kinetic energy of the system.
  */
-template <DerivedFromBaseParticle T>
-inline double getKineticEnergy(const std::vector<T>& particles)
+[[nodiscard]] inline double getKineticEnergy(const data::System& system)
 {
-    double e_kin = 0.0;
+    double kinetic_energy = 0.0;
 
-    for (const auto& particle: particles) {
-        e_kin += particle.mass*particle.vel.norm2();
+    for (size_t i = 0; i < system.size(); ++i) {
+        kinetic_energy += system.masses[i]*system.velocities[i].norm2();
     }
 
-    return e_kin*0.5;
+    return kinetic_energy*0.5;
 }
 
 /**
- * @brief Calculates the total angular momentum of particles in a container.
- *
- * This function calculates the total angular momentum of particles in a container,
- * where each particle type must be derived from BaseParticle.
- *
- * @tparam T The particle type.
- * @param particles The container of particles.
- *
- * @return The total angular momentum.
+ * @brief Calculates the total angular momentum of a system.
+ * @param system The system containing the particles.
+ * @return The total angular momentum as a Bivector3D.
  */
-template <DerivedFromBaseParticle T>
-inline math::Bivector3D getAngularMomentum(const std::vector<T>& particles)
+[[nodiscard]] inline math::Bivector3D getAngularMomentum(const data::System& system)
 {
-    math::Bivector3D L_tot;
+    math::Bivector3D total_angular_momentum{};
 
-    for (const auto& particle: particles) {
-        L_tot += math::wedge(particle.pos, particle.vel*particle.mass);
+    for (size_t i = 0; i < system.size(); ++i) {
+        const auto& pos = system.positions[i];
+        const auto& vel = system.velocities[i];
+        const auto mass = system.masses[i];
+        
+        total_angular_momentum += math::wedge(pos, vel*mass);
     }
 
-    return L_tot;
+    return total_angular_momentum;
 }
 
 /**
- * @brief Calculates the center of mass position of particles in a container.
- *
- * This function calculates the center of mass position of particles in a container,
- * where each particle type must be derived from BaseParticle.
- *
- * @tparam T The particle type.
- * @param particles The container of particles.
- *
- * @return The center of mass position.
+ * @brief Translates a system so its center of mass is at the origin (0,0,0)
+ *        and its total momentum is zero.
+ * @param system The system containing the particles to be centered.
  */
-template <DerivedFromBaseParticle T>
-inline math::Vector3D getCenterOfMassPos(const std::vector<T>& particles)
+inline void centerSystem(data::System& system)
 {
-    math::Vector3D com_pos;
+    if (system.size() == 0) {
+        return;
+    }
 
+    math::Vector3D weighted_pos_sum{};
+    math::Vector3D weighted_vel_sum{};
     double total_mass = 0.0;
-    for (const auto& particle: particles) {
-        com_pos += particle.pos*particle.mass;
-        total_mass += particle.mass;
+
+    for (size_t i = 0; i < system.size(); ++i) {
+        const double mass = system.masses[i];
+        weighted_pos_sum += system.positions[i]*mass;
+        weighted_vel_sum += system.velocities[i]*mass;
+        total_mass += mass;
     }
 
-    return com_pos/total_mass;
+    if (total_mass == 0.0) {
+        return;
+    }
+
+    const math::Vector3D com_pos = weighted_pos_sum / total_mass;
+    const math::Vector3D com_vel = weighted_vel_sum / total_mass;
+
+    for (size_t i = 0; i < system.size(); ++i) {
+        system.positions[i] -= com_pos;
+        system.velocities[i] -= com_vel;
+    }
 }
 
 /**
- * @brief Calculates the center of mass velocity of particles in a container.
+ * @brief Scale the properties of particles to Hénon units.
  *
- * This function calculates the center of mass velocity of particles in a container,
- * where each particle type must be derived from BaseParticle.
+ * This function scales the properties of a vector of particles, including their
+ * masses, positions, and velocities to Hénon units.
  *
- * @tparam T The particle type.
- * @param particles The container of particles.
- *
- * @return The center of mass velocity.
+ * @param system The system containing the particles to be scaled.
+ * @param total_energy The absolute total energy of the system in units of the provided
+ *                     particles.
+ * 
+ * @see Heggie, D. and Methieu, R.; 1986; Standardised units and time scales
  */
-template <DerivedFromBaseParticle T>
-inline math::Vector3D getCenterOfMassVel(const std::vector<T>& particles)
+inline void scaleToHenonUnits(data::System& system, double total_energy)
 {
-    math::Vector3D com_vel;
-
-    double total_mass = 0.0;
-    for (const auto& particle: particles) {
-        com_vel += particle.vel*particle.mass;
-        total_mass += particle.mass;
+    if (system.size() == 0) {
+        return;
     }
 
-    return com_vel/total_mass;
-}
+    const double total_mass = std::accumulate(system.masses.begin(), system.masses.end(), 0.0);
 
-/**
- * @brief Center a collection of particles around their center of mass.
- *
- * Computes the center of mass with getCenterOfMassPos() and getCenterOfMassVel()
- *
- * @param particles Particles to be centered.
- */
-inline void centerParticles(std::vector<BaseParticle>& particles)
-{
-    const math::Vector3D c_COM_POS = getCenterOfMassPos(particles);
-    const math::Vector3D c_COM_VEL = getCenterOfMassVel(particles);
+    const double mass_unit = total_mass;
+    const double length_unit = G*std::pow(total_mass, 2)/(4.0*total_energy);
+    const double time_unit = G*std::sqrt(std::pow(total_mass, 5)/std::pow(4.0*total_energy, 3));
+    const double velocity_unit = length_unit/time_unit;
 
-    for (auto& particle: particles) {
-        particle.pos -= c_COM_POS;
-        particle.vel -= c_COM_VEL;
+    for (auto& mass : system.masses) {
+        mass /= mass_unit;
+    }
+
+    for (auto& position : system.positions) {
+        position /= length_unit;
+    }
+
+    for (auto& velocity : system.velocities) {
+        velocity /= velocity_unit;
     }
 }
 
