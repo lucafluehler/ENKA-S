@@ -6,7 +6,6 @@
 #include <enkas/simulation/leapfrog_simulator.h>
 #include <enkas/simulation/hermite_simulator.h>
 #include <enkas/simulation/hits_simulator.h>
-#include <enkas/simulation/hacs_simulator.h>
 #include <enkas/simulation/bhleapfrog_simulator.h>
 
 namespace enkas::simulation {
@@ -35,9 +34,6 @@ std::shared_ptr<Simulator> SimulationFactory::create(const SimulationConfig& con
             }
             if constexpr (std::is_same_v<SettingsType, HitsSettings>) {
                 return std::make_shared<HitsSimulator>(specific_settings);
-            }
-            if constexpr (std::is_same_v<SettingsType, HacsSettings>) {
-                return std::make_shared<HacsSimulator>(specific_settings);
             }
             if constexpr (std::is_same_v<SettingsType, BhLeapfrogSettings>) {
                 return std::make_shared<BhLeapfrogSimulator>(specific_settings);
