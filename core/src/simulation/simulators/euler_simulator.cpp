@@ -63,11 +63,11 @@ void EulerSimulator::updateForcesAndEnergy()
 
     // Reset accelerations and potential energy
     potential_energy_ = 0.0;
-    std::fill(m_accelerations.begin(), m_accelerations.end(), math::Vector3D{});
+    std::fill(accelerations_.begin(), accelerations_.end(), math::Vector3D{});
 
     // Calculate pair-wise accelerations and potential energy simultaneously
-    const auto& positions = m_system_data.positions;
-    const auto& masses = m_system_data.masses;
+    const auto& positions = system_.positions;
+    const auto& masses = system_.masses;
 
     for (size_t i = 0; i < particle_count; i++) {
         if (isStopRequested()) return;
