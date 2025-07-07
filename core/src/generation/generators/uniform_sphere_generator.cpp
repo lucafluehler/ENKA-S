@@ -2,8 +2,9 @@
 #include <vector>
 
 #include <enkas/data/system.h>
+#include <enkas/math/vector3d.h>
 #include <enkas/generation/generators/uniform_sphere_generator.h>
-#include <enkas/physics/physics_helpers.h>
+#include <enkas/physics/helpers.h>
 
 namespace enkas::generation {
 
@@ -12,7 +13,7 @@ UniformSphereGenerator::UniformSphereGenerator(const UniformSphereSettings& sett
     , seed_(seed)
 {}
 
-data::InitialSystem UniformSphereGenerator::createSystem()
+data::System UniformSphereGenerator::createSystem()
 {
     data::System system;
     const int particle_count = settings_.particle_count;
@@ -25,7 +26,7 @@ data::InitialSystem UniformSphereGenerator::createSystem()
     std::uniform_real_distribution<double> pos_dist(-settings_.sphere_radius, settings_.sphere_radius);
     std::uniform_real_distribution<double> vel_dist(0.0, 1.0);
 
-    const double particle_mass = m_settings.total_mass / particle_count;
+    const double particle_mass = m_settings.total_mass/particle_count;
 
     for (size_t i = 0; i < particle_count; i++) {
         math::Vector3D position;

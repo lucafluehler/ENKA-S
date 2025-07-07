@@ -2,28 +2,29 @@
 #include <vector>
 
 #include <enkas/generation/stream_generator.h>
-#include <enkas/data/initial_system.h>
+#include <enkas/data/system.h>
+#include <enkas/math/vector3d.h>
 
 namespace enkas::generation {
 
 StreamGenerator::StreamGenerator(std::istream& stream)
-    : stream(stream)
+    : stream_(stream)
 {}
 
-data::InitialSystem StreamGenerator::createSystem()
+data::System StreamGenerator::createSystem()
 {
-    data::InitialSystem initial_system;
+    data::System system;
     std::string line;
     
-    if (!stream) {
-        return initial_system;
+    if (!stream_) {
+        return system;
     }
 
     // Skip header
-    std::getline(stream, line);
+    std::getline(stream_, line);
 
     // Load particles one by one :)
-    while (std::getline(stream, line)) {
+    while (std::getline(stream_, line)) {
         std::stringstream line_stream(line);
         std::string cell;
         std::vector<std::string> cells;
@@ -35,16 +36,12 @@ data::InitialSystem StreamGenerator::createSystem()
 
         if (cells.size() >= 7) {
             try {
-                data::BaseParticle particle;
-                particle.pos.x = std::stod(cells[0]);
-                particle.pos.y = std::stod(cells[1]);
-                particle.pos.z = std::stod(cells[2]);
-                particle.vel.x = std::stod(cells[3]);
-                particle.vel.y = std::stod(cells[4]);
-                particle.vel.z = std::stod(cells[5]);
-                particle.mass  = std::stod(cells[6]);
+                math::Vector3D position = {std::stod(cells[0]), std::stod(cells[1]), std::stod(cells[2])};
+                math::Vector3D velocity = {std::stod(cells[3]), std::stod(cells[4]), std::stod(cells[5])};
 
-                initial_system.push_back(particle);
+                system.positions.push_back(position);
+                system.velocities.push_back(velocity);
+                system.masses.push_back(std::stod(cells[6]));
             }
             catch (const std::invalid_argument& e) {
                 // This line could not be parsed as numbers.
@@ -55,9 +52,11 @@ data::InitialSystem StreamGenerator::createSystem()
         }
     }
 
-    initial_system.shrink_to_fit();
+    system.positions.shrink_to_fit();
+    system.velocities.shrink_to_fit();
+    system.masses.shrink_to_fit();
 
-    return initial_system;
+    return system;
 }
 
 } // namespace enkas::generation

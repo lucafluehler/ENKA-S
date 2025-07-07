@@ -1,67 +1,68 @@
 #include <random>
 #include <vector>
 
-#include <enkas/data/initial_system.h>
+#include <enkas/data/system.h>
+#include <enkas/math/vector3d.h>
+#include <enkas/math/helpers.h>
 #include <enkas/generation/generators/plummer_sphere_generator.h>
-#include <enkas/physics/physics_helpers.h>
+#include <enkas/physics/helpers.h>
 
 namespace enkas::generation {
 
 PlummerSphereGenerator::PlummerSphereGenerator(const PlummerSphereSettings& settings, unsigned int seed)
-    : settings(settings)
-    , seed(seed)
+    : settings_(settings)
+    , seed_(seed)
 {}
 
-data::InitialSystem PlummerSphereGenerator::createSystem()
+data::System PlummerSphereGenerator::createSystem()
 {
-    data::InitialSystem initial_system;
-    initial_system.reserve(settings.N);
+    data::System system;
+    const int particle_count = settings_.particle_count;
 
-    const double c_GRAV_MASS = std::sqrt(2.0*physics::G*settings.total_mass);
-    const double c_PLUMMER_RADIUS_SQR = settings.radius*settings.radius;
+    system.positions.reserve(particle_count);
+    system.velocities.reserve(particle_count);
+    system.masses.reserve(particle_count);
 
-    std::mt19937 gen(seed);
+    const double plummer_radius = settings_.sphere_radius;
+    const double particle_mass = settings_.total_mass/particle_count;
+
+    std::mt19937 gen(seed_);
     std::uniform_real_distribution<double> dist(0.0, 1.0);
 
-    double cumulative_mass_min = 0.0;
-    double cumulative_mass_max = 1.0/settings.N;
+    for (size_t i = 0; i < particle_count; i++) {
+        // POSITION (Aarseth, S. J. 2003, Gravitational N-Body Simulations)
+        // This method generates a radius 'r' based on the mass distribution.
+        const double m_i = (i + 1.0)/particle_count; // Cumulative mass fraction
+        const double r = plummer_radius/std::sqrt(std::pow(m_i, -2.0/3.0) - 1.0);
+        
+        // Use the new, namespaced helper function to get a random direction.
+        const math::Vector3D position = math::getRandOnSphere(gen, r);
 
-    for (size_t i = 0; i < settings.N; i++) {
-        data::BaseParticle particle;
-
-        // MASS
-        particle.mass = settings.total_mass/settings.N;
-
-        std::uniform_real_distribution<double>
-                    mass_dist( cumulative_mass_min, cumulative_mass_max );
-
-        double cumulative_mass = mass_dist(gen);
-        cumulative_mass_min = cumulative_mass_max;
-        cumulative_mass_max += 1.0/settings.N;
-
-        // POSITION
-        const double c_MASS_TERM = std::pow(cumulative_mass, -2.0/3.0);
-        const double c_RADIUS = settings.radius/std::sqrt(c_MASS_TERM - 1.0);
-        particle.pos = utils::getRandSphere(gen, c_RADIUS);
-
-        // VELOCITY
+        // VELOCITY (Rejection sampling method from Aarseth, 2003)
         double q = 0.0;
-        double rejection_parameter = 0.1;
-        while (rejection_parameter > q*q*std::pow(1.0 - q*q, 3.5)) {
-            q = dist(gen);
-            rejection_parameter = dist(gen)*0.1;
-        }
+        double g_q = 0.0;
+        do {
+            q = dist(gen); // Generate a random value [0, 1] for velocity magnitude
+            g_q = dist(gen)*0.1; // Generate a random value [0, 0.1] for comparison
+        } while (g_q > q*q*std::pow(1.0 - q*q, 3.5));
 
-        const double c_MU = std::pow(c_PLUMMER_RADIUS_SQR + c_RADIUS*c_RADIUS, -0.25);
-        const double c_VELOCITY = q*c_GRAV_MASS*c_MU;
-        particle.vel = utils::getRandSphere(gen, c_VELOCITY);
+        const double escape_velocity = std::sqrt(2.0*physics::G*settings_.total_mass)* 
+                                       std::pow(plummer_radius*plummer_radius + r*r, -0.25);
+        
+        const double speed = q*escape_velocity;
 
-        initial_system.push_back(particle);
+        // Use the new helper function again for the velocity direction.
+        const math::Vector3D velocity = math::getRandOnSphere(gen, speed);
+
+        // --- Push properties to their SoA vectors ---
+        system.positions.push_back(position);
+        system.velocities.push_back(velocity);
+        system.masses.push_back(particle_mass);
     }
 
-    physics::centerParticles(initial_system);
+    physics::centerSystem(system);
 
-    return initial_system;
+    return system;
 }
 
 } // namespace enkas::generation

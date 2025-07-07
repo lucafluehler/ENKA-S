@@ -1,67 +1,101 @@
 #include <random>
 #include <vector>
 
-#include <enkas/data/initial_system.h>
+#include <enkas/data/systems.h>
+#include <enkas/math/vector3d.h>
 #include <enkas/generation/generators/collision_model_generator.h>
 #include <enkas/generation/generators/plummer_sphere_generator.h>
-#include <enkas/physics/physics_helpers.h>
+#include <enkas/physics/helpers.h>
 
 namespace enkas::generation {
 
 CollisionModelGenerator::CollisionModelGenerator(const CollisionModelSettings& settings, unsigned int seed)
-    : settings(settings)
-    , seed(seed)
+    : settings_(settings)
+    , seed_(seed)
 {}
 
-data::InitialSystem CollisionModelGenerator::createSystem()
+data::System CollisionModelGenerator::createSystem()
 {
-    const double c_AVG_RADIUS = (settings.radius_1 + settings.radius_2)/2.0;
-    const double c_HALF_DISTANCE = std::pow(c_AVG_RADIUS, 1.0/3.0)*1.2;
-
     // Generate first Plummer sphere
-    auto plummer_1_settings = PlummerSphereSettings();
-    plummer_1_settings.N = settings.N_1;
-    plummer_1_settings.radius = settings.radius_1;
-    plummer_1_settings.total_mass = settings.total_mass_1;
+    PlummerSphereSettings plummer1_settings;
+    plummer1_settings.particle_count = m_settings.particle_count_1;
+    plummer1_settings.sphere_radius  = m_settings.radius_1;
+    plummer1_settings.total_mass     = m_settings.total_mass_1;
 
-    auto sphere_1 = PlummerSphereGenerator(plummer_1_settings, seed).createSystem();
+    data::System sphere1 = PlummerSphereGenerator(plummer1_settings, m_seed).createSystem();
 
-    physics::centerParticles(sphere_1);
+    // Generate second Plummer sphere
+    PlummerSphereSettings plummer2_settings;
+    plummer2_settings.particle_count = m_settings.particle_count_2;
+    plummer2_settings.sphere_radius  = m_settings.radius_2;
+    plummer2_settings.total_mass     = m_settings.total_mass_2;
 
-    // Move particles in positive x_direction and add drift in opposite direction
-    for (auto& particle: sphere_1) {
-        particle.pos.x += c_HALF_DISTANCE;
-        particle.pos.y += settings.radius_1;
-        particle.vel.x -= 4.0;
+    data::System sphere2 = PlummerSphereGenerator(plummer2_settings, m_seed + 1).createSystem();
+
+    const double avg_radius = (settings_.sphere_radius_1 + settings_.sphere_radius_2)/2.0;
+    const double separation_distance = settings_.impact_parameter;
+
+    // Move first sphere
+    for (auto& pos : sphere1.positions) {
+        pos.x += separation_distance/2.0;
     }
 
-    // Generate second centered Plummer sphere
-    auto plummer_2_settings = PlummerSphereSettings();
-    plummer_2_settings.N = settings.N_2;
-    plummer_2_settings.radius = settings.radius_2;
-    plummer_2_settings.total_mass = settings.total_mass_2;
+    for (auto& vel : sphere1.velocities) {
+        vel.x += settings_.relative_velocity/2.0;
+    }
 
-    auto sphere_2 = PlummerSphereGenerator(plummer_2_settings, seed).createSystem();
+    // Move second sphere
+    for (auto& pos : sphere2.positions) {
+        pos.x -= separation_distance/2.0;
+    }
 
-    physics::centerParticles(sphere_2);
-
-    // Move particles in negative x_direction and add drift in opposite direction
-    for (auto& particle: sphere_2) {
-        particle.pos.x -= c_HALF_DISTANCE;
-        particle.pos.y -= settings.radius_2;
-        particle.vel.x += 4.0;
+    for (auto& vel : sphere2.velocities) {
+        vel.x -= settings_.relative_velocity/2.0;
     }
 
     // Combine both systems and center
-    data::InitialSystem initial_system;
-    initial_system.reserve(settings.N_1 + settings.N_2);
+    data::System system;
+    const size_t total_particles = sphere1.count() + sphere2.count();
 
-    initial_system.insert(initial_system.end(), sphere_1.begin(), sphere_1.end());
-    initial_system.insert(initial_system.end(), sphere_2.begin(), sphere_2.end());
+    system.positions.reserve(total_particles);
+    system.velocities.reserve(total_particles);
+    system.masses.reserve(total_particles);
 
-    physics::centerParticles(initial_system);
+    system.positions.insert(
+        system.positions.end(), 
+        std::make_move_iterator(sphere1.positions.begin()), 
+        std::make_move_iterator(sphere1.positions.end())
+    );
+    system.velocities.insert(
+        system.velocities.end(), 
+        std::make_move_iterator(sphere1.velocities.begin()), 
+        std::make_move_iterator(sphere1.velocities.end())
+    );
+    system.masses.insert(
+        system.masses.end(), 
+        std::make_move_iterator(sphere1.masses.begin()), 
+        std::make_move_iterator(sphere1.masses.end())
+    );
 
-    return initial_system;
+    system.positions.insert(
+        system.positions.end(), 
+        std::make_move_iterator(sphere2.positions.begin()), 
+        std::make_move_iterator(sphere2.positions.end())
+    );
+    system.velocities.insert(
+        system.velocities.end(), 
+        std::make_move_iterator(sphere2.velocities.begin()), 
+        std::make_move_iterator(sphere2.velocities.end())
+    );
+    system.masses.insert(
+        system.masses.end(), 
+        std::make_move_iterator(sphere2.masses.begin()), 
+        std::make_move_iterator(sphere2.masses.end())
+    );
+
+    physics::centerSystem(system);
+
+    return system;
 }
 
 } // namespace enkas::generation
