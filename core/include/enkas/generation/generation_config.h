@@ -8,7 +8,6 @@
 #include <enkas/generation/settings/uniform_sphere_settings.h>
 #include <enkas/generation/settings/plummer_sphere_settings.h>
 #include <enkas/generation/settings/spiral_galaxy_settings.h>
-#include <enkas/generation/settings/flyby_model_settings.h>
 #include <enkas/generation/settings/collision_model_settings.h>
 
 namespace enkas::generation {
@@ -21,7 +20,6 @@ using SettingsVariant = std::variant<
     PlummerSphereSettings,
     SpiralGalaxySettings,
     CollisionModelSettings,
-    FlybyModelSettings
 >;
 
 struct GenerationConfig {

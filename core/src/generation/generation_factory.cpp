@@ -13,8 +13,7 @@
 #include <enkas/generation/plummer_sphere_generator.h>
 #include <enkas/generation/spiral_galaxy_generator.h>
 #include <enkas/generation/collision_model_generator.h>
-#include <enkas/generation/flyby_model_generator.h>
-
+s
 namespace enkas::generation {
 
 std::unique_ptr<Generator> GenerationFactory::create(const GenerationConfig& config)
@@ -47,9 +46,6 @@ std::unique_ptr<Generator> GenerationFactory::create(const GenerationConfig& con
             }
             if constexpr (std::is_same_v<SettingsType, CollisionModelSettings>) {
                 return std::make_unique<CollisionModelGenerator>(specific_settings, config.seed);
-            }
-            if constexpr (std::is_same_v<SettingsType, FlybyModelSettings>) {
-                return std::make_unique<FlybyModelGenerator>(specific_settings, config.seed);
             }
             else {
                 return nullptr;
