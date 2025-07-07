@@ -25,13 +25,13 @@ public:
     /**
      * @brief Signals the simulator to stop its work at the next safe opportunity.
      */
-    void requestStop() { stop_requested.store(true); }
+    void requestStop() { stop_requested_.store(true); }
 
     /**
      * @brief Checks if a stop has been requested.
      * @return True if a stop has been requested, false otherwise.
      */
-    [[nodiscard]] bool isStopRequested() const { return stop_requested.load(); }
+    [[nodiscard]] bool isStopRequested() const { return stop_requested_.load(); }
 
     /**
      * @brief Returns the current time of the simulation.
@@ -46,7 +46,7 @@ public:
     [[nodiscard]] virtual data::System getSystem() const = 0;
 
 protected:
-    std::atomic_bool stop_requested{false};
+    std::atomic_bool stop_requested_{false};
 };
 
 } // namespace enkas::simulation
