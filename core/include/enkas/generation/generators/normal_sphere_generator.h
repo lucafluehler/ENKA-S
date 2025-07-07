@@ -1,6 +1,6 @@
 #pragma once
 
-#include <enkas/data/base_particle.h>
+#include <enkas/data/system.h>
 #include <enkas/generation/generator.h>
 #include <enkas/generation/settings/normal_sphere_settings.h>
 
@@ -11,11 +11,11 @@ class NormalSphereGenerator : public Generator
 public:
     explicit NormalSphereGenerator(const NormalSphereSettings& settings, unsigned int seed);
 
-    [[nodiscard]] InitialSystem createSystem() override;
+    [[nodiscard]] data::System createSystem() override;
 
 private:
-    NormalSphereSettings settings;
-    unsigned int seed;
+    NormalSphereSettings settings_;
+    unsigned int seed_;
 };
 
 } // namespace enkas::generation

@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include <enkas/data/initial_system.h>
+#include <enkas/data/system.h>
 #include <enkas/generation/generator.h>
 #include <enkas/generation/settings/uniform_sphere_settings.h>
 
@@ -13,11 +13,11 @@ class UniformSphereGenerator : public Generator
 public:
     explicit UniformSphereGenerator(const UniformSphereSettings& settings, unsigned int seed);
 
-    [[nodiscard]] data::InitialSystem createSystem() override;
+    [[nodiscard]] data::System createSystem() override;
 
 private:
-    UniformSphereSettings settings;
-    unsigned int seed;
+    UniformSphereSettings settings_;
+    unsigned int seed_;
 };
 
 } // namespace enkas::generation

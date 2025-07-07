@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include <enkas/data/initial_system.h>
+#include <enkas/data/system.h>
 #include <enkas/generation/generator.h>
 #include <enkas/generation/settings/uniform_cube_settings.h>
 
@@ -13,11 +13,11 @@ class UniformCubeGenerator : public Generator
 public:
     UniformCubeGenerator(const UniformCubeSettings& settings, unsigned int seed);
 
-    [[nodiscard]] data::InitialSystem createSystem() override;
+    [[nodiscard]] data::System createSystem() override;
 
 private:
-    UniformCubeSettings settings;
-    unsigned int seed;
+    UniformCubeSettings settings_;
+    unsigned int seed_;
 };
 
 } // namespace enkas::generation

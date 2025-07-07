@@ -3,7 +3,7 @@
 #include <random>
 #include <vector>
 
-#include <enkas/data/initial_system.h>
+#include <enkas/data/system.h>
 #include <enkas/generation/generator.h>
 #include <enkas/generation/settings/plummer_sphere_settings.h>
 
@@ -20,13 +20,13 @@ public:
      * Uses the algorithm provided by Aarseth et. al. in Astronomy and Astrophysics,
      * vol. 37, no. 1, Dec. 1974, p. 183-187.
      *
-     * @return A vector of BaseParticle objects representing the generated particle system.
+     * @return A System object containing the generated particles.
      */
-    [[nodiscard]] data::InitialSystem createSystem() override;
+    [[nodiscard]] data::Systen createSystem() override;
 
 private:
-    PlummerSphereSettings settings;
-    unsigned int seed;
+    PlummerSphereSettings settings_;
+    unsigned int seed_;
 };
 
 } // namespace enkas::generation

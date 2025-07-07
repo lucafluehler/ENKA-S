@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include <enkas/data/initial_system.h>
+#include <enkas/data/system.h>
 #include <enkas/generation/generator.h>
 #include <enkas/generation/settings/spiral_galaxy_settings.h>
 
@@ -13,11 +13,11 @@ class SpiralGalaxyGenerator : public Generator
 public:
     explicit SpiralGalaxyGenerator(const SpiralGalaxySettings& settings, unsigned int seed);
 
-    [[nodiscard]] data::InitialSystem createSystem() override;
+    [[nodiscard]] data::System createSystem() override;
 
 private:
-    SpiralGalaxySettings settings;
-    unsigned int seed;
+    SpiralGalaxySettings settings_;
+    unsigned int seed_;
 };
 
 } // namespace enkas::generation

@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include <enkas/data/initial_system.h>
+#include <enkas/data/system.h>
 #include <enkas/generation/generator.h>
 #include <enkas/generation/settings/collision_model_settings.h>
 
@@ -13,11 +13,11 @@ class CollisionModelGenerator : public Generator
 public:
     explicit CollisionModelGenerator(const CollisionModelSettings& settings, unsigned int seed);
 
-    [[nodiscard]] data::InitialSystem createSystem() override;
+    [[nodiscard]] data::System createSystem() override;
 
 private:
-    CollisionModelSettings settings;
-    unsigned int seed;
+    CollisionModelSettings settings_;
+    unsigned int seed_;
 };
 
 } // namespace enkas::generation
