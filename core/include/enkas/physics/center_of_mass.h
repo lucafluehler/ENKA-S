@@ -1,6 +1,6 @@
 #pragma once
 
-#include "geometric_algebra.h"
+#include <enkas/math/vector3d.h>
 
 namespace enkas::physics {
 
