@@ -2,10 +2,7 @@
 
 #include <atomic>
 
-#include <enkas/data/initial_system.h>
-#include <enkas/data/render_data.h>
-#include <enkas/data/diagnostics_data.h>
-#include <enkas/data/analytics_data.h>
+#include <enkas/data/system.h>
 
 namespace enkas::simulation {
 
@@ -18,22 +15,35 @@ public:
      * @brief Initializes the simulator with a set of particles.
      * @param initial_system The initial state of the system to simulate.
      */
-    virtual void initializeSystem(const data::InitialSystem& initial_system) = 0;
+    virtual void setSystem(const data::System& initial_system) = 0;
 
     /**
-     * @brief Advances the simulation by one or more internal time steps.
+     * @brief Advances the simulation by a single time step.
      */
-    virtual void evolveSystem() = 0;
+    virtual void step() = 0;
 
     /**
      * @brief Signals the simulator to stop its work at the next safe opportunity.
      */
     void requestStop() { stop_requested.store(true); }
 
-    [[nodiscard]] virtual double getGlobalTime() const = 0;
-    [[nodiscard]] virtual data::RenderData getRenderData() const = 0;
-    [[nodiscard]] virtual data::DiagnosticsData getDiagnosticsData() const = 0;
-    [[nodiscard]] virtual data::AnalyticsData getAnalyticsData() const = 0;
+    /**
+     * @brief Checks if a stop has been requested.
+     * @return True if a stop has been requested, false otherwise.
+     */
+    [[nodiscard]] bool isStopRequested() const { return stop_requested.load(); }
+
+    /**
+     * @brief Returns the current time of the simulation.
+     * @return The current time of the simulation.
+     */
+    [[nodiscard]] virtual double getSystemTime() const = 0;
+
+    /**
+     * @brief Returns the current state of the system.
+     * @return The current state of the system.
+     */
+    [[nodiscard]] virtual data::System getSystem() const = 0;
 
 protected:
     std::atomic_bool stop_requested{false};
