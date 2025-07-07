@@ -3,6 +3,7 @@
 #include <vector>
 
 #include <enkas/data/system.h>
+#include <enkas/math/vector3d.h>
 #include <enkas/simulation/simulator.h>
 #include <enkas/simulation/settings/leapfrog_settings.h>
 
