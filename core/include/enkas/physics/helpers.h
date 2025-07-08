@@ -40,7 +40,7 @@ const double G = 0.004300917271;
  * @warning This function assumes Hénon units for the system, which means
  *          that the gravitational constant G is set to 1.
  */
-[[nodiscard]] inline double getPotentialEnergy(const data::System& system, double softening_parameter = 0.0) const
+[[nodiscard]] inline double getPotentialEnergy(const data::System& system, double softening_parameter) const
 {
     const size_t particle_count = system.count();
     if (particle_count == 0) return 0.0;
