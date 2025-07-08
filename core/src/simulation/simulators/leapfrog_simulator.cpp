@@ -13,17 +13,18 @@ LeapfrogSimulator::LeapfrogSimulator(const LeapfrogSettings& settings)
     , softening_sqr_(settings.softening_parameter*settings.softening_parameter)
 {}
 
-void LeapfrogSimulator::setSystem(data::System initial_system)
+void LeapfrogSimulator::setSystem(const data::System& initial_system)
 {
-    system_ = std::move(initial_system);
-
-    // Calculate total energy
-    updateForcesAndEnergy();
-    const double total_energy = std::abs(physics::getKineticEnergy(system_) + potential_energy_*physics::G);
+    system_ = initial_system;
 
     // Scale particles to Hénon Units
-    physics::scaleToHenonUnits(system_, total_energy);
-    updateForcesAndEnergy();
+    updateForces();
+    const double e_kin = physics::getKineticEnergy(system_);
+    const double e_pot = physics::getPotentialEnergy(system_, softening_sqr_);
+    physics::scaleToHenonUnits(system_, std::abs(e_kin + e_pot*physics::G));
+    
+    // Initialize accelerations vector in Hénon Units
+    updateForces();
 
     system_time_ = 0.0;
 }
@@ -48,7 +49,7 @@ void LeapfrogSimulator::step()
     }
 
     // Calculate acceleration and potential energy for the entire system
-    updateForcesAndEnergy();
+    updateForces();
 
     // Leapfrog Second "Kick"
     for (size_t i = 0; i < particle_count; ++i) {
@@ -63,16 +64,15 @@ void LeapfrogSimulator::step()
 
 [[nodiscard]] data::System LeapfrogSimulator::getSystem() const { return system_; }
 
-void LeapfrogSimulator::updateForcesAndEnergy()
+void LeapfrogSimulator::updateForces()
 {
     const size_t particle_count = system_.count();
     if (particle_count == 0) return;
 
-    // Reset accelerations and potential energy
-    potential_energy_ = 0.0;
+    // Reset accelerations to zero
     std::fill(accelerations_.begin(), accelerations_.end(), math::Vector3D{});
 
-    // Calculate pair-wise accelerations and potential energy simultaneously
+    // Calculate pair-wise accelerations
     const auto& positions = system_.positions;
     const auto& masses = system_.masses;
 
@@ -89,8 +89,6 @@ void LeapfrogSimulator::updateForcesAndEnergy()
 
             particle_i.acc += r_ij*masses[j]*dist_inv_cubed;
             particle_j.acc -= r_ij*masses[i]*dist_inv_cubed;
-
-            potential_energy_ -= masses[i]*masses[j]*dist_inv;
         }
     }
 }

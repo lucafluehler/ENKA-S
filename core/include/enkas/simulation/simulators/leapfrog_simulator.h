@@ -15,7 +15,7 @@ public:
 
     ~LeapfrogSimulator() override = default;
 
-    void setSystem(data::System initial_system) override;
+    void setSystem(const data::System& initial_system) override;
     void step() override;
 
     [[nodiscard]] double getSystemTime() const override;
@@ -23,15 +23,14 @@ public:
 
 private:
     /**
-     * @brief Calculates the accelerations and potential energy of the system.
+     * @brief Calculates the accelerations of the particles.
      */
-    void updateForcesAndEnergy();
+    void updateForces();
 
 private:
     LeapfrogSettings settings_;
 
     double system_time_ = 0.0; // current time of the system
-    double potential_energy_ = 0.0; // total potential energy of the system
     const double softening_sqr_; // squared softening parameters
 
     data::System system_; // current state of the system
