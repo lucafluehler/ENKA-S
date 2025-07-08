@@ -2,7 +2,7 @@
 
 namespace enkas::generation {
 
-struct CollisionModelsSettings {
+struct CollisionModelSettings {
     double impact_parameter;
     double relative_velocity;
 

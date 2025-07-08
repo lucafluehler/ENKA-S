@@ -1,7 +1,7 @@
 #include <random>
 #include <vector>
 
-#include <enkas/data/systems.h>
+#include <enkas/data/system.h>
 #include <enkas/math/vector3d.h>
 #include <enkas/generation/generators/collision_model_generator.h>
 #include <enkas/generation/generators/plummer_sphere_generator.h>
@@ -18,19 +18,19 @@ data::System CollisionModelGenerator::createSystem()
 {
     // Generate first Plummer sphere
     PlummerSphereSettings plummer1_settings;
-    plummer1_settings.particle_count = m_settings.particle_count_1;
-    plummer1_settings.sphere_radius  = m_settings.radius_1;
-    plummer1_settings.total_mass     = m_settings.total_mass_1;
+    plummer1_settings.particle_count = settings_.particle_count_1;
+    plummer1_settings.sphere_radius  = settings_.sphere_radius_1;
+    plummer1_settings.total_mass     = settings_.total_mass_1;
 
-    data::System sphere1 = PlummerSphereGenerator(plummer1_settings, m_seed).createSystem();
+    data::System sphere1 = PlummerSphereGenerator(plummer1_settings, seed_).createSystem();
 
     // Generate second Plummer sphere
     PlummerSphereSettings plummer2_settings;
-    plummer2_settings.particle_count = m_settings.particle_count_2;
-    plummer2_settings.sphere_radius  = m_settings.radius_2;
-    plummer2_settings.total_mass     = m_settings.total_mass_2;
+    plummer2_settings.particle_count = settings_.particle_count_2;
+    plummer2_settings.sphere_radius  = settings_.sphere_radius_2;
+    plummer2_settings.total_mass     = settings_.total_mass_2;
 
-    data::System sphere2 = PlummerSphereGenerator(plummer2_settings, m_seed + 1).createSystem();
+    data::System sphere2 = PlummerSphereGenerator(plummer2_settings, seed_ + 1).createSystem();
 
     const double avg_radius = (settings_.sphere_radius_1 + settings_.sphere_radius_2)/2.0;
     const double separation_distance = settings_.impact_parameter;
