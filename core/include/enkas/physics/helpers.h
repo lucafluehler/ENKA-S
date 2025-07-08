@@ -25,7 +25,7 @@ const double G = 0.004300917271;
 
     double kinetic_energy = 0.0;
 
-    for (size_t i = 0; i < system.size(); ++i) {
+    for (size_t i = 0; i < system.count(); ++i) {
         kinetic_energy += system.masses[i]*system.velocities[i].norm2();
     }
 
@@ -40,7 +40,7 @@ const double G = 0.004300917271;
  * @warning This function assumes Hénon units for the system, which means
  *          that the gravitational constant G is set to 1.
  */
-[[nodiscard]] inline double getPotentialEnergy(const data::System& system, double softening_parameter) const
+[[nodiscard]] inline double getPotentialEnergy(const data::System& system, double softening_parameter)
 {
     const size_t particle_count = system.count();
     if (particle_count == 0) return 0.0;
@@ -69,7 +69,7 @@ const double G = 0.004300917271;
 {
     math::Bivector3D total_angular_momentum{};
 
-    for (size_t i = 0; i < system.size(); ++i) {
+    for (size_t i = 0; i < system.count(); ++i) {
         const auto& pos = system.positions[i];
         const auto& vel = system.velocities[i];
         const auto mass = system.masses[i];
@@ -87,7 +87,7 @@ const double G = 0.004300917271;
  */
 inline void centerSystem(data::System& system)
 {
-    if (system.size() == 0) {
+    if (system.count() == 0) {
         return;
     }
 
@@ -95,7 +95,7 @@ inline void centerSystem(data::System& system)
     math::Vector3D weighted_vel_sum{};
     double total_mass = 0.0;
 
-    for (size_t i = 0; i < system.size(); ++i) {
+    for (size_t i = 0; i < system.count(); ++i) {
         const double mass = system.masses[i];
         weighted_pos_sum += system.positions[i]*mass;
         weighted_vel_sum += system.velocities[i]*mass;
@@ -109,7 +109,7 @@ inline void centerSystem(data::System& system)
     const math::Vector3D com_pos = weighted_pos_sum / total_mass;
     const math::Vector3D com_vel = weighted_vel_sum / total_mass;
 
-    for (size_t i = 0; i < system.size(); ++i) {
+    for (size_t i = 0; i < system.count(); ++i) {
         system.positions[i] -= com_pos;
         system.velocities[i] -= com_vel;
     }
@@ -129,7 +129,7 @@ inline void centerSystem(data::System& system)
  */
 inline void scaleToHenonUnits(data::System& system, double total_energy)
 {
-    if (system.size() == 0) {
+    if (system.count() == 0) {
         return;
     }
 
