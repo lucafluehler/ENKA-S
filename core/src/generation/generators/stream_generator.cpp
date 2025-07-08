@@ -1,5 +1,7 @@
 #include <string>
 #include <vector>
+#include <istream>
+#include <sstream>
 
 #include <enkas/generation/generators/stream_generator.h>
 #include <enkas/data/system.h>
