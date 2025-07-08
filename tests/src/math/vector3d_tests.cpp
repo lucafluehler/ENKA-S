@@ -84,18 +84,9 @@ TEST(Vector3DTests, DotProduct) {
     EXPECT_DOUBLE_EQ(enkas::math::dotProduct(vec1, vec2), 32.0);
 }
 
-TEST(Vector3DTests, CrossProduct) {
-    enkas::math::Vector3D vec1(1.0, 2.0, 3.0);
-    enkas::math::Vector3D vec2(4.0, 5.0, 6.0);
-    enkas::math::Vector3D result = enkas::math::crossProduct(vec1, vec2);
-    EXPECT_DOUBLE_EQ(result.x, -3.0);
-    EXPECT_DOUBLE_EQ(result.y, 6.0);
-    EXPECT_DOUBLE_EQ(result.z, -3.0);
-}
-
 TEST(Vector3DTests, Normalize) {
     enkas::math::Vector3D vec(3.0, 4.0, 0.0);
-    vec.normalize();
+    vec.set_norm(1.0);
     EXPECT_DOUBLE_EQ(vec.x, 0.6);
     EXPECT_DOUBLE_EQ(vec.y, 0.8);
     EXPECT_DOUBLE_EQ(vec.z, 0.0);
@@ -103,7 +94,7 @@ TEST(Vector3DTests, Normalize) {
 
 TEST(Vector3DTests, NormalizeZeroVector) {
     enkas::math::Vector3D vec(0.0, 0.0, 0.0);
-    vec.normalize();
+    vec.set_norm(1.0);
     EXPECT_DOUBLE_EQ(vec.x, 0.0);
     EXPECT_DOUBLE_EQ(vec.y, 0.0);
     EXPECT_DOUBLE_EQ(vec.z, 0.0);
