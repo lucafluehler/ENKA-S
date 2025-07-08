@@ -53,7 +53,7 @@ double Rotor3D::norm() const
     return std::sqrt(norm2());
 }
 
-Rotor3D Rotor3D::normalize()
+Rotor3D& Rotor3D::normalize()
 {
     double rotor_norm = norm();
 
