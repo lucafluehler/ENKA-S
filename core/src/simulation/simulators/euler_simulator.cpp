@@ -18,13 +18,13 @@ void EulerSimulator::setSystem(const data::System& initial_system)
     system_ = initial_system;
 
     // Scale particles to Hénon Units
-    updateForcesAndEnergy();
+    updateForces();
     const double e_kin = physics::getKineticEnergy(system_);
     const double e_pot = physics::getPotentialEnergy(system_, softening_sqr_);
     physics::scaleToHenonUnits(system_, std::abs(e_kin + e_pot*physics::G));
     
     // Initialize accelerations vector in Hénon Units
-    updateForcesAndEnergy();
+    updateForces();
 
     system_time_ = 0.0;
 }
@@ -34,7 +34,7 @@ void EulerSimulator::evolveSystem()
     if (isStopRequested()) return;
 
     // Calculate acceleration and potential energy for the entire system
-    updateForcesAndEnergy();
+    updateForces();
 
     const double dt = settings_.time_step;
 
