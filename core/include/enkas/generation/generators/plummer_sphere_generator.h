@@ -22,7 +22,7 @@ public:
      *
      * @return A System object containing the generated particles.
      */
-    [[nodiscard]] data::Systen createSystem() override;
+    [[nodiscard]] data::System createSystem() override;
 
 private:
     PlummerSphereSettings settings_;
