@@ -47,7 +47,7 @@ void LeapfrogSimulator::step()
         system_.positions[i] += system_.velocities[i]*dt;
     }
 
-    // Calculate acceleration and potential energy for the entire system
+    // Calculate accelerations for all particles
     updateForces();
 
     // Leapfrog Second "Kick"
@@ -55,7 +55,7 @@ void LeapfrogSimulator::step()
         system_.velocities[i] += accelerations_[i]*dt*0.5;
     }
 
-    // Update global time with time_step
+    // Update system time with time_step
     system_time_ += dt;
 }
 
