@@ -1,7 +1,7 @@
 #include <string>
 #include <vector>
 
-#include <enkas/generation/stream_generator.h>
+#include <enkas/generation/generators/stream_generator.h>
 #include <enkas/data/system.h>
 #include <enkas/math/vector3d.h>
 
