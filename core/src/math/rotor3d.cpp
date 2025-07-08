@@ -77,7 +77,7 @@ Vector3D Rotor3D::rotate(const Vector3D& vec) const
                       , s*vec.z - vec.x*b_xz - vec.y*b_yz };
 
     // Trivector component
-    const float t_xyz = vec.x*b_yz - vec.y*b_xz + vec.z*b_xy;
+    const double t_xyz = vec.x*b_yz - vec.y*b_xz + vec.z*b_xy;
 	
 	return Vector3D( s*tmp.x + tmp.y*b_xy + tmp.z*b_xz + t_xyz*b_yz 
                    , s*tmp.y - tmp.x*b_xy - t_xyz*b_xz + tmp.z*b_yz
