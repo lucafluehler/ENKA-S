@@ -22,11 +22,11 @@ data::System UniformSphereGenerator::createSystem()
     system.velocities.reserve(particle_count);
     system.masses.reserve(particle_count);
 
-    std::mt19937 gen(seed);
+    std::mt19937 gen(seed_);
     std::uniform_real_distribution<double> pos_dist(-settings_.sphere_radius, settings_.sphere_radius);
     std::uniform_real_distribution<double> vel_dist(0.0, 1.0);
 
-    const double particle_mass = m_settings.total_mass/particle_count;
+    const double particle_mass = settings_.total_mass/particle_count;
 
     for (size_t i = 0; i < particle_count; i++) {
         math::Vector3D position;
