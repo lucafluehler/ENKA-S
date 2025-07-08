@@ -27,8 +27,8 @@ private:
     BarnesHutLeapfrogSettings settings_; 
 
     double system_time_ = 0.0; // current time of the system
-    const double theta_mac_sqr; // squared multipole acceptance criterion
-    const double softening_sqr; // squared softening parameters
+    const double theta_mac_sqr_; // squared multipole acceptance criterion
+    const double softening_sqr_; // squared softening parameters
 
     data::System system_; // current state of the system
     BarnesHutTree barneshut_tree_; // Barnes-Hut tree for acceleration calculations
