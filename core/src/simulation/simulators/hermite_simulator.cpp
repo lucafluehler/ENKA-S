@@ -13,7 +13,7 @@ HermiteSimulator::HermiteSimulator(const HermiteSettings& settings)
     , softening_sqr_(settings.softening_parameter*settings.softening_parameter)
 {}
 
-void HermiteSimulator::setSystem(const data::System& initial_system)
+void HermiteSimulator::setSystem(data::System initial_system)
 {
     system_ = initial_system;
 
@@ -44,7 +44,7 @@ void HermiteSimulator::step()
     const auto old_accelerations = accelerations_;
     const auto old_jerks = jerks_;
 
-    const double dt  = m_settings.time_step;
+    const double dt  = settings_.time_step;
     const double dt2 = dt*dt;
     const double dt3 = dt2*dt;
 
