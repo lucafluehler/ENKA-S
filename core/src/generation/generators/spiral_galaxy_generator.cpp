@@ -27,7 +27,7 @@ data::System SpiralGalaxyGenerator::createSystem()
     const double stellar_mass = settings_.total_mass/particle_count;
     const double inner_radius = settings_.radius/40.0;
 
-    std::mt19937 gen(seed);
+    std::mt19937 gen(seed_);
     std::normal_distribution<double> disk_thickness_dist(0.0, settings_.radius/100.0);
 
     // Generate Disk
@@ -35,9 +35,9 @@ data::System SpiralGalaxyGenerator::createSystem()
 
     for (size_t k = 0; k < settings_.num_arms; k++) {
         for (size_t i = 0; i < num_particles_per_arm; i++) {
-            const double distance = inner_radius + settings.radius*i/settings.N;
+            const double distance = inner_radius + settings_.radius*i/settings_.particle_count;
             const double angle = 
-              (settings.twist*math::Pi*i/num_particles_per_arm) 
+              (settings_.twist*math::Pi*i/num_particles_per_arm)
             + (2*math::Pi*k/settings_.num_arms);
 
             math::Vector3D position = {std::sin(angle), std::cos(angle), 0.0};
@@ -58,7 +58,7 @@ data::System SpiralGalaxyGenerator::createSystem()
             }
 
             const double major_half_axis = distance/(1 + eccentricity);
-            const double first_term = utils::G*(settings.bh_mass + settings.total_mass);
+            const double first_term = physics::G*(settings_.black_hole_mass + settings_.total_mass);
             const double second_term = (2.0/distance - 1.0/major_half_axis);
             const double speed = std::sqrt(first_term*second_term);
             math::Vector3D velocity = {position.y, -position.x, 0.0};
