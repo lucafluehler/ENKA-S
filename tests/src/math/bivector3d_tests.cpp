@@ -82,9 +82,9 @@ TEST(Bivector3DTests, NormSquared) {
 TEST(Bivector3DTests, GetPerpendicular) {
     enkas::math::Bivector3D bivector(1.0, 2.0, 3.0);
     enkas::math::Vector3D perpendicular = bivector.getPerpendicular();
-    EXPECT_DOUBLE_EQ(perpendicular.x, -1.0);
+    EXPECT_DOUBLE_EQ(perpendicular.x, 3.0);
     EXPECT_DOUBLE_EQ(perpendicular.y, -2.0);
-    EXPECT_DOUBLE_EQ(perpendicular.z, 3.0);
+    EXPECT_DOUBLE_EQ(perpendicular.z, 1.0);
 }
 
 TEST(Bivector3DTests, CreateXY) {
@@ -113,6 +113,6 @@ TEST(Bivector3DTests, WedgeProduct) {
     enkas::math::Vector3D vector2(4.0, 5.0, 6.0);
     enkas::math::Bivector3D bivector = enkas::math::wedge(vector1, vector2);
     EXPECT_DOUBLE_EQ(bivector.xy, -3.0);
-    EXPECT_DOUBLE_EQ(bivector.xz, 6.0);
+    EXPECT_DOUBLE_EQ(bivector.xz, -6.0);
     EXPECT_DOUBLE_EQ(bivector.yz, -3.0);
 }
