@@ -89,8 +89,8 @@ void LeapfrogSimulator::updateForces()
             const double dist_inv = 1.0/std::sqrt(dist_sqr);
             const double dist_inv_cubed = dist_inv*dist_inv*dist_inv;
 
-            particle_i.acc += r_ij*masses[j]*dist_inv_cubed;
-            particle_j.acc -= r_ij*masses[i]*dist_inv_cubed;
+            accelerations_[i] += r_ij*masses[j]*dist_inv_cubed;
+            accelerations_[j] -= r_ij*masses[i]*dist_inv_cubed;
         }
     }
 }
