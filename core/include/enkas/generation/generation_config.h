@@ -17,7 +17,7 @@ using SettingsVariant = std::variant<
     UniformSphereSettings,
     PlummerSphereSettings,
     SpiralGalaxySettings,
-    CollisionModelSettings,
+    CollisionModelSettings
 >;
 
 struct GenerationConfig {
