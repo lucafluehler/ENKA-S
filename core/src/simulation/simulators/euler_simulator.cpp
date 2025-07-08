@@ -31,7 +31,7 @@ void EulerSimulator::setSystem(const data::System& initial_system)
     system_time_ = 0.0;
 }
 
-void EulerSimulator::evolveSystem()
+void EulerSimulator::step()
 {
     if (isStopRequested()) return;
 
@@ -42,7 +42,7 @@ void EulerSimulator::evolveSystem()
 
     // Calculate the new position and velocity of each particle using the
     // previously calculated acceleration
-    for (size_t i = 0; i < particle_count; ++i) {
+    for (size_t i = 0; i < system_.count(); ++i) {
         system_.positions[i] += system_.velocities[i]*dt;
         system_.velocities[i] += accelerations_[i]*dt;
     }
@@ -78,8 +78,8 @@ void EulerSimulator::updateForces()
             const double dist_inv = 1.0/std::sqrt(dist_sqr);
             const double dist_inv_cubed = dist_inv*dist_inv*dist_inv;
 
-            particle_i.acc += r_ij*masses[j]*dist_inv_cubed;
-            particle_j.acc -= r_ij*masses[i]*dist_inv_cubed;
+            accelerations_[i] += r_ij*masses[j]*dist_inv_cubed;
+            accelerations_[j] -= r_ij*masses[i]*dist_inv_cubed;
         }
     }
 }
