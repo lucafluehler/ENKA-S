@@ -52,8 +52,6 @@ void EulerSimulator::evolveSystem()
 
 [[nodiscard]] data::System EulerSimulator::getSystem() const { return system_; }
 
-//------------------------------------------------------------------------------------------
-
 void EulerSimulator::updateForcesAndEnergy()
 {
     const size_t particle_count = system_.count();
