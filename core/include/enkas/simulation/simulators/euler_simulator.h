@@ -7,6 +7,8 @@
 #include <enkas/simulation/simulator.h>
 #include <enkas/simulation/settings/euler_settings.h>
 
+namespace enkas::simulation {
+
 class EulerSimulator : public Simulator
 {
 public:
@@ -35,3 +37,5 @@ private:
     data::System system_; // current state of the system
     std::vector<math::Vector3D> accelerations_; // accelerations of the particles
 };
+
+} // namespace enkas::simulation

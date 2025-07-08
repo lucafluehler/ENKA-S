@@ -14,4 +14,4 @@ struct EulerSettings {
     }
 };
 
-} // namespace enkas::math
+} // namespace enkas::simulation
