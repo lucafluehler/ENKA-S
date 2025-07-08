@@ -36,7 +36,7 @@ BarnesHutNode::BarnesHutNode(const math::Vector3D& max, const math::Vector3D& mi
 {
     const math::Vector3D extent = max_point - min_point;
     const double max_edge = std::max({extent.x, extent.y, extent.z});
-    edge_length_sq = max_edge*max_edge;
+    edge_length_sqr = max_edge*max_edge;
 }
 
 namespace { // Anonymous namespace for helper functions
@@ -84,7 +84,7 @@ math::Vector3D sumAccRecursive( const BarnesHutNode& node
 
     // Check the Multipole Acceptance Criterion (MAC)
     const double d_sq = (node.center_of_mass - target_pos).norm2();
-    if (node.edge_length_sq / d_sq < theta_sqr) {
+    if (node.edge_length_sqr / d_sq < theta_sqr) {
         // Node is far enough away, treat as a single mass
         const math::Vector3D r = node.center_of_mass - target_pos;
         const double dist_sq = r.norm2() + softening_sqr;
