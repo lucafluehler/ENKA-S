@@ -1,5 +1,3 @@
-#include <memory>
-
 #include <enkas/data/system.h>
 #include <enkas/math/vector3d.h>
 #include <enkas/physics/helpers.h>
