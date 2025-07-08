@@ -20,6 +20,9 @@ const double G = 0.004300917271;
  */
 [[nodiscard]] inline double getKineticEnergy(const data::System& system)
 {
+    const size_t particle_count = system.count();
+    if (particle_count == 0) return 0.0;
+
     double kinetic_energy = 0.0;
 
     for (size_t i = 0; i < system.size(); ++i) {
@@ -27,6 +30,34 @@ const double G = 0.004300917271;
     }
 
     return kinetic_energy*0.5;
+}
+
+/**
+ * @brief Calculates the total potential energy of a system in Hénon units.
+ * @param system The system containing the particles.
+ * @param softening_parameter The softening parameter to avoid singularities.
+ * @return The total potential energy of the system.
+ * @warning This function assumes Hénon units for the system, which means
+ *          that the gravitational constant G is set to 1.
+ */
+[[nodiscard]] inline double getPotentialEnergy(const data::System& system, double softening_parameter = 0.0) const
+{
+    const size_t particle_count = system.count();
+    if (particle_count == 0) return 0.0;
+
+    double potential_energy = 0.0;
+
+    // Sum pair-wise potential energy
+    for (size_t i = 0; i < particle_count; i++) {
+        for (size_t j = i + 1; j < particle_count; j++) {
+            const math::Vector3D r_ij = system.positions[j] - system.positions[i];
+            const double dist_sqr = r_ij.norm2() + softening_parameter*softening_parameter;
+            const double dist_inv = 1.0/std::sqrt(dist_sqr);
+            potential_energy -= system.masses[i]*system.masses[j]*dist_inv;
+        }
+    }
+
+    return potential_energy;
 }
 
 /**
