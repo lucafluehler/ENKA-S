@@ -17,6 +17,9 @@ void EulerSimulator::setSystem(const data::System& initial_system)
 {
     system_ = initial_system;
 
+    const size_t particle_count = system_.count();
+    accelerations_.resize(particle_count);
+
     // Scale particles to Hénon Units
     const double e_kin = physics::getKineticEnergy(system_);
     const double e_pot = physics::getPotentialEnergy(system_, softening_sqr_);

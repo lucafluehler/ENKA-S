@@ -24,7 +24,7 @@ void HitsSimulator::setSystem(const data::System& initial_system)
     snaps_.resize(particle_count);
     crackles_.resize(particle_count);
     particle_times_.resize(particle_count, 0.0);
-    particle_time_steps_.resize(particle_count);
+    particle_time_steps_.resize(particle_count, 0.0);
 
     // Scale particles to Hénon Units.
     double e_kin = physics::getKineticEnergy(system_);
