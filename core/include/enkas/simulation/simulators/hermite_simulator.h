@@ -24,15 +24,14 @@ public:
 
 private:
     /**
-     * @brief Calculates the accelerations and potential energy of the system.
+     * @brief Calculates the accelerations of the particles.
      */
-    void updateForcesAndEnergy();
+    void updateForces();
 
 private:
     HermiteSettings settings_;
 
     double system_time_ = 0.0; // current time of the system
-    double potential_energy_ = 0.0; // total potential energy of the system
     const double softening_sqr_; // squared softening parameters
 
     data::System system_; // current state of the system

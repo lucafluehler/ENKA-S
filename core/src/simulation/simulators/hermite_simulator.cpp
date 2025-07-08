@@ -13,17 +13,17 @@ HermiteSimulator::HermiteSimulator(const HermiteSettings& settings)
     , softening_sqr_(settings.softening_parameter*settings.softening_parameter)
 {}
 
-void HermiteSimulator::setSystem(data::System initial_system)
+void HermiteSimulator::setSystem(const data::System& initial_system)
 {
-    system_ = std::move(initial_system);
-
-    // Calculate total energy
-    updateForcesAndEnergy();
-    const double total_energy = std::abs(physics::getKineticEnergy(system_) + potential_energy_*physics::G);
+    system_ = initial_system;
 
     // Scale particles to Hénon Units
-    physics::scaleToHenonUnits(system_, total_energy);
-    updateForcesAndEnergy();
+    const double e_kin = physics::getKineticEnergy(system_);
+    const double e_pot = physics::getPotentialEnergy(system_, softening_sqr_);
+    physics::scaleToHenonUnits(system_, std::abs(e_kin + e_pot*physics::G));
+    
+    // Initialize accelerations vector
+    updateForces();
 
     system_time_ = 0.0;
 }
@@ -54,8 +54,8 @@ void HermiteSimulator::step()
                                  old_jerks[i]*dt2*0.5;
     }
 
-    // Calculate acceleration, jerk and potential energy for the entire system
-    updateForcesAndEnergy();
+    // Calculate acceleration and jerk for the entire system
+    updateForces();
 
     // Correct particle position and velocity using hermite scheme
     for (size_t i = 0; i < particle_count; ++i) {
@@ -76,19 +76,16 @@ void HermiteSimulator::step()
 
 [[nodiscard]] data::System HermiteSimulator::getSystem() const { return system_; }
 
-//------------------------------------------------------------------------------------------
-
-void HermiteSimulator::updateForcesAndEnergy()
+void HermiteSimulator::updateForces()
 {
     const size_t particle_count = system_.count();
     if (particle_count == 0) return;
 
-    // Reset accelerations, jerks and potential energy
-    potential_energy_ = 0.0;
+    // Reset accelerations and jerks
     std::fill(accelerations_.begin(), accelerations_.end(), math::Vector3D{});
     std::fill(jerks_.begin(), jerks_.end(), math::Vector3D{});
 
-    // Calculate pair-wise accelerations and epot simultaneously
+    // Calculate pair-wise accelerations and jerks
     const auto& positions = system_.positions;
     const auto& velocities = system_.velocities;
     const auto& masses = system_.masses;
@@ -117,9 +114,6 @@ void HermiteSimulator::updateForcesAndEnergy()
 
             jerks_[i] += jerk_term*masses[j];
             jerks_[j] -= jerk_term*masses[i];
-
-            // Potential Energy
-            potential_energy_ -= masses[i]*masses[j]*dist_inv;
         }
     }
 }
