@@ -2,7 +2,6 @@
 
 #include <variant>
 
-#include <enkas/generation/settings/file_settings.h>
 #include <enkas/generation/settings/normal_sphere_settings.h>
 #include <enkas/generation/settings/uniform_cube_settings.h>
 #include <enkas/generation/settings/uniform_sphere_settings.h>
@@ -13,7 +12,6 @@
 namespace enkas::generation {
 
 using SettingsVariant = std::variant<
-    FileSettings,
     NormalSphereSettings,
     UniformCubeSettings,
     UniformSphereSettings,
