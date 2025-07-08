@@ -130,8 +130,9 @@ void createAndInsertIntoChild(BarnesHutNode& parent, int octant_index,
         offset.z = ((octant_index & 1) ? 1 : -1) * child_edge_length/2.0;
         
         math::Vector3D child_center = center + offset;
-        child_min = child_center - child_edge_length/2.0;
-        child_max = child_center + child_edge_length/2.0;
+        math::Vector3D half_child_edge = child_edge_length*0.5*math::Vector3D{1.0, 1.0, 1.0};
+        child_min = child_center - half_child_edge;
+        child_max = child_center + half_child_edge;
 
         parent.children[octant_index] = std::make_unique<BarnesHutNode>(child_max, child_min);
     }
@@ -199,8 +200,10 @@ void BarnesHutTree::build(const data::System& system) {
     double edge_length = (max_p - min_p).norm();
     edge_length *= 1.1; // Add a small buffer
     
-    math::Vector3D root_max = center + edge_length*0.5;
-    math::Vector3D root_min = center - edge_length*0.5;
+    math::Vector3D half_edge = edge_length*0.5*math::Vector3D{1.0, 1.0, 1.0};
+
+    math::Vector3D root_max = center + half_edge;
+    math::Vector3D root_min = center - half_edge;
     root_ = std::make_unique<BarnesHutNode>(root_max, root_min);
 
     // Insert all particles into the tree.
