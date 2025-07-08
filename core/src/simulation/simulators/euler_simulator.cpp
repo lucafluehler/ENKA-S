@@ -13,11 +13,9 @@ EulerSimulator::EulerSimulator(const EulerSettings& settings)
     , softening_sqr_(settings.softening_parameter*settings.softening_parameter)
 {}
 
-//------------------------------------------------------------------------------------------
-
-void EulerSimulator::setSystem(data::System initial_system)
+void EulerSimulator::setSystem(const data::System& initial_system)
 {
-    system_ = std::move(initial_system);
+    system_ = initial_system;
 
     // Calculate total energy
     updateForcesAndEnergy();
