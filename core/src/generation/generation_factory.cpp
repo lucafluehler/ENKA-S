@@ -4,16 +4,16 @@
 
 #include <enkas/generation/generation_factory.h>
 
-#include <enkas/generation/config.h>
+#include <enkas/generation/generation_config.h>
 
-#include <enkas/generation/stream_generator.h>
-#include <enkas/generation/normal_sphere_generator.h>
-#include <enkas/generation/uniform_cube_generator.h>
-#include <enkas/generation/uniform_sphere_generator.h>
-#include <enkas/generation/plummer_sphere_generator.h>
-#include <enkas/generation/spiral_galaxy_generator.h>
-#include <enkas/generation/collision_model_generator.h>
-s
+#include <enkas/generation/generators/stream_generator.h>
+#include <enkas/generation/generators/normal_sphere_generator.h>
+#include <enkas/generation/generators/uniform_cube_generator.h>
+#include <enkas/generation/generators/uniform_sphere_generator.h>
+#include <enkas/generation/generators/plummer_sphere_generator.h>
+#include <enkas/generation/generators/spiral_galaxy_generator.h>
+#include <enkas/generation/generators/collision_model_generator.h>
+
 namespace enkas::generation {
 
 std::unique_ptr<Generator> GenerationFactory::create(const GenerationConfig& config)
