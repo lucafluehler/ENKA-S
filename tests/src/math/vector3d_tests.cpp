@@ -99,3 +99,28 @@ TEST(Vector3DTests, NormalizeZeroVector) {
     EXPECT_DOUBLE_EQ(vec.y, 0.0);
     EXPECT_DOUBLE_EQ(vec.z, 0.0);
 }
+
+TEST(Vector3DTests, Fill) {
+    enkas::math::Vector3D vec;
+    vec.fill(5.0);
+    EXPECT_DOUBLE_EQ(vec.x, 5.0);
+    EXPECT_DOUBLE_EQ(vec.y, 5.0);
+    EXPECT_DOUBLE_EQ(vec.z, 5.0);
+}
+
+TEST(Vector3DTests, CreateUnitVectors) {
+    enkas::math::Vector3D x_unit = enkas::math::Vector3D::X();
+    EXPECT_DOUBLE_EQ(x_unit.x, 1.0);
+    EXPECT_DOUBLE_EQ(x_unit.y, 0.0);
+    EXPECT_DOUBLE_EQ(x_unit.z, 0.0);
+
+    enkas::math::Vector3D y_unit = enkas::math::Vector3D::Y();
+    EXPECT_DOUBLE_EQ(y_unit.x, 0.0);
+    EXPECT_DOUBLE_EQ(y_unit.y, 1.0);
+    EXPECT_DOUBLE_EQ(y_unit.z, 0.0);
+
+    enkas::math::Vector3D z_unit = enkas::math::Vector3D::Z();
+    EXPECT_DOUBLE_EQ(z_unit.x, 0.0);
+    EXPECT_DOUBLE_EQ(z_unit.y, 0.0);
+    EXPECT_DOUBLE_EQ(z_unit.z, 1.0);
+}
