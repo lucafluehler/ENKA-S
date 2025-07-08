@@ -13,7 +13,7 @@ HermiteSimulator::HermiteSimulator(const HermiteSettings& settings)
     , softening_sqr_(settings.softening_parameter*settings.softening_parameter)
 {}
 
-void HermiteSimulator::setSystem(data::System initial_system)
+void HermiteSimulator::setSystem(const data::System& initial_system)
 {
     system_ = initial_system;
 

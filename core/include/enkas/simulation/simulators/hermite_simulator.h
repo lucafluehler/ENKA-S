@@ -16,7 +16,7 @@ public:
 
     ~HermiteSimulator() override = default;
 
-    void setSystem(data::System initial_system) override;
+    void setSystem(const data::System& initial_system) override;
     void step() override;
 
     [[nodiscard]] double getSystemTime() const override;
