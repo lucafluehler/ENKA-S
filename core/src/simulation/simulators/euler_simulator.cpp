@@ -17,12 +17,13 @@ void EulerSimulator::setSystem(const data::System& initial_system)
 {
     system_ = initial_system;
 
-    // Calculate total energy
-    updateForcesAndEnergy();
-    const double total_energy = std::abs(physics::getKineticEnergy(system_) + potential_energy_*physics::G);
-
     // Scale particles to Hénon Units
-    physics::scaleToHenonUnits(system_, total_energy);
+    updateForcesAndEnergy();
+    const double e_kin = physics::getKineticEnergy(system_);
+    const double e_pot = physics::getPotentialEnergy(system_, softening_sqr_);
+    physics::scaleToHenonUnits(system_, std::abs(e_kin + e_pot*physics::G));
+    
+    // Initialize accelerations vector in Hénon Units
     updateForcesAndEnergy();
 
     system_time_ = 0.0;
@@ -52,16 +53,15 @@ void EulerSimulator::evolveSystem()
 
 [[nodiscard]] data::System EulerSimulator::getSystem() const { return system_; }
 
-void EulerSimulator::updateForcesAndEnergy()
+void EulerSimulator::updateForces()
 {
     const size_t particle_count = system_.count();
     if (particle_count == 0) return;
 
-    // Reset accelerations and potential energy
-    potential_energy_ = 0.0;
+    // Reset accelerations to zero
     std::fill(accelerations_.begin(), accelerations_.end(), math::Vector3D{});
 
-    // Calculate pair-wise accelerations and potential energy simultaneously
+    // Calculate pair-wise accelerations
     const auto& positions = system_.positions;
     const auto& masses = system_.masses;
 
@@ -78,8 +78,6 @@ void EulerSimulator::updateForcesAndEnergy()
 
             particle_i.acc += r_ij*masses[j]*dist_inv_cubed;
             particle_j.acc -= r_ij*masses[i]*dist_inv_cubed;
-
-            potential_energy_ -= masses[i]*masses[j]*dist_inv;
         }
     }
 }
