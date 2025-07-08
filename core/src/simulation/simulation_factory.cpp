@@ -2,11 +2,11 @@
 #include <enkas/simulation/simulator.h>
 #include <enkas/simulation/simulation_config.h>
 
-#include <enkas/simulation/euler_simulator.h>
-#include <enkas/simulation/leapfrog_simulator.h>
-#include <enkas/simulation/hermite_simulator.h>
-#include <enkas/simulation/hits_simulator.h>
-#include <enkas/simulation/bhleapfrog_simulator.h>
+#include <enkas/simulation/simulators/euler_simulator.h>
+#include <enkas/simulation/simulators/leapfrog_simulator.h>
+#include <enkas/simulation/simulators/hermite_simulator.h>
+#include <enkas/simulation/simulators/hits_simulator.h>
+#include <enkas/simulation/simulators/barneshutleapfrog_simulator.h>
 
 namespace enkas::simulation {
 
@@ -35,8 +35,8 @@ std::shared_ptr<Simulator> SimulationFactory::create(const SimulationConfig& con
             if constexpr (std::is_same_v<SettingsType, HitsSettings>) {
                 return std::make_shared<HitsSimulator>(specific_settings);
             }
-            if constexpr (std::is_same_v<SettingsType, BhLeapfrogSettings>) {
-                return std::make_shared<BhLeapfrogSimulator>(specific_settings);
+            if constexpr (std::is_same_v<SettingsType, BarnesHutLeapfrogSettings>) {
+                return std::make_shared<BarnesHutLeapfrogSimulator>(specific_settings);
             }
             else {
                 return nullptr;
