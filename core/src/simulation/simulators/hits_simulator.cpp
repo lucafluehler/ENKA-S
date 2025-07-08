@@ -28,9 +28,9 @@ void HitsSimulator::setSystem(const data::System& initial_system)
 
     // Scale particles to Hénon Units.
     double e_kin = physics::getKineticEnergy(system_);
-    double e_pot = physics::getPotentialEnergy(system_, softening_sqr_s);
+    double e_pot = physics::getPotentialEnergy(system_, softening_sqr_);
     const double total_energy = std::abs(e_kin + e_pot*physics::G);
-    physcis::scaleToHenonUnits(system_, total_energy);
+    physics::scaleToHenonUnits(system_, total_energy);
 
     // Initialize time step of each particle using Aarseth's initialization formula
     // (MULTIPLE TIME SCALES, 1985)
@@ -72,7 +72,7 @@ void HitsSimulator::step()
     return getPredictedSystem(system_time_, true); 
 }
 
-void SM_HITS::updateParticle(size_t particle_index)
+void HitsSimulator::updateParticle(size_t particle_index)
 {
     // Predictor
     auto pred_system = getPredictedSystem(system_time_, false);
@@ -83,7 +83,7 @@ void SM_HITS::updateParticle(size_t particle_index)
     calculateAccJrk(pred_system, particle_index, acc, jrk);
 
     // Corrector
-    correctParticle(particle_index, pred_system, acc, jrk);
+    correctParticle(pred_system, particle_index, acc, jrk);
 
     // Update time step
     updateParticleTimeStep(particle_index);
@@ -131,6 +131,10 @@ void HitsSimulator::calculateAccJrk( const data::System& system
     acc.fill(0.0);
     jrk.fill(0.0);
 
+    const auto& positions = system.positions;
+    const auto& velocities = system.velocities;
+    const auto& masses = system.masses;
+
     for (size_t j = 0; j < system.count(); j++) {
         if (j == i) continue;
 
@@ -156,7 +160,7 @@ void HitsSimulator::correctParticle( const data::System& pred_system
                                    , const math::Vector3D& pred_acc
                                    , const math::Vector3D& pred_jrk)
 {
-    const double dt = system_time_ - particle_times_[particle_index];
+    const double dt = system_time_ - particle_times_[i];
     const double dt2 = dt*dt;
     const double dt3 = dt2*dt;
 

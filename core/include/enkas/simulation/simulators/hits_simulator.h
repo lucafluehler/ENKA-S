@@ -25,7 +25,7 @@ public:
 
 private:
     void updateParticle(size_t particle_index);
-    System getPredictedSystem(double time, bool sync_mode) const;s
+    data::System getPredictedSystem(double time, bool sync_mode) const;
     void calculateAccJrk( const data::System& system
                         , size_t particle_index
                         , math::Vector3D& acc
