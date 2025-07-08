@@ -6,7 +6,7 @@
 #include <enkas/simulation/settings/leapfrog_settings.h>
 #include <enkas/simulation/settings/hermite_settings.h>
 #include <enkas/simulation/settings/hits_settings.h>
-#include <enkas/simulation/settings/bhleapfrog_settings.h>
+#include <enkas/simulation/settings/barneshutleapfrog_settings.h>
 
 namespace enkas::simulation {
 
@@ -15,7 +15,7 @@ using SettingsVariant = std::variant<
     LeapfrogSettings,
     HermiteSettings,
     HitsSettings,
-    BhLeapfrogSettings
+    BarnesHutLeapfrogSettings
 >;
 
 struct SimulationConfig {
