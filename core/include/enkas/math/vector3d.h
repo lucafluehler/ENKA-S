@@ -71,6 +71,17 @@ public:
 };
 
 // Binary operators
+inline bool operator==(const Vector3D& lhs, const Vector3D& rhs) {
+    constexpr double epsilon = 1e-9;
+    return std::fabs(lhs.x - rhs.x) < epsilon &&
+           std::fabs(lhs.y - rhs.y) < epsilon &&
+           std::fabs(lhs.z - rhs.z) < epsilon;
+}
+
+inline bool operator!=(const Vector3D& lhs, const Vector3D& rhs) {
+    return !(lhs == rhs);
+}
+
 inline Vector3D operator+(Vector3D lhs, const Vector3D& rhs) {
     lhs += rhs;
     return lhs;
