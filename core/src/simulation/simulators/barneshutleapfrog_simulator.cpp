@@ -27,8 +27,8 @@ void BarnesHutLeapfrogSimulator::setSystem(const data::System& initial_system)
     physics::scaleToHenonUnits(system_, std::abs(e_kin + e_pot*physics::G));
     
     // Initialize accelerations vector
-    barneshut_tree.build(system_);
-    barneshut_tree.updateForces(system_, theta_mac_sqr_, softening_sqr_, accelerations_);
+    barneshut_tree_.build(system_);
+    barneshut_tree_.updateForces(system_, theta_mac_sqr_, softening_sqr_, accelerations_);
 
     system_time_ = 0.0;
 }
@@ -53,8 +53,8 @@ void BarnesHutLeapfrogSimulator::step()
     }
 
     // Calculate accelerations for all particles using Barnes-Hut tree
-    barneshut_tree.build(system_);
-    barneshut_tree.updateForces(system_, theta_mac_sqr_, softening_sqr_, accelerations_);
+    barneshut_tree_.build(system_);
+    barneshut_tree_.updateForces(system_, theta_mac_sqr_, softening_sqr_, accelerations_);
 
     // Leapfrog Second "Kick"
     for (size_t i = 0; i < particle_count; ++i) {
