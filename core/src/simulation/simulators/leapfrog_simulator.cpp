@@ -90,7 +90,7 @@ void LeapfrogSimulator::updateForcesAndEnergy()
             particle_i.acc += r_ij*masses[j]*dist_inv_cubed;
             particle_j.acc -= r_ij*masses[i]*dist_inv_cubed;
 
-            potential_energy_ -= masses[i]*masses[j].mass*dist_inv;
+            potential_energy_ -= masses[i]*masses[j]*dist_inv;
         }
     }
 }
