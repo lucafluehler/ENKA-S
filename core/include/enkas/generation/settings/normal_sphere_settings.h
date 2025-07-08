@@ -12,8 +12,8 @@ struct NormalSphereSettings {
     [[nodiscard]] bool isValid() const{
         return (
             particle_count > 0 &&
-            pos_std_dev > 0.0 &&
-            vel_std_dev > 0.0 &&
+            position_std_dev > 0.0 &&
+            velocity_std_dev > 0.0 &&
             mass_mean > 0.0 &&
             mass_std_dev > 0.0
         );
