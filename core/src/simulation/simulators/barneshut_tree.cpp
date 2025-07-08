@@ -224,7 +224,7 @@ void BarnesHutTree::updateForces( const data::System& system
     std::fill(out_acc.begin(), out_acc.end(), math::Vector3D{});
 
     for (size_t i = 0; i < particle_count; ++i) {
-        out_acc[i] = sumAccRecursive(*root_, system.positions[i], i, system, theta_sqr, softening_sqr);
+        out_acc[i] = sumAccRecursive(*root_, system.positions[i], i, system, theta_mac_sqr, softening_sqr);
     }
 }
 
