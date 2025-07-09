@@ -5,7 +5,7 @@
 namespace enkas::math {
 
 class Vector3D {
-   public:
+public:
     double x = 0.0;
     double y = 0.0;
     double z = 0.0;
@@ -18,13 +18,13 @@ class Vector3D {
     Vector3D(Vector3D&& rhs) noexcept = default;
     Vector3D& operator=(Vector3D&& rhs) noexcept = default;
 
-   public:  // Compound assignment operators
+public:  // Compound assignment operators
     Vector3D& operator+=(const Vector3D& rhs);
     Vector3D& operator-=(const Vector3D& rhs);
     Vector3D& operator*=(double rhs);
     Vector3D& operator/=(double rhs);
 
-   public:  // Utility functions
+public:  // Utility functions
     /**
      * @brief Calculates the squared norm of the Vector3D
      */
@@ -53,7 +53,7 @@ class Vector3D {
      */
     void fill(double value);
 
-   public:
+public:
     /**
      * @brief Creates a Vector3D parallel to the x-axis with a specified x value.
      */

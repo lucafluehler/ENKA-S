@@ -7,12 +7,12 @@
 namespace enkas::generation {
 
 class UniformSphereGenerator : public Generator {
-   public:
+public:
     explicit UniformSphereGenerator(const UniformSphereSettings& settings, unsigned int seed);
 
     [[nodiscard]] data::System createSystem() override;
 
-   private:
+private:
     UniformSphereSettings settings_;
     unsigned int seed_;
 };

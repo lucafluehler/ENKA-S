@@ -5,7 +5,7 @@
 namespace enkas::math {
 
 class Bivector3D {
-   public:
+public:
     double xy = 0.0;
     double xz = 0.0;
     double yz = 0.0;
@@ -18,13 +18,13 @@ class Bivector3D {
     Bivector3D(Bivector3D&& rhs) noexcept = default;
     Bivector3D& operator=(Bivector3D&& rhs) noexcept = default;
 
-   public:  // Compound assignment operators
+public:  // Compound assignment operators
     Bivector3D& operator+=(const Bivector3D& rhs);
     Bivector3D& operator-=(const Bivector3D& rhs);
     Bivector3D& operator*=(double scalar);
     Bivector3D& operator/=(double scalar);
 
-   public:
+public:
     /**
      * @brief Calculates the squared norm of the Bivector
      */
@@ -43,7 +43,7 @@ class Bivector3D {
      */
     [[nodiscard]] Vector3D getPerpendicular() const;
 
-   public:
+public:
     /**
      * @brief Creates a Bivector3D parallel to the xy-plane with a specified xy value.
      */

@@ -8,3 +8,5 @@ PointerAlignment: Left
 BinPackArguments: false
 BinPackParameters: false
 BreakTemplateDeclarations: true
+IndentAccessModifiers: false
+AccessModifierOffset: -4

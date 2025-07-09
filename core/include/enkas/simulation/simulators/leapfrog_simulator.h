@@ -10,7 +10,7 @@
 namespace enkas::simulation {
 
 class LeapfrogSimulator : public Simulator {
-   public:
+public:
     explicit LeapfrogSimulator(const LeapfrogSettings& settings);
 
     ~LeapfrogSimulator() override = default;
@@ -21,13 +21,13 @@ class LeapfrogSimulator : public Simulator {
     [[nodiscard]] double getSystemTime() const override;
     [[nodiscard]] data::System getSystem() const override;
 
-   private:
+private:
     /**
      * @brief Calculates the accelerations of the particles.
      */
     void updateForces();
 
-   private:
+private:
     LeapfrogSettings settings_;
 
     double system_time_ = 0.0;    // current time of the system

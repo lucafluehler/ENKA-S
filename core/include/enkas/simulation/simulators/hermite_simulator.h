@@ -10,7 +10,7 @@
 namespace enkas::simulation {
 
 class HermiteSimulator : public Simulator {
-   public:
+public:
     explicit HermiteSimulator(const HermiteSettings& settings);
 
     ~HermiteSimulator() override = default;
@@ -21,13 +21,13 @@ class HermiteSimulator : public Simulator {
     [[nodiscard]] double getSystemTime() const override;
     [[nodiscard]] data::System getSystem() const override;
 
-   private:
+private:
     /**
      * @brief Calculates the accelerations of the particles.
      */
     void updateForces();
 
-   private:
+private:
     HermiteSettings settings_;
 
     double system_time_ = 0.0;    // current time of the system

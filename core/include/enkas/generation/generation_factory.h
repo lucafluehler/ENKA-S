@@ -12,7 +12,7 @@ struct GenerationConfig;
 namespace enkas::generation {
 
 class GenerationFactory {
-   public:
+public:
     /**
      * @brief Creates a generator based on a settings configuration object.
      * @param config The configuration object containing the specific settings and seed.

@@ -7,12 +7,12 @@
 namespace enkas::generation {
 
 class UniformCubeGenerator : public Generator {
-   public:
+public:
     UniformCubeGenerator(const UniformCubeSettings& settings, unsigned int seed);
 
     [[nodiscard]] data::System createSystem() override;
 
-   private:
+private:
     UniformCubeSettings settings_;
     unsigned int seed_;
 };

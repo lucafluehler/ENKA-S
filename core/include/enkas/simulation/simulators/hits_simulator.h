@@ -11,7 +11,7 @@
 namespace enkas::simulation {
 
 class HitsSimulator : public Simulator {
-   public:
+public:
     explicit HitsSimulator(const HitsSettings& settings);
 
     ~HitsSimulator() override = default;
@@ -22,7 +22,7 @@ class HitsSimulator : public Simulator {
     [[nodiscard]] double getSystemTime() const override;
     [[nodiscard]] data::System getSystem() const override;
 
-   private:
+private:
     void updateParticle(size_t particle_index);
     data::System getPredictedSystem(double time, bool sync_mode) const;
     void calculateAccJrk(const data::System& system,
@@ -35,7 +35,7 @@ class HitsSimulator : public Simulator {
                          const math::Vector3D& pred_jrk);
     void updateParticleTimeStep(size_t particle_index);
 
-   private:
+private:
     HitsSettings settings_;
 
     double system_time_ = 0.0;    // current time of the system

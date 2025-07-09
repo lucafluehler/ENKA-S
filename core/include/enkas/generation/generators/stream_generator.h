@@ -8,12 +8,12 @@
 namespace enkas::generation {
 
 class StreamGenerator : public Generator {
-   public:
+public:
     explicit StreamGenerator(std::istream& input_stream);
 
     [[nodiscard]] data::System createSystem() override;
 
-   private:
+private:
     std::istream& stream_;
 };
 

@@ -7,12 +7,12 @@
 namespace enkas::generation {
 
 class CollisionModelGenerator : public Generator {
-   public:
+public:
     explicit CollisionModelGenerator(const CollisionModelSettings& settings, unsigned int seed);
 
     [[nodiscard]] data::System createSystem() override;
 
-   private:
+private:
     CollisionModelSettings settings_;
     unsigned int seed_;
 };

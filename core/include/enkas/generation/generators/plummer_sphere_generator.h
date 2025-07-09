@@ -7,7 +7,7 @@
 namespace enkas::generation {
 
 class PlummerSphereGenerator : public Generator {
-   public:
+public:
     explicit PlummerSphereGenerator(const PlummerSphereSettings& settings, unsigned int seed);
 
     /**
@@ -20,7 +20,7 @@ class PlummerSphereGenerator : public Generator {
      */
     [[nodiscard]] data::System createSystem() override;
 
-   private:
+private:
     PlummerSphereSettings settings_;
     unsigned int seed_;
 };

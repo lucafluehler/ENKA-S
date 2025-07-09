@@ -7,7 +7,7 @@
 namespace enkas::simulation {
 
 class Simulator {
-   public:
+public:
     virtual ~Simulator() = default;
 
     /**
@@ -44,7 +44,7 @@ class Simulator {
      */
     [[nodiscard]] virtual data::System getSystem() const = 0;
 
-   protected:
+protected:
     std::atomic_bool stop_requested_{false};
 };
 

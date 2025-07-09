@@ -5,7 +5,7 @@
 namespace enkas::generation {
 
 class Generator {
-   public:
+public:
     virtual ~Generator() = default;
 
     /**

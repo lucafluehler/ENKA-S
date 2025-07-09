@@ -4,7 +4,6 @@
 
 #include <vector>
 
-
 namespace enkas::data {
 
 struct System {

@@ -6,7 +6,7 @@
 namespace enkas::math {
 
 class Rotor3D {
-   public:
+public:
     double s = 1.0;
     double b_xy = 0.0;
     double b_xz = 0.0;
@@ -21,10 +21,10 @@ class Rotor3D {
     Rotor3D(Rotor3D&& rhs) noexcept = default;
     Rotor3D& operator=(Rotor3D&& rhs) noexcept = default;
 
-   public:  // Compound assignment operators
+public:  // Compound assignment operators
     Rotor3D& operator*=(const Rotor3D& rhs);
 
-   public:
+public:
     /**
      * @brief Calculates the squared norm of the Rotor3D
      */
@@ -54,7 +54,7 @@ class Rotor3D {
      */
     [[nodiscard]] Rotor3D get_reverse() const;
 
-   public:
+public:
     /**
      * @brief Creates a Rotor3D over the xy-plane with a specified xy value.
      */

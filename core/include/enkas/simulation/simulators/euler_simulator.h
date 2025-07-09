@@ -10,7 +10,7 @@
 namespace enkas::simulation {
 
 class EulerSimulator : public Simulator {
-   public:
+public:
     explicit EulerSimulator(const EulerSettings& settings);
 
     ~EulerSimulator() override = default;
@@ -21,13 +21,13 @@ class EulerSimulator : public Simulator {
     [[nodiscard]] double getSystemTime() const override;
     [[nodiscard]] data::System getSystem() const override;
 
-   private:
+private:
     /**
      * @brief Calculates the accelerations of the particles.
      */
     void updateForces();
 
-   private:
+private:
     EulerSettings settings_;
 
     double system_time_ = 0.0;    // current time of the system

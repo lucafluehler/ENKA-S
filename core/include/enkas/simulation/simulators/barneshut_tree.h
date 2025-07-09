@@ -13,7 +13,7 @@ struct BarnesHutNode;
 namespace enkas::simulation {
 
 class BarnesHutTree {
-   public:
+public:
     BarnesHutTree();
     ~BarnesHutTree();
     BarnesHutTree(BarnesHutTree&&) noexcept;
@@ -37,7 +37,7 @@ class BarnesHutTree {
                       double softening_sqr,
                       std::vector<math::Vector3D>& out_acc) const;
 
-   private:
+private:
     std::unique_ptr<BarnesHutNode> root_;
 };
 

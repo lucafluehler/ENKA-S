@@ -10,7 +10,7 @@
 namespace enkas::simulation {
 
 class BarnesHutLeapfrogSimulator : public Simulator {
-   public:
+public:
     explicit BarnesHutLeapfrogSimulator(const BarnesHutLeapfrogSettings& settings);
 
     ~BarnesHutLeapfrogSimulator() override = default;
@@ -21,7 +21,7 @@ class BarnesHutLeapfrogSimulator : public Simulator {
     [[nodiscard]] double getSystemTime() const override;
     [[nodiscard]] data::System getSystem() const override;
 
-   private:
+private:
     BarnesHutLeapfrogSettings settings_;
 
     double system_time_ = 0.0;    // current time of the system
