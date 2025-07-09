@@ -1,5 +1,5 @@
-#include <gtest/gtest.h>
 #include <enkas/math/vector3d.h>
+#include <gtest/gtest.h>
 
 TEST(Vector3DTests, DefaultConstructor) {
     enkas::math::Vector3D vec;

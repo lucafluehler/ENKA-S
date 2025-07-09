@@ -1,5 +1,5 @@
-#include <gtest/gtest.h>
 #include <enkas/math/helpers.h>
+#include <gtest/gtest.h>
 
 TEST(RandOnSphereTests, NormIsCorrect) {
     const unsigned int seed = 12345;
@@ -22,10 +22,10 @@ TEST(RandOnSphereTests, DistributionIsUniform) {
 
     for (unsigned int i = 0; i < sample_count; ++i) {
         auto vec = enkas::math::getRandOnSphere(generator);
-        mean_vector += vec*(1.0/sample_count);
+        mean_vector += vec * (1.0 / sample_count);
     }
 
-    // The mean vector magnitude should be close to zero for a 
+    // The mean vector magnitude should be close to zero for a
     // uniform distribution on the sphere
     const double tolerance = 1e-2;
     EXPECT_NEAR(mean_vector.norm(), 0.0, tolerance);

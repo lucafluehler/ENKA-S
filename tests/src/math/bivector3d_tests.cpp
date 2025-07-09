@@ -1,6 +1,6 @@
-#include <gtest/gtest.h>
-#include <enkas/math/vector3d.h>
 #include <enkas/math/bivector3d.h>
+#include <enkas/math/vector3d.h>
+#include <gtest/gtest.h>
 
 TEST(Bivector3DTests, DefaultConstructor) {
     enkas::math::Bivector3D bivector;
