@@ -18,20 +18,16 @@ namespace enkas::math {
  *
  * @note The function uses a random number generator to create the random vector.
  */
-inline math::Vector3D getRandOnSphere(std::mt19937& gen, double norm = 1.0)
+inline math::Vector3D getRandOnSphere(std::mt19937& gen, double norm = 1.0) noexcept
 {
-    std::uniform_real_distribution<double> dist(0.0, 1.0);
+    static thread_local std::uniform_real_distribution<double> dist_z(-1.0, 1.0);
+    static thread_local std::uniform_real_distribution<double> dist_phi(0.0, 2*Pi);
 
-    math::Vector3D sphere;
+    const double z = dist_z(gen);
+    const double phi = dist_phi(gen);
+    const double r = std::sqrt(1.0 - z*z);
 
-    const double theta = std::acos(2.0*dist(gen) - 1.0);
-    const double phi = 2.0*Pi*dist(gen);
-
-    sphere.x = std::sin(theta)*std::cos(phi);
-    sphere.y = std::sin(theta)*std::sin(phi);
-    sphere.z = std::cos(theta);
-
-    return sphere*norm;
+    return Vector3D{r*std::cos(phi), r*std::sin(phi), z}*norm;
 }
 
 } // namespace enkas::math
