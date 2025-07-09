@@ -1,6 +1,6 @@
 # --- Source files ---
-file(GLOB_RECURSE CORE_SOURCES src/*.cpp)
-file(GLOB_RECURSE CORE_HEADERS include/*.h)
+file(GLOB_RECURSE CORE_SOURCES CONFIGURE_DEPENDS src/*.cpp)
+file(GLOB_RECURSE CORE_HEADERS CONFIGURE_DEPENDS include/*.h)
 
 add_library(enkas-core STATIC
     ${CORE_SOURCES}
