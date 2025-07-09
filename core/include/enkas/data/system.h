@@ -1,8 +1,9 @@
 #pragma once
 
+#include <enkas/math/vector3d.h>
+
 #include <vector>
 
-#include <enkas/math/vector3d.h>
 
 namespace enkas::data {
 
@@ -14,13 +15,11 @@ struct System {
     /**
      * @brief Returns the number of particles in the system.
      */
-    [[nodiscard]] size_t count() const noexcept { 
-        return positions.size(); 
-    }
+    [[nodiscard]] size_t count() const noexcept { return positions.size(); }
 
     /**
      * @brief Resizes the system to contain 'n' particles.
-     * 
+     *
      * This function resizes the positions, velocities, and masses vectors
      * to ensure they all have the same size of 'n'. If 'n' is smaller than
      * the current size, excess elements will be removed.
@@ -34,4 +33,4 @@ struct System {
     }
 };
 
-} // namespace enkas::data
+}  // namespace enkas::data
