@@ -93,13 +93,23 @@ inline math::Bivector3D getAngularMomentum(const data::System& system) {
 }
 
 /**
- * @brief Translates a system so its center of mass is at the origin (0,0,0)
- *        and its total momentum is zero.
- * @param system The system containing the particles to be centered.
+ * @brief Represents the center of mass of a system
+ *        with its position and velocity.
  */
-inline void centerSystem(data::System& system) {
+struct CenterOfMass {
+    math::Vector3D position;
+    math::Vector3D velocity;
+};
+
+/**
+ * @brief Calculates the center of mass position and velocity for a system.
+ * @param system The system to analyze.
+ * @return A CenterOfMass struct containing the calculated properties.
+ *         Returns a zeroed struct if the total mass is zero.
+ */
+[[nodiscard]] inline CenterOfMass getCenterOfMass(const data::System& system) {
     const size_t particle_count = system.count();
-    if (particle_count == 0) return;
+    if (particle_count == 0) return {};
 
     math::Vector3D weighted_pos_sum;
     math::Vector3D weighted_vel_sum;
@@ -112,14 +122,29 @@ inline void centerSystem(data::System& system) {
         total_mass += mass;
     }
 
-    if (total_mass == 0.0) return;
+    if (total_mass == 0.0) return {};
 
-    const math::Vector3D com_pos = weighted_pos_sum / total_mass;
-    const math::Vector3D com_vel = weighted_vel_sum / total_mass;
+    CenterOfMass com;
+    com.position = weighted_pos_sum / total_mass;
+    com.velocity = weighted_vel_sum / total_mass;
+
+    return com;
+}
+
+/**
+ * @brief Translates a system so its center of mass is at the origin (0,0,0)
+ *        and its total momentum is zero.
+ * @param system The system containing the particles to be centered.
+ */
+inline void centerSystem(data::System& system) {
+    const size_t particle_count = system.count();
+    if (particle_count == 0) return;
+
+    const CenterOfMass com = getCenterOfMass(system);
 
     for (size_t i = 0; i < particle_count; ++i) {
-        system.positions[i] -= com_pos;
-        system.velocities[i] -= com_vel;
+        system.positions[i] -= com.position;
+        system.velocities[i] -= com.velocity;
     }
 }
 
