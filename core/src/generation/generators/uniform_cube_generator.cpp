@@ -1,20 +1,17 @@
+#include <enkas/data/system.h>
+#include <enkas/generation/generators/uniform_cube_generator.h>
+#include <enkas/math/vector3d.h>
+#include <enkas/physics/helpers.h>
+
 #include <random>
 #include <vector>
-
-#include <enkas/data/system.h>
-#include <enkas/math/vector3d.h>
-#include <enkas/generation/generators/uniform_cube_generator.h>
-#include <enkas/physics/helpers.h>
 
 namespace enkas::generation {
 
 UniformCubeGenerator::UniformCubeGenerator(const UniformCubeSettings& settings, unsigned int seed)
-    : settings_(settings)
-    , seed_(seed)
-{}
+    : settings_(settings), seed_(seed) {}
 
-data::System UniformCubeGenerator::createSystem()
-{
+data::System UniformCubeGenerator::createSystem() {
     data::System system;
     const int particle_count = settings_.particle_count;
 
@@ -24,7 +21,7 @@ data::System UniformCubeGenerator::createSystem()
 
     std::mt19937 gen(seed_);
 
-    const double half_side = settings_.side_length/2.0;
+    const double half_side = settings_.side_length / 2.0;
     std::uniform_real_distribution<double> pos_dist(-half_side, half_side);
     std::uniform_real_distribution<double> vel_dist(0.0, 1.0);
 
@@ -44,4 +41,4 @@ data::System UniformCubeGenerator::createSystem()
     return system;
 }
 
-} // namespace enkas::generation
+}  // namespace enkas::generation

@@ -1,20 +1,19 @@
+#include <enkas/data/system.h>
+#include <enkas/generation/generators/normal_sphere_generator.h>
+#include <enkas/math/vector3d.h>
+#include <enkas/physics/helpers.h>
+
 #include <random>
 #include <vector>
 
-#include <enkas/data/system.h>
-#include <enkas/math/vector3d.h>
-#include <enkas/generation/generators/normal_sphere_generator.h>
-#include <enkas/physics/helpers.h>
 
 namespace enkas::generation {
 
-NormalSphereGenerator::NormalSphereGenerator(const NormalSphereSettings& settings, unsigned int seed)
-    : settings_(settings)
-    , seed_(seed)
-{}
+NormalSphereGenerator::NormalSphereGenerator(const NormalSphereSettings& settings,
+                                             unsigned int seed)
+    : settings_(settings), seed_(seed) {}
 
-data::System NormalSphereGenerator::createSystem()
-{
+data::System NormalSphereGenerator::createSystem() {
     data::System system;
     const int particle_count = settings_.particle_count;
 
@@ -43,4 +42,4 @@ data::System NormalSphereGenerator::createSystem()
     return system;
 }
 
-} // namespace enkas::generation
+}  // namespace enkas::generation

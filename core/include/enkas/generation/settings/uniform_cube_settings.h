@@ -9,13 +9,9 @@ struct UniformCubeSettings {
     double total_mass;
 
     [[nodiscard]] bool isValid() const {
-        return ( 
-            particle_count > 0 && 
-            side_length > 0.0 && 
-            initial_velocity > 0.0 && 
-            total_mass > 0.0
-        );
+        return (particle_count > 0 && side_length > 0.0 && initial_velocity > 0.0 &&
+                total_mass > 0.0);
     }
 };
 
-} // namespace enkas::generation
+}  // namespace enkas::generation

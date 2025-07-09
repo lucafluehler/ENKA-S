@@ -1,23 +1,20 @@
 #pragma once
 
-#include <vector>
-
 #include <enkas/data/system.h>
 #include <enkas/generation/generator.h>
 #include <enkas/generation/settings/spiral_galaxy_settings.h>
 
 namespace enkas::generation {
 
-class SpiralGalaxyGenerator : public Generator
-{
-public:
+class SpiralGalaxyGenerator : public Generator {
+   public:
     explicit SpiralGalaxyGenerator(const SpiralGalaxySettings& settings, unsigned int seed);
 
     [[nodiscard]] data::System createSystem() override;
 
-private:
+   private:
     SpiralGalaxySettings settings_;
     unsigned int seed_;
 };
 
-} // namespace enkas::generation
+}  // namespace enkas::generation

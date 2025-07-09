@@ -1,22 +1,20 @@
+#include <enkas/data/system.h>
+#include <enkas/generation/generators/spiral_galaxy_generator.h>
+#include <enkas/math/helpers.h>
+#include <enkas/math/vector3d.h>
+#include <enkas/physics/helpers.h>
+
+#include <numbers>
 #include <random>
 #include <vector>
-#include <numbers>
-
-#include <enkas/data/system.h>
-#include <enkas/math/vector3d.h>
-#include <enkas/math/helpers.h>
-#include <enkas/generation/generators/spiral_galaxy_generator.h>
-#include <enkas/physics/helpers.h>
 
 namespace enkas::generation {
 
-SpiralGalaxyGenerator::SpiralGalaxyGenerator(const SpiralGalaxySettings& settings, unsigned int seed)
-    : settings_(settings)
-    , seed_(seed)
-{}
+SpiralGalaxyGenerator::SpiralGalaxyGenerator(const SpiralGalaxySettings& settings,
+                                             unsigned int seed)
+    : settings_(settings), seed_(seed) {}
 
-data::System SpiralGalaxyGenerator::createSystem()
-{
+data::System SpiralGalaxyGenerator::createSystem() {
     data::System system;
     const int particle_count = settings_.particle_count;
 
@@ -25,21 +23,20 @@ data::System SpiralGalaxyGenerator::createSystem()
     system.velocities.reserve(particle_count + 1);
     system.masses.reserve(particle_count + 1);
 
-    const double stellar_mass = settings_.total_mass/particle_count;
-    const double inner_radius = settings_.radius/40.0;
+    const double stellar_mass = settings_.total_mass / particle_count;
+    const double inner_radius = settings_.radius / 40.0;
 
     std::mt19937 gen(seed_);
-    std::normal_distribution<double> disk_thickness_dist(0.0, settings_.radius/100.0);
+    std::normal_distribution<double> disk_thickness_dist(0.0, settings_.radius / 100.0);
 
     // Generate Disk
-    const double num_particles_per_arm = particle_count/settings_.num_arms;
+    const int num_particles_per_arm = particle_count / settings_.num_arms;
 
     for (size_t k = 0; k < settings_.num_arms; k++) {
         for (size_t i = 0; i < num_particles_per_arm; i++) {
-            const double distance = inner_radius + settings_.radius*i/settings_.particle_count;
-            const double angle = 
-              (settings_.twist*std::numbers::pi*i/num_particles_per_arm)
-            + (2*std::numbers::pi*k/settings_.num_arms);
+            const double distance = inner_radius + settings_.radius * i / settings_.particle_count;
+            const double angle = (settings_.twist * std::numbers::pi * i / num_particles_per_arm) +
+                                 (2 * std::numbers::pi * k / settings_.num_arms);
 
             math::Vector3D position = {std::sin(angle), std::cos(angle), 0.0};
             position.set_norm(distance);
@@ -49,7 +46,8 @@ data::System SpiralGalaxyGenerator::createSystem()
             // particle.pos = math::Rotor3D(angle, math::Bivector3D::XY()).normalize()
             //                .rotate(math::Vector3D::X(distance));
 
-            const double eccentricity_mean = 0.4/(1 + std::exp((particle_count/50.0 - i)/4.0)) + 0.05;
+            const double eccentricity_mean =
+                0.4 / (1 + std::exp((particle_count / 50.0 - i) / 4.0)) + 0.05;
             std::normal_distribution<double> eccentricity_dist(eccentricity_mean, 0.1);
             double eccentricity = eccentricity_dist(gen);
 
@@ -58,10 +56,11 @@ data::System SpiralGalaxyGenerator::createSystem()
                 eccentricity = eccentricity_dist(gen);
             }
 
-            const double major_half_axis = distance/(1 + eccentricity);
-            const double first_term = physics::G*(settings_.black_hole_mass + settings_.total_mass);
-            const double second_term = (2.0/distance - 1.0/major_half_axis);
-            const double speed = std::sqrt(first_term*second_term);
+            const double major_half_axis = distance / (1 + eccentricity);
+            const double first_term =
+                physics::G * (settings_.black_hole_mass + settings_.total_mass);
+            const double second_term = (2.0 / distance - 1.0 / major_half_axis);
+            const double speed = std::sqrt(first_term * second_term);
             math::Vector3D velocity = {position.y, -position.x, 0.0};
             velocity.set_norm(-speed);
 
@@ -89,4 +88,4 @@ data::System SpiralGalaxyGenerator::createSystem()
     return system;
 }
 
-} // namespace enkas::generation
+}  // namespace enkas::generation

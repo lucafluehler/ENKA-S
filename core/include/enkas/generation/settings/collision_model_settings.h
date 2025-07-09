@@ -15,16 +15,9 @@ struct CollisionModelSettings {
     double total_mass_2;
 
     [[nodiscard]] bool isValid() const {
-        return ( 
-            particle_count_1 > 0 &&
-            sphere_radius_1 > 0.0 &&
-            total_mass_1 > 0.0 &&
-
-            particle_count_2 > 0 &&
-            sphere_radius_2 > 0.0 &&
-            total_mass_2 > 0.0
-        );
+        return (particle_count_1 > 0 && sphere_radius_1 > 0.0 && total_mass_1 > 0.0 &&
+                particle_count_2 > 0 && sphere_radius_2 > 0.0 && total_mass_2 > 0.0);
     }
 };
 
-} // namespace enkas::generation
+}  // namespace enkas::generation

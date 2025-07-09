@@ -1,23 +1,20 @@
 #pragma once
 
-#include <vector>
-
 #include <enkas/data/system.h>
 #include <enkas/generation/generator.h>
 #include <enkas/generation/settings/uniform_sphere_settings.h>
 
 namespace enkas::generation {
 
-class UniformSphereGenerator : public Generator
-{
-public:
+class UniformSphereGenerator : public Generator {
+   public:
     explicit UniformSphereGenerator(const UniformSphereSettings& settings, unsigned int seed);
 
     [[nodiscard]] data::System createSystem() override;
 
-private:
+   private:
     UniformSphereSettings settings_;
     unsigned int seed_;
 };
 
-} // namespace enkas::generation
+}  // namespace enkas::generation

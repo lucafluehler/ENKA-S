@@ -1,30 +1,27 @@
-#include <variant>
-#include <type_traits>
-#include <iostream>
-
-#include <enkas/generation/generation_factory.h>
-
 #include <enkas/generation/generation_config.h>
-
-#include <enkas/generation/generators/stream_generator.h>
+#include <enkas/generation/generation_factory.h>
+#include <enkas/generation/generators/collision_model_generator.h>
 #include <enkas/generation/generators/normal_sphere_generator.h>
-#include <enkas/generation/generators/uniform_cube_generator.h>
-#include <enkas/generation/generators/uniform_sphere_generator.h>
 #include <enkas/generation/generators/plummer_sphere_generator.h>
 #include <enkas/generation/generators/spiral_galaxy_generator.h>
-#include <enkas/generation/generators/collision_model_generator.h>
+#include <enkas/generation/generators/stream_generator.h>
+#include <enkas/generation/generators/uniform_cube_generator.h>
+#include <enkas/generation/generators/uniform_sphere_generator.h>
+
+#include <iostream>
+#include <type_traits>
+#include <variant>
+
 
 namespace enkas::generation {
 
-std::unique_ptr<Generator> GenerationFactory::create(const GenerationConfig& config)
-{
+std::unique_ptr<Generator> GenerationFactory::create(const GenerationConfig& config) {
     if (!config.isValid()) {
         return nullptr;
     }
 
     return std::visit(
         [&config](const auto& specific_settings) -> std::unique_ptr<Generator> {
-            
             // Get the concrete type of the settings object we were passed.
             using SettingsType = std::decay_t<decltype(specific_settings)>;
 
@@ -46,17 +43,14 @@ std::unique_ptr<Generator> GenerationFactory::create(const GenerationConfig& con
             }
             if constexpr (std::is_same_v<SettingsType, CollisionModelSettings>) {
                 return std::make_unique<CollisionModelGenerator>(specific_settings, config.seed);
-            }
-            else {
+            } else {
                 return nullptr;
             }
         },
-        config.specific_settings
-    );
+        config.specific_settings);
 }
 
-std::unique_ptr<Generator> GenerationFactory::create(std::istream& stream)
-{
+std::unique_ptr<Generator> GenerationFactory::create(std::istream& stream) {
     if (!stream) {
         return nullptr;
     }
@@ -64,4 +58,4 @@ std::unique_ptr<Generator> GenerationFactory::create(std::istream& stream)
     return std::make_unique<StreamGenerator>(stream);
 }
 
-} // namespace enkas::generation
+}  // namespace enkas::generation

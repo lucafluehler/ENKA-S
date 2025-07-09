@@ -1,17 +1,13 @@
 #pragma once
 
-#include <random>
-#include <vector>
-
 #include <enkas/data/system.h>
 #include <enkas/generation/generator.h>
 #include <enkas/generation/settings/plummer_sphere_settings.h>
 
 namespace enkas::generation {
 
-class PlummerSphereGenerator : public Generator
-{
-public:
+class PlummerSphereGenerator : public Generator {
+   public:
     explicit PlummerSphereGenerator(const PlummerSphereSettings& settings, unsigned int seed);
 
     /**
@@ -24,9 +20,9 @@ public:
      */
     [[nodiscard]] data::System createSystem() override;
 
-private:
+   private:
     PlummerSphereSettings settings_;
     unsigned int seed_;
 };
 
-} // namespace enkas::generation
+}  // namespace enkas::generation
