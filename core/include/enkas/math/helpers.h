@@ -1,11 +1,11 @@
 #pragma once
 
 #include <random>
+#include <numbers>
 
 #include <enkas/math/vector3d.h>
 
 namespace enkas::math {
-    constexpr double Pi = 3.14159265358979323846;
 
 /**
  * @brief Generate a random 3D vector on the surface of a sphere.
@@ -21,7 +21,7 @@ namespace enkas::math {
 inline math::Vector3D getRandOnSphere(std::mt19937& gen, double norm = 1.0) noexcept
 {
     static thread_local std::uniform_real_distribution<double> dist_z(-1.0, 1.0);
-    static thread_local std::uniform_real_distribution<double> dist_phi(0.0, 2*Pi);
+    static thread_local std::uniform_real_distribution<double> dist_phi(0.0, 2*std::numbers::pi);
 
     const double z = dist_z(gen);
     const double phi = dist_phi(gen);

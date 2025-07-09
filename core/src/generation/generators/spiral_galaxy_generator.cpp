@@ -1,5 +1,6 @@
 #include <random>
 #include <vector>
+#include <numbers>
 
 #include <enkas/data/system.h>
 #include <enkas/math/vector3d.h>
@@ -37,8 +38,8 @@ data::System SpiralGalaxyGenerator::createSystem()
         for (size_t i = 0; i < num_particles_per_arm; i++) {
             const double distance = inner_radius + settings_.radius*i/settings_.particle_count;
             const double angle = 
-              (settings_.twist*math::Pi*i/num_particles_per_arm)
-            + (2*math::Pi*k/settings_.num_arms);
+              (settings_.twist*std::numbers::pi*i/num_particles_per_arm)
+            + (2*std::numbers::pi*k/settings_.num_arms);
 
             math::Vector3D position = {std::sin(angle), std::cos(angle), 0.0};
             position.set_norm(distance);

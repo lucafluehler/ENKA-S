@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <numbers>
 #include <enkas/math/helpers.h>
 #include <enkas/math/vector3d.h>
 #include <enkas/math/bivector3d.h>
@@ -75,7 +76,7 @@ TEST(Rotor3DTests, Normalize) {
 }
 
 TEST(Rotor3DTests, Rotate) {
-    enkas::math::Rotor3D rotor(enkas::math::Pi*0.5, enkas::math::Bivector3D::XY());
+    enkas::math::Rotor3D rotor(std::numbers::pi*0.5, enkas::math::Bivector3D::XY());
     enkas::math::Vector3D vec(50.0, 30.0, 20.0);
     enkas::math::Vector3D rotated_vec = rotor.rotate(vec);
     const double tolerance = 1e-9;
