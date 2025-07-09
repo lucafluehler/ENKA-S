@@ -5,7 +5,7 @@
 namespace enkas::math {
 
 class Vector3D {
-public:
+   public:
     double x = 0.0;
     double y = 0.0;
     double z = 0.0;
@@ -18,13 +18,13 @@ public:
     Vector3D(Vector3D&& rhs) noexcept = default;
     Vector3D& operator=(Vector3D&& rhs) noexcept = default;
 
-public: // Compound assignment operators
+   public:  // Compound assignment operators
     Vector3D& operator+=(const Vector3D& rhs);
     Vector3D& operator-=(const Vector3D& rhs);
     Vector3D& operator*=(double rhs);
     Vector3D& operator/=(double rhs);
 
-public: // Utility functions
+   public:  // Utility functions
     /**
      * @brief Calculates the squared norm of the Vector3D
      */
@@ -53,7 +53,7 @@ public: // Utility functions
      */
     void fill(double value);
 
-public:
+   public:
     /**
      * @brief Creates a Vector3D parallel to the x-axis with a specified x value.
      */
@@ -63,7 +63,7 @@ public:
      * @brief Creates a Vector3D parallel to the y-axis with a specified y value.
      */
     static Vector3D Y(double y_val = 1.0) { return Vector3D(0.0, y_val, 0.0); }
-    
+
     /**
      * @brief Creates a Vector3D parallel to the z-axis with a specified z value.
      */
@@ -73,14 +73,11 @@ public:
 // Binary operators
 inline bool operator==(const Vector3D& lhs, const Vector3D& rhs) {
     constexpr double epsilon = 1e-9;
-    return std::fabs(lhs.x - rhs.x) < epsilon &&
-           std::fabs(lhs.y - rhs.y) < epsilon &&
+    return std::fabs(lhs.x - rhs.x) < epsilon && std::fabs(lhs.y - rhs.y) < epsilon &&
            std::fabs(lhs.z - rhs.z) < epsilon;
 }
 
-inline bool operator!=(const Vector3D& lhs, const Vector3D& rhs) {
-    return !(lhs == rhs);
-}
+inline bool operator!=(const Vector3D& lhs, const Vector3D& rhs) { return !(lhs == rhs); }
 
 inline Vector3D operator+(Vector3D lhs, const Vector3D& rhs) {
     lhs += rhs;
@@ -113,9 +110,8 @@ inline Vector3D operator/(Vector3D lhs, double rhs) {
  * @param lhs The left-hand Vector3D operand.
  * @param rhs The right-hand Vector3D operand.
  */
-inline double dotProduct(const Vector3D& lhs, const Vector3D& rhs)
-{
-    return lhs.x*rhs.x + lhs.y*rhs.y + lhs.z*rhs.z;
+inline double dotProduct(const Vector3D& lhs, const Vector3D& rhs) {
+    return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
 }
 
-} // namespace enkas::math
+}  // namespace enkas::math

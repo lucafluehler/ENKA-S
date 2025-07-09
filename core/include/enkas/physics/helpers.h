@@ -1,12 +1,12 @@
 #pragma once
 
-#include <vector>
-#include <numeric>
-#include <cmath>
-
 #include <enkas/data/system.h>
-#include <enkas/math/vector3d.h>
 #include <enkas/math/bivector3d.h>
+#include <enkas/math/vector3d.h>
+
+#include <cmath>
+#include <numeric>
+#include <vector>
 
 namespace enkas::physics {
 
@@ -18,9 +18,8 @@ const double G = 0.004300917271;
  * @param system The system containing the particles.
  * @return The total kinetic energy of the system.
  */
-[[nodiscard]] 
-inline double getKineticEnergy(const data::System& system) noexcept
-{
+[[nodiscard]]
+inline double getKineticEnergy(const data::System& system) noexcept {
     const size_t particle_count = system.count();
     if (particle_count == 0) return 0.0;
 
@@ -30,10 +29,10 @@ inline double getKineticEnergy(const data::System& system) noexcept
     double kinetic_energy = 0.0;
 
     for (size_t i = 0; i < system.count(); ++i) {
-        kinetic_energy += masses[i]*velocities[i].norm2();
+        kinetic_energy += masses[i] * velocities[i].norm2();
     }
 
-    return kinetic_energy*0.5;
+    return kinetic_energy * 0.5;
 }
 
 /**
@@ -45,16 +44,14 @@ inline double getKineticEnergy(const data::System& system) noexcept
  * @warning This function assumes Hénon units for the system, which means
  *          that the gravitational constant G is set to 1.
  */
-[[nodiscard]] 
-inline double getPotentialEnergy( const data::System& system
-                                , double softening_parameter ) noexcept
-{
+[[nodiscard]]
+inline double getPotentialEnergy(const data::System& system, double softening_parameter) noexcept {
     const size_t particle_count = system.count();
     if (particle_count == 0) return 0.0;
 
     const auto& masses = system.masses;
     const auto& positions = system.positions;
-    const double softening_sqr = softening_parameter*softening_parameter;
+    const double softening_sqr = softening_parameter * softening_parameter;
 
     double potential_energy = 0.0;
 
@@ -63,9 +60,9 @@ inline double getPotentialEnergy( const data::System& system
             const math::Vector3D r_ij = positions[j] - positions[i];
 
             const double dist_sqr = r_ij.norm2() + softening_sqr;
-            const double dist_inv = 1.0/std::sqrt(dist_sqr);
+            const double dist_inv = 1.0 / std::sqrt(dist_sqr);
 
-            potential_energy -= masses[i]*masses[j]*dist_inv;
+            potential_energy -= masses[i] * masses[j] * dist_inv;
         }
     }
 
@@ -77,9 +74,8 @@ inline double getPotentialEnergy( const data::System& system
  * @param system The system containing the particles.
  * @return The total angular momentum as a Bivector3D.
  */
-[[nodiscard]] 
-inline math::Bivector3D getAngularMomentum(const data::System& system)
-{
+[[nodiscard]]
+inline math::Bivector3D getAngularMomentum(const data::System& system) {
     math::Bivector3D total_angular_momentum;
 
     const size_t particle_count = system.count();
@@ -89,8 +85,8 @@ inline math::Bivector3D getAngularMomentum(const data::System& system)
         const auto& pos = system.positions[i];
         const auto& vel = system.velocities[i];
         const double mass = system.masses[i];
-        
-        total_angular_momentum += math::wedge(pos, vel*mass);
+
+        total_angular_momentum += math::wedge(pos, vel * mass);
     }
 
     return total_angular_momentum;
@@ -101,8 +97,7 @@ inline math::Bivector3D getAngularMomentum(const data::System& system)
  *        and its total momentum is zero.
  * @param system The system containing the particles to be centered.
  */
-inline void centerSystem(data::System& system)
-{
+inline void centerSystem(data::System& system) {
     const size_t particle_count = system.count();
     if (particle_count == 0) return;
 
@@ -112,15 +107,15 @@ inline void centerSystem(data::System& system)
 
     for (size_t i = 0; i < particle_count; ++i) {
         const double mass = system.masses[i];
-        weighted_pos_sum += system.positions[i]*mass;
-        weighted_vel_sum += system.velocities[i]*mass;
+        weighted_pos_sum += system.positions[i] * mass;
+        weighted_vel_sum += system.velocities[i] * mass;
         total_mass += mass;
     }
 
     if (total_mass == 0.0) return;
 
-    const math::Vector3D com_pos = weighted_pos_sum/total_mass;
-    const math::Vector3D com_vel = weighted_vel_sum/total_mass;
+    const math::Vector3D com_pos = weighted_pos_sum / total_mass;
+    const math::Vector3D com_vel = weighted_vel_sum / total_mass;
 
     for (size_t i = 0; i < particle_count; ++i) {
         system.positions[i] -= com_pos;
@@ -135,25 +130,25 @@ inline void centerSystem(data::System& system)
  * masses, positions, and velocities to Hénon units.
  *
  * @param system The system containing the particles to be scaled.
- * @param total_energy The absolute total energy of the system in units of the provided
- *                     particles.
- * 
+ * @param total_energy The absolute total energy of the system in units of the
+ * provided particles.
+ *
  * @see Heggie, D. and Methieu, R.; 1986; Standardised units and time scales
  */
-inline void scaleToHenonUnits(data::System& system, double total_energy)
-{
+inline void scaleToHenonUnits(data::System& system, double total_energy) {
     if (system.count() == 0) return;
 
     const double total_mass = std::accumulate(system.masses.begin(), system.masses.end(), 0.0);
 
     const double mass_unit = total_mass;
-    const double length_unit = G*std::pow(total_mass, 2)/(4.0*total_energy);
-    const double time_unit = G*std::sqrt(std::pow(total_mass, 5)/std::pow(4.0*total_energy, 3));
-    const double velocity_unit = length_unit/time_unit;
+    const double length_unit = G * std::pow(total_mass, 2) / (4.0 * total_energy);
+    const double time_unit =
+        G * std::sqrt(std::pow(total_mass, 5) / std::pow(4.0 * total_energy, 3));
+    const double velocity_unit = length_unit / time_unit;
 
     for (auto& m : system.masses) m /= mass_unit;
     for (auto& p : system.positions) p /= length_unit;
     for (auto& v : system.velocities) v /= velocity_unit;
 }
 
-} // namespace enkas::physics
+}  // namespace enkas::physics
