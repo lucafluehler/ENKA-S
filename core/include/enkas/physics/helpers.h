@@ -18,15 +18,19 @@ const double G = 0.004300917271;
  * @param system The system containing the particles.
  * @return The total kinetic energy of the system.
  */
-[[nodiscard]] inline double getKineticEnergy(const data::System& system)
+[[nodiscard]] 
+inline double getKineticEnergy(const data::System& system) noexcept
 {
     const size_t particle_count = system.count();
     if (particle_count == 0) return 0.0;
 
+    const auto& masses = system.masses;
+    const auto& velocities = system.velocities;
+
     double kinetic_energy = 0.0;
 
     for (size_t i = 0; i < system.count(); ++i) {
-        kinetic_energy += system.masses[i]*system.velocities[i].norm2();
+        kinetic_energy += masses[i]*velocities[i].norm2();
     }
 
     return kinetic_energy*0.5;
@@ -35,25 +39,33 @@ const double G = 0.004300917271;
 /**
  * @brief Calculates the total potential energy of a system in Hénon units.
  * @param system The system containing the particles.
- * @param softening_parameter The softening parameter to avoid singularities.
+ * @param softening_parameter The softening parameter to avoid singularities. If
+ * set to zero, values like NaN or Inf may occur.
  * @return The total potential energy of the system.
  * @warning This function assumes Hénon units for the system, which means
  *          that the gravitational constant G is set to 1.
  */
-[[nodiscard]] inline double getPotentialEnergy(const data::System& system, double softening_parameter)
+[[nodiscard]] 
+inline double getPotentialEnergy( const data::System& system
+                                , double softening_parameter ) noexcept
 {
     const size_t particle_count = system.count();
     if (particle_count == 0) return 0.0;
 
+    const auto& masses = system.masses;
+    const auto& positions = system.positions;
+    const double softening_sqr = softening_parameter*softening_parameter;
+
     double potential_energy = 0.0;
 
-    // Sum pair-wise potential energy
     for (size_t i = 0; i < particle_count; i++) {
         for (size_t j = i + 1; j < particle_count; j++) {
-            const math::Vector3D r_ij = system.positions[j] - system.positions[i];
-            const double dist_sqr = r_ij.norm2() + softening_parameter*softening_parameter;
+            const math::Vector3D r_ij = positions[j] - positions[i];
+
+            const double dist_sqr = r_ij.norm2() + softening_sqr;
             const double dist_inv = 1.0/std::sqrt(dist_sqr);
-            potential_energy -= system.masses[i]*system.masses[j]*dist_inv;
+
+            potential_energy -= masses[i]*masses[j]*dist_inv;
         }
     }
 
@@ -65,14 +77,18 @@ const double G = 0.004300917271;
  * @param system The system containing the particles.
  * @return The total angular momentum as a Bivector3D.
  */
-[[nodiscard]] inline math::Bivector3D getAngularMomentum(const data::System& system)
+[[nodiscard]] 
+inline math::Bivector3D getAngularMomentum(const data::System& system)
 {
-    math::Bivector3D total_angular_momentum{};
+    math::Bivector3D total_angular_momentum;
 
-    for (size_t i = 0; i < system.count(); ++i) {
+    const size_t particle_count = system.count();
+    if (particle_count == 0) return total_angular_momentum;
+
+    for (size_t i = 0; i < particle_count; ++i) {
         const auto& pos = system.positions[i];
         const auto& vel = system.velocities[i];
-        const auto mass = system.masses[i];
+        const double mass = system.masses[i];
         
         total_angular_momentum += math::wedge(pos, vel*mass);
     }
@@ -87,29 +103,26 @@ const double G = 0.004300917271;
  */
 inline void centerSystem(data::System& system)
 {
-    if (system.count() == 0) {
-        return;
-    }
+    const size_t particle_count = system.count();
+    if (particle_count == 0) return;
 
-    math::Vector3D weighted_pos_sum{};
-    math::Vector3D weighted_vel_sum{};
+    math::Vector3D weighted_pos_sum;
+    math::Vector3D weighted_vel_sum;
     double total_mass = 0.0;
 
-    for (size_t i = 0; i < system.count(); ++i) {
+    for (size_t i = 0; i < particle_count; ++i) {
         const double mass = system.masses[i];
         weighted_pos_sum += system.positions[i]*mass;
         weighted_vel_sum += system.velocities[i]*mass;
         total_mass += mass;
     }
 
-    if (total_mass == 0.0) {
-        return;
-    }
+    if (total_mass == 0.0) return;
 
-    const math::Vector3D com_pos = weighted_pos_sum / total_mass;
-    const math::Vector3D com_vel = weighted_vel_sum / total_mass;
+    const math::Vector3D com_pos = weighted_pos_sum/total_mass;
+    const math::Vector3D com_vel = weighted_vel_sum/total_mass;
 
-    for (size_t i = 0; i < system.count(); ++i) {
+    for (size_t i = 0; i < particle_count; ++i) {
         system.positions[i] -= com_pos;
         system.velocities[i] -= com_vel;
     }
@@ -129,9 +142,7 @@ inline void centerSystem(data::System& system)
  */
 inline void scaleToHenonUnits(data::System& system, double total_energy)
 {
-    if (system.count() == 0) {
-        return;
-    }
+    if (system.count() == 0) return;
 
     const double total_mass = std::accumulate(system.masses.begin(), system.masses.end(), 0.0);
 
@@ -140,17 +151,9 @@ inline void scaleToHenonUnits(data::System& system, double total_energy)
     const double time_unit = G*std::sqrt(std::pow(total_mass, 5)/std::pow(4.0*total_energy, 3));
     const double velocity_unit = length_unit/time_unit;
 
-    for (auto& mass : system.masses) {
-        mass /= mass_unit;
-    }
-
-    for (auto& position : system.positions) {
-        position /= length_unit;
-    }
-
-    for (auto& velocity : system.velocities) {
-        velocity /= velocity_unit;
-    }
+    for (auto& m : system.masses) m /= mass_unit;
+    for (auto& p : system.positions) p /= length_unit;
+    for (auto& v : system.velocities) v /= velocity_unit;
 }
 
 } // namespace enkas::physics
