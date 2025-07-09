@@ -1,20 +1,18 @@
-#include <vector>
-#include <cmath>
-
-#include <enkas/simulation/simulators/hermite_simulator.h>
 #include <enkas/data/system.h>
-#include <enkas/physics/helpers.h>
 #include <enkas/math/vector3d.h>
+#include <enkas/physics/helpers.h>
+#include <enkas/simulation/simulators/hermite_simulator.h>
+
+#include <cmath>
+#include <vector>
 
 namespace enkas::simulation {
 
 HermiteSimulator::HermiteSimulator(const HermiteSettings& settings)
-    : settings_(settings)
-    , softening_sqr_(settings.softening_parameter*settings.softening_parameter)
-{}
+    : settings_(settings),
+      softening_sqr_(settings.softening_parameter * settings.softening_parameter) {}
 
-void HermiteSimulator::setSystem(const data::System& initial_system)
-{
+void HermiteSimulator::setSystem(const data::System& initial_system) {
     system_ = initial_system;
 
     const size_t particle_count = system_.count();
@@ -24,16 +22,15 @@ void HermiteSimulator::setSystem(const data::System& initial_system)
     // Scale particles to Hénon Units
     const double e_kin = physics::getKineticEnergy(system_);
     const double e_pot = physics::getPotentialEnergy(system_, softening_sqr_);
-    physics::scaleToHenonUnits(system_, std::abs(e_kin + e_pot*physics::G));
-    
+    physics::scaleToHenonUnits(system_, std::abs(e_kin + e_pot * physics::G));
+
     // Initialize accelerations vector
     updateForces();
 
     system_time_ = 0.0;
 }
 
-void HermiteSimulator::step()
-{
+void HermiteSimulator::step() {
     if (isStopRequested()) return;
 
     const size_t particle_count = system_.count();
@@ -44,18 +41,16 @@ void HermiteSimulator::step()
     const auto old_accelerations = accelerations_;
     const auto old_jerks = jerks_;
 
-    const double dt  = settings_.time_step;
-    const double dt2 = dt*dt;
-    const double dt3 = dt2*dt;
+    const double dt = settings_.time_step;
+    const double dt2 = dt * dt;
+    const double dt3 = dt2 * dt;
 
     // Predict particle position and velocity up to order jerk
     for (size_t i = 0; i < particle_count; ++i) {
-        system_.positions[i] += old_velocities[i]*dt +
-                                old_accelerations[i]*dt2*0.5 +
-                                old_jerks[i]*dt3/6.0;
-        
-        system_.velocities[i] += old_accelerations[i]*dt +
-                                 old_jerks[i]*dt2*0.5;
+        system_.positions[i] +=
+            old_velocities[i] * dt + old_accelerations[i] * dt2 * 0.5 + old_jerks[i] * dt3 / 6.0;
+
+        system_.velocities[i] += old_accelerations[i] * dt + old_jerks[i] * dt2 * 0.5;
     }
 
     // Calculate acceleration and jerk for the entire system
@@ -64,12 +59,12 @@ void HermiteSimulator::step()
     // Correct particle position and velocity using hermite scheme
     for (size_t i = 0; i < particle_count; ++i) {
         system_.velocities[i] = old_velocities[i] +
-                                (old_accelerations[i] + accelerations_[i])*dt*0.5 +
-                                (old_jerks[i] - jerks_[i])*dt2/12.0;
+                                (old_accelerations[i] + accelerations_[i]) * dt * 0.5 +
+                                (old_jerks[i] - jerks_[i]) * dt2 / 12.0;
 
         system_.positions[i] = old_positions[i] +
-                               (old_velocities[i] + system_.velocities[i])*dt*0.5 +
-                               (old_accelerations[i] - accelerations_[i])*dt2/12.0;
+                               (old_velocities[i] + system_.velocities[i]) * dt * 0.5 +
+                               (old_accelerations[i] - accelerations_[i]) * dt2 / 12.0;
     }
 
     // Update system time with time_step
@@ -80,8 +75,7 @@ void HermiteSimulator::step()
 
 [[nodiscard]] data::System HermiteSimulator::getSystem() const { return system_; }
 
-void HermiteSimulator::updateForces()
-{
+void HermiteSimulator::updateForces() {
     const size_t particle_count = system_.count();
     if (particle_count == 0) return;
 
@@ -107,19 +101,20 @@ void HermiteSimulator::updateForces()
             const double dist_inv_cubed = dist_inv * dist_inv * dist_inv;
 
             // Acceleration
-            const math::Vector3D acc_term  = r_ij*dist_inv_cubed;
+            const math::Vector3D acc_term = r_ij * dist_inv_cubed;
 
-            accelerations_[i] += acc_term*masses[j];
-            accelerations_[j] -= acc_term*masses[i];
+            accelerations_[i] += acc_term * masses[j];
+            accelerations_[j] -= acc_term * masses[i];
 
             // Jerk
             const double r_dot_v = math::dotProduct(r_ij, v_ij);
-            const math::Vector3D jerk_term = (v_ij - r_ij*(3.0*r_dot_v*dist_inv*dist_inv))*dist_inv_cubed;
+            const math::Vector3D jerk_term =
+                (v_ij - r_ij * (3.0 * r_dot_v * dist_inv * dist_inv)) * dist_inv_cubed;
 
-            jerks_[i] += jerk_term*masses[j];
-            jerks_[j] -= jerk_term*masses[i];
+            jerks_[i] += jerk_term * masses[j];
+            jerks_[j] -= jerk_term * masses[i];
         }
     }
 }
 
-} // namespace enkas::simulation
+}  // namespace enkas::simulation

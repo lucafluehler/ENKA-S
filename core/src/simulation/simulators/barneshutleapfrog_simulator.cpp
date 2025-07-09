@@ -7,13 +7,11 @@
 namespace enkas::simulation {
 
 BarnesHutLeapfrogSimulator::BarnesHutLeapfrogSimulator(const BarnesHutLeapfrogSettings& settings)
-    : settings_(settings)
-    , theta_mac_sqr_(settings.theta_mac*settings.theta_mac)
-    , softening_sqr_(settings.softening_parameter*settings.softening_parameter)
-{}
+    : settings_(settings),
+      theta_mac_sqr_(settings.theta_mac * settings.theta_mac),
+      softening_sqr_(settings.softening_parameter * settings.softening_parameter) {}
 
-void BarnesHutLeapfrogSimulator::setSystem(const data::System& initial_system)
-{
+void BarnesHutLeapfrogSimulator::setSystem(const data::System& initial_system) {
     system_ = initial_system;
 
     const size_t particle_count = system_.count();
@@ -22,8 +20,8 @@ void BarnesHutLeapfrogSimulator::setSystem(const data::System& initial_system)
     // Scale particles to Hénon Units
     const double e_kin = physics::getKineticEnergy(system_);
     const double e_pot = physics::getPotentialEnergy(system_, softening_sqr_);
-    physics::scaleToHenonUnits(system_, std::abs(e_kin + e_pot*physics::G));
-    
+    physics::scaleToHenonUnits(system_, std::abs(e_kin + e_pot * physics::G));
+
     // Initialize accelerations vector
     barneshut_tree_.build(system_);
     barneshut_tree_.updateForces(system_, theta_mac_sqr_, softening_sqr_, accelerations_);
@@ -31,8 +29,7 @@ void BarnesHutLeapfrogSimulator::setSystem(const data::System& initial_system)
     system_time_ = 0.0;
 }
 
-void BarnesHutLeapfrogSimulator::step()
-{
+void BarnesHutLeapfrogSimulator::step() {
     if (isStopRequested()) return;
 
     const size_t particle_count = system_.count();
@@ -42,12 +39,12 @@ void BarnesHutLeapfrogSimulator::step()
 
     // Leapfrog First "Kick"
     for (size_t i = 0; i < particle_count; ++i) {
-        system_.velocities[i] += accelerations_[i]*dt*0.5;
+        system_.velocities[i] += accelerations_[i] * dt * 0.5;
     }
 
     // Leapfrog "Drift"
     for (size_t i = 0; i < particle_count; ++i) {
-        system_.positions[i] += system_.velocities[i]*dt;
+        system_.positions[i] += system_.velocities[i] * dt;
     }
 
     // Calculate accelerations for all particles using Barnes-Hut tree
@@ -56,7 +53,7 @@ void BarnesHutLeapfrogSimulator::step()
 
     // Leapfrog Second "Kick"
     for (size_t i = 0; i < particle_count; ++i) {
-        system_.velocities[i] += accelerations_[i]*dt*0.5;
+        system_.velocities[i] += accelerations_[i] * dt * 0.5;
     }
 
     // Update system time with time_step
@@ -67,4 +64,4 @@ void BarnesHutLeapfrogSimulator::step()
 
 [[nodiscard]] data::System BarnesHutLeapfrogSimulator::getSystem() const { return system_; }
 
-} // namespace enkas::simulation
+}  // namespace enkas::simulation

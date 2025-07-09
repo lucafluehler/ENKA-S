@@ -1,14 +1,13 @@
 #pragma once
 
-#include <atomic>
-
 #include <enkas/data/system.h>
+
+#include <atomic>
 
 namespace enkas::simulation {
 
-class Simulator
-{
-public:
+class Simulator {
+   public:
     virtual ~Simulator() = default;
 
     /**
@@ -45,8 +44,8 @@ public:
      */
     [[nodiscard]] virtual data::System getSystem() const = 0;
 
-protected:
+   protected:
     std::atomic_bool stop_requested_{false};
 };
 
-} // namespace enkas::simulation
+}  // namespace enkas::simulation

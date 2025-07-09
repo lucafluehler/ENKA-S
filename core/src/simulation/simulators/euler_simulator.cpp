@@ -1,20 +1,18 @@
-#include <vector>
-#include <cmath>
-
-#include <enkas/simulation/simulators/euler_simulator.h>
 #include <enkas/data/system.h>
-#include <enkas/physics/helpers.h>
 #include <enkas/math/vector3d.h>
+#include <enkas/physics/helpers.h>
+#include <enkas/simulation/simulators/euler_simulator.h>
+
+#include <cmath>
+#include <vector>
 
 namespace enkas::simulation {
 
 EulerSimulator::EulerSimulator(const EulerSettings& settings)
-    : settings_(settings)
-    , softening_sqr_(settings.softening_parameter*settings.softening_parameter)
-{}
+    : settings_(settings),
+      softening_sqr_(settings.softening_parameter * settings.softening_parameter) {}
 
-void EulerSimulator::setSystem(const data::System& initial_system)
-{
+void EulerSimulator::setSystem(const data::System& initial_system) {
     system_ = initial_system;
 
     const size_t particle_count = system_.count();
@@ -23,16 +21,15 @@ void EulerSimulator::setSystem(const data::System& initial_system)
     // Scale particles to Hénon Units
     const double e_kin = physics::getKineticEnergy(system_);
     const double e_pot = physics::getPotentialEnergy(system_, softening_sqr_);
-    physics::scaleToHenonUnits(system_, std::abs(e_kin + e_pot*physics::G));
-    
+    physics::scaleToHenonUnits(system_, std::abs(e_kin + e_pot * physics::G));
+
     // Initialize accelerations vector
     updateForces();
 
     system_time_ = 0.0;
 }
 
-void EulerSimulator::step()
-{
+void EulerSimulator::step() {
     if (isStopRequested()) return;
 
     // Calculate acceleration and potential energy for the entire system
@@ -43,8 +40,8 @@ void EulerSimulator::step()
     // Calculate the new position and velocity of each particle using the
     // previously calculated acceleration
     for (size_t i = 0; i < system_.count(); ++i) {
-        system_.positions[i] += system_.velocities[i]*dt;
-        system_.velocities[i] += accelerations_[i]*dt;
+        system_.positions[i] += system_.velocities[i] * dt;
+        system_.velocities[i] += accelerations_[i] * dt;
     }
 
     // Update global time with time_step
@@ -55,8 +52,7 @@ void EulerSimulator::step()
 
 [[nodiscard]] data::System EulerSimulator::getSystem() const { return system_; }
 
-void EulerSimulator::updateForces()
-{
+void EulerSimulator::updateForces() {
     const size_t particle_count = system_.count();
     if (particle_count == 0) return;
 
@@ -75,13 +71,13 @@ void EulerSimulator::updateForces()
 
             if (dist_sqr <= 0) continue;
 
-            const double dist_inv = 1.0/std::sqrt(dist_sqr);
-            const double dist_inv_cubed = dist_inv*dist_inv*dist_inv;
+            const double dist_inv = 1.0 / std::sqrt(dist_sqr);
+            const double dist_inv_cubed = dist_inv * dist_inv * dist_inv;
 
-            accelerations_[i] += r_ij*masses[j]*dist_inv_cubed;
-            accelerations_[j] -= r_ij*masses[i]*dist_inv_cubed;
+            accelerations_[i] += r_ij * masses[j] * dist_inv_cubed;
+            accelerations_[j] -= r_ij * masses[i] * dist_inv_cubed;
         }
     }
 }
 
-} // namespace enkas::simulation
+}  // namespace enkas::simulation

@@ -1,20 +1,18 @@
-#include <vector>
-#include <cmath>
-
-#include <enkas/simulation/simulators/hits_simulator.h>
 #include <enkas/data/system.h>
-#include <enkas/physics/helpers.h>
 #include <enkas/math/vector3d.h>
+#include <enkas/physics/helpers.h>
+#include <enkas/simulation/simulators/hits_simulator.h>
+
+#include <cmath>
+#include <vector>
 
 namespace enkas::simulation {
 
 HitsSimulator::HitsSimulator(const HitsSettings& settings)
-    : settings_(settings)
-    , softening_sqr_(settings.softening_parameter*settings.softening_parameter)
-{}
+    : settings_(settings),
+      softening_sqr_(settings.softening_parameter * settings.softening_parameter) {}
 
-void HitsSimulator::setSystem(const data::System& initial_system)
-{
+void HitsSimulator::setSystem(const data::System& initial_system) {
     system_ = initial_system;
 
     // Resize vectors to the number of particles in the system
@@ -29,7 +27,7 @@ void HitsSimulator::setSystem(const data::System& initial_system)
     // Scale particles to Hénon Units.
     double e_kin = physics::getKineticEnergy(system_);
     double e_pot = physics::getPotentialEnergy(system_, softening_sqr_);
-    const double total_energy = std::abs(e_kin + e_pot*physics::G);
+    const double total_energy = std::abs(e_kin + e_pot * physics::G);
     physics::scaleToHenonUnits(system_, total_energy);
 
     // Initialize time step of each particle using Aarseth's initialization formula
@@ -40,22 +38,21 @@ void HitsSimulator::setSystem(const data::System& initial_system)
         calculateAccJrk(system_, i, acc, jrk);
 
         const double eta = settings_.time_step_parameter;
-        particle_time_steps_[i] = eta*acc.norm()/(jrk.norm());
+        particle_time_steps_[i] = eta * acc.norm() / (jrk.norm());
         particle_schedule_[particle_time_steps_[i]] = i;
     }
 
     system_time_ = 0.0;
 }
 
-void HitsSimulator::step()
-{
+void HitsSimulator::step() {
     if (particle_schedule_.empty()) return;
 
     // Choose first particle in map as min_i(t_i + dt_i)
     auto node = particle_schedule_.extract(particle_schedule_.begin());
     auto& particle_time = node.key();
     auto& particle_index = node.mapped();
-    
+
     system_time_ = particle_time;
     updateParticle(particle_index);
 
@@ -67,13 +64,11 @@ void HitsSimulator::step()
 
 [[nodiscard]] double HitsSimulator::getSystemTime() const { return system_time_; }
 
-[[nodiscard]] data::System HitsSimulator::getSystem() const 
-{ 
-    return getPredictedSystem(system_time_, true); 
+[[nodiscard]] data::System HitsSimulator::getSystem() const {
+    return getPredictedSystem(system_time_, true);
 }
 
-void HitsSimulator::updateParticle(size_t particle_index)
-{
+void HitsSimulator::updateParticle(size_t particle_index) {
     // Predictor
     auto pred_system = getPredictedSystem(system_time_, false);
 
@@ -89,45 +84,40 @@ void HitsSimulator::updateParticle(size_t particle_index)
     updateParticleTimeStep(particle_index);
 }
 
-data::System HitsSimulator::getPredictedSystem(double time, bool sync_mode) const
-{
+data::System HitsSimulator::getPredictedSystem(double time, bool sync_mode) const {
     data::System pred_system = system_;
 
     const size_t particle_count = pred_system.count();
 
     for (size_t i = 0; i < particle_count; i++) {
         const double dt = time - particle_times_[i];
-        const double dt2 = dt*dt;
-        const double dt3 = dt2*dt;
-        const double dt4 = dt3*dt;
-        const double dt5 = dt4*dt;
+        const double dt2 = dt * dt;
+        const double dt3 = dt2 * dt;
+        const double dt4 = dt3 * dt;
+        const double dt5 = dt4 * dt;
 
-        pred_system.positions[i] +=   pred_system.velocities[i]*dt
-                                    + accelerations_[i]*dt2/2.0
-                                    + jerks_[i]*dt3/6.0;
+        pred_system.positions[i] +=
+            pred_system.velocities[i] * dt + accelerations_[i] * dt2 / 2.0 + jerks_[i] * dt3 / 6.0;
 
-        pred_system.velocities[i] +=   accelerations_[i]*dt
-                                     + jerks_[i]*dt2/2.0;
+        pred_system.velocities[i] += accelerations_[i] * dt + jerks_[i] * dt2 / 2.0;
 
         if (!sync_mode) continue;
         // If the particles need to be synced for returning the system, we need
         // to use higher order terms for our taylor series.
 
-        pred_system.positions[i] +=   snaps_[i]*dt4/24.0
-                                    + crackles_[i]*dt5/120.0;
+        pred_system.positions[i] += snaps_[i] * dt4 / 24.0 + crackles_[i] * dt5 / 120.0;
 
-        pred_system.velocities[i] +=   snaps_[i]*dt3/6.0
-                                     + crackles_[i]*dt4/24.0;
+        pred_system.velocities[i] += snaps_[i] * dt3 / 6.0 + crackles_[i] * dt4 / 24.0;
     }
 
     return pred_system;
 }
 
-void HitsSimulator::calculateAccJrk( const data::System& system
-                                   , size_t i // particle index
-                                   , math::Vector3D& acc
-                                   , math::Vector3D& jrk ) const
-{
+void HitsSimulator::calculateAccJrk(const data::System& system,
+                                    size_t i  // particle index
+                                    ,
+                                    math::Vector3D& acc,
+                                    math::Vector3D& jrk) const {
     acc.fill(0.0);
     jrk.fill(0.0);
 
@@ -144,53 +134,52 @@ void HitsSimulator::calculateAccJrk( const data::System& system
         const double dist_inv = 1.0 / std::sqrt(dist_sq);
         const double dist_inv_cubed = dist_inv * dist_inv * dist_inv;
 
-        acc += r_ij*masses[j]*dist_inv_cubed;
+        acc += r_ij * masses[j] * dist_inv_cubed;
 
         // Jerk
         const math::Vector3D v_ij = velocities[j] - velocities[i];
         const double r_dot_v = math::dotProduct(r_ij, v_ij);
-        const math::Vector3D jerk_term = v_ij - r_ij*(3.0*r_dot_v*dist_inv*dist_inv);
+        const math::Vector3D jerk_term = v_ij - r_ij * (3.0 * r_dot_v * dist_inv * dist_inv);
 
-        jrk += jerk_term*masses[j]*dist_inv_cubed;
+        jrk += jerk_term * masses[j] * dist_inv_cubed;
     }
 }
 
-void HitsSimulator::correctParticle( const data::System& pred_system
-                                   , size_t i // particle index
-                                   , const math::Vector3D& pred_acc
-                                   , const math::Vector3D& pred_jrk)
-{
+void HitsSimulator::correctParticle(const data::System& pred_system,
+                                    size_t i  // particle index
+                                    ,
+                                    const math::Vector3D& pred_acc,
+                                    const math::Vector3D& pred_jrk) {
     const double dt = system_time_ - particle_times_[i];
-    const double dt2 = dt*dt;
-    const double dt3 = dt2*dt;
+    const double dt2 = dt * dt;
+    const double dt3 = dt2 * dt;
 
     // Hermite interpolation of snap multiplied by dt3 as to avoid higher
     // powers of dt
-    const math::Vector3D snp_dt3 =   (accelerations_[i] - pred_acc    )*dt*(-6.0)
-                                   - (jerks_[i]*4.0     + pred_jrk*2.0)*dt2;
+    const math::Vector3D snp_dt3 =
+        (accelerations_[i] - pred_acc) * dt * (-6.0) - (jerks_[i] * 4.0 + pred_jrk * 2.0) * dt2;
 
     // Hermite interpolation of crackle multiplied by dt3 as to avoid higher
     // powers of dt
-    const math::Vector3D crk_dt3 =   (accelerations_[i] - pred_acc)*12.0
-                                   + (jerks_[i]         + pred_jrk)*6.0*dt;
+    const math::Vector3D crk_dt3 =
+        (accelerations_[i] - pred_acc) * 12.0 + (jerks_[i] + pred_jrk) * 6.0 * dt;
 
-    system_.positions[i]  = pred_system.positions[i] + snp_dt3*dt/24.0 + crk_dt3*dt2/120.0;
-    system_.velocities[i] = pred_system.velocities[i] + snp_dt3/6.0 + crk_dt3*dt/24.0;
+    system_.positions[i] = pred_system.positions[i] + snp_dt3 * dt / 24.0 + crk_dt3 * dt2 / 120.0;
+    system_.velocities[i] = pred_system.velocities[i] + snp_dt3 / 6.0 + crk_dt3 * dt / 24.0;
 
-//    system_.velocities[i] +=   (accelerations_[i] + pred_acc)*dt/2
-//                             + (jerks_[i] - pred_jrk)*dt2/12;
+    //    system_.velocities[i] +=   (accelerations_[i] + pred_acc)*dt/2
+    //                             + (jerks_[i] - pred_jrk)*dt2/12;
 
-//    system_.positions[i]  +=   (particle.vel + pred_system.velocities[i])*dt/2
-//                             + (accelerations_[i] - pred_acc)*dt2/12;
+    //    system_.positions[i]  +=   (particle.vel + pred_system.velocities[i])*dt/2
+    //                             + (accelerations_[i] - pred_acc)*dt2/12;
 
     accelerations_[i] = pred_acc;
     jerks_[i] = pred_jrk;
-    snaps_[i] = snp_dt3/dt3 + crk_dt3/dt2;
-    crackles_[i] = crk_dt3/dt3;
+    snaps_[i] = snp_dt3 / dt3 + crk_dt3 / dt2;
+    crackles_[i] = crk_dt3 / dt3;
 }
 
-void HitsSimulator::updateParticleTimeStep(size_t particle_index)
-{
+void HitsSimulator::updateParticleTimeStep(size_t particle_index) {
     auto& particle_dt = particle_time_steps_[particle_index];
 
     const auto& acc = accelerations_[particle_index];
@@ -198,21 +187,21 @@ void HitsSimulator::updateParticleTimeStep(size_t particle_index)
     const auto& snp = snaps_[particle_index];
     const auto& crk = crackles_[particle_index];
 
-    const double a = acc.norm()*snp.norm() + jrk.norm2();
-    const double b = jrk.norm()*crk.norm() + snp.norm2();
+    const double a = acc.norm() * snp.norm() + jrk.norm2();
+    const double b = jrk.norm() * crk.norm() + snp.norm2();
 
-    const double new_dt = std::sqrt(a*settings_.time_step_parameter/b);
+    const double new_dt = std::sqrt(a * settings_.time_step_parameter / b);
 
     // Set an upper limit to the relative change of dt
-    const double mu = 0.3; // allow for 20 % change
-    const double upper_limit = particle_dt*(1 + mu);
+    const double mu = 0.3;  // allow for 20 % change
+    const double upper_limit = particle_dt * (1 + mu);
     particle_dt = std::min(upper_limit, new_dt);
 
-//    // Set an upper and lower limit to the absolute dt
-//    const double eta = 20.0;
-//    const double min_dt = settings_.time_step_parameter/eta;
-//    const double max_dt = settings_.time_step_parameter*eta;
-//    particle_dt = std::max(min_dt, std::min(max_dt, particle_dt));
+    //    // Set an upper and lower limit to the absolute dt
+    //    const double eta = 20.0;
+    //    const double min_dt = settings_.time_step_parameter/eta;
+    //    const double max_dt = settings_.time_step_parameter*eta;
+    //    particle_dt = std::max(min_dt, std::min(max_dt, particle_dt));
 }
 
-} // namespace enkas::simulation
+}  // namespace enkas::simulation

@@ -7,11 +7,8 @@ struct HitsSettings {
     double softening_parameter = 0.0;
 
     [[nodiscard]] bool isValid() const {
-        return (
-            time_step_parameter != 0.0 && 
-            softening_parameter != 0.0
-        );
+        return (time_step_parameter != 0.0 && softening_parameter != 0.0);
     }
 };
 
-} // namespace enkas::simulation
+}  // namespace enkas::simulation

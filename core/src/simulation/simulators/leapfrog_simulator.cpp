@@ -1,20 +1,18 @@
-#include <vector>
-#include <cmath>
-
-#include <enkas/simulation/simulators/leapfrog_simulator.h>
 #include <enkas/data/system.h>
-#include <enkas/physics/helpers.h>
 #include <enkas/math/vector3d.h>
+#include <enkas/physics/helpers.h>
+#include <enkas/simulation/simulators/leapfrog_simulator.h>
+
+#include <cmath>
+#include <vector>
 
 namespace enkas::simulation {
 
 LeapfrogSimulator::LeapfrogSimulator(const LeapfrogSettings& settings)
-    : settings_(settings)
-    , softening_sqr_(settings.softening_parameter*settings.softening_parameter)
-{}
+    : settings_(settings),
+      softening_sqr_(settings.softening_parameter * settings.softening_parameter) {}
 
-void LeapfrogSimulator::setSystem(const data::System& initial_system)
-{
+void LeapfrogSimulator::setSystem(const data::System& initial_system) {
     system_ = initial_system;
 
     const size_t particle_count = system_.count();
@@ -23,16 +21,15 @@ void LeapfrogSimulator::setSystem(const data::System& initial_system)
     // Scale particles to Hénon Units
     const double e_kin = physics::getKineticEnergy(system_);
     const double e_pot = physics::getPotentialEnergy(system_, softening_sqr_);
-    physics::scaleToHenonUnits(system_, std::abs(e_kin + e_pot*physics::G));
-    
+    physics::scaleToHenonUnits(system_, std::abs(e_kin + e_pot * physics::G));
+
     // Initialize accelerations vector
     updateForces();
 
     system_time_ = 0.0;
 }
 
-void LeapfrogSimulator::step()
-{
+void LeapfrogSimulator::step() {
     if (isStopRequested()) return;
 
     const size_t particle_count = system_.count();
@@ -42,12 +39,12 @@ void LeapfrogSimulator::step()
 
     // Leapfrog First "Kick"
     for (size_t i = 0; i < particle_count; ++i) {
-        system_.velocities[i] += accelerations_[i]*dt*0.5;
+        system_.velocities[i] += accelerations_[i] * dt * 0.5;
     }
 
     // Leapfrog "Drift"
     for (size_t i = 0; i < particle_count; ++i) {
-        system_.positions[i] += system_.velocities[i]*dt;
+        system_.positions[i] += system_.velocities[i] * dt;
     }
 
     // Calculate accelerations for all particles
@@ -55,7 +52,7 @@ void LeapfrogSimulator::step()
 
     // Leapfrog Second "Kick"
     for (size_t i = 0; i < particle_count; ++i) {
-        system_.velocities[i] += accelerations_[i]*dt*0.5;
+        system_.velocities[i] += accelerations_[i] * dt * 0.5;
     }
 
     // Update system time with time_step
@@ -66,8 +63,7 @@ void LeapfrogSimulator::step()
 
 [[nodiscard]] data::System LeapfrogSimulator::getSystem() const { return system_; }
 
-void LeapfrogSimulator::updateForces()
-{
+void LeapfrogSimulator::updateForces() {
     const size_t particle_count = system_.count();
     if (particle_count == 0) return;
 
@@ -86,13 +82,13 @@ void LeapfrogSimulator::updateForces()
 
             if (dist_sqr <= 0) continue;
 
-            const double dist_inv = 1.0/std::sqrt(dist_sqr);
-            const double dist_inv_cubed = dist_inv*dist_inv*dist_inv;
+            const double dist_inv = 1.0 / std::sqrt(dist_sqr);
+            const double dist_inv_cubed = dist_inv * dist_inv * dist_inv;
 
-            accelerations_[i] += r_ij*masses[j]*dist_inv_cubed;
-            accelerations_[j] -= r_ij*masses[i]*dist_inv_cubed;
+            accelerations_[i] += r_ij * masses[j] * dist_inv_cubed;
+            accelerations_[j] -= r_ij * masses[i] * dist_inv_cubed;
         }
     }
 }
 
-} // namespace enkas::simulation
+}  // namespace enkas::simulation

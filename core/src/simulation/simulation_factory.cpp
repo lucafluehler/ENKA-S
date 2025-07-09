@@ -1,24 +1,21 @@
+#include <enkas/simulation/simulation_config.h>
 #include <enkas/simulation/simulation_factory.h>
 #include <enkas/simulation/simulator.h>
-#include <enkas/simulation/simulation_config.h>
-
+#include <enkas/simulation/simulators/barneshutleapfrog_simulator.h>
 #include <enkas/simulation/simulators/euler_simulator.h>
-#include <enkas/simulation/simulators/leapfrog_simulator.h>
 #include <enkas/simulation/simulators/hermite_simulator.h>
 #include <enkas/simulation/simulators/hits_simulator.h>
-#include <enkas/simulation/simulators/barneshutleapfrog_simulator.h>
+#include <enkas/simulation/simulators/leapfrog_simulator.h>
 
 namespace enkas::simulation {
 
-std::shared_ptr<Simulator> SimulationFactory::create(const SimulationConfig& config)
-{
+std::shared_ptr<Simulator> SimulationFactory::create(const SimulationConfig& config) {
     if (!config.isValid()) {
         return nullptr;
     }
 
     return std::visit(
         [&config](const auto& specific_settings) -> std::shared_ptr<Simulator> {
-
             // Get the concrete type of the settings object we were passed.
             using SettingsType = std::decay_t<decltype(specific_settings)>;
 
@@ -37,13 +34,11 @@ std::shared_ptr<Simulator> SimulationFactory::create(const SimulationConfig& con
             }
             if constexpr (std::is_same_v<SettingsType, BarnesHutLeapfrogSettings>) {
                 return std::make_shared<BarnesHutLeapfrogSimulator>(specific_settings);
-            }
-            else {
+            } else {
                 return nullptr;
             }
         },
-        config.specific_settings
-    );
+        config.specific_settings);
 }
 
-} // namespace enkas::simulation
+}  // namespace enkas::simulation

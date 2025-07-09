@@ -6,13 +6,12 @@
 namespace enkas::simulation {
 class Simulator;
 struct SimulationConfig;
-} // namespace enkas::simulation
-
+}  // namespace enkas::simulation
 
 namespace enkas::simulation {
 
 class SimulationFactory {
-public:
+   public:
     /**
      * @brief Creates a simulator based on a settings configuration object.
      * @param config The configuration object containing the specific settings.
@@ -21,5 +20,4 @@ public:
     [[nodiscard]] static std::shared_ptr<Simulator> create(const SimulationConfig& config);
 };
 
-
-} // namespace enkas::simulation
+}  // namespace enkas::simulation
