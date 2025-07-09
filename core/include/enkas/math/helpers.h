@@ -1,9 +1,9 @@
 #pragma once
 
-#include <random>
-#include <numbers>
-
 #include <enkas/math/vector3d.h>
+
+#include <numbers>
+#include <random>
 
 namespace enkas::math {
 
@@ -18,16 +18,15 @@ namespace enkas::math {
  *
  * @note The function uses a random number generator to create the random vector.
  */
-inline math::Vector3D getRandOnSphere(std::mt19937& gen, double norm = 1.0) noexcept
-{
+inline math::Vector3D getRandOnSphere(std::mt19937& gen, double norm = 1.0) noexcept {
     static thread_local std::uniform_real_distribution<double> dist_z(-1.0, 1.0);
-    static thread_local std::uniform_real_distribution<double> dist_phi(0.0, 2*std::numbers::pi);
+    static thread_local std::uniform_real_distribution<double> dist_phi(0.0, 2 * std::numbers::pi);
 
     const double z = dist_z(gen);
     const double phi = dist_phi(gen);
-    const double r = std::sqrt(1.0 - z*z);
+    const double r = std::sqrt(1.0 - z * z);
 
-    return Vector3D{r*std::cos(phi), r*std::sin(phi), z}*norm;
+    return Vector3D{r * std::cos(phi), r * std::sin(phi), z} * norm;
 }
 
-} // namespace enkas::math
+}  // namespace enkas::math

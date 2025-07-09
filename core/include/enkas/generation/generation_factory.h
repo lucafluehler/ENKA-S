@@ -3,7 +3,6 @@
 #include <iosfwd>
 #include <memory>
 
-
 // Forward declarations
 namespace enkas::generation {
 class Generator;

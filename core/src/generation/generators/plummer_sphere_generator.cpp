@@ -7,7 +7,6 @@
 #include <random>
 #include <vector>
 
-
 namespace enkas::generation {
 
 PlummerSphereGenerator::PlummerSphereGenerator(const PlummerSphereSettings& settings,

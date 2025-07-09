@@ -6,7 +6,6 @@
 #include <random>
 #include <vector>
 
-
 namespace enkas::generation {
 
 UniformSphereGenerator::UniformSphereGenerator(const UniformSphereSettings& settings,

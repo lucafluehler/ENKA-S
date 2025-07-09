@@ -35,10 +35,10 @@ data::System StreamGenerator::createSystem() {
 
         if (cells.size() >= 7) {
             try {
-                math::Vector3D position = {std::stod(cells[0]), std::stod(cells[1]),
-                                           std::stod(cells[2])};
-                math::Vector3D velocity = {std::stod(cells[3]), std::stod(cells[4]),
-                                           std::stod(cells[5])};
+                math::Vector3D position = {
+                    std::stod(cells[0]), std::stod(cells[1]), std::stod(cells[2])};
+                math::Vector3D velocity = {
+                    std::stod(cells[3]), std::stod(cells[4]), std::stod(cells[5])};
 
                 system.positions.push_back(position);
                 system.velocities.push_back(velocity);

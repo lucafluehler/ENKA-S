@@ -2,7 +2,6 @@
 
 #include <cmath>
 
-
 namespace enkas::math {
 
 Rotor3D::Rotor3D(double p_s, double p_b_xy, double p_b_xz, double p_b_yz)

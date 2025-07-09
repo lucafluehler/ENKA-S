@@ -12,7 +12,6 @@
 #include <type_traits>
 #include <variant>
 
-
 namespace enkas::generation {
 
 std::unique_ptr<Generator> GenerationFactory::create(const GenerationConfig& config) {

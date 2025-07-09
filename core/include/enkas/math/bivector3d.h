@@ -99,7 +99,8 @@ inline Bivector3D operator/(Bivector3D lhs, double scalar) {
  * @return A Bivector3D representing the wedge product of the input vectors.
  */
 inline Bivector3D wedge(const Vector3D& lhs, const Vector3D& rhs) {
-    return Bivector3D(lhs.x * rhs.y - lhs.y * rhs.x, lhs.x * rhs.z - lhs.z * rhs.x,
+    return Bivector3D(lhs.x * rhs.y - lhs.y * rhs.x,
+                      lhs.x * rhs.z - lhs.z * rhs.x,
                       lhs.y * rhs.z - lhs.z * rhs.y);
 }
 

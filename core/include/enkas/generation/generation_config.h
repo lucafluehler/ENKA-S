@@ -9,12 +9,14 @@
 
 #include <variant>
 
-
 namespace enkas::generation {
 
-using SettingsVariant =
-    std::variant<NormalSphereSettings, UniformCubeSettings, UniformSphereSettings,
-                 PlummerSphereSettings, SpiralGalaxySettings, CollisionModelSettings>;
+using SettingsVariant = std::variant<NormalSphereSettings,
+                                     UniformCubeSettings,
+                                     UniformSphereSettings,
+                                     PlummerSphereSettings,
+                                     SpiralGalaxySettings,
+                                     CollisionModelSettings>;
 
 struct GenerationConfig {
     unsigned int seed;

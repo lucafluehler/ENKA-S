@@ -64,7 +64,8 @@ data::System CollisionModelGenerator::createSystem() {
     system.velocities.insert(system.velocities.end(),
                              std::make_move_iterator(sphere1.velocities.begin()),
                              std::make_move_iterator(sphere1.velocities.end()));
-    system.masses.insert(system.masses.end(), std::make_move_iterator(sphere1.masses.begin()),
+    system.masses.insert(system.masses.end(),
+                         std::make_move_iterator(sphere1.masses.begin()),
                          std::make_move_iterator(sphere1.masses.end()));
 
     system.positions.insert(system.positions.end(),
@@ -73,7 +74,8 @@ data::System CollisionModelGenerator::createSystem() {
     system.velocities.insert(system.velocities.end(),
                              std::make_move_iterator(sphere2.velocities.begin()),
                              std::make_move_iterator(sphere2.velocities.end()));
-    system.masses.insert(system.masses.end(), std::make_move_iterator(sphere2.masses.begin()),
+    system.masses.insert(system.masses.end(),
+                         std::make_move_iterator(sphere2.masses.begin()),
                          std::make_move_iterator(sphere2.masses.end()));
 
     physics::centerSystem(system);

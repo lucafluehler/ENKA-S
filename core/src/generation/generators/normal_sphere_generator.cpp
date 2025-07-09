@@ -6,7 +6,6 @@
 #include <random>
 #include <vector>
 
-
 namespace enkas::generation {
 
 NormalSphereGenerator::NormalSphereGenerator(const NormalSphereSettings& settings,
