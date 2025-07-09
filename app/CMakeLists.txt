@@ -1,6 +1,7 @@
-file(GLOB_RECURSE APP_SOURCES src/*.cpp src/*.h)
-file(GLOB_RECURSE APP_FORMS resources/*.ui)
-file(GLOB_RECURSE APP_RESOURCES resources/*.qrc)
+# --- Source files ---
+file(GLOB_RECURSE APP_SOURCES CONFIGURE_DEPENDS src/*.cpp src/*.h)
+file(GLOB_RECURSE APP_FORMS CONFIGURE_DEPENDS resources/*.ui)
+file(GLOB_RECURSE APP_RESOURCES CONFIGURE_DEPENDS resources/*.qrc)
 
 add_executable(enkas
     ${APP_SOURCES}
@@ -8,8 +9,14 @@ add_executable(enkas
     ${APP_RESOURCES}
 )
 
-set_target_properties(enkas PROPERTIES AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/resources")
+# --- Target properties ---
+set_target_properties(enkas PROPERTIES 
+    AUTOUIC_SEARCH_PATHS "${CMAKE_CURRENT_SOURCE_DIR}/resources"
+    WIN32_EXECUTABLE TRUE
+    MACOSX_BUNDLE TRUE
+)
 
+# --- Link dependencies ---
 target_link_libraries(enkas PRIVATE
     enkas-core
 
@@ -19,7 +26,5 @@ target_link_libraries(enkas PRIVATE
     Qt6::Charts
 )
 
-set_target_properties(enkas PROPERTIES
-    WIN32_EXECUTABLE TRUE
-    MACOSX_BUNDLE TRUE
-)
+# --- C++ standard ---
+target_compile_features(enkas PRIVATE cxx_std_23)
