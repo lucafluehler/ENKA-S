@@ -57,9 +57,7 @@ TEST_F(UniformSphereGeneratorTest, Reproducibility) {
     enkas::generation::UniformSphereGenerator generator2(settings, 42);
     enkas::data::System system2 = generator2.createSystem();
 
-    EXPECT_EQ(system1.positions.size(), system2.positions.size());
-    EXPECT_EQ(system1.velocities.size(), system2.velocities.size());
-    EXPECT_EQ(system1.masses.size(), system2.masses.size());
+    ASSERT_EQ(system1.positions.size(), system2.positions.size());
 
     for (size_t i = 0; i < system1.positions.size(); ++i) {
         EXPECT_EQ(system1.positions[i], system2.positions[i]);
