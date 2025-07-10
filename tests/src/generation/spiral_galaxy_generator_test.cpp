@@ -1,4 +1,6 @@
 #include <enkas/generation/generators/spiral_galaxy_generator.h>
+#include <enkas/logging/logger.h>
+#include <enkas/logging/sinks.h>
 #include <enkas/physics/helpers.h>
 #include <gtest/gtest.h>
 
@@ -13,6 +15,10 @@ protected:
         settings.total_mass = 1.0e12;
         settings.twist = 0.5;
         settings.black_hole_mass = 1.0e9;
+
+        auto console_sink = std::make_shared<enkas::logging::ConsoleSink>();
+        auto test_log_level = enkas::logging::LogLevel::DEBUG;
+        enkas::logging::getLogger().configure(test_log_level, console_sink);
     }
 };
 

@@ -1,4 +1,6 @@
 #include <enkas/generation/generators/uniform_cube_generator.h>
+#include <enkas/logging/logger.h>
+#include <enkas/logging/sinks.h>
 #include <enkas/physics/helpers.h>
 #include <gtest/gtest.h>
 
@@ -11,6 +13,10 @@ protected:
         settings.side_length = 10.0;
         settings.total_mass = 1.0;
         settings.initial_velocity = 1.0;
+
+        auto console_sink = std::make_shared<enkas::logging::ConsoleSink>();
+        auto test_log_level = enkas::logging::LogLevel::DEBUG;
+        enkas::logging::getLogger().configure(test_log_level, console_sink);
     }
 };
 

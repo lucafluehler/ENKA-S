@@ -1,4 +1,6 @@
 #include <enkas/generation/generators/collision_model_generator.h>
+#include <enkas/logging/logger.h>
+#include <enkas/logging/sinks.h>
 #include <enkas/physics/helpers.h>
 #include <gtest/gtest.h>
 
@@ -17,6 +19,10 @@ protected:
         settings.particle_count_2 = 100;
         settings.sphere_radius_2 = 10.0;
         settings.total_mass_2 = 1.0;
+
+        auto console_sink = std::make_shared<enkas::logging::ConsoleSink>();
+        auto test_log_level = enkas::logging::LogLevel::DEBUG;
+        enkas::logging::getLogger().configure(test_log_level, console_sink);
     }
 };
 
