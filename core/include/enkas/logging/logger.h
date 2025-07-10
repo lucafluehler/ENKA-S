@@ -17,12 +17,42 @@ public:
     virtual void log(LogLevel level, std::string_view message) = 0;
 };
 
+/**
+ * @brief Extracts the filename from a full path.
+ * @param full_path The full path to extract the filename from.
+ * @return A string_view representing the filename.
+ */
 inline std::string_view get_filename(std::string_view full_path) {
     auto const pos = full_path.find_last_of("/\\");
     if (pos != std::string_view::npos) {
         return full_path.substr(pos + 1);
     }
     return full_path;
+}
+
+/**
+ * @brief Converts a LogLevel enum to a string representation.
+ * @param level The LogLevel to convert.
+ * @return A string_view representing the LogLevel.
+ */
+inline std::string_view logLevelToString(LogLevel level) {
+    switch (level) {
+        case LogLevel::TRACE:
+            return "TRACE";
+        case LogLevel::DEBUG:
+            return "DEBUG";
+        case LogLevel::INFO:
+            return "INFO";
+        case LogLevel::WARNING:
+            return "WARNING";
+        case LogLevel::ERROR:
+            return "ERROR";
+        case LogLevel::CRITICAL:
+            return "CRITICAL";
+        case LogLevel::NONE:
+            return "NONE";
+    }
+    return "UNKNOWN";
 }
 
 class Logger {
@@ -51,11 +81,14 @@ public:
             return;
         }
 
+        auto const time_now = std::chrono::system_clock::now();
+
         auto formatted_message =
-            std::format("[{:%Y-%m-%d %H:%M:%S}] [{}:{}] {}",
-                        std::chrono::system_clock::now(),
+            std::format("[{:%Y-%m-%d %H:%M:%S}] [{}:{}] [{}] {}",
+                        time_now,
                         get_filename(loc.file_name()),
                         loc.line(),
+                        logLevelToString(level),
                         std::vformat(fmt.get(), std::make_format_args(args...)));
 
         current_sink->log(level, formatted_message);
@@ -109,6 +142,10 @@ private:
     std::shared_ptr<LogSink> sink_;
 };
 
+/**
+ * @brief Provides a global logger instance.
+ * @return A reference to the global Logger instance.
+ */
 inline Logger& getLogger() {
     static Logger logger;
     return logger;
