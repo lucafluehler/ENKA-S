@@ -1,5 +1,6 @@
 #include <enkas/data/system.h>
 #include <enkas/generation/generators/stream_generator.h>
+#include <enkas/logging/logger.h>
 #include <enkas/math/vector3d.h>
 
 #include <istream>
@@ -12,10 +13,14 @@ namespace enkas::generation {
 StreamGenerator::StreamGenerator(std::istream& stream) : stream_(stream) {}
 
 data::System StreamGenerator::createSystem() {
+    auto& logger = logging::getLogger();
+    logger.info("Creating system from stream...");
+
     data::System system;
     std::string line;
 
     if (!stream_) {
+        logger.error("Failed to read from stream. Stream is not valid.");
         return system;
     }
 
@@ -23,7 +28,15 @@ data::System StreamGenerator::createSystem() {
     std::getline(stream_, line);
 
     // Load particles one by one :)
+    int line_num = 1;
     while (std::getline(stream_, line)) {
+        line_num++;
+
+        if (line.empty()) {
+            logger.debug("Skipping empty line at line {}", line_num);
+            continue;
+        }
+
         std::stringstream line_stream(line);
         std::string cell;
         std::vector<std::string> cells;
@@ -34,7 +47,8 @@ data::System StreamGenerator::createSystem() {
         }
 
         if (cells.size() < 7) {
-            // Not enough data in the line, skip it.
+            logger.warning(
+                "Skipping line {} ({} columns, expected 7): '{}'", line_num, cells.size(), line);
             continue;
         }
 
@@ -48,15 +62,18 @@ data::System StreamGenerator::createSystem() {
             system.velocities.push_back(velocity);
             system.masses.push_back(std::stod(cells[6]));
         } catch (const std::invalid_argument& e) {
-            // This line could not be parsed as numbers.
+            logger.error("Skipping line {} (bad number format): '{}'", line_num, line);
         } catch (const std::out_of_range& e) {
-            // A number was too large to fit in a double. Skip line.
+            logger.error("Skipping line {} (number out of range): '{}'", line_num, line);
         }
     }
 
     system.positions.shrink_to_fit();
     system.velocities.shrink_to_fit();
     system.masses.shrink_to_fit();
+
+    logger.info("Finished stream generation. Successfully loaded {} particles.",
+                system.positions.size());
 
     return system;
 }
