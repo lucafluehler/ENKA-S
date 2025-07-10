@@ -28,7 +28,7 @@ TEST_F(SpiralGalaxyGeneratorTest, CreateSystem) {
     // ...
 
     const double total_mass = std::accumulate(system.masses.begin(), system.masses.end(), 0.0);
-    EXPECT_NEAR(total_mass, settings.total_mass, 1e6);
+    EXPECT_DOUBLE_EQ(total_mass, settings.total_mass + settings.black_hole_mass);
 }
 
 TEST_F(SpiralGalaxyGeneratorTest, SystemCentered) {
