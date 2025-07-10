@@ -26,9 +26,9 @@ public:
 
     template <typename... Args>
     void log(LogLevel level,
-             std::format_string<Args...> fmt,
-             Args&&... args,
-             const std::source_location& loc = std::source_location::current()) {
+             const std::source_location& loc,
+             const std::format_string<Args...>& fmt,
+             Args&&... args) {
         LogLevel current_level;
         std::shared_ptr<LogSink> current_sink;
 
@@ -52,28 +52,33 @@ public:
     }
 
     template <typename... Args>
-    void trace(std::format_string<Args...> fmt, Args&&... args) {
-        log(LogLevel::TRACE, fmt, std::forward<Args>(args)...);
+    void trace(const std::format_string<Args...>& fmt, Args&&... args) {
+        log(LogLevel::TRACE, std::source_location::current(), fmt, std::forward<Args>(args)...);
     }
+
     template <typename... Args>
-    void debug(std::format_string<Args...> fmt, Args&&... args) {
-        log(LogLevel::DEBUG, fmt, std::forward<Args>(args)...);
+    void debug(const std::format_string<Args...>& fmt, Args&&... args) {
+        log(LogLevel::DEBUG, std::source_location::current(), fmt, std::forward<Args>(args)...);
     }
+
     template <typename... Args>
-    void info(std::format_string<Args...> fmt, Args&&... args) {
-        log(LogLevel::INFO, fmt, std::forward<Args>(args)...);
+    void info(const std::format_string<Args...>& fmt, Args&&... args) {
+        log(LogLevel::INFO, std::source_location::current(), fmt, std::forward<Args>(args)...);
     }
+
     template <typename... Args>
-    void warning(std::format_string<Args...> fmt, Args&&... args) {
-        log(LogLevel::WARNING, fmt, std::forward<Args>(args)...);
+    void warning(const std::format_string<Args...>& fmt, Args&&... args) {
+        log(LogLevel::WARNING, std::source_location::current(), fmt, std::forward<Args>(args)...);
     }
+
     template <typename... Args>
-    void error(std::format_string<Args...> fmt, Args&&... args) {
-        log(LogLevel::ERROR, fmt, std::forward<Args>(args)...);
+    void error(const std::format_string<Args...>& fmt, Args&&... args) {
+        log(LogLevel::ERROR, std::source_location::current(), fmt, std::forward<Args>(args)...);
     }
+
     template <typename... Args>
-    void critical(std::format_string<Args...> fmt, Args&&... args) {
-        log(LogLevel::CRITICAL, fmt, std::forward<Args>(args)...);
+    void critical(const std::format_string<Args...>& fmt, Args&&... args) {
+        log(LogLevel::CRITICAL, std::source_location::current(), fmt, std::forward<Args>(args)...);
     }
 
 private:
