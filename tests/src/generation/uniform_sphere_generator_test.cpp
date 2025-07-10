@@ -40,9 +40,14 @@ TEST_F(UniformSphereGeneratorTest, SystemCentered) {
     enkas::data::System system = generator.createSystem();
 
     auto com = enkas::physics::getCenterOfMass(system);
-    EXPECT_NEAR(com.position.x, 0.0, 1e-6);
-    EXPECT_NEAR(com.position.y, 0.0, 1e-6);
-    EXPECT_NEAR(com.position.z, 0.0, 1e-6);
+    const double tolerance = 1e-9;
+    EXPECT_NEAR(com.position.x, 0.0, tolerance);
+    EXPECT_NEAR(com.position.y, 0.0, tolerance);
+    EXPECT_NEAR(com.position.z, 0.0, tolerance);
+
+    EXPECT_NEAR(com.velocity.x, 0.0, tolerance);
+    EXPECT_NEAR(com.velocity.y, 0.0, tolerance);
+    EXPECT_NEAR(com.velocity.z, 0.0, tolerance);
 }
 
 TEST_F(UniformSphereGeneratorTest, Reproducibility) {
