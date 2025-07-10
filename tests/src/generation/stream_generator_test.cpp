@@ -1,5 +1,3 @@
-#pragma once
-
 #include <enkas/generation/generators/stream_generator.h>
 #include <enkas/logging/logger.h>
 #include <enkas/logging/sinks.h>
