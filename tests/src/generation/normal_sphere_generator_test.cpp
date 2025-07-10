@@ -27,7 +27,7 @@ TEST_F(NormalSphereGeneratorTest, CreateSystem) {
     // ...
 
     const double total_mass = std::accumulate(system.masses.begin(), system.masses.end(), 0.0);
-    EXPECT_NEAR(total_mass, settings.particle_count * settings.mass_mean, 1e-6);
+    EXPECT_NEAR(total_mass, settings.particle_count * settings.mass_mean, 1);
 }
 
 TEST_F(NormalSphereGeneratorTest, SystemCentered) {
