@@ -16,7 +16,7 @@ PlummerSphereGenerator::PlummerSphereGenerator(const PlummerSphereSettings& sett
 
 data::System PlummerSphereGenerator::createSystem() {
     auto& logger = logging::getLogger();
-    logger.info("Creating 'PlummerSphere' system...");
+    logger.info(std::source_location::current(), "Creating 'PlummerSphere' system...");
 
     data::System system;
     const int particle_count = settings_.particle_count;
@@ -67,7 +67,8 @@ data::System PlummerSphereGenerator::createSystem() {
 
     physics::centerSystem(system);
 
-    logger.info("Finished 'PlummerSphere' generation. Successfully loaded {} particles.",
+    logger.info(std::source_location::current(),
+                "Finished 'PlummerSphere' generation. Successfully loaded {} particles.",
                 system.positions.size());
 
     return system;

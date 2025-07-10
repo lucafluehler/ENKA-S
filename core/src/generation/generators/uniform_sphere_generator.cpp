@@ -7,7 +7,6 @@
 #include <random>
 #include <vector>
 
-
 namespace enkas::generation {
 
 UniformSphereGenerator::UniformSphereGenerator(const UniformSphereSettings& settings,
@@ -16,7 +15,7 @@ UniformSphereGenerator::UniformSphereGenerator(const UniformSphereSettings& sett
 
 data::System UniformSphereGenerator::createSystem() {
     auto& logger = logging::getLogger();
-    logger.info("Creating 'UniformSphere' system...");
+    logger.info(std::source_location::current(), "Creating 'UniformSphere' system...");
 
     data::System system;
     const int particle_count = settings_.particle_count;
@@ -50,7 +49,8 @@ data::System UniformSphereGenerator::createSystem() {
 
     physics::centerSystem(system);
 
-    logger.info("Finished 'UniformSphere' generation. Successfully loaded {} particles.",
+    logger.info(std::source_location::current(),
+                "Finished 'UniformSphere' generation. Successfully loaded {} particles.",
                 system.positions.size());
 
     return system;

@@ -14,13 +14,14 @@ StreamGenerator::StreamGenerator(std::istream& stream) : stream_(stream) {}
 
 data::System StreamGenerator::createSystem() {
     auto& logger = logging::getLogger();
-    logger.info("Creating system from stream...");
+    logger.info(std::source_location::current(), "Creating system from stream...");
 
     data::System system;
     std::string line;
 
     if (!stream_) {
-        logger.error("Failed to read from stream. Stream is not valid.");
+        logger.error(std::source_location::current(),
+                     "Failed to read from stream. Stream is not valid.");
         return system;
     }
 
@@ -33,7 +34,8 @@ data::System StreamGenerator::createSystem() {
         line_num++;
 
         if (line.empty()) {
-            logger.debug("Skipping empty line at line {}", line_num);
+            logger.debug(
+                std::source_location::current(), "Skipping empty line at line {}", line_num);
             continue;
         }
 
@@ -47,8 +49,11 @@ data::System StreamGenerator::createSystem() {
         }
 
         if (cells.size() < 7) {
-            logger.warning(
-                "Skipping line {} ({} columns, expected 7): '{}'", line_num, cells.size(), line);
+            logger.warning(std::source_location::current(),
+                           "Skipping line {} ({} columns, expected 7): '{}'",
+                           line_num,
+                           cells.size(),
+                           line);
             continue;
         }
 
@@ -62,9 +67,15 @@ data::System StreamGenerator::createSystem() {
             system.velocities.push_back(velocity);
             system.masses.push_back(std::stod(cells[6]));
         } catch (const std::invalid_argument& e) {
-            logger.error("Skipping line {} (bad number format): '{}'", line_num, line);
+            logger.error(std::source_location::current(),
+                         "Skipping line {} (bad number format): '{}'",
+                         line_num,
+                         line);
         } catch (const std::out_of_range& e) {
-            logger.error("Skipping line {} (number out of range): '{}'", line_num, line);
+            logger.error(std::source_location::current(),
+                         "Skipping line {} (number out of range): '{}'",
+                         line_num,
+                         line);
         }
     }
 
@@ -72,7 +83,8 @@ data::System StreamGenerator::createSystem() {
     system.velocities.shrink_to_fit();
     system.masses.shrink_to_fit();
 
-    logger.info("Finished stream generation. Successfully loaded {} particles.",
+    logger.info(std::source_location::current(),
+                "Finished stream generation. Successfully loaded {} particles.",
                 system.positions.size());
 
     return system;

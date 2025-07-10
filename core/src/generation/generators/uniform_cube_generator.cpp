@@ -7,7 +7,6 @@
 #include <random>
 #include <vector>
 
-
 namespace enkas::generation {
 
 UniformCubeGenerator::UniformCubeGenerator(const UniformCubeSettings& settings, unsigned int seed)
@@ -15,7 +14,7 @@ UniformCubeGenerator::UniformCubeGenerator(const UniformCubeSettings& settings, 
 
 data::System UniformCubeGenerator::createSystem() {
     auto& logger = logging::getLogger();
-    logger.info("Creating 'UniformCube' system...");
+    logger.info(std::source_location::current(), "Creating 'UniformCube' system...");
 
     data::System system;
     const int particle_count = settings_.particle_count;
@@ -43,7 +42,8 @@ data::System UniformCubeGenerator::createSystem() {
 
     physics::centerSystem(system);
 
-    logger.info("Finished 'UniformCube' generation. Successfully loaded {} particles.",
+    logger.info(std::source_location::current(),
+                "Finished 'UniformCube' generation. Successfully loaded {} particles.",
                 system.positions.size());
 
     return system;

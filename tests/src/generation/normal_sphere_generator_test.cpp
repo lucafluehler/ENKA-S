@@ -1,4 +1,6 @@
 #include <enkas/generation/generators/normal_sphere_generator.h>
+#include <enkas/logging/logger.h>
+#include <enkas/logging/sinks.h>
 #include <enkas/physics/helpers.h>
 #include <gtest/gtest.h>
 
@@ -12,6 +14,10 @@ protected:
         settings.velocity_std_dev = 1.0;
         settings.mass_mean = 1.0;
         settings.mass_std_dev = 0.1;
+
+        auto console_sink = std::make_shared<enkas::logging::ConsoleSink>();
+        auto test_log_level = enkas::logging::LogLevel::DEBUG;
+        enkas::logging::getLogger().configure(test_log_level, console_sink);
     }
 };
 

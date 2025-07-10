@@ -7,7 +7,6 @@
 
 #include <vector>
 
-
 namespace enkas::generation {
 
 CollisionModelGenerator::CollisionModelGenerator(const CollisionModelSettings& settings,
@@ -16,7 +15,7 @@ CollisionModelGenerator::CollisionModelGenerator(const CollisionModelSettings& s
 
 data::System CollisionModelGenerator::createSystem() {
     auto& logger = logging::getLogger();
-    logger.info("Creating 'CollisionModel' system...");
+    logger.info(std::source_location::current(), "Creating 'CollisionModel' system...");
 
     // Generate first Plummer sphere
     PlummerSphereSettings plummer1_settings;
@@ -85,7 +84,8 @@ data::System CollisionModelGenerator::createSystem() {
 
     physics::centerSystem(system);
 
-    logger.info("Finished 'CollisionModel' generation. Successfully loaded {} particles.",
+    logger.info(std::source_location::current(),
+                "Finished 'CollisionModel' generation. Successfully loaded {} particles.",
                 system.positions.size());
 
     return system;
