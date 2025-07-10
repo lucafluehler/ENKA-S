@@ -1,5 +1,6 @@
 #include <enkas/data/system.h>
 #include <enkas/generation/generators/spiral_galaxy_generator.h>
+#include <enkas/logging/logger.h>
 #include <enkas/math/helpers.h>
 #include <enkas/math/vector3d.h>
 #include <enkas/physics/helpers.h>
@@ -15,6 +16,9 @@ SpiralGalaxyGenerator::SpiralGalaxyGenerator(const SpiralGalaxySettings& setting
     : settings_(settings), seed_(seed) {}
 
 data::System SpiralGalaxyGenerator::createSystem() {
+    auto& logger = logging::getLogger();
+    logger.info("Creating 'SpiralGalaxy' system...");
+
     data::System system;
     const int particle_count = settings_.particle_count;
 
@@ -84,6 +88,9 @@ data::System SpiralGalaxyGenerator::createSystem() {
     system.positions.push_back(math::Vector3D{});
     system.velocities.push_back(math::Vector3D{});
     system.masses.push_back(settings_.black_hole_mass);
+
+    logger.info("Finished 'SpiralGalaxy' generation. Successfully loaded {} particles.",
+                system.positions.size());
 
     return system;
 }

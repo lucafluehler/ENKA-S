@@ -1,10 +1,12 @@
 #include <enkas/data/system.h>
 #include <enkas/generation/generators/collision_model_generator.h>
 #include <enkas/generation/generators/plummer_sphere_generator.h>
+#include <enkas/logging/logger.h>
 #include <enkas/math/vector3d.h>
 #include <enkas/physics/helpers.h>
 
 #include <vector>
+
 
 namespace enkas::generation {
 
@@ -13,6 +15,9 @@ CollisionModelGenerator::CollisionModelGenerator(const CollisionModelSettings& s
     : settings_(settings), seed_(seed) {}
 
 data::System CollisionModelGenerator::createSystem() {
+    auto& logger = logging::getLogger();
+    logger.info("Creating 'CollisionModel' system...");
+
     // Generate first Plummer sphere
     PlummerSphereSettings plummer1_settings;
     plummer1_settings.particle_count = settings_.particle_count_1;
@@ -79,6 +84,9 @@ data::System CollisionModelGenerator::createSystem() {
                          std::make_move_iterator(sphere2.masses.end()));
 
     physics::centerSystem(system);
+
+    logger.info("Finished 'CollisionModel' generation. Successfully loaded {} particles.",
+                system.positions.size());
 
     return system;
 }

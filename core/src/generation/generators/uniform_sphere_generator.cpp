@@ -1,10 +1,12 @@
 #include <enkas/data/system.h>
 #include <enkas/generation/generators/uniform_sphere_generator.h>
+#include <enkas/logging/logger.h>
 #include <enkas/math/vector3d.h>
 #include <enkas/physics/helpers.h>
 
 #include <random>
 #include <vector>
+
 
 namespace enkas::generation {
 
@@ -13,6 +15,9 @@ UniformSphereGenerator::UniformSphereGenerator(const UniformSphereSettings& sett
     : settings_(settings), seed_(seed) {}
 
 data::System UniformSphereGenerator::createSystem() {
+    auto& logger = logging::getLogger();
+    logger.info("Creating 'UniformSphere' system...");
+
     data::System system;
     const int particle_count = settings_.particle_count;
 
@@ -44,6 +49,9 @@ data::System UniformSphereGenerator::createSystem() {
     }
 
     physics::centerSystem(system);
+
+    logger.info("Finished 'UniformSphere' generation. Successfully loaded {} particles.",
+                system.positions.size());
 
     return system;
 }

@@ -1,10 +1,12 @@
 #include <enkas/data/system.h>
 #include <enkas/generation/generators/uniform_cube_generator.h>
+#include <enkas/logging/logger.h>
 #include <enkas/math/vector3d.h>
 #include <enkas/physics/helpers.h>
 
 #include <random>
 #include <vector>
+
 
 namespace enkas::generation {
 
@@ -12,6 +14,9 @@ UniformCubeGenerator::UniformCubeGenerator(const UniformCubeSettings& settings, 
     : settings_(settings), seed_(seed) {}
 
 data::System UniformCubeGenerator::createSystem() {
+    auto& logger = logging::getLogger();
+    logger.info("Creating 'UniformCube' system...");
+
     data::System system;
     const int particle_count = settings_.particle_count;
 
@@ -37,6 +42,9 @@ data::System UniformCubeGenerator::createSystem() {
     }
 
     physics::centerSystem(system);
+
+    logger.info("Finished 'UniformCube' generation. Successfully loaded {} particles.",
+                system.positions.size());
 
     return system;
 }

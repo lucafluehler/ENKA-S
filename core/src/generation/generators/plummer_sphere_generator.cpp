@@ -1,5 +1,6 @@
 #include <enkas/data/system.h>
 #include <enkas/generation/generators/plummer_sphere_generator.h>
+#include <enkas/logging/logger.h>
 #include <enkas/math/helpers.h>
 #include <enkas/math/vector3d.h>
 #include <enkas/physics/helpers.h>
@@ -14,6 +15,9 @@ PlummerSphereGenerator::PlummerSphereGenerator(const PlummerSphereSettings& sett
     : settings_(settings), seed_(seed) {}
 
 data::System PlummerSphereGenerator::createSystem() {
+    auto& logger = logging::getLogger();
+    logger.info("Creating 'PlummerSphere' system...");
+
     data::System system;
     const int particle_count = settings_.particle_count;
 
@@ -62,6 +66,9 @@ data::System PlummerSphereGenerator::createSystem() {
     }
 
     physics::centerSystem(system);
+
+    logger.info("Finished 'PlummerSphere' generation. Successfully loaded {} particles.",
+                system.positions.size());
 
     return system;
 }
