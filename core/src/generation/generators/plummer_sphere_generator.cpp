@@ -30,7 +30,10 @@ data::System PlummerSphereGenerator::createSystem() {
     for (size_t i = 0; i < particle_count; i++) {
         // POSITION (Aarseth, S. J. 2003, Gravitational N-Body Simulations)
         // This method generates a radius 'r' based on the mass distribution.
-        const double m_i = (i + 1.0) / particle_count;  // Cumulative mass fraction
+        double m_i = 0.0;  // Cumulative mass fraction
+        do {
+            m_i = dist(gen);
+        } while (m_i == 0.0);
         const double r = plummer_radius / std::sqrt(std::pow(m_i, -2.0 / 3.0) - 1.0);
 
         // Use the new, namespaced helper function to get a random direction.
