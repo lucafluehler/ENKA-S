@@ -44,7 +44,11 @@ void HitsSimulator::setSystem(const data::System& initial_system) {
         calculateAccJrk(system_, i, acc, jrk);
 
         const double eta = settings_.time_step_parameter;
-        particle_time_steps_[i] = eta * acc.norm() / (jrk.norm());
+        if (acc.norm() == 0.0 || jrk.norm() == 0.0) {
+            particle_time_steps_[i] = eta;
+        } else {
+            particle_time_steps_[i] = eta * acc.norm() / (jrk.norm());
+        }
         particle_schedule_[particle_time_steps_[i]] = i;
     }
 
