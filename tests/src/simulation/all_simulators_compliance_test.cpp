@@ -42,7 +42,7 @@ enkas::simulation::HitsSettings SimulatorComplianceTest<
                         enkas::simulation::HitsSettings>>::CreateDefaultSettings() {
     enkas::simulation::HitsSettings settings;
     settings.softening_parameter = 0.01;
-    settings.time_step_parameter = 0.01;
+    settings.time_step_parameter = 0.0001;
     return settings;
 }
 
