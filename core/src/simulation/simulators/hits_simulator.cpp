@@ -199,7 +199,10 @@ void HitsSimulator::updateParticleTimeStep(size_t particle_index) {
     const double a = acc.norm() * snp.norm() + jrk.norm2();
     const double b = jrk.norm() * crk.norm() + snp.norm2();
 
-    const double new_dt = std::sqrt(a * settings_.time_step_parameter / b);
+    double new_dt = settings_.time_step_parameter;
+    if (a != 0.0 && b != 0.0) {
+        new_dt = std::sqrt(a * settings_.time_step_parameter / b);
+    }
 
     // Set an upper limit to the relative change of dt
     const double mu = 0.3;  // allow for 20 % change
