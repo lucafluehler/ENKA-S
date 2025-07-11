@@ -13,8 +13,7 @@ UniformCubeGenerator::UniformCubeGenerator(const UniformCubeSettings& settings, 
     : settings_(settings), seed_(seed) {}
 
 data::System UniformCubeGenerator::createSystem() {
-    auto& logger = logging::getLogger();
-    logger.info(std::source_location::current(), "Creating 'UniformCube' system...");
+    ENKAS_LOG_INFO("Creating 'UniformCube' system...");
 
     data::System system;
     const int particle_count = settings_.particle_count;
@@ -42,9 +41,8 @@ data::System UniformCubeGenerator::createSystem() {
 
     physics::centerSystem(system);
 
-    logger.info(std::source_location::current(),
-                "Finished 'UniformCube' generation. Successfully loaded {} particles.",
-                system.positions.size());
+    ENKAS_LOG_INFO("Finished 'UniformCube' generation. Successfully loaded {} particles.",
+                   system.positions.size());
 
     return system;
 }

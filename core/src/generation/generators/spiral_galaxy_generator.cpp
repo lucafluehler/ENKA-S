@@ -16,8 +16,7 @@ SpiralGalaxyGenerator::SpiralGalaxyGenerator(const SpiralGalaxySettings& setting
     : settings_(settings), seed_(seed) {}
 
 data::System SpiralGalaxyGenerator::createSystem() {
-    auto& logger = logging::getLogger();
-    logger.info(std::source_location::current(), "Creating 'SpiralGalaxy' system...");
+    ENKAS_LOG_INFO("Creating 'SpiralGalaxy' system...");
 
     data::System system;
     const int particle_count = settings_.particle_count;
@@ -89,9 +88,8 @@ data::System SpiralGalaxyGenerator::createSystem() {
     system.velocities.push_back(math::Vector3D{});
     system.masses.push_back(settings_.black_hole_mass);
 
-    logger.info(std::source_location::current(),
-                "Finished 'SpiralGalaxy' generation. Successfully loaded {} particles.",
-                system.positions.size());
+    ENKAS_LOG_INFO("Finished 'SpiralGalaxy' generation. Successfully loaded {} particles.",
+                   system.positions.size());
 
     return system;
 }

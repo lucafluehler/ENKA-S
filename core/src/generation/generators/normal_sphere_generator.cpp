@@ -14,8 +14,7 @@ NormalSphereGenerator::NormalSphereGenerator(const NormalSphereSettings& setting
     : settings_(settings), seed_(seed) {}
 
 data::System NormalSphereGenerator::createSystem() {
-    auto& logger = logging::getLogger();
-    logger.info(std::source_location::current(), "Creating 'NormalSphere' system...");
+    ENKAS_LOG_INFO("Creating 'NormalSphere' system...");
 
     data::System system;
     const int particle_count = settings_.particle_count;
@@ -42,9 +41,8 @@ data::System NormalSphereGenerator::createSystem() {
 
     physics::centerSystem(system);
 
-    logger.info(std::source_location::current(),
-                "Finished 'NormalSphere' generation. Successfully loaded {} particles.",
-                system.positions.size());
+    ENKAS_LOG_INFO("Finished 'NormalSphere' generation. Successfully loaded {} particles.",
+                   system.positions.size());
 
     return system;
 }

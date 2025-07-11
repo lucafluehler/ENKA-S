@@ -14,8 +14,7 @@ UniformSphereGenerator::UniformSphereGenerator(const UniformSphereSettings& sett
     : settings_(settings), seed_(seed) {}
 
 data::System UniformSphereGenerator::createSystem() {
-    auto& logger = logging::getLogger();
-    logger.info(std::source_location::current(), "Creating 'UniformSphere' system...");
+    ENKAS_LOG_INFO("Creating 'UniformSphere' system...");
 
     data::System system;
     const int particle_count = settings_.particle_count;
@@ -49,9 +48,8 @@ data::System UniformSphereGenerator::createSystem() {
 
     physics::centerSystem(system);
 
-    logger.info(std::source_location::current(),
-                "Finished 'UniformSphere' generation. Successfully loaded {} particles.",
-                system.positions.size());
+    ENKAS_LOG_INFO("Finished 'UniformSphere' generation. Successfully loaded {} particles.",
+                   system.positions.size());
 
     return system;
 }

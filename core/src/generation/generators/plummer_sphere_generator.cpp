@@ -15,8 +15,7 @@ PlummerSphereGenerator::PlummerSphereGenerator(const PlummerSphereSettings& sett
     : settings_(settings), seed_(seed) {}
 
 data::System PlummerSphereGenerator::createSystem() {
-    auto& logger = logging::getLogger();
-    logger.info(std::source_location::current(), "Creating 'PlummerSphere' system...");
+    ENKAS_LOG_INFO("Creating 'PlummerSphere' system...");
 
     data::System system;
     const int particle_count = settings_.particle_count;
@@ -67,9 +66,8 @@ data::System PlummerSphereGenerator::createSystem() {
 
     physics::centerSystem(system);
 
-    logger.info(std::source_location::current(),
-                "Finished 'PlummerSphere' generation. Successfully loaded {} particles.",
-                system.positions.size());
+    ENKAS_LOG_INFO("Finished 'PlummerSphere' generation. Successfully loaded {} particles.",
+                   system.positions.size());
 
     return system;
 }
