@@ -1,4 +1,5 @@
 #include <enkas/data/system.h>
+#include <enkas/logging/logger.h>
 #include <enkas/math/vector3d.h>
 #include <enkas/physics/helpers.h>
 #include <enkas/simulation/simulators/hits_simulator.h>
@@ -13,6 +14,8 @@ HitsSimulator::HitsSimulator(const HitsSettings& settings)
       softening_sqr_(settings.softening_parameter * settings.softening_parameter) {}
 
 void HitsSimulator::setSystem(const data::System& initial_system) {
+    ENKAS_LOG_INFO("Setting up HITS simulator with new initial system...");
+
     system_ = initial_system;
 
     // Resize vectors to the number of particles in the system
@@ -23,18 +26,21 @@ void HitsSimulator::setSystem(const data::System& initial_system) {
     crackles_.resize(particle_count);
     particle_times_.resize(particle_count, 0.0);
     particle_time_steps_.resize(particle_count, 0.0);
+    ENKAS_LOG_DEBUG("  System contains {} particles.", particle_count);
 
     // Scale particles to Hénon Units.
-    double e_kin = physics::getKineticEnergy(system_);
-    double e_pot = physics::getPotentialEnergy(system_, softening_sqr_);
+    const double e_kin = physics::getKineticEnergy(system_);
+    const double e_pot = physics::getPotentialEnergy(system_, softening_sqr_);
     const double total_energy = std::abs(e_kin + e_pot * physics::G);
     physics::scaleToHenonUnits(system_, total_energy);
+    ENKAS_LOG_DEBUG("  Scaling to Hénon units with total energy: {}", total_energy);
 
     // Initialize time step of each particle using Aarseth's initialization formula
     // (MULTIPLE TIME SCALES, 1985)
+    ENKAS_LOG_INFO("  Initializing accelerations, jerks and time steps...");
     for (size_t i = 0; i < system_.count(); i++) {
-        math::Vector3D acc;
-        math::Vector3D jrk;
+        auto& acc = accelerations_[i];
+        auto& jrk = jerks_[i];
         calculateAccJrk(system_, i, acc, jrk);
 
         const double eta = settings_.time_step_parameter;
@@ -43,6 +49,7 @@ void HitsSimulator::setSystem(const data::System& initial_system) {
     }
 
     system_time_ = 0.0;
+    ENKAS_LOG_INFO("System setup complete. Simulation ready to start.");
 }
 
 void HitsSimulator::step() {
@@ -114,8 +121,7 @@ data::System HitsSimulator::getPredictedSystem(double time, bool sync_mode) cons
 }
 
 void HitsSimulator::calculateAccJrk(const data::System& system,
-                                    size_t i  // particle index
-                                    ,
+                                    size_t i,  // particle index
                                     math::Vector3D& acc,
                                     math::Vector3D& jrk) const {
     acc.fill(0.0);
@@ -146,8 +152,7 @@ void HitsSimulator::calculateAccJrk(const data::System& system,
 }
 
 void HitsSimulator::correctParticle(const data::System& pred_system,
-                                    size_t i  // particle index
-                                    ,
+                                    size_t i,  // particle index
                                     const math::Vector3D& pred_acc,
                                     const math::Vector3D& pred_jrk) {
     const double dt = system_time_ - particle_times_[i];

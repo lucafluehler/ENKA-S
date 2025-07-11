@@ -1,4 +1,5 @@
 #include <enkas/data/system.h>
+#include <enkas/logging/logger.h>
 #include <enkas/math/vector3d.h>
 #include <enkas/physics/helpers.h>
 #include <enkas/simulation/simulators/leapfrog_simulator.h>
@@ -13,20 +14,27 @@ LeapfrogSimulator::LeapfrogSimulator(const LeapfrogSettings& settings)
       softening_sqr_(settings.softening_parameter * settings.softening_parameter) {}
 
 void LeapfrogSimulator::setSystem(const data::System& initial_system) {
+    ENKAS_LOG_INFO("Setting up Leapfrog simulator with new initial system...");
+
     system_ = initial_system;
 
     const size_t particle_count = system_.count();
     accelerations_.resize(particle_count);
+    ENKAS_LOG_DEBUG("  System contains {} particles.", particle_count);
 
     // Scale particles to Hénon Units
     const double e_kin = physics::getKineticEnergy(system_);
     const double e_pot = physics::getPotentialEnergy(system_, softening_sqr_);
-    physics::scaleToHenonUnits(system_, std::abs(e_kin + e_pot * physics::G));
+    const double total_energy = std::abs(e_kin + e_pot * physics::G);
+    physics::scaleToHenonUnits(system_, total_energy);
+    ENKAS_LOG_DEBUG("  Scaling to Hénon units with total energy: {}", total_energy);
 
     // Initialize accelerations vector
+    ENKAS_LOG_INFO("  Initializing accelerations...");
     updateForces();
 
     system_time_ = 0.0;
+    ENKAS_LOG_INFO("System setup complete. Simulation ready to start.");
 }
 
 void LeapfrogSimulator::step() {

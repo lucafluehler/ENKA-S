@@ -7,6 +7,7 @@
 #include <enkas/generation/generators/stream_generator.h>
 #include <enkas/generation/generators/uniform_cube_generator.h>
 #include <enkas/generation/generators/uniform_sphere_generator.h>
+#include <enkas/logging/logger.h>
 
 #include <iostream>
 #include <type_traits>
@@ -15,9 +16,14 @@
 namespace enkas::generation {
 
 std::unique_ptr<Generator> GenerationFactory::create(const GenerationConfig& config) {
+    ENKAS_LOG_INFO("Attempting to create generator from config...");
+
     if (!config.isValid()) {
+        ENKAS_LOG_ERROR("GenerationConfig is invalid. Cannot create generator.");
         return nullptr;
     }
+
+    ENKAS_LOG_DEBUG("Using random seed: {}", config.seed);
 
     return std::visit(
         [&config](const auto& specific_settings) -> std::unique_ptr<Generator> {
@@ -43,6 +49,11 @@ std::unique_ptr<Generator> GenerationFactory::create(const GenerationConfig& con
             if constexpr (std::is_same_v<SettingsType, CollisionModelSettings>) {
                 return std::make_unique<CollisionModelGenerator>(specific_settings, config.seed);
             } else {
+                // Development error: if we reach here, it means we have an unsupported settings
+                // type. This should never happen if the settings are properly defined.
+                ENKAS_LOG_CRITICAL(
+                    "Unhandled settings type '{}' in GenerationFactory. No generator created.",
+                    typeid(SettingsType).name());
                 return nullptr;
             }
         },
@@ -50,7 +61,10 @@ std::unique_ptr<Generator> GenerationFactory::create(const GenerationConfig& con
 }
 
 std::unique_ptr<Generator> GenerationFactory::create(std::istream& stream) {
+    ENKAS_LOG_INFO("Attempting to create generator from input stream...");
+
     if (!stream) {
+        ENKAS_LOG_ERROR("Input stream is invalid. Cannot create generator.");
         return nullptr;
     }
 
