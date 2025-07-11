@@ -40,6 +40,9 @@ void EulerSimulator::setSystem(const data::System& initial_system) {
 void EulerSimulator::step() {
     if (isStopRequested()) return;
 
+    const size_t particle_count = system_.count();
+    if (particle_count == 0) return;
+
     // Calculate acceleration and potential energy for the entire system
     updateForces();
 
