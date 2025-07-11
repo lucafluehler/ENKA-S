@@ -26,18 +26,18 @@ void HitsSimulator::setSystem(const data::System& initial_system) {
     crackles_.resize(particle_count);
     particle_times_.resize(particle_count, 0.0);
     particle_time_steps_.resize(particle_count, 0.0);
-    ENKAS_LOG_DEBUG("  System contains {} particles.", particle_count);
+    ENKAS_LOG_DEBUG("System contains {} particles.", particle_count);
 
     // Scale particles to Hénon Units.
     const double e_kin = physics::getKineticEnergy(system_);
     const double e_pot = physics::getPotentialEnergy(system_, softening_sqr_);
     const double total_energy = std::abs(e_kin + e_pot * physics::G);
     physics::scaleToHenonUnits(system_, total_energy);
-    ENKAS_LOG_DEBUG("  Scaling to Hénon units with total energy: {}", total_energy);
+    ENKAS_LOG_DEBUG("Scaling to Hénon units with total energy: {}", total_energy);
 
     // Initialize time step of each particle using Aarseth's initialization formula
     // (MULTIPLE TIME SCALES, 1985)
-    ENKAS_LOG_INFO("  Initializing accelerations, jerks and time steps...");
+    ENKAS_LOG_INFO("Initializing accelerations, jerks and time steps...");
     for (size_t i = 0; i < system_.count(); i++) {
         auto& acc = accelerations_[i];
         auto& jrk = jerks_[i];
