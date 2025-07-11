@@ -152,3 +152,21 @@ inline Logger& getLogger() {
 }
 
 }  // namespace enkas::logging
+
+// Macros for convenience
+// These macros allow for easy logging without needing to specify the source location manually.
+// Instead of passing the source location, they automatically use the current source location.
+// Additionally, no need to take a reference to the logger.
+
+#define ENKAS_LOG_TRACE(fmt, ...) \
+    enkas::logging::getLogger().trace(std::source_location::current(), fmt, ##__VA_ARGS__)
+#define ENKAS_LOG_DEBUG(fmt, ...) \
+    enkas::logging::getLogger().debug(std::source_location::current(), fmt, ##__VA_ARGS__)
+#define ENKAS_LOG_INFO(fmt, ...) \
+    enkas::logging::getLogger().info(std::source_location::current(), fmt, ##__VA_ARGS__)
+#define ENKAS_LOG_WARNING(fmt, ...) \
+    enkas::logging::getLogger().warning(std::source_location::current(), fmt, ##__VA_ARGS__)
+#define ENKAS_LOG_ERROR(fmt, ...) \
+    enkas::logging::getLogger().error(std::source_location::current(), fmt, ##__VA_ARGS__)
+#define ENKAS_LOG_CRITICAL(fmt, ...) \
+    enkas::logging::getLogger().critical(std::source_location::current(), fmt, ##__VA_ARGS__)
