@@ -9,8 +9,6 @@
 
 struct DataPtr {
     std::shared_ptr<Settings> settings = nullptr;
-    std::shared_ptr<enkas::data::System> initial_system = nullptr;
-
-    std::shared_ptr<enkas::data::System> simulated_system = nullptr;
-    std::shared_ptr<enkas::data::Diagnostics> diagnostics_data = nullptr;
+    std::shared_ptr<enkas::data::System> system = nullptr;
+    std::shared_ptr<enkas::data::Diagnostics> diagnostics = nullptr;
 };
