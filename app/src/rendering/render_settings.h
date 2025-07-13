@@ -1,32 +1,33 @@
 #pragma once
 
-enum class AnimationStyle
-{
-    NONE,
-    RIGHT,
-    LEFT,
-    UP,
-    DOWN,
-    CWISE, // Clockwise
-    CNTRCWISE, // Counterclockwise
-    TUTTI
+enum class AnimationStyle {
+    None,
+    Right,
+    Left,
+    Up,
+    Down,
+    Clockwise,
+    Counterclockwise,
+    Tutti  // Up, Right, Counterclockwise simultaneously
 };
 
-enum class ColoringMethod
-{
-    BLACK_FOG,
-    WHITE_FOG
-};
+enum class ColoringMethod { BlackFog, WhiteFog };
 
-struct RenderSettings
-{
+struct RenderSettings {
+    // Toggles
     bool show_center_of_mass = true;
     bool show_center_of_screen = false;
-    AnimationStyle animation_style = AnimationStyle::NONE;
+
+    // Animation
+    AnimationStyle animation_style = AnimationStyle::None;
     double animation_speed = 1;
-    ColoringMethod coloring_method = ColoringMethod::WHITE_FOG;
+
+    // Coloring
+    ColoringMethod coloring_method = ColoringMethod::WhiteFog;
     double black_fog_param = 5;
     double white_fog_param = 6;
+
+    // Rendering
     double particle_size_param = 1;
     int max_fps = 60;
     int fov = 90;
