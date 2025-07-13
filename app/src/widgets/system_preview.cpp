@@ -34,14 +34,14 @@ void SystemPreview::initializeProcedural(enkas::generation::Method method) {
     updateData(std::make_shared<enkas::data::System>(system));
 }
 
-void SystemPreview::initializeFromFile(const QString& initial_system_path) {
+void SystemPreview::initializeFromFile(const QString& system_path) {
     setMethodSettings();
 
     // Load system from file
-    std::ifstream stream(initial_system_path.toStdString());
+    std::ifstream stream(system_path.toStdString());
     if (!stream.is_open()) {
         throw std::runtime_error(
-            std::format("Failed to open system file: {}", initial_system_path.toStdString()));
+            std::format("Failed to open system file: {}", system_path.toStdString()));
     }
     auto system = enkas::generation::Factory::create(stream)->createSystem();
 

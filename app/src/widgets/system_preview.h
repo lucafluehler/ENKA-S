@@ -23,9 +23,9 @@ public:
 
     /**
      * @brief Initializes the preview with a system loaded from a file.
-     * @param initial_system_path The path to the system file.
+     * @param system_path The path to the system file.
      */
-    void initializeFromFile(const QString& initial_system_path);
+    void initializeFromFile(const QString& system_path);
 
     /**
      * @brief Initializes the preview for the home screen with a default system.
