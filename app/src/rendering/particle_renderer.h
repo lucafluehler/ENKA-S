@@ -1,25 +1,25 @@
 #pragma once
 
-#include <QOpenGLWidget>
-#include <QOpenGLFunctions>
+#include <enkas/data/system.h>
+#include <enkas/math/vector3d.h>
+
 #include <QMouseEvent>
+#include <QOpenGLFunctions>
+#include <QOpenGLWidget>
+#include <tuple>
+#include <vector>
 
-#include <memory>
-
-#include "render_settings.h"
-#include "render_data.h"
 #include "camera.h"
-#include "geometric_algebra.h"
+#include "render_settings.h"
 
-class ParticleRenderer : public QOpenGLWidget, protected QOpenGLFunctions
-{
+class ParticleRenderer : public QOpenGLWidget, protected QOpenGLFunctions {
     Q_OBJECT
 
 public:
     ParticleRenderer(QWidget* parent = nullptr);
 
-    void updateData(const std::shared_ptr<RenderData>& data);
-    void updateData(const std::unique_ptr<RenderData>& data);
+    void updateData(const std::shared_ptr<enkas::data::System>& data);
+    void updateData(const std::unique_ptr<enkas::data::System>& data);
     void redraw(const RenderSettings& p_settings);
 
 public slots:
@@ -33,18 +33,23 @@ protected:
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;
-    void keyPressEvent(QKeyEvent *event) override;
+    void keyPressEvent(QKeyEvent* event) override;
 
 private:
     void drawParticles();
-    void drawCircle( std::vector<GLfloat>& vertices
-                   , const int c_NUM_TRANGLES
-                   , const float c_X_ASPECT, const float c_Y_ASPECT
-                   , float x, float y, float radius );
+    void drawCircle(std::vector<GLfloat>& vertices,
+                    const int c_NUM_TRANGLES,
+                    const float c_X_ASPECT,
+                    const float c_Y_ASPECT,
+                    float x,
+                    float y,
+                    float radius);
     void drawCross(float x, float y, float size);
-    math::Vector3D getRelPos(const math::Vector3D& pos);
-    QPointF convertPosToLoc( const float c_ASPECT_RATIO, const float c_HALF_TAN_FOV
-                           , const math::Vector3D& rel_pos, bool* is_visible);
+    enkas::math::Vector3D getRelPos(const enkas::math::Vector3D& pos);
+    QPointF convertPosToLoc(const float c_ASPECT_RATIO,
+                            const float c_HALF_TAN_FOV,
+                            const enkas::math::Vector3D& rel_pos,
+                            bool* is_visible);
     void animation();
 
     void setBackgroundColor();
@@ -54,11 +59,11 @@ private:
 
     QPoint last_mouse_pos;
 
-    std::vector<std::tuple<double, math::Vector3D>> rel_positions;
+    std::vector<std::tuple<double, enkas::math::Vector3D>> rel_positions;
 
-    RenderSettings settings;
-    RenderData data;
-    Camera camera;
+    RenderSettings settings_;
+    enkas::data::System system_;
+    Camera camera_;
 
-    GLuint circleVBO;
+    GLuint circleVBO_;
 };
