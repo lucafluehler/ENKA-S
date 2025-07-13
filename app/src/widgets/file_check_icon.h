@@ -2,19 +2,13 @@
 
 #include <QLabel>
 
-class FileCheckIcon : public QLabel
-{
+class FileCheckIcon : public QLabel {
     Q_OBJECT
 
 public:
     FileCheckIcon(QWidget *parent = nullptr);
 
-    enum class Mode {
-        NotFound,
-        Loading,
-        Checked,
-        Corrupted
-    };
+    enum class Mode { NotFound, Loading, Checked, Corrupted };
 
     void setMode(Mode new_mode);
     Mode getMode() const;
