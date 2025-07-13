@@ -16,12 +16,13 @@ std::string DataStorageLogic::getString(double value, int precision) {
     return stream.str();
 }
 
-void DataStorageLogic::saveSettings(const std::string& dir_path, const Settings& settings) {
+void DataStorageLogic::saveSettings(const std::filesystem::path& dir_path,
+                                    const Settings& settings) {
     // Create directory if it does not exist
     std::filesystem::create_directories(dir_path);
 
     // Open file for overwriting
-    std::filesystem::path file_path = std::filesystem::path(dir_path) / "settings.csv";
+    std::filesystem::path file_path = dir_path / "settings.csv";
     std::ofstream file(file_path, std::ios::out | std::ios::trunc);
     if (!file.is_open()) return;
 
@@ -50,18 +51,18 @@ void DataStorageLogic::saveSettings(const std::string& dir_path, const Settings&
     file << '\n';
 }
 
-void DataStorageLogic::saveSystemData(const std::string& dir_path,
+void DataStorageLogic::saveSystemData(const std::filesystem::path& dir_path,
                                       double time,
                                       const enkas::data::System& system) {
     // Create directory if it does not exist
     std::filesystem::create_directories(dir_path);
 
     // If file is new, add a header first
-    const std::string file_path = dir_path + "/system.csv";
+    const auto file_path = dir_path / "system.csv";
     const bool new_file = !std::filesystem::exists(file_path);
 
     // Open the file for appending
-    std::ofstream file(dir_path + "/system.csv", std::ios::app);
+    std::ofstream file(dir_path / "system.csv", std::ios::app);
     if (!file.is_open()) return;
 
     // Header
