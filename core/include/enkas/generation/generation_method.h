@@ -6,7 +6,7 @@
 
 namespace enkas::generation {
 
-enum class GenerationMethod {
+enum class Method {
     NormalSphere,
     UniformCube,
     UniformSphere,
@@ -15,24 +15,22 @@ enum class GenerationMethod {
     CollisionModel
 };
 
-constexpr auto GenerationMethodStrings =
-    std::to_array<std::pair<GenerationMethod, std::string_view>>(
-        {{GenerationMethod::NormalSphere, "Normal Sphere"},
-         {GenerationMethod::UniformCube, "Uniform Cube"},
-         {GenerationMethod::UniformSphere, "Uniform Sphere"},
-         {GenerationMethod::PlummerSphere, "Plummer Model"},
-         {GenerationMethod::SpiralGalaxy, "Spiral Galaxy"},
-         {GenerationMethod::CollisionModel, "Collision Model"}});
+constexpr auto GenerationMethodStrings = std::to_array<std::pair<Method, std::string_view>>(
+    {{Method::NormalSphere, "Normal Sphere"},
+     {Method::UniformCube, "Uniform Cube"},
+     {Method::UniformSphere, "Uniform Sphere"},
+     {Method::PlummerSphere, "Plummer Model"},
+     {Method::SpiralGalaxy, "Spiral Galaxy"},
+     {Method::CollisionModel, "Collision Model"}});
 
-[[nodiscard]] constexpr std::string_view toString(GenerationMethod method) {
+[[nodiscard]] constexpr std::string_view methodToString(Method method) {
     for (auto&& [key, value] : GenerationMethodStrings) {
         if (key == method) return value;
     }
     return "<Unknown>";
 }
 
-[[nodiscard]] constexpr std::optional<GenerationMethod> toGenerationMethod(
-    std::string_view methodStr) {
+[[nodiscard]] constexpr std::optional<Method> stringToMethod(std::string_view methodStr) {
     for (auto&& [key, value] : GenerationMethodStrings) {
         if (value == methodStr) return key;
     }
