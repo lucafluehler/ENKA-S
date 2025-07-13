@@ -12,7 +12,7 @@
 SystemPreview::SystemPreview(QWidget* parent) : ParticleRenderer(parent) {
     // Set default Render Settings
     RenderSettings render_settings;
-    render_settings.coloring_method = ColoringMethod::WHITE_FOG;
+    render_settings.coloring_method = ColoringMethod::WhiteFog;
     render_settings.show_center_of_mass = false;
     render_settings.show_center_of_screen = false;
 
@@ -70,9 +70,9 @@ void SystemPreview::initializeHomeScreen() {
 void SystemPreview::setMethodSettings() {
     // Render Settings
     RenderSettings render_settings;
-    render_settings.animation_style = AnimationStyle::TUTTI;
+    render_settings.animation_style = AnimationStyle::Tutti;
     render_settings.animation_speed = 1.4;
-    render_settings.coloring_method = ColoringMethod::WHITE_FOG;
+    render_settings.coloring_method = ColoringMethod::WhiteFog;
     render_settings.show_center_of_mass = false;
     render_settings.show_center_of_screen = false;
     render_settings.fov = 50;
@@ -84,9 +84,9 @@ void SystemPreview::setMethodSettings() {
 void SystemPreview::setHomeScreenSettings() {
     // Render Settings
     RenderSettings render_settings;
-    render_settings.animation_style = AnimationStyle::UP;
+    render_settings.animation_style = AnimationStyle::Up;
     render_settings.animation_speed = 1;
-    render_settings.coloring_method = ColoringMethod::WHITE_FOG;
+    render_settings.coloring_method = ColoringMethod::WhiteFog;
     render_settings.show_center_of_mass = false;
     render_settings.show_center_of_screen = false;
     render_settings.fov = 60;
