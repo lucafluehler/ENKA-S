@@ -4,7 +4,7 @@
 
 namespace enkas::data {
 
-struct DiagnosticsData {
+struct Diagnostics {
     double time;             // time stamp
     double e_kin;            // total kinetic energy
     double e_pot;            // total potential energy
