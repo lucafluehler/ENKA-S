@@ -2,22 +2,29 @@
 
 #include <QMainWindow>
 
+#include "i_main_window_view.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
 }
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow {
+class MainWindowPresenter;
+class ILoadSimulationView;
+class INewSimulationView;
+
+class MainWindow : public QMainWindow, public IMainWindowView {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(QWidget *parent = nullptr);
 
-private slots:
-    void updatePreview();
+    void updatePreview() override;
+    ILoadSimulationView *getLoadSimulationView() override;
+    INewSimulationView *getNewSimulationView() override;
 
 private:
-    QTimer *home_timer;
-    Ui::MainWindow *ui;
+    Ui::MainWindow *ui_;
+    MainWindowPresenter *presenter_;
 };
