@@ -179,8 +179,8 @@ DataSettings Settings::getDataSettings() const {
     return d;
 }
 
-enkas::generation::GenerationConfig Settings::getGenerationConfig() const {
-    enkas::generation::GenerationConfig config;
+enkas::generation::Config Settings::getGenerationConfig() const {
+    enkas::generation::Config config;
 
     config.seed = get_value<int>(settings_, "Seed");
 
@@ -282,8 +282,8 @@ enkas::generation::CollisionModelSettings Settings::getCollisionModelSettings() 
     return s;
 }
 
-enkas::simulation::SimulationConfig Settings::getSimulationConfig() const {
-    enkas::simulation::SimulationConfig s;
+enkas::simulation::Config Settings::getSimulationConfig() const {
+    enkas::simulation::Config s;
 
     s.duration = get_value<double>(settings_, "Duration");
 

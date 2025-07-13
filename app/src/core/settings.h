@@ -49,7 +49,7 @@ public:
 
     DataSettings getDataSettings() const;
 
-    enkas::generation::GenerationConfig getGenerationConfig() const;
+    enkas::generation::Config getGenerationConfig() const;
     enkas::generation::NormalSphereSettings getNormalSphereSettings() const;
     enkas::generation::UniformSphereSettings getUniformSphereSettings() const;
     enkas::generation::UniformCubeSettings getUniformCubeSettings() const;
@@ -57,7 +57,7 @@ public:
     enkas::generation::SpiralGalaxySettings getSpiralGalaxySettings() const;
     enkas::generation::CollisionModelSettings getCollisionModelSettings() const;
 
-    enkas::simulation::SimulationConfig getSimulationConfig() const;
+    enkas::simulation::Config getSimulationConfig() const;
     enkas::simulation::EulerSettings getEulerSettings() const;
     enkas::simulation::LeapfrogSettings getLeapfrogSettings() const;
     enkas::simulation::HermiteSettings getHermiteSettings() const;
