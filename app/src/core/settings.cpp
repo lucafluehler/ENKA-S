@@ -27,7 +27,7 @@ Settings::Settings() {
     auto T_INT = Setting::Type::Int;
     auto T_DBL = Setting::Type::Double;
     auto T_BOL = Setting::Type::Bool;
-    auto T_STR = Setting::Type::String;
+    auto T_FIL = Setting::Type::File;
     auto T_GME = Setting::Type::GenerationMethod;
     auto T_SME = Setting::Type::SimulationMethod;
 
@@ -40,7 +40,7 @@ Settings::Settings() {
                  {"SaveFolder", {G_DAT, T_BOL, false}},
 
                  // Generation Settings
-                 {"FilePath", {G_GEN, T_STR, ""}},
+                 {"FilePath", {G_GEN, T_FIL, ""}},
                  {"GenerationMethod", {G_GEN, T_GME, enkas::generation::Method::PlummerSphere}},
                  {"Seed", {G_SIM, T_INT, 42}},
 
@@ -160,6 +160,8 @@ bool Settings::isTypeCompatible(const SettingValue& value, const Setting::Type& 
             return std::holds_alternative<double>(value);
         case Setting::Type::Bool:
             return std::holds_alternative<bool>(value);
+        case Setting::Type::File:
+            return std::holds_alternative<std::string>(value);
         case Setting::Type::GenerationMethod:
             return std::holds_alternative<enkas::generation::Method>(value);
         case Setting::Type::SimulationMethod:

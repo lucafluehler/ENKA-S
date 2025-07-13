@@ -24,7 +24,7 @@ using SettingValue = std::
 
 struct Setting {
     enum class Group { Data, Generation, Simulation };
-    enum class Type { Int, Double, Bool, String, GenerationMethod, SimulationMethod };
+    enum class Type { Int, Double, Bool, File, GenerationMethod, SimulationMethod };
 
     Group group;
     Type type;
