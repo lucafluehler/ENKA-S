@@ -32,6 +32,8 @@ struct Setting {
 
     Setting(Group g = Group::Data, Type t = Type::Int, SettingValue v = 0)
         : group(g), type(t), value(v) {}
+
+    static std::string variantToString(const SettingValue& v, int precision = 15);
 };
 
 class Settings {

@@ -2,6 +2,8 @@
 
 #include <enkas/generation/generation_config.h>
 
+#include <iomanip>
+#include <sstream>
 #include <stdexcept>
 
 #include "enkas/simulation/simulation_method.h"
@@ -16,6 +18,31 @@ const T& get_value(const std::unordered_map<std::string, Setting>& map, const st
     } catch (const std::bad_variant_access&) {
         throw std::runtime_error("Incorrect type for setting key: " + key);
     }
+}
+
+std::string Setting::variantToString(const SettingValue& v, int precision) {
+    return std::visit(
+        [precision](auto&& arg) -> std::string {
+            using T = std::decay_t<decltype(arg)>;
+            if constexpr (std::is_same_v<T, int>) {
+                return std::to_string(arg);
+            } else if constexpr (std::is_same_v<T, double>) {
+                std::ostringstream ss;
+                ss << std::fixed << std::setprecision(precision) << arg;
+                return ss.str();
+            } else if constexpr (std::is_same_v<T, bool>) {
+                return arg ? "true" : "false";
+            } else if constexpr (std::is_same_v<T, std::string>) {
+                return arg;
+            } else if constexpr (std::is_same_v<T, enkas::generation::Method>) {
+                return std::string(enkas::generation::methodToString(arg));
+            } else if constexpr (std::is_same_v<T, enkas::simulation::Method>) {
+                return std::string(enkas::simulation::methodToString(arg));
+            } else {
+                return "";  // unreachable
+            }
+        },
+        v);
 }
 
 Settings::Settings() {
