@@ -16,7 +16,7 @@ using SettingsVariant = std::variant<EulerSettings,
                                      HitsSettings,
                                      BarnesHutLeapfrogSettings>;
 
-struct SimulationConfig {
+struct Config {
     double duration;
     SettingsVariant specific_settings;
 

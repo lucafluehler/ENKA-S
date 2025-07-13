@@ -15,11 +15,11 @@
 
 namespace enkas::generation {
 
-std::unique_ptr<Generator> GenerationFactory::create(const GenerationConfig& config) {
+std::unique_ptr<Generator> Factory::create(const Config& config) {
     ENKAS_LOG_INFO("Attempting to create generator from config...");
 
     if (!config.isValid()) {
-        ENKAS_LOG_ERROR("GenerationConfig is invalid. Cannot create generator.");
+        ENKAS_LOG_ERROR("Config is invalid. Cannot create generator.");
         return nullptr;
     }
 
@@ -51,16 +51,15 @@ std::unique_ptr<Generator> GenerationFactory::create(const GenerationConfig& con
             } else {
                 // Development error: if we reach here, it means we have an unsupported settings
                 // type. This should never happen if the settings are properly defined.
-                ENKAS_LOG_CRITICAL(
-                    "Unhandled settings type '{}' in GenerationFactory. No generator created.",
-                    typeid(SettingsType).name());
+                ENKAS_LOG_CRITICAL("Unhandled settings type '{}' in Factory. No generator created.",
+                                   typeid(SettingsType).name());
                 return nullptr;
             }
         },
         config.specific_settings);
 }
 
-std::unique_ptr<Generator> GenerationFactory::create(std::istream& stream) {
+std::unique_ptr<Generator> Factory::create(std::istream& stream) {
     ENKAS_LOG_INFO("Attempting to create generator from input stream...");
 
     if (!stream) {

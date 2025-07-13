@@ -18,7 +18,7 @@ using SettingsVariant = std::variant<NormalSphereSettings,
                                      SpiralGalaxySettings,
                                      CollisionModelSettings>;
 
-struct GenerationConfig {
+struct Config {
     unsigned int seed;
     SettingsVariant specific_settings;
 

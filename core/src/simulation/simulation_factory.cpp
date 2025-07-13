@@ -10,11 +10,11 @@
 
 namespace enkas::simulation {
 
-std::shared_ptr<Simulator> SimulationFactory::create(const SimulationConfig& config) {
+std::shared_ptr<Simulator> Factory::create(const Config& config) {
     ENKAS_LOG_INFO("Attempting to create simulator from config...");
 
     if (!config.isValid()) {
-        ENKAS_LOG_ERROR("SimulationConfig is invalid. Cannot create simulator.");
+        ENKAS_LOG_ERROR("Config is invalid. Cannot create simulator.");
         return nullptr;
     }
 
@@ -41,9 +41,8 @@ std::shared_ptr<Simulator> SimulationFactory::create(const SimulationConfig& con
             } else {
                 // Development error: if we reach here, it means we have an unsupported settings
                 // type. This should never happen if the settings are properly defined.
-                ENKAS_LOG_CRITICAL(
-                    "Unhandled settings type '{}' in SimulationFactory. No simulator created.",
-                    typeid(SettingsType).name());
+                ENKAS_LOG_CRITICAL("Unhandled settings type '{}' in Factory. No simulator created.",
+                                   typeid(SettingsType).name());
                 return nullptr;
             }
         },
