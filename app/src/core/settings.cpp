@@ -27,6 +27,7 @@ Settings::Settings() {
     auto T_INT = Setting::Type::Int;
     auto T_DBL = Setting::Type::Double;
     auto T_BOL = Setting::Type::Bool;
+    auto T_STR = Setting::Type::String;
     auto T_GME = Setting::Type::GenerationMethod;
     auto T_SME = Setting::Type::SimulationMethod;
 
@@ -39,6 +40,7 @@ Settings::Settings() {
                  {"SaveFolder", {G_DAT, T_BOL, false}},
 
                  // Generation Settings
+                 {"FilePath", {G_GEN, T_STR, ""}},
                  {"GenerationMethod", {G_GEN, T_GME, enkas::generation::Method::PlummerSphere}},
                  {"Seed", {G_SIM, T_INT, 42}},
 

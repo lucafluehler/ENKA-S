@@ -19,12 +19,12 @@ struct DataSettings {
     bool save_folder;
 };
 
-using SettingValue =
-    std::variant<int, double, bool, enkas::generation::Method, enkas::simulation::Method>;
+using SettingValue = std::
+    variant<int, double, bool, std::string, enkas::generation::Method, enkas::simulation::Method>;
 
 struct Setting {
     enum class Group { Data, Generation, Simulation };
-    enum class Type { Int, Double, Bool, GenerationMethod, SimulationMethod };
+    enum class Type { Int, Double, Bool, String, GenerationMethod, SimulationMethod };
 
     Group group;
     Type type;
