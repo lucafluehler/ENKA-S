@@ -14,5 +14,5 @@ public slots:
     void checkFiles(const QVector<FileType>& files, const QString& dir_path);
 
 signals:
-    void fileChecked(FileType file, const QString& path, bool result);
+    void fileChecked(const FileType& file, const QString& path, bool result);
 };
