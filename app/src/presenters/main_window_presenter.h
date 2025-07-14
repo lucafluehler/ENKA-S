@@ -22,7 +22,4 @@ private slots:
 private:
     IMainWindowView* view_ = nullptr;
     QTimer* home_timer_ = nullptr;
-
-    LoadSimulationPresenter* load_simulation_presenter_ = nullptr;
-    NewSimulationPresenter* new_simulation_presenter_ = nullptr;
 };
