@@ -49,7 +49,9 @@ void LoadSimulationPresenter::onTimerTimeout() {
     view_->updatePreview();
 }
 
-void LoadSimulationPresenter::onFileChecked(FileType file, const QString& path, bool result) {
+void LoadSimulationPresenter::onFileChecked(const FileType& file,
+                                            const QString& path,
+                                            bool result) {
     if (!view_) return;
     view_->onFileChecked(file, path, result);
 }

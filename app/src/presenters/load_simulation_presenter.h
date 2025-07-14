@@ -22,7 +22,7 @@ public slots:
 
 private slots:
     void onTimerTimeout();
-    void onFileChecked(FileType file, const QString& path, bool result);
+    void onFileChecked(const FileType& file, const QString& path, bool result);
 
 private:
     ILoadSimulationView* view_ = nullptr;

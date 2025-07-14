@@ -29,7 +29,7 @@ private slots:
 
     void openFolderDialog();
 
-    void onFileChecked(FileType file, const QString &path, bool result) override;
+    void onFileChecked(const FileType &file, const QString &path, bool result) override;
 
     void openSettings();
     void openInitialSystem();

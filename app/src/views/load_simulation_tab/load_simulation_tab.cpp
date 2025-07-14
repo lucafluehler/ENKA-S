@@ -64,7 +64,7 @@ void LoadSimulationTab::openFolderDialog() {
     checkFiles(folder_path);
 }
 
-void LoadSimulationTab::onFileChecked(FileType file, const QString& path, bool result) {
+void LoadSimulationTab::onFileChecked(const FileType& file, const QString& path, bool result) {
     FileCheckIcon::Mode mode;
 
     if (result) {
@@ -112,13 +112,6 @@ void LoadSimulationTab::onFileChecked(FileType file, const QString& path, bool r
             break;
         default:
             break;
-    }
-}
-
-void LoadSimulationTab::onFilesChecked() {
-    if (!file_paths.render_data_path.isEmpty() || !file_paths.diagnostics_data_path.isEmpty() ||
-        !file_paths.analytics_data_path.isEmpty()) {
-        ui_->btnRun->setEnabled(true);
     }
 }
 
