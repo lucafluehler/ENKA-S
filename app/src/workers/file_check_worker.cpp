@@ -32,3 +32,24 @@ void FileCheckWorker::checkFiles(const QVector<FileType>& files, const QString& 
         emit fileChecked(file, qt_path, result);
     }
 }
+
+void FileCheckWorker::checkFile(const FileType& file, const QString& file_path) {
+    std::filesystem::path path(file_path.toStdString());
+    bool result = false;
+
+    switch (file) {
+        case FileType::Settings:
+            result = FileCheckLogic::checkSettingsFile(path);
+            break;
+        case FileType::System:
+            result = FileCheckLogic::checkSystemFile(path);
+            break;
+        case FileType::DiagnosticsData:
+            result = FileCheckLogic::checkDiagnosticsFile(path);
+            break;
+        default:
+            return;  // Unsupported file type
+    }
+
+    emit fileChecked(file, file_path, result);
+}
