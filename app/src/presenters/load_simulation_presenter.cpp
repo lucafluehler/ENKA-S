@@ -1,5 +1,6 @@
 #include "load_simulation_presenter.h"
 
+#include <QObject>
 #include <QThread>
 #include <QTimer>
 
