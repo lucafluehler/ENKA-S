@@ -1,59 +1,49 @@
+#include "simulation_worker.h"
+
+#include <enkas/data/system.h>
+#include <enkas/generation/generator.h>
+#include <enkas/simulation/simulator.h>
+
 #include <memory>
 
-#include "simulation_worker.h"
-#include "simulator.h"
-#include "generator.h"
+SimulationWorker::SimulationWorker(std::shared_ptr<enkas::generation::Generator> generator,
+                                   std::shared_ptr<enkas::simulation::Simulator> simulator,
+                                   QObject* parent)
+    : QObject(parent), generator_(generator), simulator_(simulator) {}
 
-SimulationWorker::SimulationWorker( std::shared_ptr<Generator> generator
-                                  , std::shared_ptr<Simulator> simulator
-                                  , QObject* parent )
-    : QObject(parent)
-    , generator(generator)
-    , simulator(simulator)
-{}
-
-SimulationWorker::~SimulationWorker()
-{
-    generator = nullptr;
-    simulator = nullptr;
+SimulationWorker::~SimulationWorker() {
+    generator_ = nullptr;
+    simulator_ = nullptr;
 }
 
+enkas::data::System SimulationWorker::getInitialSystem() const { return initial_system_; }
 
-utils::InitialSystem SimulationWorker::getInitialSystem() const
-{
-    return initial_system;
-}
-
-
-void SimulationWorker::startGeneration()
-{
-    if (!generator) {
+void SimulationWorker::startGeneration() {
+    if (!generator_) {
         emit error();
         return;
     }
 
-    initial_system = generator->createSystem();
+    initial_system_ = generator_->createSystem();
     emit generationCompleted();
 }
 
-void SimulationWorker::startInitialization()
-{
-    if (!simulator) {
+void SimulationWorker::startInitialization() {
+    if (!simulator_) {
         emit error();
         return;
     }
 
-    simulator->initializeSystem(initial_system);
+    simulator_->setSystem(initial_system_);
     emit initializationCompleted();
 }
 
-void SimulationWorker::evolveSystem()
-{
-    if (!simulator) {
+void SimulationWorker::evolveSystem() {
+    if (!simulator_) {
         emit error();
         return;
     }
 
-    simulator->evolveSystem();
-    emit simulationStep(simulator->getGlobalTime());
+    simulator_->step();
+    emit simulationStep(simulator_->getSystemTime());
 }

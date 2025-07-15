@@ -1,22 +1,21 @@
 #pragma once
 
+#include <enkas/data/system.h>
+#include <enkas/generation/generator.h>
+#include <enkas/simulation/simulator.h>
+
 #include <QObject>
 #include <memory>
 
-#include "utils.h"
-#include "simulator.h"
-#include "generator.h"
-
-class SimulationWorker : public QObject
-{
+class SimulationWorker : public QObject {
     Q_OBJECT
 public:
-    SimulationWorker( std::shared_ptr<Generator> generator
-                    , std::shared_ptr<Simulator> simulator
-                    , QObject* parent = nullptr );
+    SimulationWorker(std::shared_ptr<enkas::generation::Generator> generator,
+                     std::shared_ptr<enkas::simulation::Simulator> simulator,
+                     QObject* parent = nullptr);
     ~SimulationWorker();
 
-    utils::InitialSystem getInitialSystem() const;
+    enkas::data::System getInitialSystem() const;
 
 public slots:
     void startGeneration();
@@ -30,8 +29,8 @@ signals:
     void error();
 
 private:
-    std::shared_ptr<Generator> generator;
-    std::shared_ptr<Simulator> simulator;
+    std::shared_ptr<enkas::generation::Generator> generator_;
+    std::shared_ptr<enkas::simulation::Simulator> simulator_;
 
-    utils::InitialSystem initial_system;
+    enkas::data::System initial_system_;
 };
