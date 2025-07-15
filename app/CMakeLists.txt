@@ -26,5 +26,10 @@ target_link_libraries(enkas PRIVATE
     Qt6::Charts
 )
 
+# --- Include directories ---
+target_include_directories(enkas PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
 # --- C++ standard ---
 target_compile_features(enkas PRIVATE cxx_std_23)
