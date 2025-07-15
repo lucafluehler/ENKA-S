@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
+#include <json/json.hpp>
 #include <limits>
 #include <sstream>
 #include <string>
@@ -20,25 +21,22 @@ void DataStorageLogic::saveSettings(const std::filesystem::path& dir_path,
     // Create directory if it does not exist
     std::filesystem::create_directories(dir_path);
 
-    // Open file for overwriting
-    std::filesystem::path file_path = dir_path / "settings.csv";
-    std::ofstream file(file_path, std::ios::out | std::ios::trunc);
-    if (!file.is_open()) return;
+    nlohmann::json settings_json = nlohmann::json::object();
 
-    // Header
-    const auto identifiers = settings.identifiers();
-    for (size_t i = 0; i < identifiers.size(); ++i) {
-        file << identifiers[i];
-        if (i + 1 < identifiers.size()) file << ',';
+    // Populate the JSON object from the Settings object
+    for (const auto& id : settings.identifiers()) {
+        settings_json[id] = settings.getString(id);
     }
-    file << '\n';
 
-    // Body
-    for (size_t i = 0; i < identifiers.size(); ++i) {
-        file << settings.getString(identifiers[i]);
-        if (i + 1 < identifiers.size()) file << ',';
+    // Open file for overwriting with the new .json extension
+    std::filesystem::path file_path = dir_path / "settings.json";
+    std::ofstream file(file_path);
+    if (!file.is_open()) {
+        return;
     }
-    file << '\n';
+
+    const int indent_level = 4;  // spaces
+    file << settings_json.dump(indent_level);
 }
 
 void DataStorageLogic::saveSystemData(const std::filesystem::path& dir_path,
