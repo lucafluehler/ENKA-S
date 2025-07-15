@@ -29,6 +29,7 @@ target_link_libraries(enkas PRIVATE
 # --- Include directories ---
 target_include_directories(enkas PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/vendor
 )
 
 # --- C++ standard ---
