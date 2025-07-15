@@ -17,5 +17,5 @@ public:
                                     const enkas::data::Diagnostics& diagnostics);
 
 private:
-    static std::string getString(double value, int precision = 15);
+    static std::string getString(double value);
 };
