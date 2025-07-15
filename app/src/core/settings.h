@@ -1,73 +1,110 @@
 #pragma once
 
-#include <enkas/generation/generation_config.h>
-#include <enkas/generation/generation_method.h>
-#include <enkas/simulation/simulation_config.h>
-#include <enkas/simulation/simulation_method.h>
-
+#include <initializer_list>
+#include <stdexcept>
 #include <string>
+#include <string_view>
+#include <type_traits>
 #include <unordered_map>
+#include <utility>
 #include <variant>
 #include <vector>
 
-struct DataSettings {
-    double diagnostics_step;
-    double system_step;
-
-    bool save_diagnostics_data;
-    bool save_system_data;
-    bool save_folder;
-};
-
-using SettingValue = std::
-    variant<int, double, bool, std::string, enkas::generation::Method, enkas::simulation::Method>;
+using SettingValue = std::variant<int, double, bool, std::string>;
 
 struct Setting {
     enum class Group { Data, Generation, Simulation };
-    enum class Type { Int, Double, Bool, File, GenerationMethod, SimulationMethod };
+    enum class Type { Int, Double, Bool, String };
 
     Group group;
     Type type;
     SettingValue value;
-
-    Setting(Group g = Group::Data, Type t = Type::Int, SettingValue v = 0)
-        : group(g), type(t), value(v) {}
-
-    static std::string variantToString(const SettingValue& v, int precision = 15);
 };
 
 class Settings {
 public:
-    Settings();
+    Settings(std::initializer_list<std::pair<const std::string, Setting>> items);
+    Settings() = default;
 
-    bool setSetting(const std::string& identifier, const Setting& setting);
-    bool setGroup(const std::string& identifier, const Setting::Group& group);
-    bool setType(const std::string& identifier, const Setting::Type& type);
-    bool setValue(const std::string& identifier, const SettingValue& value);
+    /**
+     * @brief Checks if a setting with the given identifier exists.
+     * @param id The identifier of the setting.
+     * @return True if the setting exists, false otherwise.
+     */
+    [[nodiscard]] bool has(std::string_view id) const;
 
-    std::vector<std::string> getIdentifiers() const;
-    bool hasSetting(const std::string& identifier) const;
-    Setting getSetting(const std::string& identifier, bool* is_setting = nullptr) const;
+    /**
+     * @brief Gets the group of a setting by its identifier.
+     * @param id The identifier of the setting.
+     * @return The group of the setting.
+     */
+    [[nodiscard]] Setting::Group groupOf(std::string_view id) const;
+    /**
+     * @brief Gets the type of a setting by its identifier.
+     * @param id The identifier of the setting.
+     * @return The type of the setting.
+     */
+    [[nodiscard]] Setting::Type typeOf(std::string_view id) const;
 
-    DataSettings getDataSettings() const;
+    /**
+     * @brief Gets the value of a setting by its identifier.
+     * @param id The identifier of the setting.
+     * @return The value of the setting.
+     */
+    template <typename T>
+    [[nodiscard]] auto&& get(this auto&& self, std::string_view id) {
+        return std::get<T>(self.settings_.at(std::string(id)).value);
+    }
 
-    enkas::generation::Config getGenerationConfig() const;
-    enkas::generation::NormalSphereSettings getNormalSphereSettings() const;
-    enkas::generation::UniformSphereSettings getUniformSphereSettings() const;
-    enkas::generation::UniformCubeSettings getUniformCubeSettings() const;
-    enkas::generation::PlummerSphereSettings getPlummerSphereSettings() const;
-    enkas::generation::SpiralGalaxySettings getSpiralGalaxySettings() const;
-    enkas::generation::CollisionModelSettings getCollisionModelSettings() const;
+    /**
+     * @brief Gets the string representation of a setting's value by its identifier.
+     * @param id The identifier of the setting.
+     * @return A string representation of the setting's value.
+     */
+    [[nodiscard]] std::string getString(std::string_view id) const;
 
-    enkas::simulation::Config getSimulationConfig() const;
-    enkas::simulation::EulerSettings getEulerSettings() const;
-    enkas::simulation::LeapfrogSettings getLeapfrogSettings() const;
-    enkas::simulation::HermiteSettings getHermiteSettings() const;
-    enkas::simulation::HitsSettings getHitsSettings() const;
-    enkas::simulation::BarnesHutLeapfrogSettings getBarnesHutLeapfrogSettings() const;
+    /**
+     * @brief Sets the value of a setting by its identifier.
+     * @param id The identifier of the setting.
+     * @param new_value The new value to set.
+     * @throws std::out_of_range If the identifier does not exist.
+     * @throws std::invalid_argument If the type of new_value does not match the setting's
+     * registered type.
+     */
+    template <typename T>
+    void set(std::string_view id, T&& new_value) {
+        auto it = settings_.find(std::string(id));
+        if (it == settings_.end()) {
+            throw std::out_of_range("Setting with identifier '" + std::string(id) +
+                                    "' does not exist.");
+        }
+
+        // Proactive type-checking to provide better error messages.
+        const auto expectedType = it->second.type;
+        bool typeMatch = false;
+        if constexpr (std::is_same_v<std::decay_t<T>, int>) {
+            if (expectedType == Setting::Type::Int) typeMatch = true;
+        } else if constexpr (std::is_same_v<std::decay_t<T>, double>) {
+            if (expectedType == Setting::Type::Double) typeMatch = true;
+        } else if constexpr (std::is_same_v<std::decay_t<T>, bool>) {
+            if (expectedType == Setting::Type::Bool) typeMatch = true;
+        } else if constexpr (std::is_constructible_v<std::string, T>) {
+            if (expectedType == Setting::Type::String) typeMatch = true;
+        }
+
+        if (!typeMatch) {
+            throw std::invalid_argument("Type mismatch for setting '" + std::string(id) + "'.");
+        }
+
+        // If the types match, assign the new value.
+        it->second.value = std::forward<T>(new_value);
+    }
+
+    [[nodiscard]] const std::vector<std::string>& identifiers() const { return ids_; }
 
 private:
-    bool isTypeCompatible(const SettingValue& value, const Setting::Type& type) const;
+    void registerSetting(std::string_view id, Setting&& setting);
 
+    std::vector<std::string> ids_;
     std::unordered_map<std::string, Setting> settings_;
 };
