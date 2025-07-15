@@ -1,7 +1,9 @@
 #include "file_check_logic.h"
 
+#include <csv-parser/csv.hpp>
 #include <filesystem>
 #include <fstream>
+#include <json/json.hpp>
 #include <sstream>
 #include <string>
 #include <unordered_set>
@@ -57,91 +59,72 @@ bool FileCheckLogic::checkSettingsFile(const std::filesystem::path& file_path) {
 }
 
 bool FileCheckLogic::checkSystemFile(const std::filesystem::path& file_path) {
-    constexpr std::string_view EXPECTED_HEADER = "time,pos_x,pos_y,pos_z,vel_x,vel_y,vel_z,mass";
+    static const std::vector<std::string> expected_columns = {
+        "time", "pos_x", "pos_y", "pos_z", "vel_x", "vel_y", "vel_z", "mass"};
 
-    std::ifstream file(file_path);
-    if (!file.is_open()) {
+    if (!std::filesystem::exists(file_path)) {
         return false;
     }
 
-    std::string line;
+    try {
+        auto format = csv::CSVFormat().header_row(0);
+        csv::CSVReader reader(file_path.string(), format);
 
-    // Read header
-    if (!std::getline(file, line)) {
-        return false;
-    }
-    if (line != EXPECTED_HEADER) {
-        return false;
-    }
+        if (reader.get_col_names() != expected_columns) {
+            return false;
+        }
 
-    const size_t expected_field_count = std::ranges::count(EXPECTED_HEADER, ',') + 1;
-
-    // Check each line in the body
-    while (std::getline(file, line)) {
-        std::istringstream line_stream(line);
-        std::string field;
-        size_t field_count = 0;
-
-        while (std::getline(line_stream, field, ',')) {
-            ++field_count;
-            try {
-                [[maybe_unused]] double value = std::stod(field);
-            } catch (...) {
-                return false;
+        for (const auto& row : reader) {
+            for (const auto& col_name : expected_columns) {
+                [[maybe_unused]] double val = row[col_name].get<double>();
             }
         }
 
-        if (field_count != expected_field_count) {
-            return false;
-        }
-    }
+        return true;
 
-    return true;
+    } catch (const std::exception& e) {
+        return false;
+    }
 }
 
 bool FileCheckLogic::checkDiagnosticsFile(const std::filesystem::path& file_path) {
-    constexpr std::string_view EXPECTED_HEADER =
-        "time,e_kin,e_pot,L_tot,"
-        "com_pos_x,com_pos_y,com_pos_z,"
-        "com_vel_x,com_vel_y,com_vel_z,"
-        "r_vir,ms_vel,t_cr";
+    static const std::vector<std::string> expected_columns = {"time",
+                                                              "e_kin",
+                                                              "e_pot",
+                                                              "L_tot",
+                                                              "com_pos_x",
+                                                              "com_pos_y",
+                                                              "com_pos_z",
+                                                              "com_vel_x",
+                                                              "com_vel_y",
+                                                              "com_vel_z",
+                                                              "r_vir",
+                                                              "ms_vel",
+                                                              "t_cr"};
 
-    std::ifstream file(file_path);
-    if (!file.is_open()) {
+    if (!std::filesystem::exists(file_path)) {
         return false;
     }
 
-    std::string line;
+    try {
+        auto format =
+            csv::CSVFormat().header_row(0).variable_columns(csv::VariableColumnPolicy::THROW);
 
-    // Read header
-    if (!std::getline(file, line)) {
-        return false;
-    }
-    if (line != EXPECTED_HEADER) {
-        return false;
-    }
+        csv::CSVReader reader(file_path.string(), format);
 
-    const size_t expected_field_count = std::ranges::count(EXPECTED_HEADER, ',') + 1;
+        if (reader.get_col_names() != expected_columns) {
+            return false;
+        }
 
-    // Read data lines
-    while (std::getline(file, line)) {
-        std::istringstream line_stream(line);
-        std::string field;
-        size_t field_count = 0;
-
-        while (std::getline(line_stream, field, ',')) {
-            ++field_count;
-            try {
-                [[maybe_unused]] double value = std::stod(field);
-            } catch (...) {
-                return false;
+        for (const auto& row : reader) {
+            for (const auto& col_name : expected_columns) {
+                [[maybe_unused]] double value = row[col_name].get<double>();
             }
         }
 
-        if (field_count != expected_field_count) {
-            return false;
-        }
-    }
+        return true;
 
-    return true;
+    } catch (const std::exception& e) {
+        return false;
+    }
 }
