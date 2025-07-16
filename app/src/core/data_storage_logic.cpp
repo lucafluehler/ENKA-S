@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 
+#include "core/file_constants.h"
+
 std::string DataStorageLogic::getString(double value) {
     std::stringstream ss;
     ss << std::setprecision(std::numeric_limits<double>::max_digits10) << value;
@@ -27,7 +29,7 @@ void DataStorageLogic::saveSettings(const std::filesystem::path& dir_path,
         return;  // Conversion failed
     }
 
-    std::filesystem::path file_path = dir_path / "settings.json";
+    std::filesystem::path file_path = dir_path / file_names::settings;
     std::ofstream file(file_path);
     if (!file.is_open()) {
         return;
@@ -44,7 +46,7 @@ void DataStorageLogic::saveSystemData(const std::filesystem::path& dir_path,
     std::filesystem::create_directories(dir_path);
 
     // If file is new, add a header first
-    const auto file_path = dir_path / "system.csv";
+    const auto file_path = dir_path / file_names::system;
     const bool new_file = !std::filesystem::exists(file_path);
 
     // Open the file for appending
@@ -55,8 +57,7 @@ void DataStorageLogic::saveSystemData(const std::filesystem::path& dir_path,
 
     // Header
     if (new_file) {
-        writer << std::vector<std::string>{
-            "time", "pos_x", "pos_y", "pos_z", "vel_x", "vel_y", "vel_z", "mass"};
+        writer << csv_headers::system;
     }
 
     // Body
@@ -79,7 +80,7 @@ void DataStorageLogic::saveDiagnosticsData(const std::filesystem::path& dir_path
     std::filesystem::create_directories(dir_path);
 
     // If file is new, add a header first
-    const auto file_path = dir_path / "diagnostics.csv";
+    const auto file_path = dir_path / file_names::diagnostics;
     const bool new_file = !std::filesystem::exists(file_path);
 
     // Open the file for appending
@@ -90,19 +91,7 @@ void DataStorageLogic::saveDiagnosticsData(const std::filesystem::path& dir_path
 
     // Header
     if (new_file) {
-        writer << std::vector<std::string>{"time",
-                                           "e_kin",
-                                           "e_pot",
-                                           "L_tot",
-                                           "com_pos_x",
-                                           "com_pos_y",
-                                           "com_pos_z",
-                                           "com_vel_x",
-                                           "com_vel_y",
-                                           "com_vel_z",
-                                           "r_vir",
-                                           "ms_vel",
-                                           "t_cr"};
+        writer << csv_headers::diagnostics;
     }
 
     // Body
