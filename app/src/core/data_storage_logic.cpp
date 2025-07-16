@@ -23,9 +23,10 @@ void DataStorageLogic::saveSettings(const std::filesystem::path& dir_path,
 
     nlohmann::json settings_json = nlohmann::json::object();
 
-    // Populate the JSON object from the Settings object
+    // Populate the JSON object, preserving the original data types
     for (const auto& id : settings.identifiers()) {
-        settings_json[id] = settings.getString(id);
+        const SettingValue& val = settings.getValue(id);
+        std::visit([&](auto&& arg) { settings_json[id] = arg; }, val);
     }
 
     // Open file for overwriting with the new .json extension
