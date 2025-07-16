@@ -4,7 +4,7 @@
 #include <QThread>
 #include <QTimer>
 
-#include "/core/file_names.h"
+#include "/core/file_constants.h"
 #include "/views/load_simulation_tab/i_load_simulation_view.h"
 #include "/workers/file_parse_worker.h"
 
@@ -61,11 +61,11 @@ void LoadSimulationPresenter::checkFiles(const QVector<QString>& file_paths) {
     }
 
     for (const auto& file_path : file_paths) {
-        if (file_path.endsWith(file_names::settings.data())) {
+        if (file_path.endsWith(file_names::settings)) {
             file_parse_worker_->parseSettings(file_path);
-        } else if (file_path.endsWith(file_names::system.data())) {
+        } else if (file_path.endsWith(file_names::system)) {
             file_parse_worker_->parseInitialSystem(file_path);
-        } else if (file_path.endsWith(file_names::diagnostics.data())) {
+        } else if (file_path.endsWith(file_names::diagnostics)) {
             file_parse_worker_->parseDiagnosticsSeries(file_path);
         }
     }
