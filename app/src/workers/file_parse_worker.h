@@ -53,34 +53,31 @@ signals:
      * @brief Emitted when settings have been parsed.
      * @param settings The parsed settings data if successful.
      */
-    void settingsParsed(const std::optional<Settings>& settings, const QString& file_path);
+    void settingsParsed(const std::optional<Settings>& settings);
 
     /**
      * @brief Emitted when a system frame has been parsed.
      * @param frame The parsed system frame data if successful.
      */
-    void systemFrameParsed(const std::optional<SystemFrame>& frame, const QString& file_path);
+    void systemFrameParsed(const std::optional<SystemFrame>& frame);
 
     /**
      * @brief Emitted when the initial system frame has been parsed.
      * @param frame The parsed initial system frame data if successful.
      */
-    void initialSystemParsed(const std::optional<enkas::data::System>& frame,
-                             const QString& file_path);
+    void initialSystemParsed(const std::optional<enkas::data::System>& frame);
 
     /**
      * @brief Emitted when all system timestamps have been parsed.
      * @param timestamps A vector of all timestamps found in the file if successful.
      */
-    void systemTimestampsParsed(const std::optional<std::vector<double>>& timestamps,
-                                const QString& file_path);
+    void systemTimestampsParsed(const std::optional<std::vector<double>>& timestamps);
 
     /**
      * @brief Emitted when a diagnostics series has been parsed.
      * @param series The parsed diagnostics data series if successful.
      */
-    void diagnosticsSeriesParsed(const std::optional<DiagnosticsSeries>& series,
-                                 const QString& file_path);
+    void diagnosticsSeriesParsed(const std::optional<DiagnosticsSeries>& series);
 };
 
 Q_DECLARE_METATYPE(std::optional<Settings>);
