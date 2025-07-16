@@ -1,8 +1,12 @@
 #pragma once
 
 #include <QObject>
+#include <optional>
 
 #include "../core/file_types.h"
+#include "core/file_parse_logic.h"
+#include "enkas/data/system.h"
+#include "workers/file_parse_worker.h"
 
 class QTimer;
 class QThread;
@@ -22,11 +26,13 @@ public slots:
 
 private slots:
     void onTimerTimeout();
-    void onFileChecked(const FileType& file, const QString& path, bool result);
+    void onSettingsParsed(const std::optional<Settings>& settings);
+    void onInitialSystemParsed(const std::optional<enkas::data::System>& frame);
+    void onDiagnosticsSeriesParsed(const std::optional<DiagnosticsSeries>& series);
 
 private:
     ILoadSimulationView* view_ = nullptr;
     QTimer* preview_timer_ = nullptr;
-    FileCheckWorker* file_check_worker_ = nullptr;
-    QThread* file_check_thread_ = nullptr;
+    FileParseWorker* file_parse_worker_ = nullptr;
+    QThread* file_parse_thread_ = nullptr;
 };
