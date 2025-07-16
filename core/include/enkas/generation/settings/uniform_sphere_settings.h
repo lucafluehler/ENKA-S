@@ -3,6 +3,7 @@
 namespace enkas::generation {
 
 struct UniformSphereSettings {
+    unsigned int seed;
     int particle_count;
     double sphere_radius;
     double initial_velocity;

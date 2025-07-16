@@ -10,9 +10,8 @@
 
 namespace enkas::generation {
 
-PlummerSphereGenerator::PlummerSphereGenerator(const PlummerSphereSettings& settings,
-                                               unsigned int seed)
-    : settings_(settings), seed_(seed) {}
+PlummerSphereGenerator::PlummerSphereGenerator(const PlummerSphereSettings& settings)
+    : settings_(settings) {}
 
 data::System PlummerSphereGenerator::createSystem() {
     ENKAS_LOG_INFO("Creating 'PlummerSphere' system...");
@@ -27,7 +26,7 @@ data::System PlummerSphereGenerator::createSystem() {
     const double plummer_radius = settings_.sphere_radius;
     const double particle_mass = settings_.total_mass / particle_count;
 
-    std::mt19937 gen(seed_);
+    std::mt19937 gen(settings_.seed);
     std::uniform_real_distribution<double> dist(0.0, 1.0);
 
     for (size_t i = 0; i < particle_count; i++) {

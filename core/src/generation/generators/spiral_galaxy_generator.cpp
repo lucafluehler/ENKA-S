@@ -11,9 +11,8 @@
 
 namespace enkas::generation {
 
-SpiralGalaxyGenerator::SpiralGalaxyGenerator(const SpiralGalaxySettings& settings,
-                                             unsigned int seed)
-    : settings_(settings), seed_(seed) {}
+SpiralGalaxyGenerator::SpiralGalaxyGenerator(const SpiralGalaxySettings& settings)
+    : settings_(settings) {}
 
 data::System SpiralGalaxyGenerator::createSystem() {
     ENKAS_LOG_INFO("Creating 'SpiralGalaxy' system...");
@@ -29,7 +28,7 @@ data::System SpiralGalaxyGenerator::createSystem() {
     const double stellar_mass = settings_.total_mass / particle_count;
     const double inner_radius = settings_.radius / 40.0;
 
-    std::mt19937 gen(seed_);
+    std::mt19937 gen(settings_.seed);
     std::normal_distribution<double> disk_thickness_dist(0.0, settings_.radius / 100.0);
 
     // Generate Disk

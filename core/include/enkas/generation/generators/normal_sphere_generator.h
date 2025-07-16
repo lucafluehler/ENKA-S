@@ -8,13 +8,12 @@ namespace enkas::generation {
 
 class NormalSphereGenerator : public Generator {
 public:
-    explicit NormalSphereGenerator(const NormalSphereSettings& settings, unsigned int seed);
+    explicit NormalSphereGenerator(const NormalSphereSettings& settings);
 
     [[nodiscard]] data::System createSystem() override;
 
 private:
     NormalSphereSettings settings_;
-    unsigned int seed_;
 };
 
 }  // namespace enkas::generation

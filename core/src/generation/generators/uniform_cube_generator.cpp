@@ -9,8 +9,8 @@
 
 namespace enkas::generation {
 
-UniformCubeGenerator::UniformCubeGenerator(const UniformCubeSettings& settings, unsigned int seed)
-    : settings_(settings), seed_(seed) {}
+UniformCubeGenerator::UniformCubeGenerator(const UniformCubeSettings& settings)
+    : settings_(settings) {}
 
 data::System UniformCubeGenerator::createSystem() {
     ENKAS_LOG_INFO("Creating 'UniformCube' system...");
@@ -22,7 +22,7 @@ data::System UniformCubeGenerator::createSystem() {
     system.velocities.reserve(particle_count);
     system.masses.reserve(particle_count);
 
-    std::mt19937 gen(seed_);
+    std::mt19937 gen(settings_.seed);
 
     const double half_side = settings_.side_length / 2.0;
     std::uniform_real_distribution<double> pos_dist(-half_side, half_side);

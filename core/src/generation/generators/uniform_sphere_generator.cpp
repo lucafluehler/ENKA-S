@@ -9,9 +9,8 @@
 
 namespace enkas::generation {
 
-UniformSphereGenerator::UniformSphereGenerator(const UniformSphereSettings& settings,
-                                               unsigned int seed)
-    : settings_(settings), seed_(seed) {}
+UniformSphereGenerator::UniformSphereGenerator(const UniformSphereSettings& settings)
+    : settings_(settings) {}
 
 data::System UniformSphereGenerator::createSystem() {
     ENKAS_LOG_INFO("Creating 'UniformSphere' system...");
@@ -23,7 +22,7 @@ data::System UniformSphereGenerator::createSystem() {
     system.velocities.reserve(particle_count);
     system.masses.reserve(particle_count);
 
-    std::mt19937 gen(seed_);
+    std::mt19937 gen(settings_.seed);
     std::uniform_real_distribution<double> pos_dist(-settings_.sphere_radius,
                                                     settings_.sphere_radius);
     std::uniform_real_distribution<double> vel_dist(0.0, 1.0);

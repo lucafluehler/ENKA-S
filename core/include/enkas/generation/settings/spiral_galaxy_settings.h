@@ -3,6 +3,7 @@
 namespace enkas::generation {
 
 struct SpiralGalaxySettings {
+    unsigned int seed;
     int particle_count;
     int num_arms;
     double radius;

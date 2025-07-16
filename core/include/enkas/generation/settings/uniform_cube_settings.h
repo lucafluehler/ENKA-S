@@ -3,6 +3,7 @@
 namespace enkas::generation {
 
 struct UniformCubeSettings {
+    unsigned int seed;
     int particle_count;
     double side_length;
     double initial_velocity;

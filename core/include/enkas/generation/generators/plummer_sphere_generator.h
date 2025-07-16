@@ -8,7 +8,7 @@ namespace enkas::generation {
 
 class PlummerSphereGenerator : public Generator {
 public:
-    explicit PlummerSphereGenerator(const PlummerSphereSettings& settings, unsigned int seed);
+    explicit PlummerSphereGenerator(const PlummerSphereSettings& settings);
 
     /**
      * @brief Generates a system of particles following the Plummer sphere distribution.
@@ -22,7 +22,6 @@ public:
 
 private:
     PlummerSphereSettings settings_;
-    unsigned int seed_;
 };
 
 }  // namespace enkas::generation

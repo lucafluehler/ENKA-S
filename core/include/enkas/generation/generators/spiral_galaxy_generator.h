@@ -8,13 +8,12 @@ namespace enkas::generation {
 
 class SpiralGalaxyGenerator : public Generator {
 public:
-    explicit SpiralGalaxyGenerator(const SpiralGalaxySettings& settings, unsigned int seed);
+    explicit SpiralGalaxyGenerator(const SpiralGalaxySettings& settings);
 
     [[nodiscard]] data::System createSystem() override;
 
 private:
     SpiralGalaxySettings settings_;
-    unsigned int seed_;
 };
 
 }  // namespace enkas::generation

@@ -3,6 +3,7 @@
 namespace enkas::generation {
 
 struct NormalSphereSettings {
+    unsigned int seed;
     int particle_count;
     double position_std_dev;
     double velocity_std_dev;

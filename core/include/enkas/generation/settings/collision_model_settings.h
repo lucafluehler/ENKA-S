@@ -3,6 +3,8 @@
 namespace enkas::generation {
 
 struct CollisionModelSettings {
+    unsigned int seed;
+
     double impact_parameter;
     double relative_velocity;
 

@@ -3,6 +3,7 @@
 namespace enkas::generation {
 
 struct PlummerSphereSettings {
+    unsigned int seed;
     int particle_count;
     double sphere_radius;
     double total_mass;

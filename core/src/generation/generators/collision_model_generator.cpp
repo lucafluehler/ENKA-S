@@ -9,9 +9,8 @@
 
 namespace enkas::generation {
 
-CollisionModelGenerator::CollisionModelGenerator(const CollisionModelSettings& settings,
-                                                 unsigned int seed)
-    : settings_(settings), seed_(seed) {}
+CollisionModelGenerator::CollisionModelGenerator(const CollisionModelSettings& settings)
+    : settings_(settings) {}
 
 data::System CollisionModelGenerator::createSystem() {
     auto& logger = logging::getLogger();
@@ -19,19 +18,21 @@ data::System CollisionModelGenerator::createSystem() {
 
     // Generate first Plummer sphere
     PlummerSphereSettings plummer1_settings;
+    plummer1_settings.seed = settings_.seed;
     plummer1_settings.particle_count = settings_.particle_count_1;
     plummer1_settings.sphere_radius = settings_.sphere_radius_1;
     plummer1_settings.total_mass = settings_.total_mass_1;
 
-    data::System sphere1 = PlummerSphereGenerator(plummer1_settings, seed_).createSystem();
+    data::System sphere1 = PlummerSphereGenerator(plummer1_settings).createSystem();
 
     // Generate second Plummer sphere
     PlummerSphereSettings plummer2_settings;
+    plummer2_settings.seed = settings_.seed + 1;  // Ensure different seed for second sphere
     plummer2_settings.particle_count = settings_.particle_count_2;
     plummer2_settings.sphere_radius = settings_.sphere_radius_2;
     plummer2_settings.total_mass = settings_.total_mass_2;
 
-    data::System sphere2 = PlummerSphereGenerator(plummer2_settings, seed_ + 1).createSystem();
+    data::System sphere2 = PlummerSphereGenerator(plummer2_settings).createSystem();
 
     const double avg_radius = (settings_.sphere_radius_1 + settings_.sphere_radius_2) / 2.0;
     const double separation_distance = settings_.impact_parameter;
