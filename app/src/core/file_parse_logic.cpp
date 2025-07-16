@@ -7,27 +7,8 @@
 #include <json/json.hpp>
 #include <vector>
 
+#include "file_constants.h"
 #include "settings.h"
-
-namespace {
-const std::vector<std::string> expected_system_columns = {
-    "time", "pos_x", "pos_y", "pos_z", "vel_x", "vel_y", "vel_z", "mass"};
-
-const std::vector<std::string> expected_diagnostics_columns = {"time",
-                                                               "e_kin",
-                                                               "e_pot",
-                                                               "L_tot",
-                                                               "com_pos_x",
-                                                               "com_pos_y",
-                                                               "com_pos_z",
-                                                               "com_vel_x",
-                                                               "com_vel_y",
-                                                               "com_vel_z",
-                                                               "r_vir",
-                                                               "ms_vel",
-                                                               "t_cr"};
-
-}  // namespace
 
 std::optional<Settings> FileParseLogic::parseSettings(const std::filesystem::path& file_path) {
     std::ifstream file(file_path);
@@ -56,7 +37,7 @@ std::optional<SystemFrame> FileParseLogic::parseNextSystemFrame(
         csv::CSVReader reader(file_path.string(), format);
 
         // Header validation
-        if (reader.get_col_names() != expected_system_columns) {
+        if (reader.get_col_names() != csv_headers::system) {
             return std::nullopt;
         }
 
@@ -119,7 +100,7 @@ std::optional<std::vector<double>> FileParseLogic::parseSystemTimestamps(
         csv::CSVReader reader(file_path.string(), format);
 
         // Header validation
-        if (reader.get_col_names() != expected_system_columns) {
+        if (reader.get_col_names() != csv_headers::system) {
             return std::nullopt;
         }
 
@@ -145,7 +126,7 @@ std::optional<DiagnosticsSeries> FileParseLogic::parseDiagnosticsSeries(
         csv::CSVReader reader(file_path.string(), format);
 
         // Header validation
-        if (reader.get_col_names() != expected_diagnostics_columns) {
+        if (reader.get_col_names() != csv_headers::diagnostics) {
             return std::nullopt;
         }
 
