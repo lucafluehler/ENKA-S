@@ -25,7 +25,7 @@ public slots:
 private slots:
     void onTimerTimeout();
     void onSettingsParsed(const std::optional<Settings>& settings);
-    void onInitialSystemParsed(const std::optional<enkas::data::System>& frame);
+    void onInitialSystemParsed(const std::optional<enkas::data::System>& system);
     void onDiagnosticsSeriesParsed(const std::optional<DiagnosticsSeries>& series);
 
 private:
