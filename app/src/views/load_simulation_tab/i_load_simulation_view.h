@@ -1,13 +1,15 @@
 #pragma once
 
-#include <QString>
+#include <enkas/data/system.h>
 
-#include "../../core/file_types.h"
+#include <QString>
 
 class ILoadSimulationView {
 public:
     virtual ~ILoadSimulationView() = default;
 
     virtual void updatePreview() = 0;
-    virtual void onFileChecked(const FileType& file, const QString& path, bool result) = 0;
+    virtual void onSettingsParsed(bool success) = 0;
+    virtual void onInitialSystemParsed(std::optional<enkas::data::System>) = 0;
+    virtual void onDiagnosticsSeriesParsed(bool success) = 0;
 };
