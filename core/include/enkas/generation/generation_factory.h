@@ -1,13 +1,13 @@
 #pragma once
 
-#include <iosfwd>
-#include <memory>
+#include <enkas/generation/generation_settings.h>
 
-// Forward declarations
 namespace enkas::generation {
 class Generator;
 struct Config;
 }  // namespace enkas::generation
+
+#include <memory>
 
 namespace enkas::generation {
 
@@ -18,14 +18,7 @@ public:
      * @param config The configuration object containing the specific settings and seed.
      * @return A unique_ptr to the created generator, or nullptr if config is invalid.
      */
-    [[nodiscard]] static std::unique_ptr<Generator> create(const Config& config);
-
-    /**
-     * @brief Creates a generator that reads its data from a stream.
-     * @param stream The input stream to read particle data from.
-     * @return A unique_ptr to the created generator, or nullptr if the stream is invalid.
-     */
-    [[nodiscard]] static std::unique_ptr<Generator> create(std::istream& stream);
+    [[nodiscard]] static std::unique_ptr<Generator> create(const Settings& settings);
 };
 
 }  // namespace enkas::generation
