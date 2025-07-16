@@ -101,6 +101,15 @@ std::optional<SystemFrame> FileParseLogic::parseNextSystemFrame(
     }
 }
 
+std::optional<enkas::data::System> FileParseLogic::parseInitialSystem(
+    const std::filesystem::path& file_path) {
+    auto frame = parseNextSystemFrame(file_path, 0.0);
+    if (frame) {
+        return frame->system;
+    }
+    return std::nullopt;
+}
+
 std::optional<std::vector<double>> FileParseLogic::parseSystemTimestamps(
     const std::filesystem::path& file_path) {
     if (!std::filesystem::exists(file_path)) return std::nullopt;

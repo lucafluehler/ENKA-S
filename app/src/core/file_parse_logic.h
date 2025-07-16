@@ -35,7 +35,15 @@ public:
      * @return An optional Frame object containing the timestamp and system data.
      */
     static std::optional<SystemFrame> parseNextSystemFrame(const std::filesystem::path& file_path,
-                                                           double previous_timestamp = 0.0);
+                                                           double previous_timestamp);
+
+    /**
+     * @brief Reads the initial system data from the CSV file.
+     * @param file_path The path to the CSV file containing system data.
+     * @return An optional System object containing the initial system data.
+     */
+    static std::optional<enkas::data::System> parseInitialSystem(
+        const std::filesystem::path& file_path);
 
     /**
      * @brief Reads the timestamps of a system file.
