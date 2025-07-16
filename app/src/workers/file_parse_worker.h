@@ -1,9 +1,12 @@
 #pragma once
 
 #include <QObject>
+#include <optional>
+#include <vector>
 
 #include "core/file_parse_logic.h"
 #include "core/settings.h"
+#include "enkas/data/system.h"
 
 class FileParseWorker : public QObject {
     Q_OBJECT
@@ -15,22 +18,25 @@ public:
 public slots:
     /**
      * @brief Asynchronously parses settings from the specified file.
-     * Emits settingsParsed() on success or parsingFailed() on error.
      * @param file_path The path to the CSV file.
      */
     void parseSettings(const QString& file_path);
 
     /**
      * @brief Asynchronously parses the next system frame from the specified file.
-     * Emits systemFrameParsed() on success or parsingFailed() on error.
      * @param file_path The path to the CSV file.
      * @param previous_timestamp The timestamp after which to read the next frame.
      */
     void parseNextSystemFrame(const QString& file_path, double previous_timestamp = 0.0);
 
     /**
+     * @brief Asynchronously parses the initial system frame from the specified file.
+     * @param file_path The path to the CSV file.
+     */
+    void parseInitialSystem(const QString& file_path);
+
+    /**
      * @brief Asynchronously parses all system timestamps from the specified file.
-     * Emits systemTimestampsParsed() on success or parsingFailed() on error.
      * @param file_path The path to the CSV file.
      */
     void parseSystemTimestamps(const QString& file_path);
@@ -44,38 +50,37 @@ public slots:
 
 signals:
     /**
-     * @brief Emitted when settings have been successfully parsed.
-     * @param settings The parsed settings data.
+     * @brief Emitted when settings have been parsed.
+     * @param settings The parsed settings data if successful.
      */
-    void settingsParsed(const Settings& settings);
+    void settingsParsed(const std::optional<Settings>& settings);
 
     /**
-     * @brief Emitted when a system frame has been successfully parsed.
-     * @param frame The parsed system frame data.
+     * @brief Emitted when a system frame has been parsed.
+     * @param frame The parsed system frame data if successful.
      */
-    void systemFrameParsed(const SystemFrame& frame);
+    void systemFrameParsed(const std::optional<SystemFrame>& frame);
 
     /**
-     * @brief Emitted when all system timestamps have been successfully parsed.
-     * @param timestamps A vector of all timestamps found in the file.
+     * @brief Emitted when the initial system frame has been parsed.
+     * @param frame The parsed initial system frame data if successful.
      */
-    void systemTimestampsParsed(const std::vector<double>& timestamps);
+    void initialSystemParsed(const std::optional<enkas::data::System>& frame);
 
     /**
-     * @brief Emitted when a diagnostics series has been successfully parsed.
-     * @param series The parsed diagnostics data series.
+     * @brief Emitted when all system timestamps have been parsed.
+     * @param timestamps A vector of all timestamps found in the file if successful.
      */
-    void diagnosticsSeriesParsed(const DiagnosticsSeries& series);
+    void systemTimestampsParsed(const std::optional<std::vector<double>>& timestamps);
 
     /**
-     * @brief Emitted when any parsing operation fails.
-     * @param error A string describing the failure.
+     * @brief Emitted when a diagnostics series has been parsed.
+     * @param series The parsed diagnostics data series if successful.
      */
-    void parsingFailed(const QString& error);
+    void diagnosticsSeriesParsed(const std::optional<DiagnosticsSeries>& series);
 };
 
-// Register custom types with Qt's Meta-Object System to allow them to be used in
-// queued signal/slot connections (i.e., across threads).
-Q_DECLARE_METATYPE(Settings);
-Q_DECLARE_METATYPE(SystemFrame);
-Q_DECLARE_METATYPE(DiagnosticsSeries);
+Q_DECLARE_METATYPE(std::optional<Settings>);
+Q_DECLARE_METATYPE(std::optional<SystemFrame>);
+Q_DECLARE_METATYPE(std::optional<std::vector<double>>);
+Q_DECLARE_METATYPE(std::optional<DiagnosticsSeries>);
