@@ -62,6 +62,10 @@ std::string Settings::getString(std::string_view id) const {
         v);
 }
 
+[[nodiscard]] const SettingValue& Settings::getValue(std::string_view id) const {
+    return settings_.at(std::string(id)).value;
+}
+
 void Settings::registerSetting(std::string_view id, Setting&& setting) {
     const std::string id_str(id);
     if (settings_.contains(id_str)) {

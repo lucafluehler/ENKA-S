@@ -64,6 +64,14 @@ public:
     [[nodiscard]] std::string getString(std::string_view id) const;
 
     /**
+     * @brief Gets the value of a setting by its identifier.
+     * @param id The identifier of the setting.
+     * @return The value of the setting.
+     * @throws std::out_of_range If the identifier does not exist.
+     */
+    [[nodiscard]] const SettingValue& getValue(std::string_view id) const;
+
+    /**
      * @brief Sets the value of a setting by its identifier.
      * @param id The identifier of the setting.
      * @param new_value The new value to set.
