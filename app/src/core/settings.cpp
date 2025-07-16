@@ -1,7 +1,15 @@
 #include "settings.h"
 
+#include <initializer_list>
+#include <json/json.hpp>
+#include <optional>
 #include <string>
+#include <string_view>
+#include <unordered_map>
 #include <unordered_set>
+#include <utility>
+#include <variant>
+#include <vector>
 
 std::optional<Settings> Settings::create(
     std::initializer_list<std::pair<std::string_view, SettingValue>> items) {
@@ -25,6 +33,32 @@ std::optional<Settings> Settings::create(
     return Settings(items);
 }
 
+std::optional<Settings> Settings::create(const nlohmann::json& json) {
+    if (!json.is_object()) return std::nullopt;
+
+    std::vector<std::pair<std::string_view, SettingValue>> items;
+    items.reserve(json.size());
+
+    for (auto it = json.begin(); it != json.end(); ++it) {
+        const std::string& key = it.key();
+        const nlohmann::json& val = it.value();
+
+        if (val.is_number_integer()) {
+            items.emplace_back(key, val.get<int>());
+        } else if (val.is_number_float()) {
+            items.emplace_back(key, val.get<double>());
+        } else if (val.is_boolean()) {
+            items.emplace_back(key, val.get<bool>());
+        } else if (val.is_string()) {
+            items.emplace_back(key, val.get<std::string>());
+        } else {
+            return std::nullopt;  // Unsupported type
+        }
+    }
+
+    return Settings(items);
+}
+
 Settings::Settings(std::initializer_list<std::pair<std::string_view, SettingValue>> items) {
     ids_.reserve(items.size());
     settings_.reserve(items.size());
@@ -40,6 +74,15 @@ Settings::Settings(std::initializer_list<std::pair<std::string, SettingValue>> i
     for (const auto& [key, value] : items) {
         ids_.emplace_back(key);
         settings_.emplace(key, value);
+    }
+}
+
+Settings::Settings(const std::vector<std::pair<std::string_view, SettingValue>>& items) {
+    ids_.reserve(items.size());
+    settings_.reserve(items.size());
+    for (const auto& pair : items) {
+        ids_.push_back(std::string(pair.first));
+        settings_.emplace(std::string(pair.first), pair.second);
     }
 }
 
@@ -68,4 +111,37 @@ bool Settings::removeSetting(std::string_view id) {
     settings_.erase(std::string{id});
     ids_.erase(std::remove(ids_.begin(), ids_.end(), id), ids_.end());
     return true;
+}
+
+std::optional<nlohmann::json> Settings::toJson() const {
+    nlohmann::json json_obj;
+
+    for (const auto& [key, value] : settings_) {
+        bool supported = std::visit(
+            [&](auto&& v) -> bool {
+                using T = std::decay_t<decltype(v)>;
+                if constexpr (std::is_same_v<T, int>) {
+                    json_obj[key] = v;
+                    return true;
+                } else if constexpr (std::is_same_v<T, double>) {
+                    json_obj[key] = v;
+                    return true;
+                } else if constexpr (std::is_same_v<T, bool>) {
+                    json_obj[key] = v;
+                    return true;
+                } else if constexpr (std::is_same_v<T, std::string>) {
+                    json_obj[key] = v;
+                    return true;
+                } else {
+                    return false;  // unsupported type
+                }
+            },
+            value);
+
+        if (!supported) {
+            return std::nullopt;
+        }
+    }
+
+    return json_obj;
 }

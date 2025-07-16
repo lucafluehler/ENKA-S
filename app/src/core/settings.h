@@ -1,6 +1,7 @@
 #pragma once
 
 #include <initializer_list>
+#include <json/json.hpp>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -26,6 +27,14 @@ public:
         std::initializer_list<std::pair<std::string_view, SettingValue>> items);
     static std::optional<Settings> create(
         std::initializer_list<std::pair<std::string, SettingValue>> items);
+
+    /**
+     * @brief Creates a Settings object from a JSON object.
+     * @param json The JSON object containing settings data.
+     * @return A std::optional<Settings> containing the object if the JSON is valid,
+     *         otherwise std::nullopt.
+     */
+    static std::optional<Settings> create(const nlohmann::json& json);
 
     /**
      * @brief Adds a new setting if one with the same identifier does not already exist.
@@ -74,9 +83,17 @@ public:
      */
     [[nodiscard]] const std::vector<std::string>& identifiers() const { return ids_; }
 
+    /**
+     * @brief Converts the Settings object to a JSON object.
+     * @return A std::optional<nlohmann::json> containing the JSON representation of the settings,
+     *         or std::nullopt if the conversion fails.
+     */
+    std::optional<nlohmann::json> toJson() const;
+
 private:
     Settings(std::initializer_list<std::pair<std::string_view, SettingValue>> items);
     Settings(std::initializer_list<std::pair<std::string, SettingValue>> items);
+    Settings(const std::vector<std::pair<std::string_view, SettingValue>>& items);
 
     std::vector<std::string> ids_;
     std::unordered_map<std::string, SettingValue> settings_;
