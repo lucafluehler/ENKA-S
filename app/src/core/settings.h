@@ -90,6 +90,12 @@ public:
      */
     std::optional<nlohmann::json> toJson() const;
 
+    /**
+     * @brief Merges another Settings object into this one.
+     * @param other The Settings object to merge.
+     */
+    void merge(const Settings& other);
+
 private:
     Settings(std::initializer_list<std::pair<std::string_view, SettingValue>> items);
     Settings(std::initializer_list<std::pair<std::string, SettingValue>> items);

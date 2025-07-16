@@ -145,3 +145,12 @@ std::optional<nlohmann::json> Settings::toJson() const {
 
     return json_obj;
 }
+
+void Settings::merge(const Settings& other) {
+    for (const auto& id : other.identifiers()) {
+        auto it = other.settings_.find(id);
+        if (it != other.settings_.end()) {
+            set(id, SettingValue(it->second));
+        }
+    }
+}
