@@ -2,10 +2,8 @@
 
 #include <initializer_list>
 #include <optional>
-#include <stdexcept>
 #include <string>
 #include <string_view>
-#include <type_traits>
 #include <unordered_map>
 #include <utility>
 #include <variant>
@@ -13,48 +11,37 @@
 
 using SettingValue = std::variant<int, double, bool, std::string>;
 
-struct Setting {
-    enum class Group { Data, Generation, Simulation };
-    enum class Type { Int, Double, Bool, String };
-
-    Group group;
-    Type type;
-    SettingValue value;
-};
-
 class Settings {
 public:
     Settings() = default;
 
     /**
      * @brief Safely creates a Settings object from an initializer list.
-     *
-     * This factory function validates the entire list before creating the object.
-     * It checks for duplicate identifiers and ensures each setting's type enum
-     * matches its value type.
-     *
-     * @param items An initializer list of identifier-setting pairs.
+     * @param items An initializer list of pairs, where each pair contains a unique identifier
+     *              and a SettingValue.
      * @return A std::optional<Settings> containing the object if all items are valid,
      *         otherwise std::nullopt.
      */
     static std::optional<Settings> create(
-        std::initializer_list<std::pair<const std::string, Setting>> items);
+        std::initializer_list<std::pair<std::string_view, SettingValue>> items);
+    static std::optional<Settings> create(
+        std::initializer_list<std::pair<std::string, SettingValue>> items);
 
     /**
      * @brief Adds a new setting if one with the same identifier does not already exist.
      * @param id The unique identifier for the new setting.
-     * @param setting The Setting object containing the group, type, and default value.
+     * @param value The setting value to be added.
      * @return True if the setting was successfully added, false if a setting with that ID
-     *         already exists or if the setting's type and value are inconsistent.
+     *         already exists.
      */
-    bool addSetting(const std::string& id, Setting&& setting);
+    bool addSetting(const std::string& id, SettingValue&& value);
 
     /**
      * @brief Removes a setting by its identifier.
      * @param id The identifier of the setting to remove.
      * @return True if the setting was found and removed, false otherwise.
      */
-    bool removeSetting(const std::string& id);
+    bool removeSetting(std::string_view id);
 
     /**
      * @brief Checks if a setting with the given identifier exists.
@@ -62,19 +49,6 @@ public:
      * @return True if the setting exists, false otherwise.
      */
     [[nodiscard]] bool has(std::string_view id) const;
-
-    /**
-     * @brief Gets the group of a setting by its identifier.
-     * @param id The identifier of the setting.
-     * @return The group of the setting.
-     */
-    [[nodiscard]] Setting::Group groupOf(std::string_view id) const;
-    /**
-     * @brief Gets the type of a setting by its identifier.
-     * @param id The identifier of the setting.
-     * @return The type of the setting.
-     */
-    [[nodiscard]] Setting::Type typeOf(std::string_view id) const;
 
     /**
      * @brief Gets the value of a setting by its identifier.
@@ -87,56 +61,12 @@ public:
     }
 
     /**
-     * @brief Gets the string representation of a setting's value by its identifier.
+     * @brief Sets or updates the value of a setting. If the key exists, its value
+     *        (and its type) will be overwritten. If it doesn't exist, it will be created.
      * @param id The identifier of the setting.
-     * @return A string representation of the setting's value.
+     * @param new_value The new value to set for the setting.
      */
-    [[nodiscard]] std::string getString(std::string_view id) const;
-
-    /**
-     * @brief Gets the value of a setting by its identifier.
-     * @param id The identifier of the setting.
-     * @return The value of the setting.
-     * @throws std::out_of_range If the identifier does not exist.
-     */
-    [[nodiscard]] const SettingValue& getValue(std::string_view id) const;
-
-    /**
-     * @brief Sets the value of a setting by its identifier.
-     * @param id The identifier of the setting.
-     * @param new_value The new value to set.
-     * @throws std::out_of_range If the identifier does not exist.
-     * @throws std::invalid_argument If the type of new_value does not match the setting's
-     * registered type.
-     */
-    template <typename T>
-    void set(std::string_view id, T&& new_value) {
-        auto it = settings_.find(std::string(id));
-        if (it == settings_.end()) {
-            throw std::out_of_range("Setting with identifier '" + std::string(id) +
-                                    "' does not exist.");
-        }
-
-        // Proactive type-checking to provide better error messages.
-        const auto expectedType = it->second.type;
-        bool typeMatch = false;
-        if constexpr (std::is_same_v<std::decay_t<T>, int>) {
-            if (expectedType == Setting::Type::Int) typeMatch = true;
-        } else if constexpr (std::is_same_v<std::decay_t<T>, double>) {
-            if (expectedType == Setting::Type::Double) typeMatch = true;
-        } else if constexpr (std::is_same_v<std::decay_t<T>, bool>) {
-            if (expectedType == Setting::Type::Bool) typeMatch = true;
-        } else if constexpr (std::is_constructible_v<std::string, T>) {
-            if (expectedType == Setting::Type::String) typeMatch = true;
-        }
-
-        if (!typeMatch) {
-            throw std::invalid_argument("Type mismatch for setting '" + std::string(id) + "'.");
-        }
-
-        // If the types match, assign the new value.
-        it->second.value = std::forward<T>(new_value);
-    }
+    void set(const std::string& id, SettingValue&& new_value);
 
     /**
      * @brief Gets the identifiers of all settings.
@@ -145,10 +75,9 @@ public:
     [[nodiscard]] const std::vector<std::string>& identifiers() const { return ids_; }
 
 private:
-    Settings(std::initializer_list<std::pair<const std::string, Setting>> items);
-
-    void registerSetting(std::string_view id, Setting&& setting);
+    Settings(std::initializer_list<std::pair<std::string_view, SettingValue>> items);
+    Settings(std::initializer_list<std::pair<std::string, SettingValue>> items);
 
     std::vector<std::string> ids_;
-    std::unordered_map<std::string, Setting> settings_;
+    std::unordered_map<std::string, SettingValue> settings_;
 };

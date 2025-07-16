@@ -1,125 +1,71 @@
 #include "settings.h"
 
-#include <iomanip>
-#include <sstream>
-#include <stdexcept>
+#include <string>
 #include <unordered_set>
 
-template <typename T>
-const T& get_value(const std::unordered_map<std::string, Setting>& map, const std::string& key) {
-    try {
-        const SettingValue& val = map.at(key).value;
-        return std::get<T>(val);
-    } catch (const std::out_of_range&) {
-        throw std::runtime_error("Setting key not found: " + key);
-    } catch (const std::bad_variant_access&) {
-        throw std::runtime_error("Incorrect type for setting key: " + key);
-    }
-}
-
-static bool isSettingConsistent(const Setting& setting) {
-    // The variant's index corresponds directly to the enum's underlying value
-    // 0: int, 1: double, 2: bool, 3: string
-    return static_cast<size_t>(setting.type) == setting.value.index();
-}
-
 std::optional<Settings> Settings::create(
-    std::initializer_list<std::pair<const std::string, Setting>> items) {
-    std::unordered_set<std::string> unique_ids;
-    unique_ids.reserve(items.size());
-
-    for (const auto& pair : items) {
-        const std::string& id = pair.first;
-
-        if (!unique_ids.insert(id).second) {
-            return std::nullopt;  // Error: Duplicate key
-        }
-
-        if (!isSettingConsistent(pair.second)) {
-            return std::nullopt;  // Error: Type enum and value type mismatch
+    std::initializer_list<std::pair<std::string_view, SettingValue>> items) {
+    std::unordered_set<std::string_view> unique_ids;
+    for (const auto& [key, _] : items) {
+        if (!unique_ids.insert(key).second) {
+            return std::nullopt;
         }
     }
-
     return Settings(items);
 }
 
-bool Settings::addSetting(const std::string& id, Setting&& setting) {
-    if (settings_.count(id) > 0) {
-        return false;  // Already exists
+std::optional<Settings> Settings::create(
+    std::initializer_list<std::pair<std::string, SettingValue>> items) {
+    std::unordered_set<std::string_view> unique_ids;
+    for (const auto& [key, _] : items) {
+        if (!unique_ids.insert(key).second) {
+            return std::nullopt;
+        }
     }
+    return Settings(items);
+}
 
-    if (!isSettingConsistent(setting)) {
-        return false;  // Type enum does not match the actual value type in the variant
+Settings::Settings(std::initializer_list<std::pair<std::string_view, SettingValue>> items) {
+    ids_.reserve(items.size());
+    settings_.reserve(items.size());
+    for (const auto& [key, value] : items) {
+        ids_.emplace_back(key);
+        settings_.emplace(std::string(key), value);
     }
+}
 
+Settings::Settings(std::initializer_list<std::pair<std::string, SettingValue>> items) {
+    ids_.reserve(items.size());
+    settings_.reserve(items.size());
+    for (const auto& [key, value] : items) {
+        ids_.emplace_back(key);
+        settings_.emplace(key, value);
+    }
+}
+
+bool Settings::has(std::string_view id) const { return settings_.count(std::string(id)) > 0; }
+
+bool Settings::addSetting(const std::string& id, SettingValue&& value) {
+    if (has(id)) {
+        return false;  // Key already exists
+    }
     ids_.push_back(id);
-
-    settings_.emplace(id, std::move(setting));
-
+    settings_.emplace(id, std::move(value));
     return true;
 }
 
-bool Settings::removeSetting(const std::string& id) {
-    auto it = settings_.find(id);
-    if (it == settings_.end()) {
-        return false;  // Not found
+void Settings::set(const std::string& id, SettingValue&& new_value) {
+    if (!has(id)) {
+        ids_.push_back(id);
     }
+    settings_[id] = std::move(new_value);
+}
 
-    settings_.erase(it);
-
-    auto& vec = ids_;
-    vec.erase(std::remove(vec.begin(), vec.end(), id), vec.end());
-
+bool Settings::removeSetting(std::string_view id) {
+    if (!has(id)) {
+        return false;
+    }
+    settings_.erase(std::string{id});
+    ids_.erase(std::remove(ids_.begin(), ids_.end(), id), ids_.end());
     return true;
-}
-
-bool Settings::has(std::string_view id) const { return settings_.contains(std::string(id)); }
-
-Setting::Group Settings::groupOf(std::string_view id) const {
-    return settings_.at(std::string(id)).group;
-}
-
-Setting::Type Settings::typeOf(std::string_view id) const {
-    return settings_.at(std::string(id)).type;
-}
-
-std::string Settings::getString(std::string_view id) const {
-    auto it = settings_.find(std::string(id));
-    if (it == settings_.end()) {
-        throw std::out_of_range("Setting with identifier '" + std::string(id) +
-                                "' does not exist.");
-    }
-
-    const SettingValue& v = it->second.value;
-
-    return std::visit(
-        [](const auto& val) -> std::string {
-            using T = std::decay_t<decltype(val)>;
-            if constexpr (std::is_same_v<T, int>) {
-                return std::to_string(val);
-            } else if constexpr (std::is_same_v<T, double>) {
-                std::ostringstream oss;
-                oss << std::setprecision(15) << val;
-                return oss.str();
-            } else if constexpr (std::is_same_v<T, bool>) {
-                return val ? "true" : "false";
-            } else if constexpr (std::is_same_v<T, std::string>) {
-                return val;
-            }
-        },
-        v);
-}
-
-[[nodiscard]] const SettingValue& Settings::getValue(std::string_view id) const {
-    return settings_.at(std::string(id)).value;
-}
-
-void Settings::registerSetting(std::string_view id, Setting&& setting) {
-    const std::string id_str(id);
-    if (settings_.contains(id_str)) {
-        return;  // Identifier already exists, do not overwrite.
-    }
-
-    ids_.push_back(id_str);
-    settings_.emplace(id_str, std::move(setting));
 }
