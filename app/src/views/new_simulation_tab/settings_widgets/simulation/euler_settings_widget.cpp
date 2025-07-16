@@ -1,31 +1,28 @@
-#include "euler_settings_panel.h"
+#include "euler_settings_widget.h"
 
 #include <QObject>
-#include <string>
+#include <string_view>
 
 #include "./ui_euler_settings_widget.h"
 
 namespace {
-std::string EulerStepId = "EulerStep";
-std::string EulerSofteningId = "EulerSoftening";
+constexpr std::string_view EulerStepId = "EulerStep";
+constexpr std::string_view EulerSofteningId = "EulerSoftening";
 }  // namespace
 
 EulerSettingsWidget::EulerSettingsWidget(QWidget* parent)
     : QWidget(parent), ui_(new Ui::EulerSettingsWidget) {
     ui_->setupUi(this);
 
-    constexpr auto S = Setting::Group::Simulation;
-    constexpr auto D = Setting::Type::Double;
-    default_settings_ = Settings{{EulerStepId, {S, D, 0.01}}, {EulerSofteningId, {S, D, 0.001}}};
+    default_settings_ = Settings::create({{EulerStepId, 0.01}, {EulerSofteningId, 0.001}}).value();
 
     resetSettings();
 }
 
 Settings EulerSettingsWidget::getSettings() const {
-    constexpr auto S = Setting::Group::Simulation;
-    constexpr auto D = Setting::Type::Double;
-    return Settings{{EulerStepId, {S, D, ui_->dsbEulerStep->value()}},
-                    {EulerSofteningId, {S, D, ui_->dsbEulerSoftening->value()}}};
+    return Settings::create({{EulerStepId, ui_->dsbEulerStep->value()},
+                             {EulerSofteningId, ui_->dsbEulerSoftening->value()}})
+        .value();
 }
 
 void EulerSettingsWidget::setSettings(const Settings& settings) {
