@@ -66,7 +66,7 @@ public:
      */
     template <typename T>
     [[nodiscard]] auto&& get(this auto&& self, std::string_view id) {
-        return std::get<T>(self.settings_.at(std::string(id)).value);
+        return std::get<T>(std::forward<decltype(self)>(self).settings_.at(std::string(id)));
     }
 
     /**
