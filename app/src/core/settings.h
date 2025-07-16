@@ -1,6 +1,7 @@
 #pragma once
 
 #include <initializer_list>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -23,8 +24,37 @@ struct Setting {
 
 class Settings {
 public:
-    Settings(std::initializer_list<std::pair<const std::string, Setting>> items);
     Settings() = default;
+
+    /**
+     * @brief Safely creates a Settings object from an initializer list.
+     *
+     * This factory function validates the entire list before creating the object.
+     * It checks for duplicate identifiers and ensures each setting's type enum
+     * matches its value type.
+     *
+     * @param items An initializer list of identifier-setting pairs.
+     * @return A std::optional<Settings> containing the object if all items are valid,
+     *         otherwise std::nullopt.
+     */
+    static std::optional<Settings> create(
+        std::initializer_list<std::pair<const std::string, Setting>> items);
+
+    /**
+     * @brief Adds a new setting if one with the same identifier does not already exist.
+     * @param id The unique identifier for the new setting.
+     * @param setting The Setting object containing the group, type, and default value.
+     * @return True if the setting was successfully added, false if a setting with that ID
+     *         already exists or if the setting's type and value are inconsistent.
+     */
+    bool addSetting(const std::string& id, Setting&& setting);
+
+    /**
+     * @brief Removes a setting by its identifier.
+     * @param id The identifier of the setting to remove.
+     * @return True if the setting was found and removed, false otherwise.
+     */
+    bool removeSetting(const std::string& id);
 
     /**
      * @brief Checks if a setting with the given identifier exists.
@@ -108,9 +138,15 @@ public:
         it->second.value = std::forward<T>(new_value);
     }
 
+    /**
+     * @brief Gets the identifiers of all settings.
+     * @return A vector containing the identifiers of all settings.
+     */
     [[nodiscard]] const std::vector<std::string>& identifiers() const { return ids_; }
 
 private:
+    Settings(std::initializer_list<std::pair<const std::string, Setting>> items);
+
     void registerSetting(std::string_view id, Setting&& setting);
 
     std::vector<std::string> ids_;

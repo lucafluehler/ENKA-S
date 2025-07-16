@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <sstream>
 #include <stdexcept>
+#include <unordered_set>
 
 template <typename T>
 const T& get_value(const std::unordered_map<std::string, Setting>& map, const std::string& key) {
@@ -16,13 +17,60 @@ const T& get_value(const std::unordered_map<std::string, Setting>& map, const st
     }
 }
 
-Settings::Settings(std::initializer_list<std::pair<const std::string, Setting>> items) {
-    ids_.reserve(items.size());
-    settings_.reserve(items.size());
+static bool isSettingConsistent(const Setting& setting) {
+    // The variant's index corresponds directly to the enum's underlying value
+    // 0: int, 1: double, 2: bool, 3: string
+    return static_cast<size_t>(setting.type) == setting.value.index();
+}
+
+std::optional<Settings> Settings::create(
+    std::initializer_list<std::pair<const std::string, Setting>> items) {
+    std::unordered_set<std::string> unique_ids;
+    unique_ids.reserve(items.size());
 
     for (const auto& pair : items) {
-        registerSetting(pair.first, Setting(pair.second));
+        const std::string& id = pair.first;
+
+        if (!unique_ids.insert(id).second) {
+            return std::nullopt;  // Error: Duplicate key
+        }
+
+        if (!isSettingConsistent(pair.second)) {
+            return std::nullopt;  // Error: Type enum and value type mismatch
+        }
     }
+
+    return Settings(items);
+}
+
+bool Settings::addSetting(const std::string& id, Setting&& setting) {
+    if (settings_.count(id) > 0) {
+        return false;  // Already exists
+    }
+
+    if (!isSettingConsistent(setting)) {
+        return false;  // Type enum does not match the actual value type in the variant
+    }
+
+    ids_.push_back(id);
+
+    settings_.emplace(id, std::move(setting));
+
+    return true;
+}
+
+bool Settings::removeSetting(const std::string& id) {
+    auto it = settings_.find(id);
+    if (it == settings_.end()) {
+        return false;  // Not found
+    }
+
+    settings_.erase(it);
+
+    auto& vec = ids_;
+    vec.erase(std::remove(vec.begin(), vec.end(), id), vec.end());
+
+    return true;
 }
 
 bool Settings::has(std::string_view id) const { return settings_.contains(std::string(id)); }
