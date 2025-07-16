@@ -1,10 +1,12 @@
 #pragma once
 
+#include <QObject>
+#include <QString>
 #include <QThread>
 #include <QTimer>
+#include <QVector>
 #include <QWidget>
 
-#include "../../core/file_types.h"
 #include "i_load_simulation_view.h"
 
 QT_BEGIN_NAMESPACE
@@ -22,25 +24,26 @@ public:
     explicit LoadSimulationTab(QWidget *parent = nullptr);
 
 signals:
-    void requestFilesCheck(const QVector<FileType> files, const QString &file_path);
+    void requestFilesCheck(const QVector<QString> file_paths);
 
 private slots:
     void updatePreview() override;
 
     void openFolderDialog();
 
-    void onFileChecked(const FileType &file, const QString &path, bool result) override;
-
-    void openSettings();
-    void openInitialSystem();
-    void run();
+    void onSettingsParsed(bool success) override;
+    void onInitialSystemParsed(std::optional<enkas::data::System> system) override;
+    void onDiagnosticsSeriesParsed(bool success) override;
 
 private:
     void resetSimulationFilePaths();
-    void loadSettings(const QString &file_path);
     void checkFiles(const QString &dir_path);
 
     Ui::LoadSimulationTab *ui_;
 
     LoadSimulationPresenter *presenter_;
+
+    QString settings_file_path_;
+    QString system_file_path_;
+    QString diagnostics_file_path_;
 };
