@@ -21,15 +21,12 @@ void DataStorageLogic::saveSettings(const std::filesystem::path& dir_path,
     // Create directory if it does not exist
     std::filesystem::create_directories(dir_path);
 
-    nlohmann::json settings_json = nlohmann::json::object();
-
-    // Populate the JSON object, preserving the original data types
-    for (const auto& id : settings.identifiers()) {
-        const SettingValue& val = settings.getValue(id);
-        std::visit([&](auto&& arg) { settings_json[id] = arg; }, val);
+    // Convert Settings to JSON
+    auto settings_json_opt = settings.toJson();
+    if (!settings_json_opt) {
+        return;  // Conversion failed
     }
 
-    // Open file for overwriting with the new .json extension
     std::filesystem::path file_path = dir_path / "settings.json";
     std::ofstream file(file_path);
     if (!file.is_open()) {
@@ -37,7 +34,7 @@ void DataStorageLogic::saveSettings(const std::filesystem::path& dir_path,
     }
 
     const int indent_level = 4;  // spaces
-    file << settings_json.dump(indent_level);
+    file << settings_json_opt->dump(indent_level);
 }
 
 void DataStorageLogic::saveSystemData(const std::filesystem::path& dir_path,
