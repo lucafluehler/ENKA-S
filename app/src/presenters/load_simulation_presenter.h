@@ -5,12 +5,11 @@
 
 #include "core/file_parse_logic.h"
 #include "enkas/data/system.h"
-#include "workers/file_parse_worker.h"
 
 class QTimer;
 class QThread;
 class ILoadSimulationView;
-class FileCheckWorker;
+class FileParseWorker;
 
 class LoadSimulationPresenter : public QObject {
     Q_OBJECT
