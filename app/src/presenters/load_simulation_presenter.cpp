@@ -4,8 +4,9 @@
 #include <QThread>
 #include <QTimer>
 
-#include "../views/load_simulation_tab/i_load_simulation_view.h"
-#include "../workers/file_parse_worker.h"
+#include "/core/file_names.h"
+#include "/views/load_simulation_tab/i_load_simulation_view.h"
+#include "/workers/file_parse_worker.h"
 
 LoadSimulationPresenter::LoadSimulationPresenter(ILoadSimulationView* view, QObject* parent)
     : QObject(parent), view_(view), preview_timer_(new QTimer(this)) {
@@ -54,18 +55,18 @@ void LoadSimulationPresenter::onTimerTimeout() {
     view_->updatePreview();
 }
 
-void LoadSimulationPresenter::checkFiles(const QVector<FileType>& files, const QString& file_path) {
-    for (const auto& file : files) {
-        switch (file) {
-            case FileType::Settings:
-                file_parse_worker_->parseSettings(file_path);
-                break;
-            case FileType::System:
-                file_parse_worker_->parseNextSystemFrame(file_path);
-                break;
-            case FileType::DiagnosticsData:
-                file_parse_worker_->parseDiagnosticsSeries(file_path);
-                break;
+void LoadSimulationPresenter::checkFiles(const QVector<QString>& file_paths) {
+    if (file_paths.isEmpty()) {
+        return;
+    }
+
+    for (const auto& file_path : file_paths) {
+        if (file_path.endsWith(file_names::settings.data())) {
+            file_parse_worker_->parseSettings(file_path);
+        } else if (file_path.endsWith(file_names::system.data())) {
+            file_parse_worker_->parseInitialSystem(file_path);
+        } else if (file_path.endsWith(file_names::diagnostics.data())) {
+            file_parse_worker_->parseDiagnosticsSeries(file_path);
         }
     }
 }

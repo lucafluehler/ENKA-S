@@ -3,7 +3,6 @@
 #include <QObject>
 #include <optional>
 
-#include "../core/file_types.h"
 #include "core/file_parse_logic.h"
 #include "enkas/data/system.h"
 #include "workers/file_parse_worker.h"
@@ -22,7 +21,7 @@ public:
     void isSelected(bool selected);
 
 public slots:
-    void checkFiles(const QVector<FileType>& files, const QString& file_path);
+    void checkFiles(const QVector<QString>& file_paths);
 
 private slots:
     void onTimerTimeout();
