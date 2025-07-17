@@ -7,6 +7,7 @@
 namespace enkas::generation {
 
 enum class Method {
+    File,
     NormalSphere,
     UniformCube,
     UniformSphere,
@@ -16,7 +17,8 @@ enum class Method {
 };
 
 constexpr auto GenerationMethodStrings = std::to_array<std::pair<Method, std::string_view>>(
-    {{Method::NormalSphere, "Normal Sphere"},
+    {{Method::File, "File"},
+     {Method::NormalSphere, "Normal Sphere"},
      {Method::UniformCube, "Uniform Cube"},
      {Method::UniformSphere, "Uniform Sphere"},
      {Method::PlummerSphere, "Plummer Model"},
