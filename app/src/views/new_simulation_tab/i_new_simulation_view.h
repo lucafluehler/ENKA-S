@@ -5,7 +5,7 @@
 #include <QString>
 #include <optional>
 
-#include "core/settings.h"
+#include "core/settings/settings.h"
 
 class FileType;
 
