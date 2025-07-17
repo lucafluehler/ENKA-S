@@ -3,6 +3,7 @@
 #include <enkas/data/diagnostics.h>
 #include <enkas/data/system.h>
 
+#include <QMetaType>
 #include <memory>
 
 template <typename T>
@@ -13,5 +14,8 @@ struct Timed {
     Timed(double t, T d) : time(t), data(std::move(d)) {}
 };
 
-using DiagnosticsSnapshotPtr = std::shared_ptr<const Timed<enkas::data::Diagnostics>>;
 using SystemSnapshotPtr = std::shared_ptr<const Timed<enkas::data::System>>;
+using DiagnosticsSnapshotPtr = std::shared_ptr<const Timed<enkas::data::Diagnostics>>;
+
+Q_DECLARE_METATYPE(SystemSnapshotPtr)
+Q_DECLARE_METATYPE(DiagnosticsSnapshotPtr)
