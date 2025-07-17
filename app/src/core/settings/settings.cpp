@@ -1,156 +1,151 @@
 #include "settings.h"
 
-#include <initializer_list>
-#include <json/json.hpp>
-#include <optional>
+#include <algorithm>
+#include <stdexcept>
 #include <string>
-#include <string_view>
-#include <unordered_map>
 #include <unordered_set>
-#include <utility>
-#include <variant>
-#include <vector>
+
+#include "generation_method.h"
+#include "setting_key.h"
+#include "simulation_method.h"
 
 std::optional<Settings> Settings::create(
-    std::initializer_list<std::pair<std::string_view, SettingValue>> items) {
-    std::unordered_set<std::string_view> unique_ids;
+    std::initializer_list<std::pair<SettingKey, SettingValue>> items) {
+    std::unordered_set<SettingKey> unique_keys;
     for (const auto& [key, _] : items) {
-        if (!unique_ids.insert(key).second) {
-            return std::nullopt;
-        }
-    }
-    return Settings(items);
-}
-
-std::optional<Settings> Settings::create(
-    std::initializer_list<std::pair<std::string, SettingValue>> items) {
-    std::unordered_set<std::string_view> unique_ids;
-    for (const auto& [key, _] : items) {
-        if (!unique_ids.insert(key).second) {
-            return std::nullopt;
+        if (!unique_keys.insert(key).second) {
+            return std::nullopt;  // Duplicate key found
         }
     }
     return Settings(items);
 }
 
 std::optional<Settings> Settings::create(const nlohmann::json& json) {
-    if (!json.is_object()) return std::nullopt;
+    if (!json.is_object()) {
+        return std::nullopt;
+    }
 
-    std::vector<std::pair<std::string_view, SettingValue>> items;
+    std::vector<std::pair<SettingKey, SettingValue>> items;
     items.reserve(json.size());
+    std::unordered_set<SettingKey> unique_keys;
 
-    for (auto it = json.begin(); it != json.end(); ++it) {
-        const std::string& key = it.key();
-        const nlohmann::json& val = it.value();
+    try {
+        for (auto it = json.begin(); it != json.end(); ++it) {
+            const SettingKey key = stringToSettingKey(it.key());
 
-        if (val.is_number_integer()) {
-            items.emplace_back(key, val.get<int>());
-        } else if (val.is_number_float()) {
-            items.emplace_back(key, val.get<double>());
-        } else if (val.is_boolean()) {
-            items.emplace_back(key, val.get<bool>());
-        } else if (val.is_string()) {
-            items.emplace_back(key, val.get<std::string>());
-        } else {
-            return std::nullopt;  // Unsupported type
+            if (!unique_keys.insert(key).second) {
+                return std::nullopt;  // Duplicate key in JSON object
+            }
+
+            const nlohmann::json& val = it.value();
+            SettingValue setting_value;
+
+            if (key == SettingKey::GenerationMethod) {
+                if (!val.is_string()) return std::nullopt;
+                setting_value = stringToGenerationMethod(val.get<std::string>());
+            } else if (key == SettingKey::SimulationMethod) {
+                if (!val.is_string()) return std::nullopt;
+                setting_value = stringToSimulationMethod(val.get<std::string>());
+            } else {
+                // Handle primitive types based on JSON type.
+                if (val.is_number_integer()) {
+                    setting_value = val.get<int>();
+                } else if (val.is_number_float()) {
+                    setting_value = val.get<double>();
+                } else if (val.is_boolean()) {
+                    setting_value = val.get<bool>();
+                } else if (val.is_string()) {
+                    setting_value = val.get<std::string>();
+                } else {
+                    return std::nullopt;  // Unsupported JSON type
+                }
+            }
+            items.emplace_back(key, std::move(setting_value));
         }
+    } catch (const std::out_of_range&) {
+        return std::nullopt;
     }
 
     return Settings(items);
 }
 
-Settings::Settings(std::initializer_list<std::pair<std::string_view, SettingValue>> items) {
-    ids_.reserve(items.size());
+Settings::Settings(std::initializer_list<std::pair<SettingKey, SettingValue>> items) {
+    keys_.reserve(items.size());
     settings_.reserve(items.size());
     for (const auto& [key, value] : items) {
-        ids_.emplace_back(key);
-        settings_.emplace(std::string(key), value);
-    }
-}
-
-Settings::Settings(std::initializer_list<std::pair<std::string, SettingValue>> items) {
-    ids_.reserve(items.size());
-    settings_.reserve(items.size());
-    for (const auto& [key, value] : items) {
-        ids_.emplace_back(key);
+        keys_.push_back(key);
         settings_.emplace(key, value);
     }
 }
 
-Settings::Settings(const std::vector<std::pair<std::string_view, SettingValue>>& items) {
-    ids_.reserve(items.size());
+Settings::Settings(const std::vector<std::pair<SettingKey, SettingValue>>& items) {
+    keys_.reserve(items.size());
     settings_.reserve(items.size());
-    for (const auto& pair : items) {
-        ids_.push_back(std::string(pair.first));
-        settings_.emplace(std::string(pair.first), pair.second);
+    for (const auto& [key, value] : items) {
+        keys_.push_back(key);
+        settings_.emplace(key, value);
     }
 }
 
-bool Settings::has(std::string_view id) const { return settings_.count(std::string(id)) > 0; }
-
-bool Settings::addSetting(const std::string& id, SettingValue&& value) {
-    if (has(id)) {
+bool Settings::addSetting(SettingKey key, SettingValue&& value) {
+    auto [_, inserted] = settings_.try_emplace(key, std::move(value));
+    if (!inserted) {
         return false;  // Key already exists
     }
-    ids_.push_back(id);
-    settings_.emplace(id, std::move(value));
+    keys_.push_back(key);
     return true;
 }
 
-void Settings::set(const std::string& id, SettingValue&& new_value) {
-    if (!has(id)) {
-        ids_.push_back(id);
+bool Settings::removeSetting(SettingKey key) {
+    if (settings_.erase(key) == 0) {
+        return false;  // Key was not found
     }
-    settings_[id] = std::move(new_value);
+    keys_.erase(std::remove(keys_.begin(), keys_.end(), key), keys_.end());
+    return true;
 }
 
-bool Settings::removeSetting(std::string_view id) {
-    if (!has(id)) {
-        return false;
+bool Settings::has(SettingKey key) const { return settings_.contains(key); }
+
+void Settings::set(SettingKey key, SettingValue&& new_value) {
+    if (settings_.find(key) == settings_.end()) {
+        keys_.push_back(key);
     }
-    settings_.erase(std::string{id});
-    ids_.erase(std::remove(ids_.begin(), ids_.end(), id), ids_.end());
-    return true;
+    settings_[key] = std::move(new_value);
 }
 
 std::optional<nlohmann::json> Settings::toJson() const {
-    nlohmann::json json_obj;
+    nlohmann::json json_obj = nlohmann::json::object();
 
-    for (const auto& [key, value] : settings_) {
-        bool supported = std::visit(
-            [&](auto&& v) -> bool {
-                using T = std::decay_t<decltype(v)>;
-                if constexpr (std::is_same_v<T, int>) {
-                    json_obj[key] = v;
-                    return true;
-                } else if constexpr (std::is_same_v<T, double>) {
-                    json_obj[key] = v;
-                    return true;
-                } else if constexpr (std::is_same_v<T, bool>) {
-                    json_obj[key] = v;
-                    return true;
-                } else if constexpr (std::is_same_v<T, std::string>) {
-                    json_obj[key] = v;
-                    return true;
-                } else {
-                    return false;  // unsupported type
-                }
-            },
-            value);
+    try {
+        for (const auto& key : keys_) {  // Iterate over keys_ to preserve insertion order
+            const auto& value = settings_.at(key);
+            const std::string_view key_str = settingKeyToString(key);
 
-        if (!supported) {
-            return std::nullopt;
+            std::visit(
+                [&](auto&& v) {
+                    using T = std::decay_t<decltype(v)>;
+                    const std::string json_key(key_str);
+                    if constexpr (std::is_same_v<T, int> || std::is_same_v<T, double> ||
+                                  std::is_same_v<T, bool> || std::is_same_v<T, std::string>) {
+                        json_obj[json_key] = v;
+                    } else if constexpr (std::is_same_v<T, GenerationMethod>) {
+                        json_obj[json_key] = generationMethodToString(v);
+                    } else if constexpr (std::is_same_v<T, SimulationMethod>) {
+                        json_obj[json_key] = simulationMethodToString(v);
+                    }
+                },
+                value);
         }
+    } catch (const std::out_of_range&) {
+        return std::nullopt;
     }
 
     return json_obj;
 }
 
 void Settings::merge(const Settings& other) {
-    for (const auto& id : other.identifiers()) {
-        auto it = other.settings_.find(id);
-        if (it != other.settings_.end()) {
-            set(id, SettingValue(it->second));
-        }
+    for (const auto& key : other.keys_) {
+        const auto& value_to_copy = other.settings_.at(key);
+        set(key, SettingValue(value_to_copy));
     }
 }

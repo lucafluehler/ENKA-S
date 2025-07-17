@@ -4,13 +4,17 @@
 #include <json/json.hpp>
 #include <optional>
 #include <string>
-#include <string_view>
 #include <unordered_map>
 #include <utility>
 #include <variant>
 #include <vector>
 
-using SettingValue = std::variant<int, double, bool, std::string>;
+#include "generation_method.h"
+#include "setting_key.h"
+#include "simulation_method.h"
+
+using SettingValue =
+    std::variant<int, double, bool, std::string, GenerationMethod, SimulationMethod>;
 
 class Settings {
 public:
@@ -24,9 +28,7 @@ public:
      *         otherwise std::nullopt.
      */
     static std::optional<Settings> create(
-        std::initializer_list<std::pair<std::string_view, SettingValue>> items);
-    static std::optional<Settings> create(
-        std::initializer_list<std::pair<std::string, SettingValue>> items);
+        std::initializer_list<std::pair<SettingKey, SettingValue>> items);
 
     /**
      * @brief Creates a Settings object from a JSON object.
@@ -38,50 +40,50 @@ public:
 
     /**
      * @brief Adds a new setting if one with the same identifier does not already exist.
-     * @param id The unique identifier for the new setting.
+     * @param key The identifier for the setting.
      * @param value The setting value to be added.
      * @return True if the setting was successfully added, false if a setting with that ID
      *         already exists.
      */
-    bool addSetting(const std::string& id, SettingValue&& value);
+    bool addSetting(SettingKey key, SettingValue&& value);
 
     /**
      * @brief Removes a setting by its identifier.
-     * @param id The identifier of the setting to remove.
+     * @param key The identifier of the setting to remove.
      * @return True if the setting was found and removed, false otherwise.
      */
-    bool removeSetting(std::string_view id);
+    bool removeSetting(SettingKey key);
 
     /**
      * @brief Checks if a setting with the given identifier exists.
-     * @param id The identifier of the setting.
+     * @param key The identifier of the setting.
      * @return True if the setting exists, false otherwise.
      */
-    [[nodiscard]] bool has(std::string_view id) const;
+    [[nodiscard]] bool has(SettingKey key) const;
 
     /**
      * @brief Gets the value of a setting by its identifier.
-     * @param id The identifier of the setting.
+     * @param key The identifier of the setting.
      * @return The value of the setting.
      */
     template <typename T>
-    [[nodiscard]] auto&& get(std::string_view id) const {
-        return std::get<T>(settings_.at(std::string(id)));
+    [[nodiscard]] auto&& get(SettingKey key) const {
+        return std::get<T>(settings_.at(key));
     }
 
     /**
      * @brief Sets or updates the value of a setting. If the key exists, its value
      *        (and its type) will be overwritten. If it doesn't exist, it will be created.
-     * @param id The identifier of the setting.
+     * @param key The identifier of the setting.
      * @param new_value The new value to set for the setting.
      */
-    void set(const std::string& id, SettingValue&& new_value);
+    void set(SettingKey key, SettingValue&& new_value);
 
     /**
      * @brief Gets the identifiers of all settings.
      * @return A vector containing the identifiers of all settings.
      */
-    [[nodiscard]] const std::vector<std::string>& identifiers() const { return ids_; }
+    [[nodiscard]] const std::vector<SettingKey>& identifiers() const { return keys_; }
 
     /**
      * @brief Converts the Settings object to a JSON object.
@@ -97,10 +99,9 @@ public:
     void merge(const Settings& other);
 
 private:
-    Settings(std::initializer_list<std::pair<std::string_view, SettingValue>> items);
-    Settings(std::initializer_list<std::pair<std::string, SettingValue>> items);
-    Settings(const std::vector<std::pair<std::string_view, SettingValue>>& items);
+    Settings(std::initializer_list<std::pair<SettingKey, SettingValue>> items);
+    Settings(const std::vector<std::pair<SettingKey, SettingValue>>& items);
 
-    std::vector<std::string> ids_;
-    std::unordered_map<std::string, SettingValue> settings_;
+    std::vector<SettingKey> keys_;
+    std::unordered_map<SettingKey, SettingValue> settings_;
 };
