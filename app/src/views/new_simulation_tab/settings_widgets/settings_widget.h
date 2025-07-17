@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../core/settings.h"
+#include "core/settings/settings.h"
 
 class SettingsWidget {
 public:
