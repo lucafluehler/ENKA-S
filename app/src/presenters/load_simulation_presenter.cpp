@@ -10,6 +10,7 @@
 
 LoadSimulationPresenter::LoadSimulationPresenter(ILoadSimulationView* view, QObject* parent)
     : QObject(parent), view_(view), preview_timer_(new QTimer(this)) {
+    Q_ASSERT(view_ != nullptr);
     // Set up timer for preview updates
     connect(preview_timer_, &QTimer::timeout, this, &LoadSimulationPresenter::onTimerTimeout);
 
@@ -48,10 +49,7 @@ void LoadSimulationPresenter::active() {
 
 void LoadSimulationPresenter::inactive() { preview_timer_->stop(); }
 
-void LoadSimulationPresenter::onTimerTimeout() {
-    if (!view_) return;
-    view_->updateInitialSystemPreview();
-}
+void LoadSimulationPresenter::onTimerTimeout() { view_->updateInitialSystemPreview(); }
 
 void LoadSimulationPresenter::checkFiles() {
     const auto& file_paths = view_->getFilesToCheck();
