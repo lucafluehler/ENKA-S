@@ -2,6 +2,7 @@
 
 #include <QPalette>
 
+#include "enkas/data/diagnostics.h"
 #include "forms/diagnostics_tab/ui_diagnostics_tab.h"
 
 DiagnosticsTab::DiagnosticsTab(QWidget *parent) : QWidget(parent), ui(new Ui::DiagnosticsTab) {
@@ -60,26 +61,26 @@ void DiagnosticsTab::addLineChart(QString title,
 }
 
 void DiagnosticsTab::insertWidget(QWidget *widget) {
-    QVBoxLayout *layout = qobject_cast<QVBoxLayout *>(ui->scrollAreaWidgetContents->layout());
-    size_t i = layout->count() - 1;
-    layout->insertWidget(i, widget);
+    // QVBoxLayout *layout = qobject_cast<QVBoxLayout *>(ui->scrollAreaWidgetContents->layout());
+    // size_t i = layout->count() - 1;
+    // layout->insertWidget(i, widget);
 }
 
-void DiagnosticsTab::update(const DiagnosticsData &data) {
-    for (auto *line_chart : line_charts) {
-        QString title = line_chart->title();
+void DiagnosticsTab::update(const enkas::data::Diagnostics &data) {
+    // for (auto *line_chart : line_charts) {
+    //     QString title = line_chart->title();
 
-        if (title == "Energievergleich") {
-            line_chart->append(data.time, data.e_kin + data.e_pot, "Gesamtenergie");
-            line_chart->append(data.time, data.e_kin, "Kinetische Energie");
-            line_chart->append(data.time, data.e_pot, "Potentielle Energie");
-        } else if (title == "Gesamtenergie") {
-            double e_tot = data.e_kin + data.e_pot;
-            line_chart->append(data.time, e_tot);
-        } else if (title == "Kinetische Energie") {
-            line_chart->append(data.time, data.e_kin);
-        } else if (title == "Potentielle Energie") {
-            line_chart->append(data.time, data.e_pot);
-        }
-    }
+    //     if (title == "Energievergleich") {
+    //         line_chart->append(data.time, data.e_kin + data.e_pot, "Gesamtenergie");
+    //         line_chart->append(data.time, data.e_kin, "Kinetische Energie");
+    //         line_chart->append(data.time, data.e_pot, "Potentielle Energie");
+    //     } else if (title == "Gesamtenergie") {
+    //         double e_tot = data.e_kin + data.e_pot;
+    //         line_chart->append(data.time, e_tot);
+    //     } else if (title == "Kinetische Energie") {
+    //         line_chart->append(data.time, data.e_kin);
+    //     } else if (title == "Potentielle Energie") {
+    //         line_chart->append(data.time, data.e_pot);
+    //     }
+    // }
 }
