@@ -3,7 +3,7 @@
 #include <QObject>
 #include <string_view>
 
-#include "./ui_euler_settings_widget.h"
+#include "forms/new_simulation_tab/simulation_settings_widgets/ui_euler_settings_widget.h"
 
 namespace {
 constexpr std::string_view EulerStepId = "EulerStep";
