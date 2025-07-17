@@ -9,6 +9,7 @@ protected:
     enkas::generation::SpiralGalaxySettings settings{};
 
     void SetUp() override {
+        settings.seed = 42;
         settings.particle_count = 1000;
         settings.num_arms = 2;
         settings.radius = 10.0;
@@ -23,7 +24,7 @@ protected:
 };
 
 TEST_F(SpiralGalaxyGeneratorTest, CreateSystem) {
-    enkas::generation::SpiralGalaxyGenerator generator(settings, 42);
+    enkas::generation::SpiralGalaxyGenerator generator(settings);
     enkas::data::System system = generator.createSystem();
 
     EXPECT_EQ(system.positions.size(), settings.particle_count + 1);  // +1 for the black hole
@@ -38,7 +39,7 @@ TEST_F(SpiralGalaxyGeneratorTest, CreateSystem) {
 }
 
 TEST_F(SpiralGalaxyGeneratorTest, SystemCentered) {
-    enkas::generation::SpiralGalaxyGenerator generator(settings, 42);
+    enkas::generation::SpiralGalaxyGenerator generator(settings);
     enkas::data::System system = generator.createSystem();
 
     auto com = enkas::physics::getCenterOfMass(system);
@@ -53,10 +54,10 @@ TEST_F(SpiralGalaxyGeneratorTest, SystemCentered) {
 }
 
 TEST_F(SpiralGalaxyGeneratorTest, Reproducibility) {
-    enkas::generation::SpiralGalaxyGenerator generator1(settings, 42);
+    enkas::generation::SpiralGalaxyGenerator generator1(settings);
     enkas::data::System system1 = generator1.createSystem();
 
-    enkas::generation::SpiralGalaxyGenerator generator2(settings, 42);
+    enkas::generation::SpiralGalaxyGenerator generator2(settings);
     enkas::data::System system2 = generator2.createSystem();
 
     ASSERT_EQ(system1.positions.size(), system2.positions.size());

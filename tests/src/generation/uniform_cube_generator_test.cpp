@@ -9,6 +9,7 @@ protected:
     enkas::generation::UniformCubeSettings settings{};
 
     void SetUp() override {
+        settings.seed = 42;
         settings.particle_count = 100;
         settings.side_length = 10.0;
         settings.total_mass = 1.0;
@@ -21,7 +22,7 @@ protected:
 };
 
 TEST_F(UniformCubeGeneratorTest, CreateSystem) {
-    enkas::generation::UniformCubeGenerator generator(settings, 42);
+    enkas::generation::UniformCubeGenerator generator(settings);
     enkas::data::System system = generator.createSystem();
 
     EXPECT_EQ(system.positions.size(), settings.particle_count);
@@ -44,7 +45,7 @@ TEST_F(UniformCubeGeneratorTest, CreateSystem) {
 }
 
 TEST_F(UniformCubeGeneratorTest, SystemCentered) {
-    enkas::generation::UniformCubeGenerator generator(settings, 42);
+    enkas::generation::UniformCubeGenerator generator(settings);
     enkas::data::System system = generator.createSystem();
 
     auto com = enkas::physics::getCenterOfMass(system);
@@ -59,10 +60,10 @@ TEST_F(UniformCubeGeneratorTest, SystemCentered) {
 }
 
 TEST_F(UniformCubeGeneratorTest, Reproducibility) {
-    enkas::generation::UniformCubeGenerator generator1(settings, 42);
+    enkas::generation::UniformCubeGenerator generator1(settings);
     enkas::data::System system1 = generator1.createSystem();
 
-    enkas::generation::UniformCubeGenerator generator2(settings, 42);
+    enkas::generation::UniformCubeGenerator generator2(settings);
     enkas::data::System system2 = generator2.createSystem();
 
     ASSERT_EQ(system1.positions.size(), system2.positions.size());

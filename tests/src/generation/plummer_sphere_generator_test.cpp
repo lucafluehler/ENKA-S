@@ -9,6 +9,7 @@ protected:
     enkas::generation::PlummerSphereSettings settings{};
 
     void SetUp() override {
+        settings.seed = 42;
         settings.particle_count = 100;
         settings.sphere_radius = 10.0;
         settings.total_mass = 1.0;
@@ -20,7 +21,7 @@ protected:
 };
 
 TEST_F(PlummerSphereGeneratorTest, CreateSystem) {
-    enkas::generation::PlummerSphereGenerator generator(settings, 42);
+    enkas::generation::PlummerSphereGenerator generator(settings);
     enkas::data::System system = generator.createSystem();
 
     EXPECT_EQ(system.positions.size(), settings.particle_count);
@@ -35,7 +36,7 @@ TEST_F(PlummerSphereGeneratorTest, CreateSystem) {
 }
 
 TEST_F(PlummerSphereGeneratorTest, SystemCentered) {
-    enkas::generation::PlummerSphereGenerator generator(settings, 42);
+    enkas::generation::PlummerSphereGenerator generator(settings);
     enkas::data::System system = generator.createSystem();
 
     auto com = enkas::physics::getCenterOfMass(system);
@@ -50,10 +51,10 @@ TEST_F(PlummerSphereGeneratorTest, SystemCentered) {
 }
 
 TEST_F(PlummerSphereGeneratorTest, Reproducibility) {
-    enkas::generation::PlummerSphereGenerator generator1(settings, 42);
+    enkas::generation::PlummerSphereGenerator generator1(settings);
     enkas::data::System system1 = generator1.createSystem();
 
-    enkas::generation::PlummerSphereGenerator generator2(settings, 42);
+    enkas::generation::PlummerSphereGenerator generator2(settings);
     enkas::data::System system2 = generator2.createSystem();
 
     ASSERT_EQ(system1.positions.size(), system2.positions.size());

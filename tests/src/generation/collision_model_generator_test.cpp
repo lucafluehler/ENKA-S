@@ -9,6 +9,7 @@ protected:
     enkas::generation::CollisionModelSettings settings{};
 
     void SetUp() override {
+        settings.seed = 42;
         settings.impact_parameter = 1.0;
         settings.relative_velocity = 1.0;
 
@@ -27,7 +28,7 @@ protected:
 };
 
 TEST_F(CollisionModelGeneratorTest, CreateSystem) {
-    enkas::generation::CollisionModelGenerator generator(settings, 42);
+    enkas::generation::CollisionModelGenerator generator(settings);
     enkas::data::System system = generator.createSystem();
 
     EXPECT_EQ(system.positions.size(), settings.particle_count_1 + settings.particle_count_2);
@@ -42,7 +43,7 @@ TEST_F(CollisionModelGeneratorTest, CreateSystem) {
 }
 
 TEST_F(CollisionModelGeneratorTest, SystemCentered) {
-    enkas::generation::CollisionModelGenerator generator(settings, 42);
+    enkas::generation::CollisionModelGenerator generator(settings);
     enkas::data::System system = generator.createSystem();
 
     auto com = enkas::physics::getCenterOfMass(system);
@@ -57,10 +58,10 @@ TEST_F(CollisionModelGeneratorTest, SystemCentered) {
 }
 
 TEST_F(CollisionModelGeneratorTest, Reproducibility) {
-    enkas::generation::CollisionModelGenerator generator1(settings, 42);
+    enkas::generation::CollisionModelGenerator generator1(settings);
     enkas::data::System system1 = generator1.createSystem();
 
-    enkas::generation::CollisionModelGenerator generator2(settings, 42);
+    enkas::generation::CollisionModelGenerator generator2(settings);
     enkas::data::System system2 = generator2.createSystem();
 
     ASSERT_EQ(system1.positions.size(), system2.positions.size());

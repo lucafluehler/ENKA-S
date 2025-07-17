@@ -9,6 +9,7 @@ protected:
     enkas::generation::NormalSphereSettings settings{};
 
     void SetUp() override {
+        settings.seed = 42;
         settings.particle_count = 100;
         settings.position_std_dev = 5.0;
         settings.velocity_std_dev = 1.0;
@@ -22,7 +23,7 @@ protected:
 };
 
 TEST_F(NormalSphereGeneratorTest, CreateSystem) {
-    enkas::generation::NormalSphereGenerator generator(settings, 42);
+    enkas::generation::NormalSphereGenerator generator(settings);
     enkas::data::System system = generator.createSystem();
 
     EXPECT_EQ(system.positions.size(), settings.particle_count);
@@ -37,7 +38,7 @@ TEST_F(NormalSphereGeneratorTest, CreateSystem) {
 }
 
 TEST_F(NormalSphereGeneratorTest, SystemCentered) {
-    enkas::generation::NormalSphereGenerator generator(settings, 42);
+    enkas::generation::NormalSphereGenerator generator(settings);
     enkas::data::System system = generator.createSystem();
 
     auto com = enkas::physics::getCenterOfMass(system);
@@ -52,10 +53,10 @@ TEST_F(NormalSphereGeneratorTest, SystemCentered) {
 }
 
 TEST_F(NormalSphereGeneratorTest, Reproducibility) {
-    enkas::generation::NormalSphereGenerator generator1(settings, 42);
+    enkas::generation::NormalSphereGenerator generator1(settings);
     enkas::data::System system1 = generator1.createSystem();
 
-    enkas::generation::NormalSphereGenerator generator2(settings, 42);
+    enkas::generation::NormalSphereGenerator generator2(settings);
     enkas::data::System system2 = generator2.createSystem();
 
     ASSERT_EQ(system1.positions.size(), system2.positions.size());
