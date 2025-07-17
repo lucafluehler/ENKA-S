@@ -2,9 +2,7 @@
 
 #include <QObject>
 
-#include "../views/main_window/i_main_window_view.h"
-#include "load_simulation_presenter.h"
-#include "new_simulation_presenter.h"
+#include "views/main_window/i_main_window_view.h"
 
 class QTimer;
 
@@ -13,13 +11,10 @@ class MainWindowPresenter : public QObject {
 public:
     explicit MainWindowPresenter(IMainWindowView* view, QObject* parent = nullptr);
 
-public slots:
-    void onTabChanged(int index);
-
 private slots:
-    void onTimerTimeout();
+    void updateHomeScreen();
 
 private:
     IMainWindowView* view_ = nullptr;
-    QTimer* home_timer_ = nullptr;
+    QTimer* home_screen_timer_ = nullptr;
 };

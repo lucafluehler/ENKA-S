@@ -10,21 +10,14 @@ class MainWindow;
 }
 QT_END_NAMESPACE
 
-class MainWindowPresenter;
-class ILoadSimulationView;
-class INewSimulationView;
-
 class MainWindow : public QMainWindow, public IMainWindowView {
     Q_OBJECT
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
 
-    void updatePreview() override;
-    ILoadSimulationView *getLoadSimulationView() override;
-    INewSimulationView *getNewSimulationView() override;
+    void updateHomeScreen() override;
 
 private:
     Ui::MainWindow *ui_;
-    MainWindowPresenter *presenter_;
 };
