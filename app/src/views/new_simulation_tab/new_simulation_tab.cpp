@@ -13,7 +13,6 @@
 
 #include "./ui_new_simulation_tab.h"
 #include "core/settings.h"
-#include "presenters/new_simulation_presenter.h"
 #include "settings_widgets/settings_widget.h"
 #include "settings_widgets/simulation/euler_settings_widget.h"
 #include "widgets/file_check_icon.h"
@@ -85,10 +84,6 @@ void NewSimulationTab::setupSimulationProgressElements() {
         ui_->btnAbortPreparation, &QPushButton::clicked, this, &NewSimulationTab::abortSimulation);
     connect(
         ui_->btnAbortSimulation, &QPushButton::clicked, this, &NewSimulationTab::abortSimulation);
-    connect(ui_->btnOpenLiveWindow,
-            &QPushButton::clicked,
-            presenter_,
-            &NewSimulationPresenter::openSimulationWindow);
 }
 
 void NewSimulationTab::setupFileManagement() {
@@ -98,7 +93,6 @@ void NewSimulationTab::setupFileManagement() {
             &NewSimulationTab::openSystemDataDialog);
     connect(
         ui_->btnLoadSettings, &QPushButton::clicked, this, &NewSimulationTab::openSettingsDialog);
-    connect(this, &NewSimulationTab::checkFile, presenter_, &NewSimulationPresenter::checkFile);
 }
 
 void NewSimulationTab::resetSettings() {
@@ -177,7 +171,7 @@ void NewSimulationTab::openSettingsDialog() {
 
 void NewSimulationTab::processSettings(const std::optional<Settings>& settings) override {
     if (settings.has_value()) {
-        // updateDefaultSettings(*settings);
+        updateDefaultSettings(*settings);
         resetSettings();
         ui_->lblSettingsIcon->setMode(FileCheckIcon::Mode::Checked);
     } else {

@@ -81,8 +81,10 @@ void NewSimulationPresenter::onInitialSystemParsed(
     }
 }
 
-void NewSimulationPresenter::startSimulation(const Settings& settings) {
+void NewSimulationPresenter::startSimulation() {
     if (simulation_manager_) return;
+
+    auto settings = view_->fetchSettings();
 
     // Initialize Simulation Manager
     simulation_manager_ = new SimulationManager(settings);

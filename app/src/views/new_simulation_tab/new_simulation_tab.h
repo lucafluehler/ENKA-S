@@ -3,7 +3,6 @@
 #include <enkas/data/system.h>
 #include <enkas/generation/generation_method.h>
 #include <enkas/simulation/simulation_method.h>
-#include <qcontainerfwd.h>
 
 #include <QHash>
 #include <QString>
@@ -21,8 +20,6 @@ class NewSimulationTab;
 }
 QT_END_NAMESPACE
 
-class NewSimulationPresenter;
-
 class NewSimulationTab : public QWidget, INewSimulationView {
     Q_OBJECT
 
@@ -38,10 +35,12 @@ public:
     void simulationAborted() override;
     QString getInitialSystemPath() const override;
     QString getSettingsPath() const override;
+    Settings fetchSettings() const override;
 
 signals:
     void checkInitialSystemFile();
     void checkSettingsFile();
+    void requestSimulationStart();
 
 private slots:
     void openSystemDataDialog();
@@ -51,7 +50,6 @@ private slots:
     void abortSimulation();
 
 private:
-    Settings fetchSettings() const;
     void setupSettingsWidgets();
     void setupMethodSelection();
     void initializePreview();
@@ -61,7 +59,6 @@ private:
     void updateDefaultSettings(const Settings& settings);
 
     Ui::NewSimulationTab* ui_;
-    NewSimulationPresenter* presenter_;
     QHash<enkas::simulation::Method, SettingsWidget*> simulation_settings_widgets_;
     QHash<enkas::generation::Method, SettingsWidget*> generation_settings_widgets_;
 

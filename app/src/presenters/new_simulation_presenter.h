@@ -22,7 +22,7 @@ public:
 public slots:
     void checkInitialSystemFile();
     void checkSettingsFile();
-    void startSimulation(const Settings& settings);
+    void startSimulation();
     void abortSimulation();
     void openSimulationWindow();
 

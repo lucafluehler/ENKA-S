@@ -21,4 +21,5 @@ public:
     virtual void simulationAborted() = 0;
     virtual QString getInitialSystemPath() const = 0;
     virtual QString getSettingsPath() const = 0;
+    virtual Settings fetchSettings() const = 0;
 };
