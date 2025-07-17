@@ -4,11 +4,9 @@
 #include <QDesktopServices>
 #include <QFileDialog>
 #include <QPushButton>
-#include <QTimer>
 
 #include "./ui_load_simulation_tab.h"
 #include "core/file_constants.h"
-#include "presenters/load_simulation_presenter.h"
 #include "widgets/file_check_icon.h"
 
 LoadSimulationTab::LoadSimulationTab(QWidget* parent)
@@ -19,12 +17,6 @@ LoadSimulationTab::LoadSimulationTab(QWidget* parent)
     ui_->btnOpenSettings->setEnabled(false);
     ui_->btnOpenInitialSystem->setEnabled(false);
     ui_->btnRun->setEnabled(false);
-
-    // File checks
-    connect(this,
-            &LoadSimulationTab::requestFilesCheck,
-            presenter_,
-            &LoadSimulationPresenter::checkFiles);
 
     // Signal management
     connect(ui_->btnLoadSimulationData,
