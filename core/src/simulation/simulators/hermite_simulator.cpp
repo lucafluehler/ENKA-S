@@ -87,6 +87,8 @@ void HermiteSimulator::updateForces() {
     const size_t particle_count = system_.count();
     if (particle_count == 0) return;
 
+    potential_energy_ = 0.0;
+
     // Reset accelerations and jerks
     std::fill(accelerations_.begin(), accelerations_.end(), math::Vector3D{});
     std::fill(jerks_.begin(), jerks_.end(), math::Vector3D{});
@@ -121,6 +123,9 @@ void HermiteSimulator::updateForces() {
 
             jerks_[i] += jerk_term * masses[j];
             jerks_[j] -= jerk_term * masses[i];
+
+            // Potential energy
+            potential_energy_ += masses[i] * masses[j] * dist_inv;
         }
     }
 }
