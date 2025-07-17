@@ -63,7 +63,7 @@ void SystemPreview::initializeFromFile(const QString& system_path) {
     if (!system) return;  // File parsing failed
 
     // Feed system to particle renderer
-    updateData(std::make_shared<enkas::data::System>(system));
+    updateData(std::make_shared<enkas::data::System>(system.value()));
 }
 
 void SystemPreview::initializeHomeScreen() {
