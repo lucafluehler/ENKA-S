@@ -52,7 +52,7 @@ void LoadSimulationPresenter::isSelected(bool selected) {
 
 void LoadSimulationPresenter::onTimerTimeout() {
     if (!view_) return;
-    view_->updatePreview();
+    view_->updateInitialSystemPreview();
 }
 
 void LoadSimulationPresenter::checkFiles() {
