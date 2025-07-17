@@ -3,7 +3,7 @@
  <class>SimulationWindow</class>
  <widget class="QMainWindow" name="SimulationWindow">
   <property name="windowModality">
-   <enum>Qt::NonModal</enum>
+   <enum>Qt::WindowModality::NonModal</enum>
   </property>
   <property name="geometry">
    <rect>
@@ -32,7 +32,7 @@
    <string>ENKA-S</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="resources.qrc">
+   <iconset resource="../../resources.qrc">
     <normaloff>:/MainWindow/img/icon.png</normaloff>:/MainWindow/img/icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -44,10 +44,10 @@
         <item>
          <widget class="QFrame" name="frame">
           <property name="frameShape">
-           <enum>QFrame::Box</enum>
+           <enum>QFrame::Shape::Box</enum>
           </property>
           <property name="frameShadow">
-           <enum>QFrame::Sunken</enum>
+           <enum>QFrame::Shadow::Sunken</enum>
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <property name="leftMargin">
@@ -113,14 +113,14 @@
              <string>Wird geladen...</string>
             </property>
             <property name="alignment">
-             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
             </property>
            </widget>
           </item>
           <item>
            <spacer name="horizontalSpacer_2">
             <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <enum>Qt::Orientation::Horizontal</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -248,7 +248,7 @@
           <item>
            <spacer name="horizontalSpacer">
             <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <enum>Qt::Orientation::Horizontal</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -277,7 +277,7 @@
              <string/>
             </property>
             <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -330,7 +330,7 @@
             <number>0</number>
            </property>
            <property name="elideMode">
-            <enum>Qt::ElideNone</enum>
+            <enum>Qt::TextElideMode::ElideNone</enum>
            </property>
            <widget class="DiagnosticsTab" name="tabDiagnostics">
             <attribute name="title">
@@ -377,14 +377,14 @@
            <bool>false</bool>
           </property>
           <property name="arrowType">
-           <enum>Qt::LeftArrow</enum>
+           <enum>Qt::ArrowType::LeftArrow</enum>
           </property>
          </widget>
         </item>
         <item>
          <spacer name="verticalSpacer">
           <property name="orientation">
-           <enum>Qt::Vertical</enum>
+           <enum>Qt::Orientation::Vertical</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
@@ -412,7 +412,7 @@
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="resources.qrc">
+           <iconset resource="../../resources.qrc">
             <normaloff>:/SimulationWindow/img/movie.png</normaloff>:/SimulationWindow/img/movie.png</iconset>
           </property>
           <property name="iconSize">
@@ -447,7 +447,7 @@
            <string>...</string>
           </property>
           <property name="icon">
-           <iconset resource="resources.qrc">
+           <iconset resource="../../resources.qrc">
             <normaloff>:/SimulationWindow/img/camera.png</normaloff>:/SimulationWindow/img/camera.png</iconset>
           </property>
           <property name="iconSize">
@@ -464,7 +464,7 @@
         <item>
          <widget class="Line" name="line">
           <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+           <enum>Qt::Orientation::Horizontal</enum>
           </property>
          </widget>
         </item>
@@ -480,7 +480,7 @@
            <string>...</string>
           </property>
           <property name="icon">
-           <iconset resource="resources.qrc">
+           <iconset resource="../../resources.qrc">
             <normaloff>:/SimulationWindow/img/gear.png</normaloff>:/SimulationWindow/img/gear.png</iconset>
           </property>
           <property name="iconSize">
@@ -496,13 +496,13 @@
            <bool>false</bool>
           </property>
           <property name="popupMode">
-           <enum>QToolButton::InstantPopup</enum>
+           <enum>QToolButton::ToolButtonPopupMode::InstantPopup</enum>
           </property>
           <property name="autoRaise">
            <bool>true</bool>
           </property>
           <property name="arrowType">
-           <enum>Qt::NoArrow</enum>
+           <enum>Qt::ArrowType::NoArrow</enum>
           </property>
          </widget>
         </item>
@@ -554,7 +554,7 @@ QSlider::handle:horizontal:hover {
        <number>0</number>
       </property>
       <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+       <enum>Qt::Orientation::Horizontal</enum>
       </property>
      </widget>
     </item>
@@ -581,7 +581,7 @@ QSlider::handle:horizontal:hover {
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="resources.qrc"/>
+  <include location="../../resources.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>978</width>
-    <height>571</height>
+    <height>579</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -32,10 +32,10 @@
    <item>
     <widget class="QFrame" name="frame">
      <property name="frameShape">
-      <enum>QFrame::Box</enum>
+      <enum>QFrame::Shape::Box</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
+      <enum>QFrame::Shadow::Sunken</enum>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_4">
       <property name="leftMargin">
@@ -105,10 +105,10 @@
         <string notr="true"/>
        </property>
        <property name="frameShape">
-        <enum>QFrame::Box</enum>
+        <enum>QFrame::Shape::Box</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Sunken</enum>
+        <enum>QFrame::Shadow::Sunken</enum>
        </property>
        <property name="lineWidth">
         <number>1</number>
@@ -124,7 +124,7 @@
      <item>
       <widget class="Line" name="line">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
       </widget>
      </item>
@@ -176,11 +176,11 @@
              <string>  Einstellungen</string>
             </property>
             <property name="icon">
-             <iconset resource="resources.qrc">
+             <iconset resource="../../resources.qrc">
               <normaloff>:/LoadDiagnosticsTab/img/open.png</normaloff>:/LoadDiagnosticsTab/img/open.png</iconset>
             </property>
             <property name="toolButtonStyle">
-             <enum>Qt::ToolButtonTextBesideIcon</enum>
+             <enum>Qt::ToolButtonStyle::ToolButtonTextBesideIcon</enum>
             </property>
             <property name="autoRaise">
              <bool>true</bool>
@@ -211,7 +211,7 @@
              <string/>
             </property>
             <property name="pixmap">
-             <pixmap resource="resources.qrc">:/LoadDiagnosticsTab/img/not_found.png</pixmap>
+             <pixmap resource="../../resources.qrc">:/LoadDiagnosticsTab/img/not_found.png</pixmap>
             </property>
             <property name="scaledContents">
              <bool>true</bool>
@@ -228,7 +228,7 @@
              <string>N:</string>
             </property>
             <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -238,7 +238,7 @@
              <string>Dauer:</string>
             </property>
             <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
             </property>
            </widget>
           </item>
@@ -297,7 +297,7 @@
               <string/>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignmentFlag::AlignCenter</set>
              </property>
             </widget>
            </item>
@@ -331,7 +331,7 @@
               <string/>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignmentFlag::AlignCenter</set>
              </property>
             </widget>
            </item>
@@ -344,7 +344,7 @@
      <item>
       <widget class="Line" name="line_2">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
       </widget>
      </item>
@@ -381,7 +381,7 @@
           <string>  Anfangssystem</string>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset resource="../../resources.qrc">
            <normaloff>:/LoadDiagnosticsTab/img/open.png</normaloff>:/LoadDiagnosticsTab/img/open.png</iconset>
          </property>
          <property name="iconSize">
@@ -391,7 +391,7 @@
           </size>
          </property>
          <property name="toolButtonStyle">
-          <enum>Qt::ToolButtonTextBesideIcon</enum>
+          <enum>Qt::ToolButtonStyle::ToolButtonTextBesideIcon</enum>
          </property>
          <property name="autoRaise">
           <bool>true</bool>
@@ -422,7 +422,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap resource="resources.qrc">:/LoadDiagnosticsTab/img/not_found.png</pixmap>
+          <pixmap resource="../../resources.qrc">:/LoadDiagnosticsTab/img/not_found.png</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
@@ -434,7 +434,7 @@
      <item>
       <widget class="Line" name="line_4">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
       </widget>
      </item>
@@ -489,7 +489,7 @@
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap resource="resources.qrc">:/LoadDiagnosticsTab/img/not_found.png</pixmap>
+           <pixmap resource="../../resources.qrc">:/LoadDiagnosticsTab/img/not_found.png</pixmap>
           </property>
           <property name="scaledContents">
            <bool>true</bool>
@@ -502,7 +502,7 @@
            <string>Render-Daten</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
           </property>
          </widget>
         </item>
@@ -512,7 +512,7 @@
            <string>Diagnostik-Daten</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
           </property>
          </widget>
         </item>
@@ -540,7 +540,7 @@
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap resource="resources.qrc">:/LoadDiagnosticsTab/img/not_found.png</pixmap>
+           <pixmap resource="../../resources.qrc">:/LoadDiagnosticsTab/img/not_found.png</pixmap>
           </property>
           <property name="scaledContents">
            <bool>true</bool>
@@ -571,7 +571,7 @@
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap resource="resources.qrc">:/LoadDiagnosticsTab/img/not_found.png</pixmap>
+           <pixmap resource="../../resources.qrc">:/LoadDiagnosticsTab/img/not_found.png</pixmap>
           </property>
           <property name="scaledContents">
            <bool>true</bool>
@@ -584,7 +584,7 @@
            <string>Analyse-Daten</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
           </property>
          </widget>
         </item>
@@ -594,7 +594,7 @@
      <item>
       <widget class="Line" name="line_3">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
       </widget>
      </item>
@@ -635,7 +635,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="resources.qrc"/>
+  <include location="../../resources.qrc"/>
  </resources>
  <connections/>
 </ui>
