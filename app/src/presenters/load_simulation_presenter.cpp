@@ -4,9 +4,9 @@
 #include <QThread>
 #include <QTimer>
 
-#include "/core/file_constants.h"
-#include "/views/load_simulation_tab/i_load_simulation_view.h"
-#include "/workers/file_parse_worker.h"
+#include "core/file_constants.h"
+#include "views/load_simulation_tab/i_load_simulation_view.h"
+#include "workers/file_parse_worker.h"
 
 LoadSimulationPresenter::LoadSimulationPresenter(ILoadSimulationView* view, QObject* parent)
     : QObject(parent), view_(view), preview_timer_(new QTimer(this)) {
