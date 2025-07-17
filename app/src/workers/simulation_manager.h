@@ -1,29 +1,24 @@
 #pragma once
 
+#include <QElapsedTimer>
 #include <QObject>
 #include <QThread>
 
-#include "settings.h"
+#include "core/blocking_queue.h"
+#include "core/settings.h"
+#include "core/snapshot.h"
+#include "queue_storage_worker.h"
 #include "simulation_worker.h"
-#include "data_saver.h"
-#include "simulation_window.h"
-#include "data_ptr.h"
+#include "views/simulation_window/simulation_window.h"
 
-class SimulationManager : public QObject
-{
+class SimulationManager : public QObject {
     Q_OBJECT
 public:
-    SimulationManager( const Settings& settings
-                     , const DataSettings& data_settings
-                     , const GenerationSettings& generation_settings
-                     , const SimulationSettings& simulation_settings
-                     , QObject* parent = nullptr);
+    SimulationManager(const Settings& settings, QObject* parent = nullptr);
     ~SimulationManager();
 
     void startSimulationProcedere();
-    void abortSimulation();
 
-    double getTime() const;
     double getDuration() const;
 
 signals:
@@ -40,11 +35,9 @@ signals:
 
     void renderDataStep();
     void diagnosticsDataStep();
-    void analyticsDataStep();
 
     void saveRenderData();
     void saveDiagnosticsData();
-    void saveAnalyticsData();
 
 public slots:
     void openSimulationWindow();
@@ -54,36 +47,42 @@ private slots:
 
     void receivedGenerationCompleted();
     void receivedInitializationCompleted();
-    void receivedSimulationStep(double time);
-
-    void threadFinished();
+    void receivedSimulationStep(double time,
+                                SystemSnapshotPtr system_snapshot,
+                                DiagnosticsSnapshotPtr diagnostics_snapshot);
 
 private:
-    void performSimulationStep(double time);
-    void logTime(const QString& time_identifier);
+    void performSimulationStep(double time,
+                               SystemSnapshotPtr system_snapshot,
+                               DiagnosticsSnapshotPtr diagnostics_snapshot);
+    void saveSettingsToFile();
+    void setupOutputDir();
+    void setupSystemStorageWorker();
+    void setupDiagnosticsStorageWorker();
+    void setupSimulationWorker(const Settings& settings);
+    void setupSimulationWindow();
 
-    DataSettings data_settings;
-    double last_render_update;
-    double last_diagnostics_update;
-    double last_analytics_update;
+    double duration_;             // Total duration of the simulation
+    bool save_system_data_;       // Flag to indicate if system data should be saved
+    bool save_diagnostics_data_;  // Flag to indicate if diagnostics data should be saved
 
-    std::shared_ptr<Simulator> simulator;
-    std::shared_ptr<Generator> generator;
+    std::filesystem::path output_dir_;  // Output directory for saving data
 
-    double duration;
+    SimulationWindow* simulation_window_;
 
-    SimulationWindow *simulation_window;
+    SimulationWorker* simulation_worker_;
+    QThread* simulation_thread_;
 
-    SimulationWorker *simulation_worker;
-    QThread *simulation_thread;
-    QElapsedTimer *simulation_timer;
+    QueueStorageWorker<SystemSnapshotPtr>* system_storage_worker_;
+    QThread* system_storage_thread_;
 
-    DataSaver *data_saver;
-    QThread *data_saver_thread;
-    int data_saver_workload;
-    double pending_time;
+    QueueStorageWorker<DiagnosticsSnapshotPtr>* diagnostics_storage_worker_;
+    QThread* diagnostics_storage_thread_;
 
-    std::shared_ptr<DataPtr> data_ptr;
+    std::atomic<SystemSnapshotPtr> render_queue_slot_;
+    std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> chart_queue_;
+    std::shared_ptr<BlockingQueue<SystemSnapshotPtr>> system_storage_queue_;
+    std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> diagnostics_storage_queue_;
 
-    bool aborted;
+    bool aborted_;  // Flag to indicate if the simulation was aborted
 };
