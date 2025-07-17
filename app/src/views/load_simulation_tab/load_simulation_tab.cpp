@@ -84,7 +84,7 @@ void LoadSimulationTab::onDiagnosticsSeriesParsed(bool success) {
     }
 }
 
-QVector<QString> getFilesToCheck() const {
+QVector<QString> LoadSimulationTab::getFilesToCheck() const {
     QVector<QString> file_paths;
 
     if (!settings_file_path_.isEmpty()) {
