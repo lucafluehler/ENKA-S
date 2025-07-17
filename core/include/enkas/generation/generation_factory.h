@@ -4,7 +4,6 @@
 
 namespace enkas::generation {
 class Generator;
-struct Config;
 }  // namespace enkas::generation
 
 #include <memory>
