@@ -20,7 +20,7 @@ class NewSimulationTab;
 }
 QT_END_NAMESPACE
 
-class NewSimulationTab : public QWidget, INewSimulationView {
+class NewSimulationTab : public QWidget, public INewSimulationView {
     Q_OBJECT
 
 public:
