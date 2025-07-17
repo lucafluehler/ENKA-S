@@ -1,12 +1,13 @@
 #pragma once
 
 #include <enkas/generation/generation_method.h>
+#include <enkas/generation/generation_settings.h>
 
 #include <QObject>
 #include <QOpenGLFunctions>
 #include <QOpenGLWidget>
 
-#include "../rendering/particle_renderer.h"
+#include "rendering/particle_renderer.h"
 
 class SystemPreview : public ParticleRenderer {
     Q_OBJECT
@@ -33,13 +34,13 @@ public:
     void initializeHomeScreen();
 
 private:
-    /**
-     * @brief Sets the render settings for the procedural and file-based systems.
-     */
     void setMethodSettings();
-
-    /**
-     * @brief Sets the render settings for the home screen system.
-     */
     void setHomeScreenSettings();
+
+    enkas::generation::UniformCubeSettings getUniformCubeSettings();
+    enkas::generation::NormalSphereSettings getNormalSphereSettings();
+    enkas::generation::UniformSphereSettings getUniformSphereSettings();
+    enkas::generation::PlummerSphereSettings getPlummerSphereSettings();
+    enkas::generation::SpiralGalaxySettings getSpiralGalaxySettings();
+    enkas::generation::CollisionModelSettings getCollisionModelSettings();
 };
