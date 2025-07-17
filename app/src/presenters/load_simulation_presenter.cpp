@@ -43,7 +43,7 @@ LoadSimulationPresenter::~LoadSimulationPresenter() {
 
 void LoadSimulationPresenter::isSelected(bool selected) {
     if (selected) {
-        const int fps = 30;  // Frames per second
+        const int fps = 30;
         preview_timer_->start(1000 / fps);
     } else {
         preview_timer_->stop();
