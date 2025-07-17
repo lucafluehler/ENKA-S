@@ -17,6 +17,8 @@ enum class SettingKey {
     SaveSettings,
 
     // --- Generation method specific settings ---
+    // File
+    FilePath,
     // Normal Sphere
     NormalSphereSeed,
     NormalSphereParticleCount,
@@ -91,6 +93,8 @@ constexpr auto SettingKeyStrings = std::to_array<std::pair<SettingKey, std::stri
      {SettingKey::SaveDiagnosticsData, "SaveDiagnosticsData"},
      {SettingKey::SaveSettings, "SaveSettings"},
      // Generation method specific settings
+     // File
+     {SettingKey::FilePath, "FilePath"},
      // Normal Sphere
      {SettingKey::NormalSphereSeed, "NormalSphereSeed"},
      {SettingKey::NormalSphereParticleCount, "NormalSphereParticleCount"},
