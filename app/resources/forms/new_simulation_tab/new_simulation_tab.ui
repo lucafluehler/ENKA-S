@@ -2364,17 +2364,17 @@
   <customwidget>
    <class>FileCheckIcon</class>
    <extends>QLabel</extends>
-   <header>file_check_icon.h</header>
+   <header>widgets/file_check_icon.h</header>
   </customwidget>
   <customwidget>
    <class>FancyDoubleSpinBox</class>
    <extends>QDoubleSpinBox</extends>
-   <header>fancy_double_spin_box.h</header>
+   <header>widgets/fancy_double_spin_box.h</header>
   </customwidget>
   <customwidget>
    <class>SystemPreview</class>
    <extends>QOpenGLWidget</extends>
-   <header>system_preview.h</header>
+   <header>widgets/system_preview.h</header>
   </customwidget>
  </customwidgets>
  <resources>

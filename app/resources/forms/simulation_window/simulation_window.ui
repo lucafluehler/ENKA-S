@@ -565,19 +565,19 @@ QSlider::handle:horizontal:hover {
   <customwidget>
    <class>RenderSettingsWidget</class>
    <extends>QWidget</extends>
-   <header>render_settings_widget.h</header>
+   <header>widgets/render_settings_widget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>DiagnosticsTab</class>
    <extends>QWidget</extends>
-   <header>diagnostics_tab.h</header>
+   <header>views/diagnostics_tab/diagnostics_tab.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>ParticleRenderer</class>
    <extends>QOpenGLWidget</extends>
-   <header>particle_renderer.h</header>
+   <header>rendering/particle_renderer.h</header>
   </customwidget>
  </customwidgets>
  <resources>

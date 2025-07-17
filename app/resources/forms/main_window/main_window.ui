@@ -217,18 +217,18 @@ für Sternhaufen und Galaxien</string>
   <customwidget>
    <class>SystemPreview</class>
    <extends>QOpenGLWidget</extends>
-   <header>system_preview.h</header>
+   <header>widgets/system_preview.h</header>
   </customwidget>
   <customwidget>
    <class>LoadSimulationTab</class>
    <extends>QWidget</extends>
-   <header>load_simulation_tab.h</header>
+   <header>views/load_simulation_tab/load_simulation_tab.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>NewSimulationTab</class>
    <extends>QWidget</extends>
-   <header>new_simulation_tab.h</header>
+   <header>views/new_simulation_tab/new_simulation_tab.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

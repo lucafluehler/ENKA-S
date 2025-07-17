@@ -76,7 +76,7 @@
    <item>
     <widget class="Line" name="line_5">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -111,7 +111,7 @@
      <item>
       <spacer name="horizontalSpacer_2">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -150,7 +150,7 @@
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -182,7 +182,7 @@
    <item>
     <widget class="Line" name="line_4">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -217,7 +217,7 @@
    <item>
     <widget class="Line" name="line_3">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -276,7 +276,7 @@
   <customwidget>
    <class>FancyDoubleSpinBox</class>
    <extends>QDoubleSpinBox</extends>
-   <header>fancy_double_spin_box.h</header>
+   <header>widgets/fancy_double_spin_box.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
