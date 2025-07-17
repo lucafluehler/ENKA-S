@@ -94,7 +94,7 @@ void EulerSimulator::updateForces() {
             accelerations_[i] += r_ij * masses[j] * dist_inv_cubed;
             accelerations_[j] -= r_ij * masses[i] * dist_inv_cubed;
 
-            potential_energy_ += masses[i] * masses[j] * dist_inv;
+            potential_energy_ -= masses[i] * masses[j] * dist_inv;
         }
     }
 }
