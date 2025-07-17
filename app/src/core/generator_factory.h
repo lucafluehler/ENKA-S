@@ -1,7 +1,6 @@
 #pragma once
 
 #include <enkas/generation/generation_factory.h>
-#include <enkas/generation/generation_method.h>
 #include <enkas/generation/generator.h>
 #include <enkas/generation/settings/collision_model_settings.h>
 #include <enkas/generation/settings/normal_sphere_settings.h>
@@ -12,7 +11,7 @@
 
 #include <memory>
 
-#include "core/settings.h"
+#include "core/settings/settings.h"
 
 class GeneratorFactory {
 public:
