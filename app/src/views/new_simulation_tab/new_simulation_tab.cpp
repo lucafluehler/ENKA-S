@@ -18,7 +18,7 @@
 #include "widgets/file_check_icon.h"
 
 NewSimulationTab::NewSimulationTab(QWidget* parent)
-    : QWidget(parent), ui(new Ui::NewSimulationTab) {
+    : QWidget(parent), ui_(new Ui::NewSimulationTab) {
     ui_->setupUi(this);
     setupSettingsWidgets();
     setupMethodSelection();
