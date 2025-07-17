@@ -16,6 +16,7 @@ NewSimulationPresenter::NewSimulationPresenter(INewSimulationView* view, QObject
       view_(view),
       preview_timer_(new QTimer(this)),
       progress_timer_(new QTimer(this)) {
+    Q_ASSERT(view_ != nullptr);
     // Initialize Timers
     connect(preview_timer_, &QTimer::timeout, this, &NewSimulationPresenter::updatePreview);
     connect(progress_timer_, &QTimer::timeout, this, &NewSimulationPresenter::updateProgress);
@@ -44,10 +45,7 @@ NewSimulationPresenter::~NewSimulationPresenter() {
     }
 }
 
-void NewSimulationPresenter::updatePreview() {
-    if (!view_) return;
-    view_->updatePreview();
-}
+void NewSimulationPresenter::updatePreview() { view_->updatePreview(); }
 
 void NewSimulationPresenter::updateProgress() {
     if (!simulation_manager_) return;
@@ -55,9 +53,7 @@ void NewSimulationPresenter::updateProgress() {
     const double time = simulation_manager_->getTime();
     const double duration = simulation_manager_->getDuration();
 
-    if (view_) {
-        view_->updateSimulationProgress(time, duration);
-    }
+    view_->updateSimulationProgress(time, duration);
 }
 
 void NewSimulationPresenter::checkInitialSystemFile() {
@@ -69,16 +65,12 @@ void NewSimulationPresenter::checkSettingsFile() {
 }
 
 void NewSimulationPresenter::onSettingsParsed(const std::optional<Settings>& settings) {
-    if (view_) {
-        view_->processSettings(settings);
-    }
+    view_->processSettings(settings);
 }
 
 void NewSimulationPresenter::onInitialSystemParsed(
     const std::optional<enkas::data::System>& system) {
-    if (view_) {
-        view_->processInitialSystem(system);
-    }
+    view_->processInitialSystem(system);
 }
 
 void NewSimulationPresenter::startSimulation() {
@@ -104,9 +96,7 @@ void NewSimulationPresenter::onInitializationCompleted() {
     const int fps = 20;  // Frames per second
     progress_timer_->start(1000 / fps);
 
-    if (view_) {
-        view_->showSimulationProgress();
-    }
+    view_->showSimulationProgress();
 }
 
 void NewSimulationPresenter::abortSimulation() {
@@ -117,9 +107,7 @@ void NewSimulationPresenter::abortSimulation() {
     // Restart preview timer -> restarts preview animations
     preview_timer_->start();
 
-    if (view_) {
-        view_->simulationAborted();
-    }
+    view_->simulationAborted();
 }
 
 void NewSimulationPresenter::openSimulationWindow() {
