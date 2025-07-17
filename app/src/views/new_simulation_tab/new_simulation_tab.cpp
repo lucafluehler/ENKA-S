@@ -190,9 +190,7 @@ void NewSimulationTab::processInitialSystem(
 }
 
 void NewSimulationTab::startSimulation() {
-    Settings settings = fetchSettings();
-
-    presenter_->startSimulation(settings);
+    emit requestSimulationStart();
 
     // Show fancy simulation preparation loading gif
     ui_->stwProgress->setCurrentIndex(1);
@@ -201,8 +199,10 @@ void NewSimulationTab::startSimulation() {
 void NewSimulationTab::showSimulationProgress() { ui_->stwProgress->setCurrentIndex(2); }
 
 void NewSimulationTab::abortSimulation() {
+    emit requestSimulationAbort();
+
+    // Show abortion loading gif
     ui_->stwProgress->setCurrentIndex(3);
-    presenter_->abortSimulation();
 }
 
 void NewSimulationTab::simulationAborted() { ui_->stwProgress->setCurrentIndex(0); }
