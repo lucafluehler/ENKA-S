@@ -67,12 +67,12 @@ void NewSimulationTab::setupMethodSelection() {
 }
 
 void NewSimulationTab::initializePreview() {
-    ui_->oglNormalSpherePreview->initializeMethod(enkas::generation::Method::NormalSphere);
-    ui_->oglUniformCubePreview->initializeMethod(enkas::generation::Method::UniformCube);
-    ui_->oglUniformSpherePreview->initializeMethod(enkas::generation::Method::UniformSphere);
-    ui_->oglPlummerPreview->initializeMethod(enkas::generation::Method::PlummerSphere);
-    ui_->oglSpiralGalaxyPreview->initializeMethod(enkas::generation::Method::SpiralGalaxy);
-    ui_->oglCollisionPreview->initializeMethod(enkas::generation::Method::CollisionModel);
+    ui_->oglNormalSpherePreview->initializeProcedural(enkas::generation::Method::NormalSphere);
+    ui_->oglUniformCubePreview->initializeProcedural(enkas::generation::Method::UniformCube);
+    ui_->oglUniformSpherePreview->initializeProcedural(enkas::generation::Method::UniformSphere);
+    ui_->oglPlummerPreview->initializeProcedural(enkas::generation::Method::PlummerSphere);
+    ui_->oglSpiralGalaxyPreview->initializeProcedural(enkas::generation::Method::SpiralGalaxy);
+    ui_->oglCollisionPreview->initializeProcedural(enkas::generation::Method::CollisionModel);
 }
 
 void NewSimulationTab::setupSimulationProgressElements() {
@@ -179,8 +179,7 @@ void NewSimulationTab::processSettings(const std::optional<Settings>& settings) 
     }
 }
 
-void NewSimulationTab::processInitialSystem(
-    const std::optional<enkas::data::System>& system) {
+void NewSimulationTab::processInitialSystem(const std::optional<enkas::data::System>& system) {
     if (system.has_value()) {
         ui_->lblSystemDataIcon->setMode(FileCheckIcon::Mode::Checked);
         ui_->oglFilePreview->initializeFromFile(initial_system_path_);
