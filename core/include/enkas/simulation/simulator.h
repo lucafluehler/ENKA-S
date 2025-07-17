@@ -1,5 +1,6 @@
 #pragma once
 
+#include <enkas/data/diagnostics.h>
 #include <enkas/data/system.h>
 
 #include <atomic>
@@ -43,6 +44,12 @@ public:
      * @return The current state of the system.
      */
     [[nodiscard]] virtual data::System getSystem() const = 0;
+
+    /**
+     * @brief Returns the diagnostics of the simulation.
+     * @return The diagnostics of the simulation.
+     */
+    [[nodiscard]] virtual data::Diagnostics getDiagnostics() const = 0;
 
 protected:
     std::atomic_bool stop_requested_{false};
