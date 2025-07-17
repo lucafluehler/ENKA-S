@@ -7,6 +7,7 @@
 #include <QTimer>
 #include <optional>
 
+#include "core/settings/settings.h"
 #include "views/new_simulation_tab/i_new_simulation_view.h"
 #include "workers/file_parse_worker.h"
 #include "workers/simulation_manager.h"

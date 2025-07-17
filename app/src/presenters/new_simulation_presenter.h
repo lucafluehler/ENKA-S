@@ -5,7 +5,7 @@
 #include <QObject>
 #include <optional>
 
-#include "core/settings.h"
+#include "core/settings/settings.h"
 
 class QTimer;
 class QThread;
