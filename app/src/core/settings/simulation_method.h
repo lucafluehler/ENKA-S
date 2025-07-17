@@ -22,7 +22,7 @@ constexpr auto SimulationMethodStrings =
     throw std::out_of_range("Unknown SimulationMethod: \"" + std::string(s) + "\"");
 }
 
-[[nodiscard]] constexpr std::string_view methodToString(SimulationMethod method) {
+[[nodiscard]] constexpr std::string_view simulationMethodToString(SimulationMethod method) {
     for (auto&& [key, val] : SimulationMethodStrings) {
         if (key == method) return val;
     }

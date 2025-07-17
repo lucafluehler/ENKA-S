@@ -32,7 +32,7 @@ constexpr auto GenerationMethodStrings =
     throw std::out_of_range("Unknown GenerationMethod: \"" + std::string(s) + "\"");
 }
 
-[[nodiscard]] constexpr std::string_view methodToString(GenerationMethod method) {
+[[nodiscard]] constexpr std::string_view generationMethodToString(GenerationMethod method) {
     for (auto&& [key, val] : GenerationMethodStrings) {
         if (key == method) return val;
     }
