@@ -20,6 +20,7 @@ public:
 
     [[nodiscard]] double getSystemTime() const override;
     [[nodiscard]] data::System getSystem() const override;
+    [[nodiscard]] data::Diagnostics getDiagnostics() const override;
 
 private:
     /**
@@ -30,8 +31,9 @@ private:
 private:
     EulerSettings settings_;
 
-    double system_time_ = 0.0;    // current time of the system
-    const double softening_sqr_;  // squared softening parameters
+    double system_time_ = 0.0;       // current time of the system
+    const double softening_sqr_;     // squared softening parameters
+    double potential_energy_ = 0.0;  // potential energy of the system
 
     data::System system_;                        // current state of the system
     std::vector<math::Vector3D> accelerations_;  // accelerations of the particles
