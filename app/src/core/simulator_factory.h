@@ -6,12 +6,11 @@
 #include <enkas/simulation/settings/hits_settings.h>
 #include <enkas/simulation/settings/leapfrog_settings.h>
 #include <enkas/simulation/simulation_factory.h>
-#include <enkas/simulation/simulation_method.h>
 #include <enkas/simulation/simulator.h>
 
 #include <memory>
 
-#include "core/settings.h"
+#include "core/settings/settings.h"
 
 class SimulatorFactory {
 public:
