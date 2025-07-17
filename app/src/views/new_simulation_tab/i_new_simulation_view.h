@@ -19,4 +19,6 @@ public:
     virtual void showSimulationProgress() = 0;
     virtual void updateSimulationProgress(double time, double duration) = 0;
     virtual void simulationAborted() = 0;
+    virtual QString getInitialSystemPath() const = 0;
+    virtual QString getSettingsPath() const = 0;
 };

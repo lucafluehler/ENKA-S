@@ -20,7 +20,8 @@ public:
     ~NewSimulationPresenter();
 
 public slots:
-    void checkFile(const QString& file_path);
+    void checkInitialSystemFile();
+    void checkSettingsFile();
     void startSimulation(const Settings& settings);
     void abortSimulation();
     void openSimulationWindow();

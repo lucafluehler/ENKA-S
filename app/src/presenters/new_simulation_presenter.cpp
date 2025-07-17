@@ -7,7 +7,6 @@
 #include <QTimer>
 #include <optional>
 
-#include "core/file_constants.h"
 #include "views/new_simulation_tab/i_new_simulation_view.h"
 #include "workers/file_parse_worker.h"
 #include "workers/simulation_manager.h"
@@ -61,12 +60,12 @@ void NewSimulationPresenter::updateProgress() {
     }
 }
 
-void NewSimulationPresenter::checkFile(const QString& file_path) {
-    if (file_path.endsWith(file_names::settings)) {
-        file_parse_worker_->parseSettings(file_path);
-    } else if (file_path.endsWith(file_names::system)) {
-        file_parse_worker_->parseInitialSystem(file_path);
-    }
+void NewSimulationPresenter::checkInitialSystemFile() {
+    file_parse_worker_->parseInitialSystem(view_->getInitialSystemPath());
+}
+
+void NewSimulationPresenter::checkSettingsFile() {
+    file_parse_worker_->parseSettings(view_->getSettingsPath());
 }
 
 void NewSimulationPresenter::onSettingsParsed(const std::optional<Settings>& settings) {

@@ -3,6 +3,7 @@
 #include <enkas/data/system.h>
 #include <enkas/generation/generation_method.h>
 #include <enkas/simulation/simulation_method.h>
+#include <qcontainerfwd.h>
 
 #include <QHash>
 #include <QString>
@@ -35,9 +36,12 @@ public:
     void showSimulationProgress() override;
     void updateSimulationProgress(double time, double duration) override;
     void simulationAborted() override;
+    QString getInitialSystemPath() const override;
+    QString getSettingsPath() const override;
 
 signals:
-    void checkFile(const QString& path);
+    void checkInitialSystemFile();
+    void checkSettingsFile();
 
 private slots:
     void openSystemDataDialog();
@@ -62,4 +66,5 @@ private:
     QHash<enkas::generation::Method, SettingsWidget*> generation_settings_widgets_;
 
     QString initial_system_path_;
+    QString settings_path_;
 };

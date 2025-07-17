@@ -145,7 +145,7 @@ void NewSimulationTab::openSystemDataDialog() {
     ui_->lblSystemDataIcon->setMode(FileCheckIcon::Mode::Loading);
 
     initial_system_path_ = system_data_path;
-    emit checkFile(system_data_path);
+    emit checkInitialSystemFile();
 }
 
 void NewSimulationTab::openSettingsDialog() {
@@ -158,6 +158,7 @@ void NewSimulationTab::openSettingsDialog() {
         nullptr, "Open JSON File", open_this_path, "JSON settings file (settings.json)");
 
     if (settings_path.isEmpty()) {
+        settings_path_.clear();
         ui_->lblSettingsPath->setText("");
         ui_->lblSettingsPath->setToolTip("");
         ui_->lblSettingsIcon->setMode(FileCheckIcon::Mode::NotFound);
@@ -169,7 +170,9 @@ void NewSimulationTab::openSettingsDialog() {
     ui_->lblSettingsPath->setToolTip(settings_path);
 
     ui_->lblSettingsIcon->setMode(FileCheckIcon::Mode::Loading);
-    emit checkFile(settings_path);
+
+    settings_path_ = settings_path;
+    emit checkSettingsFile();
 }
 
 void NewSimulationTab::processSettings(const std::optional<Settings>& settings) override {
@@ -283,3 +286,7 @@ Settings NewSimulationTab::fetchSettings() const {
 
     return settings;
 }
+
+QString NewSimulationTab::getInitialSystemPath() const { return initial_system_path_; }
+
+QString NewSimulationTab::getSettingsPath() const { return settings_path_; }
