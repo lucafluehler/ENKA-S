@@ -72,4 +72,8 @@ void BarnesHutLeapfrogSimulator::step() {
 
 [[nodiscard]] data::System BarnesHutLeapfrogSimulator::getSystem() const { return system_; }
 
+[[nodiscard]] data::Diagnostics BarnesHutLeapfrogSimulator::getDiagnostics() const {
+    return physics::getDiagnostics(system_, 0.0);  // TODO
+}
+
 }  // namespace enkas::simulation
