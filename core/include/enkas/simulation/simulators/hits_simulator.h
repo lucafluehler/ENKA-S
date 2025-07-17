@@ -21,6 +21,7 @@ public:
 
     [[nodiscard]] double getSystemTime() const override;
     [[nodiscard]] data::System getSystem() const override;
+    [[nodiscard]] data::Diagnostics getDiagnostics() const override;
 
 private:
     void updateParticle(size_t particle_index);
@@ -28,7 +29,7 @@ private:
     void calculateAccJrk(const data::System& system,
                          size_t particle_index,
                          math::Vector3D& acc,
-                         math::Vector3D& jrk) const;
+                         math::Vector3D& jrk);
     void correctParticle(const data::System& pred_system,
                          size_t particle_index,
                          const math::Vector3D& pred_acc,
@@ -38,8 +39,9 @@ private:
 private:
     HitsSettings settings_;
 
-    double system_time_ = 0.0;    // current time of the system
-    const double softening_sqr_;  // squared softening parameters
+    double system_time_ = 0.0;       // current time of the system
+    const double softening_sqr_;     // squared softening parameters
+    double potential_energy_ = 0.0;  // potential energy of the system
 
     data::System system_;                        // current state of the system
     std::vector<math::Vector3D> accelerations_;  // accelerations of the particles
