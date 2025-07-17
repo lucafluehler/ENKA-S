@@ -63,6 +63,10 @@ void EulerSimulator::step() {
 
 [[nodiscard]] data::System EulerSimulator::getSystem() const { return system_; }
 
+[[nodiscard]] data::Diagnostics EulerSimulator::getDiagnostics() const {
+    return physics::getDiagnostics(system_, potential_energy_);
+}
+
 void EulerSimulator::updateForces() {
     const size_t particle_count = system_.count();
     if (particle_count == 0) return;
