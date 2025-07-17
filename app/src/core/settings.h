@@ -65,7 +65,7 @@ public:
      * @return The value of the setting.
      */
     template <typename T>
-    [[nodiscard]] auto&& get(std::string_view id) {
+    [[nodiscard]] auto&& get(std::string_view id) const {
         return std::get<T>(settings_.at(std::string(id)));
     }
 
