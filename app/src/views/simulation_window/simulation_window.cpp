@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <QVBoxLayout>
 
-#include "./ui_simulation_window.h"
+#include "forms/simulation_window/ui_simulation_window.h"
 
 SimulationWindow::SimulationWindow(QWidget* parent)
     : QMainWindow(parent),

@@ -11,8 +11,8 @@
 #include <QScreen>
 #include <QStackedWidget>
 
-#include "./ui_new_simulation_tab.h"
 #include "core/settings.h"
+#include "forms/new_simulation_tab/ui_new_simulation_tab.h"
 #include "settings_widgets/settings_widget.h"
 #include "settings_widgets/simulation/euler_settings_widget.h"
 #include "widgets/file_check_icon.h"

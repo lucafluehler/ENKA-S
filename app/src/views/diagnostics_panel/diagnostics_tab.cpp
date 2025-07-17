@@ -1,20 +1,20 @@
-#include <QPalette>
 #include "diagnostics_tab.h"
-#include "./ui_diagnostics_tab.h"
 
-DiagnosticsTab::DiagnosticsTab(QWidget *parent)
-    : QWidget(parent)
-    , ui(new Ui::DiagnosticsTab)
-{
+#include <QPalette>
+
+#include "forms/diagnostics_tab/ui_diagnostics_tab.h"
+
+DiagnosticsTab::DiagnosticsTab(QWidget *parent) : QWidget(parent), ui(new Ui::DiagnosticsTab) {
     ui->setupUi(this);
     QPalette palette;
     palette.setColor(QPalette::Window, Qt::white);
     ui->scrollAreaWidgetContents->setPalette(palette);
 
     addTitle("Energie");
-    addLineChart( "Energievergleich"
-                , "Zeit", "Energie"
-                , {"Gesamtenergie", "Kinetische Energie", "Potentielle Energie"} );
+    addLineChart("Energievergleich",
+                 "Zeit",
+                 "Energie",
+                 {"Gesamtenergie", "Kinetische Energie", "Potentielle Energie"});
     // addLineChart("Relative Abweichung der Gesamtenergie", "Zeit", "Relative Abweichung");
     addLineChart("Gesamtenergie", "Zeit", "Energie");
     addLineChart("Kinetische Energie", "Zeit", "Energie");
@@ -25,8 +25,7 @@ DiagnosticsTab::DiagnosticsTab(QWidget *parent)
 
 DiagnosticsTab::~DiagnosticsTab() { delete ui; }
 
-void DiagnosticsTab::addTitle(QString title)
-{
+void DiagnosticsTab::addTitle(QString title) {
     QLabel *label = new QLabel(title);
 
     QFont font = label->font();
@@ -38,8 +37,7 @@ void DiagnosticsTab::addTitle(QString title)
     insertWidget(label);
 }
 
-void DiagnosticsTab::addHLine()
-{
+void DiagnosticsTab::addHLine() {
     QFrame *line = new QFrame();
     line->setFrameShape(QFrame::HLine);
     line->setFrameShadow(QFrame::Sunken);
@@ -48,46 +46,39 @@ void DiagnosticsTab::addHLine()
     insertWidget(line);
 }
 
-void DiagnosticsTab::addLineChart( QString title
-                                 , QString x_axis_title
-                                 , QString y_axis_title
-                                 , QVector<QString> data_titles
-                                 , QVector<LabelType> label_types
-                                 , QWidget *parent )
-{
-    LineChartWidget *widget = new LineChartWidget( title, x_axis_title, y_axis_title
-                                                 , data_titles, label_types, parent );
+void DiagnosticsTab::addLineChart(QString title,
+                                  QString x_axis_title,
+                                  QString y_axis_title,
+                                  QVector<QString> data_titles,
+                                  QVector<LabelType> label_types,
+                                  QWidget *parent) {
+    LineChartWidget *widget =
+        new LineChartWidget(title, x_axis_title, y_axis_title, data_titles, label_types, parent);
     line_charts.push_back(widget);
 
     insertWidget(widget);
 }
 
-void DiagnosticsTab::insertWidget(QWidget *widget)
-{
-    QVBoxLayout *layout
-        = qobject_cast<QVBoxLayout *>(ui->scrollAreaWidgetContents->layout());
+void DiagnosticsTab::insertWidget(QWidget *widget) {
+    QVBoxLayout *layout = qobject_cast<QVBoxLayout *>(ui->scrollAreaWidgetContents->layout());
     size_t i = layout->count() - 1;
     layout->insertWidget(i, widget);
 }
 
-void DiagnosticsTab::update(const DiagnosticsData& data)
-{
-    for (auto* line_chart : line_charts) {
+void DiagnosticsTab::update(const DiagnosticsData &data) {
+    for (auto *line_chart : line_charts) {
         QString title = line_chart->title();
 
         if (title == "Energievergleich") {
             line_chart->append(data.time, data.e_kin + data.e_pot, "Gesamtenergie");
             line_chart->append(data.time, data.e_kin, "Kinetische Energie");
             line_chart->append(data.time, data.e_pot, "Potentielle Energie");
-        }
-        else if (title == "Gesamtenergie") {
+        } else if (title == "Gesamtenergie") {
             double e_tot = data.e_kin + data.e_pot;
             line_chart->append(data.time, e_tot);
-        }
-        else if (title == "Kinetische Energie") {
+        } else if (title == "Kinetische Energie") {
             line_chart->append(data.time, data.e_kin);
-        }
-        else if (title == "Potentielle Energie") {
+        } else if (title == "Potentielle Energie") {
             line_chart->append(data.time, data.e_pot);
         }
     }

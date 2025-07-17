@@ -5,8 +5,8 @@
 #include <QFileDialog>
 #include <QPushButton>
 
-#include "./ui_load_simulation_tab.h"
 #include "core/file_constants.h"
+#include "forms/load_simulation_tab/ui_load_simulation_tab.h"
 #include "widgets/file_check_icon.h"
 
 LoadSimulationTab::LoadSimulationTab(QWidget* parent)

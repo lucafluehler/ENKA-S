@@ -2,9 +2,9 @@
 
 #include <QPushButton>
 
+#include "forms/main_window/ui_main_window.h"
 #include "presenters/load_simulation_presenter.h"
 #include "presenters/new_simulation_presenter.h"
-#include "ui_main_window.h"
 #include "views/load_simulation_tab/load_simulation_tab.h"
 #include "views/new_simulation_tab/new_simulation_tab.h"
 
