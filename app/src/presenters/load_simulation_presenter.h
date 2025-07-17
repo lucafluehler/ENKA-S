@@ -20,7 +20,7 @@ public:
     void isSelected(bool selected);
 
 public slots:
-    void checkFiles(const QVector<QString>& file_paths);
+    void checkFiles();
 
 private slots:
     void onTimerTimeout();

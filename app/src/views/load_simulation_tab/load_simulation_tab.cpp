@@ -92,16 +92,34 @@ void LoadSimulationTab::onDiagnosticsSeriesParsed(bool success) {
     }
 }
 
-void LoadSimulationTab::checkFiles(const QString& dir_path) {
+QVector<QString> getFilesToCheck() const {
     QVector<QString> file_paths;
+
+    if (!settings_file_path_.isEmpty()) {
+        file_paths.append(settings_file_path_);
+    }
+
+    if (!system_file_path_.isEmpty()) {
+        file_paths.append(system_file_path_);
+    }
+
+    if (!diagnostics_file_path_.isEmpty()) {
+        file_paths.append(diagnostics_file_path_);
+    }
+
+    return file_paths;
+}
+
+void LoadSimulationTab::checkFiles(const QString& dir_path) {
+    bool any_file_found = false;
 
     // Settings file
     QString settings_path = QDir(dir_path).filePath(file_names::settings);
     QFileInfo settings_file(settings_path);
     if (settings_file.exists()) {
         ui_->lblSettingsIcon->setMode(FileCheckIcon::Mode::Loading);
-        files.push_back(settings_path);
         settings_file_path_ = settings_path;
+        any_file_found = true;
     }
 
     // System file
@@ -109,8 +127,8 @@ void LoadSimulationTab::checkFiles(const QString& dir_path) {
     QFileInfo system_file(system_path);
     if (system_file.exists()) {
         ui_->lblInitialSystemIcon->setMode(FileCheckIcon::Mode::Loading);
-        files.push_back(system_path);
         system_file_path_ = system_path;
+        any_file_found = true;
     }
 
     // Diagnostics file
@@ -118,11 +136,11 @@ void LoadSimulationTab::checkFiles(const QString& dir_path) {
     QFileInfo diagnostics_file(diagnostics_path);
     if (diagnostics_file.exists()) {
         ui_->lblDiagnosticsIcon->setMode(FileCheckIcon::Mode::Loading);
-        files.push_back(diagnostics_path);
         diagnostics_file_path_ = diagnostics_path;
+        any_file_found = true;
     }
 
-    if (!files.isEmpty()) emit requestFilesCheck(file_paths);
+    if (any_file_found) emit requestFilesCheck();
 }
 
 void LoadSimulationTab::resetSimulationFilePaths() {

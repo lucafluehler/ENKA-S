@@ -55,7 +55,8 @@ void LoadSimulationPresenter::onTimerTimeout() {
     view_->updatePreview();
 }
 
-void LoadSimulationPresenter::checkFiles(const QVector<QString>& file_paths) {
+void LoadSimulationPresenter::checkFiles() {
+    const auto& file_paths = view_->getFilesToCheck();
     if (file_paths.isEmpty()) {
         return;
     }

@@ -25,9 +25,10 @@ public:
     void onSettingsParsed(bool success) override;
     void onInitialSystemParsed(std::optional<enkas::data::System> system) override;
     void onDiagnosticsSeriesParsed(bool success) override;
+    QVector<QString> getFilesToCheck() const override;
 
 signals:
-    void requestFilesCheck(const QVector<QString> file_paths);
+    void requestFilesCheck();
 
 private slots:
     void openFolderDialog();
