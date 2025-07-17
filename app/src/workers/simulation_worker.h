@@ -7,7 +7,7 @@
 #include <QObject>
 #include <memory>
 
-#include "core/settings.h"
+#include "core/settings/settings.h"
 #include "core/snapshot.h"
 
 class SimulationWorker : public QObject {

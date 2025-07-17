@@ -8,7 +8,7 @@
 
 #include "core/file_parse_logic.h"
 #include "core/generator_factory.h"
-#include "core/settings.h"
+#include "core/settings/settings.h"
 #include "core/simulator_factory.h"
 #include "core/snapshot.h"
 
@@ -16,15 +16,15 @@ SimulationWorker::SimulationWorker(const Settings& settings, QObject* parent)
     : QObject(parent),
       last_system_update_(0.0),
       last_diagnostics_update_(0.0),
-      system_step_(settings.get<double>("SystemDataStep")),
-      diagnostics_step_(settings.get<double>("DiagnosticsDataStep")) {
+      system_step_(settings.get<double>(SettingKey::SystemDataStep)),
+      diagnostics_step_(settings.get<double>(SettingKey::DiagnosticsDataStep)) {
     // Setup generator
-    auto method_str = settings.get<std::string>("GenerationMethod");
-    file_mode_ = (method_str == "File");
+    auto method = settings.get<GenerationMethod>(SettingKey::GenerationMethod);
+    file_mode_ = (method == GenerationMethod::File);
 
     if (file_mode_) {
         generator_ = nullptr;  // We will generate the system later from a file
-        file_path_ = settings.get<std::string>("FilePath");
+        file_path_ = settings.get<std::string>(SettingKey::FilePath);
     } else {
         generator_ = GeneratorFactory::create(settings);
     }
