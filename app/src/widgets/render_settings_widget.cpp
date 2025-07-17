@@ -1,6 +1,6 @@
 #include "render_settings_widget.h"
 
-#include "./ui_render_settings_widget.h"
+#include "forms/simulation_window/ui_render_settings_widget.h"
 
 RenderSettingsWidget::RenderSettingsWidget(QWidget* parent)
     : QWidget(parent), ui(new Ui::RenderSettingsWidget) {
