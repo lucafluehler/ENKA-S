@@ -17,10 +17,10 @@ public:
     explicit LoadSimulationPresenter(ILoadSimulationView* view, QObject* parent = nullptr);
     ~LoadSimulationPresenter();
 
-    void isSelected(bool selected);
-
 public slots:
     void checkFiles();
+    void active();
+    void inactive();
 
 private slots:
     void onTimerTimeout();

@@ -41,14 +41,12 @@ LoadSimulationPresenter::~LoadSimulationPresenter() {
     }
 }
 
-void LoadSimulationPresenter::isSelected(bool selected) {
-    if (selected) {
-        const int fps = 30;
-        preview_timer_->start(1000 / fps);
-    } else {
-        preview_timer_->stop();
-    }
+void LoadSimulationPresenter::active() {
+    const int fps = 30;
+    preview_timer_->start(1000 / fps);
 }
+
+void LoadSimulationPresenter::inactive() { preview_timer_->stop(); }
 
 void LoadSimulationPresenter::onTimerTimeout() {
     if (!view_) return;
