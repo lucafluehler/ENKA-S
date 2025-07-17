@@ -1,14 +1,14 @@
 #include "system_preview.h"
 
 #include <enkas/generation/generation_factory.h>
-#include <enkas/generation/generation_method.h>
 #include <enkas/generation/generation_settings.h>
 #include <enkas/generation/generator.h>
 
 #include <memory>
 
 #include "core/file_parse_logic.h"
-#include "enkas/generation/settings/normal_sphere_settings.h"
+#include "core/settings/generation_method.h"
+#include "rendering/particle_renderer.h"
 
 SystemPreview::SystemPreview(QWidget* parent) : ParticleRenderer(parent) {
     // Set default Render Settings
@@ -20,31 +20,32 @@ SystemPreview::SystemPreview(QWidget* parent) : ParticleRenderer(parent) {
     redraw(render_settings);
 }
 
-void SystemPreview::initializeProcedural(enkas::generation::Method method) {
+void SystemPreview::initializeProcedural(GenerationMethod method) {
     setMethodSettings();
 
     // Generate system
     std::unique_ptr<enkas::generation::Generator> generator;
 
     switch (method) {
-        case enkas::generation::Method::UniformCube:
+        case GenerationMethod::UniformCube:
             generator = enkas::generation::Factory::create(getUniformCubeSettings());
             break;
-        case enkas::generation::Method::NormalSphere:
+        case GenerationMethod::NormalSphere:
             generator = enkas::generation::Factory::create(getNormalSphereSettings());
             break;
-        case enkas::generation::Method::UniformSphere:
+        case GenerationMethod::UniformSphere:
             generator = enkas::generation::Factory::create(getUniformSphereSettings());
             break;
-        case enkas::generation::Method::PlummerSphere:
+        case GenerationMethod::PlummerSphere:
             generator = enkas::generation::Factory::create(getPlummerSphereSettings());
             break;
-        case enkas::generation::Method::SpiralGalaxy:
+        case GenerationMethod::SpiralGalaxy:
             generator = enkas::generation::Factory::create(getSpiralGalaxySettings());
             break;
-        case enkas::generation::Method::CollisionModel:
+        case GenerationMethod::CollisionModel:
             generator = enkas::generation::Factory::create(getCollisionModelSettings());
             break;
+        case GenerationMethod::File:
         default:
             return;  // Unsupported method
     }
