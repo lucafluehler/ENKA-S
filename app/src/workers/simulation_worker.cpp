@@ -6,44 +6,96 @@
 
 #include <memory>
 
-SimulationWorker::SimulationWorker(std::shared_ptr<enkas::generation::Generator> generator,
-                                   std::shared_ptr<enkas::simulation::Simulator> simulator,
-                                   QObject* parent)
-    : QObject(parent), generator_(generator), simulator_(simulator) {}
+#include "core/file_parse_logic.h"
+#include "core/generator_factory.h"
+#include "core/settings.h"
+#include "core/simulator_factory.h"
+#include "core/snapshot.h"
+
+SimulationWorker::SimulationWorker(const Settings& settings, QObject* parent)
+    : QObject(parent),
+      last_system_update_(0.0),
+      last_diagnostics_update_(0.0),
+      system_step_(settings.get<double>("SystemDataStep")),
+      diagnostics_step_(settings.get<double>("DiagnosticsDataStep")) {
+    // Setup generator
+    auto method_str = settings.get<std::string>("GenerationMethod");
+    file_mode_ = (method_str == "File");
+
+    if (file_mode_) {
+        generator_ = nullptr;  // We will generate the system later from a file
+        file_path_ = settings.get<std::string>("FilePath");
+    } else {
+        generator_ = GeneratorFactory::create(settings);
+    }
+
+    // Setup simulator
+    simulator_ = SimulatorFactory::create(settings);
+}
 
 SimulationWorker::~SimulationWorker() {
     generator_ = nullptr;
     simulator_ = nullptr;
 }
 
-enkas::data::System SimulationWorker::getInitialSystem() const { return initial_system_; }
-
 void SimulationWorker::startGeneration() {
-    if (!generator_) {
-        emit error();
-        return;
+    if (file_mode_) {
+        // Load the initial system from a file
+        auto initial_system_opt = FileParseLogic::parseInitialSystem(file_path_);
+
+        if (!initial_system_opt) {
+            emit error();
+            return;
+        }
+
+        initial_system_ = std::make_unique<enkas::data::System>(std::move(*initial_system_opt));
+    } else {
+        // Generate the initial system using the generator
+        if (!generator_) {
+            emit error();
+            return;
+        }
+
+        initial_system_ = std::make_unique<enkas::data::System>(generator_->createSystem());
     }
 
-    initial_system_ = generator_->createSystem();
     emit generationCompleted();
 }
 
 void SimulationWorker::startInitialization() {
-    if (!simulator_) {
+    if (!simulator_ || !initial_system_) {
         emit error();
         return;
     }
 
-    simulator_->setSystem(initial_system_);
+    simulator_->setSystem(*initial_system_);
     emit initializationCompleted();
 }
 
-void SimulationWorker::evolveSystem() {
+void SimulationWorker::step() {
     if (!simulator_) {
         emit error();
         return;
     }
 
     simulator_->step();
-    emit simulationStep(simulator_->getSystemTime());
+
+    // Check whether it is time to retrieve data
+    double time = simulator_->getSystemTime();
+
+    SystemSnapshotPtr system_snapshot{nullptr};
+    DiagnosticsSnapshotPtr diagnostics_snapshot{nullptr};
+
+    if (time - last_system_update_ >= system_step_) {
+        system_snapshot = std::make_shared<SystemSnapshot>(time, simulator_->getSystem());
+        last_system_update_ = time;
+    }
+
+    if (time - last_diagnostics_update_ >= diagnostics_step_) {
+        diagnostics_snapshot =
+            std::make_shared<DiagnosticsSnapshot>(time, simulator_->getDiagnostics());
+        last_diagnostics_update_ = time;
+    }
+
+    emit simulationStep(time, system_snapshot, diagnostics_snapshot);
 }
