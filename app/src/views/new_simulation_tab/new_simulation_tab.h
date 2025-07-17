@@ -1,8 +1,6 @@
 #pragma once
 
 #include <enkas/data/system.h>
-#include <enkas/generation/generation_method.h>
-#include <enkas/simulation/simulation_method.h>
 
 #include <QHash>
 #include <QString>
@@ -10,7 +8,7 @@
 #include <QVariant>
 #include <QWidget>
 
-#include "core/settings.h"
+#include "core/settings/settings.h"
 #include "i_new_simulation_view.h"
 #include "settings_widgets/settings_widget.h"
 
@@ -60,8 +58,8 @@ private:
     void updateDefaultSettings(const Settings& settings);
 
     Ui::NewSimulationTab* ui_;
-    QHash<enkas::simulation::Method, SettingsWidget*> simulation_settings_widgets_;
-    QHash<enkas::generation::Method, SettingsWidget*> generation_settings_widgets_;
+    QHash<SimulationMethod, SettingsWidget*> simulation_settings_widgets_;
+    QHash<GenerationMethod, SettingsWidget*> generation_settings_widgets_;
 
     QString initial_system_path_;
     QString settings_path_;

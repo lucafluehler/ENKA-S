@@ -11,7 +11,7 @@
 #include <QScreen>
 #include <QStackedWidget>
 
-#include "core/settings.h"
+#include "core/settings/settings.h"
 #include "forms/new_simulation_tab/ui_new_simulation_tab.h"
 #include "settings_widgets/settings_widget.h"
 #include "settings_widgets/simulation/euler_settings_widget.h"
@@ -36,23 +36,21 @@ NewSimulationTab::NewSimulationTab(QWidget* parent)
 NewSimulationTab::~NewSimulationTab() { abortSimulation(); }
 
 void NewSimulationTab::setupSettingsWidgets() {
-    simulation_settings_widgets_.insert(enkas::simulation::Method::Euler,
+    simulation_settings_widgets_.insert(SimulationMethod::Euler,
                                         new EulerSettingsWidget(ui_->stwSimulationSettings));
 }
 
 void NewSimulationTab::setupMethodSelection() {
     // Populate Generation Method combobox
     for (const auto method : simulation_settings_widgets_.keys()) {
-        ui_->cobSimulationMethod->addItem(
-            QString::fromStdString(std::string(enkas::simulation::methodToString(method))),
-            QVariant::fromValue(method));
+        ui_->cobSimulationMethod->addItem(QString::fromStdString(simulationMethodToString(method)),
+                                          QVariant::fromValue(method));
     }
 
     // Populate Simulation Method combobox
     for (const auto method : generation_settings_widgets_.keys()) {
-        ui_->cobGenerationMethod->addItem(
-            QString::fromStdString(std::string(enkas::generation::methodToString(method))),
-            QVariant::fromValue(method));
+        ui_->cobGenerationMethod->addItem(QString::fromStdString(generationMethodToString(method)),
+                                          QVariant::fromValue(method));
     }
 
     // Connect stacked settings widgets to combobox changes
@@ -67,12 +65,12 @@ void NewSimulationTab::setupMethodSelection() {
 }
 
 void NewSimulationTab::initializePreview() {
-    ui_->oglNormalSpherePreview->initializeProcedural(enkas::generation::Method::NormalSphere);
-    ui_->oglUniformCubePreview->initializeProcedural(enkas::generation::Method::UniformCube);
-    ui_->oglUniformSpherePreview->initializeProcedural(enkas::generation::Method::UniformSphere);
-    ui_->oglPlummerPreview->initializeProcedural(enkas::generation::Method::PlummerSphere);
-    ui_->oglSpiralGalaxyPreview->initializeProcedural(enkas::generation::Method::SpiralGalaxy);
-    ui_->oglCollisionPreview->initializeProcedural(enkas::generation::Method::CollisionModel);
+    ui_->oglNormalSpherePreview->initializeProcedural(GenerationMethod::NormalSphere);
+    ui_->oglUniformCubePreview->initializeProcedural(GenerationMethod::UniformCube);
+    ui_->oglUniformSpherePreview->initializeProcedural(GenerationMethod::UniformSphere);
+    ui_->oglPlummerPreview->initializeProcedural(GenerationMethod::PlummerSphere);
+    ui_->oglSpiralGalaxyPreview->initializeProcedural(GenerationMethod::SpiralGalaxy);
+    ui_->oglCollisionPreview->initializeProcedural(GenerationMethod::CollisionModel);
 }
 
 void NewSimulationTab::setupSimulationProgressElements() {
@@ -213,30 +211,30 @@ void NewSimulationTab::updateSimulationProgress(double time, double duration) {
 }
 
 void NewSimulationTab::updatePreview() {
-    auto method = ui_->cobGenerationMethod->currentData().value<enkas::generation::Method>();
+    auto method = ui_->cobGenerationMethod->currentData().value<GenerationMethod>();
 
     switch (method) {
-        case enkas::generation::Method::File:
+        case GenerationMethod::File:
             if (!initial_system_path_.isEmpty()) {
                 ui_->oglFilePreview->update();
             }
             break;
-        case enkas::generation::Method::NormalSphere:
+        case GenerationMethod::NormalSphere:
             ui_->oglNormalSpherePreview->update();
             break;
-        case enkas::generation::Method::UniformCube:
+        case GenerationMethod::UniformCube:
             ui_->oglUniformCubePreview->update();
             break;
-        case enkas::generation::Method::UniformSphere:
+        case GenerationMethod::UniformSphere:
             ui_->oglUniformSpherePreview->update();
             break;
-        case enkas::generation::Method::PlummerSphere:
+        case GenerationMethod::PlummerSphere:
             ui_->oglPlummerPreview->update();
             break;
-        case enkas::generation::Method::SpiralGalaxy:
+        case GenerationMethod::SpiralGalaxy:
             ui_->oglSpiralGalaxyPreview->update();
             break;
-        case enkas::generation::Method::CollisionModel:
+        case GenerationMethod::CollisionModel:
             ui_->oglCollisionPreview->update();
             break;
         default:
@@ -250,14 +248,14 @@ Settings NewSimulationTab::fetchSettings() const {
 
     // Fetch general settings
     auto settings = Settings::create(  //
-                        {"GenerationMethod", generation_method_str},
-                        {"SimulationMethod", simulation_method_str},
-                        {"Duration", ui_->dsbSimDuration->value()},
-                        {"SystemDataStep", ui_->dsbSystemTimeStep->value()},
-                        {"DiagnosticsDataStep", ui_->dsbDiagnosticsTimeStep->value()},
-                        {"SaveSystemData", ui_->cbxSaveSystem->isChecked()},
-                        {"SaveDiagnosticsData", ui_->cbxSaveDiagnostics->isChecked()},
-                        {"SaveSettings", ui_->cbxSaveSettings->isChecked()})
+                        {SettingKey::GenerationMethod, generation_method_str},
+                        {SettingKey::SimulationMethod, simulation_method_str},
+                        {SettingKey::Duration, ui_->dsbSimDuration->value()},
+                        {SettingKey::SystemDataStep, ui_->dsbSystemTimeStep->value()},
+                        {SettingKey::DiagnosticsDataStep, ui_->dsbDiagnosticsTimeStep->value()},
+                        {SettingKey::SaveSystemData, ui_->cbxSaveSystem->isChecked()},
+                        {SettingKey::SaveDiagnosticsData, ui_->cbxSaveDiagnostics->isChecked()},
+                        {SettingKey::SaveSettings, ui_->cbxSaveSettings->isChecked()})
                         .value();
 
     const auto& generation_method =
