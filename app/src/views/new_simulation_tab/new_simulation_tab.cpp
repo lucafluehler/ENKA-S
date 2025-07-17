@@ -169,7 +169,7 @@ void NewSimulationTab::openSettingsDialog() {
     emit checkSettingsFile();
 }
 
-void NewSimulationTab::processSettings(const std::optional<Settings>& settings) override {
+void NewSimulationTab::processSettings(const std::optional<Settings>& settings) {
     if (settings.has_value()) {
         updateDefaultSettings(*settings);
         resetSettings();
@@ -180,7 +180,7 @@ void NewSimulationTab::processSettings(const std::optional<Settings>& settings) 
 }
 
 void NewSimulationTab::processInitialSystem(
-    const std::optional<enkas::data::System>& system) override {
+    const std::optional<enkas::data::System>& system) {
     if (system.has_value()) {
         ui_->lblSystemDataIcon->setMode(FileCheckIcon::Mode::Checked);
         ui_->oglFilePreview->initializeFromFile(initial_system_path_);
