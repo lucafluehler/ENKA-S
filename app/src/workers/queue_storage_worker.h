@@ -2,22 +2,39 @@
 
 #include <QObject>
 #include <functional>
+#include <memory>
 
 #include "core/blocking_queue.h"
 
-template <typename SnapshotPtr>
-class QueueStorageWorker : public QObject {
+class QueueStorageWorkerBase : public QObject {
     Q_OBJECT
+
+public:
+    explicit QueueStorageWorkerBase(QObject* parent = nullptr) : QObject(parent) {}
+    virtual ~QueueStorageWorkerBase() = default;
+
+public slots:
+    virtual void run() = 0;
+    virtual void abort() = 0;
+
+signals:
+    void workFinished();
+};
+
+template <typename SnapshotPtr>
+class QueueStorageWorker : public QueueStorageWorkerBase {
 public:
     using SaveFn = std::function<void(const SnapshotPtr&)>;
 
     QueueStorageWorker(std::shared_ptr<BlockingQueue<SnapshotPtr>> queue,
                        SaveFn save_function,
                        QObject* parent = nullptr)
-        : QObject(parent), queue_(std::move(queue)), save_function_(std::move(save_function)) {}
+        : QueueStorageWorkerBase(parent),
+          queue_(std::move(queue)),
+          save_function_(std::move(save_function)) {}
 
-public slots:
-    void run() {
+public:
+    void run() override {
         while (true) {
             auto snapshot = queue_->popBlocking();
             if (!snapshot) break;  // sentinel on abort()
@@ -26,14 +43,11 @@ public slots:
         emit workFinished();
     }
 
-    void abort() {
+    void abort() override {
         queue_->pushBlocking(nullptr);  // wake up run() by placing a nullptr sentinel
     }
 
-signals:
-    void workFinished();
-
 private:
     std::shared_ptr<BlockingQueue<SnapshotPtr>> queue_;
-    SaveFn save_function_;  // Function which will be called to save the snapshot
+    SaveFn save_function_;
 };

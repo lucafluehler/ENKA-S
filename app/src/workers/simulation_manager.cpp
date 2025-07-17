@@ -169,6 +169,10 @@ void SimulationManager::setupSystemStorageWorker() {
         });
     system_storage_thread_ = new QThread(this);
     system_storage_worker_->moveToThread(system_storage_thread_);
+    connect(system_storage_thread_,
+            &QThread::started,
+            system_storage_worker_,
+            &QueueStorageWorkerBase::run);
     system_storage_thread_->start();
 }
 
@@ -179,6 +183,10 @@ void SimulationManager::setupDiagnosticsStorageWorker() {
         });
     diagnostics_storage_thread_ = new QThread(this);
     diagnostics_storage_worker_->moveToThread(diagnostics_storage_thread_);
+    connect(diagnostics_storage_thread_,
+            &QThread::started,
+            diagnostics_storage_worker_,
+            &QueueStorageWorkerBase::run);
     diagnostics_storage_thread_->start();
 }
 

@@ -75,10 +75,10 @@ private:
     SimulationWorker* simulation_worker_;
     QThread* simulation_thread_;
 
-    QueueStorageWorker<SystemSnapshotPtr>* system_storage_worker_;
+    QueueStorageWorkerBase* system_storage_worker_;
     QThread* system_storage_thread_;
 
-    QueueStorageWorker<DiagnosticsSnapshotPtr>* diagnostics_storage_worker_;
+    QueueStorageWorkerBase* diagnostics_storage_worker_;
     QThread* diagnostics_storage_thread_;
 
     std::atomic<SystemSnapshotPtr> render_queue_slot_;
