@@ -43,14 +43,16 @@ void NewSimulationTab::setupSettingsWidgets() {
 void NewSimulationTab::setupMethodSelection() {
     // Populate Generation Method combobox
     for (const auto method : simulation_settings_widgets_.keys()) {
-        ui_->cobSimulationMethod->addItem(QString::fromStdString(simulationMethodToString(method)),
-                                          QVariant::fromValue(method));
+        ui_->cobSimulationMethod->addItem(
+            QString::fromStdString(std::string(simulationMethodToString(method))),
+            QVariant::fromValue(method));
     }
 
     // Populate Simulation Method combobox
     for (const auto method : generation_settings_widgets_.keys()) {
-        ui_->cobGenerationMethod->addItem(QString::fromStdString(generationMethodToString(method)),
-                                          QVariant::fromValue(method));
+        ui_->cobGenerationMethod->addItem(
+            QString::fromStdString(std::string(generationMethodToString(method))),
+            QVariant::fromValue(method));
     }
 
     // Connect stacked settings widgets to combobox changes
