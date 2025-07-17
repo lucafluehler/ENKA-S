@@ -75,6 +75,8 @@ void LeapfrogSimulator::updateForces() {
     const size_t particle_count = system_.count();
     if (particle_count == 0) return;
 
+    potential_energy_ = 0.0;
+
     // Reset accelerations to zero
     std::fill(accelerations_.begin(), accelerations_.end(), math::Vector3D{});
 
@@ -95,6 +97,8 @@ void LeapfrogSimulator::updateForces() {
 
             accelerations_[i] += r_ij * masses[j] * dist_inv_cubed;
             accelerations_[j] -= r_ij * masses[i] * dist_inv_cubed;
+
+            potential_energy_ += masses[i] * masses[j] * dist_inv;
         }
     }
 }
