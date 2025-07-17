@@ -83,6 +83,10 @@ void HermiteSimulator::step() {
 
 [[nodiscard]] data::System HermiteSimulator::getSystem() const { return system_; }
 
+[[nodiscard]] data::Diagnostics HermiteSimulator::getDiagnostics() const {
+    return physics::getDiagnostics(system_, potential_energy_);
+}
+
 void HermiteSimulator::updateForces() {
     const size_t particle_count = system_.count();
     if (particle_count == 0) return;
@@ -125,7 +129,7 @@ void HermiteSimulator::updateForces() {
             jerks_[j] -= jerk_term * masses[i];
 
             // Potential energy
-            potential_energy_ += masses[i] * masses[j] * dist_inv;
+            potential_energy_ -= masses[i] * masses[j] * dist_inv;
         }
     }
 }
