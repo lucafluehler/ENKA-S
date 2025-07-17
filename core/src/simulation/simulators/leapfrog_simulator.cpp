@@ -71,6 +71,10 @@ void LeapfrogSimulator::step() {
 
 [[nodiscard]] data::System LeapfrogSimulator::getSystem() const { return system_; }
 
+[[nodiscard]] data::Diagnostics LeapfrogSimulator::getDiagnostics() const {
+    return physics::getDiagnostics(system_, potential_energy_);
+}
+
 void LeapfrogSimulator::updateForces() {
     const size_t particle_count = system_.count();
     if (particle_count == 0) return;
@@ -98,7 +102,7 @@ void LeapfrogSimulator::updateForces() {
             accelerations_[i] += r_ij * masses[j] * dist_inv_cubed;
             accelerations_[j] -= r_ij * masses[i] * dist_inv_cubed;
 
-            potential_energy_ += masses[i] * masses[j] * dist_inv;
+            potential_energy_ -= masses[i] * masses[j] * dist_inv;
         }
     }
 }
