@@ -1,12 +1,13 @@
 #pragma once
 
+#include <enkas/data/system.h>
+
 #include <QObject>
 #include <optional>
 #include <vector>
 
 #include "core/file_parse_logic.h"
-#include "core/settings.h"
-#include "enkas/data/system.h"
+#include "core/settings/settings.h"
 
 class FileParseWorker : public QObject {
     Q_OBJECT
