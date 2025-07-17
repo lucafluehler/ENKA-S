@@ -36,19 +36,15 @@ public:
     void updateSimulationProgress(double time, double duration) override;
     void simulationAborted() override;
 
-private slots:
-    void resetSettings();
-    void updateDefaultSettings(const Settings& settings);
+signals:
+    void checkFile(const QString& path);
 
+private slots:
     void openSystemDataDialog();
     void openSettingsDialog();
 
     void startSimulation();
-
     void abortSimulation();
-
-signals:
-    void checkFile(const QString& path);
 
 private:
     Settings fetchSettings() const;
@@ -57,6 +53,8 @@ private:
     void initializePreview();
     void setupSimulationProgressElements();
     void setupFileManagement();
+    void resetSettings();
+    void updateDefaultSettings(const Settings& settings);
 
     Ui::NewSimulationTab* ui_;
     NewSimulationPresenter* presenter_;
