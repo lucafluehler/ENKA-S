@@ -14,6 +14,15 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui_(new Ui::MainW
             load_simulation_presenter_,
             &LoadSimulationPresenter::checkFiles);
 
+    connect(ui_->tabWidget, &QTabWidget::currentChanged, this, [this](int index) {
+        QWidget* current = ui_->tabWidget->widget(index);
+        if (current == ui_->loadSimulationTab) {
+            load_simulation_presenter_->active();
+        } else {
+            load_simulation_presenter_->inactive();
+        }
+    });
+
     ui_->oglHomeScreen->initializeHomeScreen();
 }
 
