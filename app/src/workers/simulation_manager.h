@@ -20,6 +20,7 @@ public:
     void startSimulationProcedere();
 
     double getDuration() const;
+    double getTime() const;
 
 signals:
     void saveSettings();
@@ -63,6 +64,7 @@ private:
     void setupSimulationWindow();
 
     double duration_;             // Total duration of the simulation
+    double time_;                 // Current simulation time
     bool save_system_data_;       // Flag to indicate if system data should be saved
     bool save_diagnostics_data_;  // Flag to indicate if diagnostics data should be saved
 

@@ -88,6 +88,8 @@ void SimulationManager::startSimulationProcedere() { emit requestGeneration(); }
 
 double SimulationManager::getDuration() const { return duration_; }
 
+double SimulationManager::getTime() const { return time_; }
+
 void SimulationManager::openSimulationWindow() {
     if (!simulation_window_) return;
 
@@ -119,6 +121,7 @@ void SimulationManager::performSimulationStep(double time,
                                               SystemSnapshotPtr system_snapshot,
                                               DiagnosticsSnapshotPtr diagnostics_snapshot) {
     emit simulationStep(time);
+    time_ = time;
 
     if (system_snapshot) {
         // Signal to update the render data
