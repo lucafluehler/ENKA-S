@@ -2,7 +2,7 @@
 
 #include <enkas/data/system.h>
 
-#include <QString>
+#include <optional>
 
 class ILoadSimulationView {
 public:
