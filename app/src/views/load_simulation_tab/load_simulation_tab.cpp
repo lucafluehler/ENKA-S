@@ -92,28 +92,6 @@ void LoadSimulationTab::onDiagnosticsSeriesParsed(bool success) {
     }
 }
 
-void LoadSimulationTab::resetSimulationFilePaths() {
-    // Reset settings data
-    ui_->lblN->setText("");
-    ui_->lblDuration->setText("");
-    ui_->lblGenerationMethod->setText("");
-    ui_->lblSimulationMethod->setText("");
-
-    // Disable buttons and reset tooltip to path
-    ui_->btnOpenInitialSystem->setEnabled(false);
-    ui_->btnOpenInitialSystem->setToolTip("");
-    ui_->btnOpenSettings->setEnabled(false);
-    ui_->btnOpenSettings->setToolTip("");
-
-    // Reset icons
-    auto mode = FileCheckIcon::Mode::NotFound;
-    ui_->lblSettingsIcon->setMode(mode);
-    ui_->lblInitialSystemIcon->setMode(mode);
-    ui_->lblRenderIcon->setMode(mode);
-    ui_->lblDiagnosticsIcon->setMode(mode);
-    ui_->lblAnalyticsIcon->setMode(mode);
-}
-
 void LoadSimulationTab::checkFiles(const QString& dir_path) {
     QVector<QString> file_paths;
 
