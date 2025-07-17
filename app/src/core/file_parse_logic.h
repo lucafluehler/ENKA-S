@@ -7,7 +7,7 @@
 #include <optional>
 #include <vector>
 
-#include "core/settings.h"
+#include "core/settings/settings.h"
 
 struct SystemFrame {
     double timestamp;
