@@ -1,5 +1,6 @@
 #pragma once
 
+#include <enkas/data/diagnostics.h>
 #include <enkas/data/system.h>
 #include <enkas/math/bivector3d.h>
 #include <enkas/math/vector3d.h>
@@ -174,6 +175,31 @@ inline void scaleToHenonUnits(data::System& system, double total_energy) {
     for (auto& m : system.masses) m /= mass_unit;
     for (auto& p : system.positions) p /= length_unit;
     for (auto& v : system.velocities) v /= velocity_unit;
+}
+
+/**
+ * @brief Calculates the diagnostics of a system.
+ * @param system The system to analyze.
+ * @param potential_energy The potential energy of the system.
+ * @note The potential energy must be provided as its calculation is computationally expensive and
+ * differs between algorithms used.
+ * @return A Diagnostics struct containing the calculated properties.
+ */
+[[nodiscard]]
+inline data::Diagnostics getDiagnostics(const data::System& system, double potential_energy) {
+    data::Diagnostics data;
+
+    data.e_kin = getKineticEnergy(system);
+    data.e_pot = potential_energy;
+    data.L_tot = getAngularMomentum(system).norm();
+    const CenterOfMass com = getCenterOfMass(system);
+    data.com_pos = com.position;
+    data.com_vel = com.velocity;
+    data.ms_vel = 2.0 * data.e_kin;
+    data.r_vir = 0.5 / std::abs(data.e_pot);
+    data.t_cr = 2.0 * data.r_vir / std::sqrt(data.ms_vel);
+
+    return data;
 }
 
 }  // namespace enkas::physics
