@@ -259,9 +259,9 @@ Settings NewSimulationTab::fetchSettings() const {
                         .value();
 
     const auto& generation_method =
-        ui_->cobGenerationMethod->currentData().value<enkas::generation::Method>();
+        ui_->cobGenerationMethod->currentData().value<GenerationMethod>();
     const auto& simulation_method =
-        ui_->cobSimulationMethod->currentData().value<enkas::simulation::Method>();
+        ui_->cobSimulationMethod->currentData().value<SimulationMethod>();
 
     // Fetch generation settings
     auto* generation_settings_widget = generation_settings_widgets_.value(generation_method);
