@@ -267,13 +267,13 @@ Settings NewSimulationTab::fetchSettings() const {
         ui_->cobSimulationMethod->currentData().value<enkas::simulation::Method>();
 
     // Fetch generation settings
-    auto* generation_settings_widget = settings_widgets_.value(generation_method);
+    auto* generation_settings_widget = generation_settings_widgets_.value(generation_method);
     if (generation_settings_widget) {
         settings.merge(generation_settings_widget->getSettings());
     }
 
     // Fetch simulation settings
-    auto* simulation_settings_widget = settings_widgets_.value(simulation_method);
+    auto* simulation_settings_widget = simulation_settings_widgets_.value(simulation_method);
     if (simulation_settings_widget) {
         settings.merge(simulation_settings_widget->getSettings());
     }
