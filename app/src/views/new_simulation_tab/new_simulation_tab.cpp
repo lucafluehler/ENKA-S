@@ -131,7 +131,7 @@ void NewSimulationTab::openSystemDataDialog() {
         nullptr, "Open CSV File", open_this_path, "CSV system file (system.csv)");
 
     if (system_data_path.isEmpty()) {
-        initial_system_path_ = "";
+        initial_system_path_.clear();
         ui_->lblSystemDataPath->setText("");
         ui_->lblSystemDataPath->setToolTip("");
         ui_->lblSystemDataIcon->setMode(FileCheckIcon::Mode::NotFound);
