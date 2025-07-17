@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "core/file_constants.h"
+#include "core/settings/settings.h"
 
 std::string DataStorageLogic::getString(double value) {
     std::stringstream ss;
