@@ -10,6 +10,8 @@ class MainWindow;
 }
 QT_END_NAMESPACE
 
+class LoadSimulationPresenter;
+
 class MainWindow : public QMainWindow, public IMainWindowView {
     Q_OBJECT
 
@@ -20,4 +22,6 @@ public:
 
 private:
     Ui::MainWindow *ui_;
+
+    LoadSimulationPresenter *load_simulation_presenter_ = nullptr;
 };
