@@ -21,7 +21,7 @@ EulerSettingsWidget::EulerSettingsWidget(QWidget* parent)
 
 Settings EulerSettingsWidget::getSettings() const {
     return Settings::create({{EulerStepId, ui_->dsbEulerStep->value()},
-                             {EulerSofteningId, ui_->dsbEulerSoftening->value()}})
+                             {EulerSofteningId, ui_->dsbEulerSoft->value()}})
         .value();
 }
 
@@ -30,7 +30,7 @@ void EulerSettingsWidget::setSettings(const Settings& settings) {
         ui_->dsbEulerStep->setValue(settings.get<double>(EulerStepId));
     }
     if (settings.has(EulerSofteningId)) {
-        ui_->dsbEulerSoftening->setValue(settings.get<double>(EulerSofteningId));
+        ui_->dsbEulerSoft->setValue(settings.get<double>(EulerSofteningId));
     }
 }
 
