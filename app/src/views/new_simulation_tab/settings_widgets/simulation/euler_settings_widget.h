@@ -3,7 +3,7 @@
 #include <QObject>
 #include <QWidget>
 
-#include "core/settings.h"
+#include "core/settings/settings.h"
 #include "views/new_simulation_tab/settings_widgets/settings_widget.h"
 
 QT_BEGIN_NAMESPACE
