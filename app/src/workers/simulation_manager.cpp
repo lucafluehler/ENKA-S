@@ -11,7 +11,7 @@
 #include <format>
 
 #include "core/data_storage_logic.h"
-#include "core/settings.h"
+#include "core/settings/settings.h"
 #include "core/snapshot.h"
 #include "simulation_worker.h"
 #include "views/simulation_window/simulation_window.h"
@@ -19,9 +19,9 @@
 
 SimulationManager::SimulationManager(const Settings& settings, QObject* parent)
     : QObject(parent),
-      duration_(settings.get<double>("Duration")),
-      save_system_data_(settings.get<bool>("SaveSystemData")),
-      save_diagnostics_data_(settings.get<bool>("SaveDiagnosticsData")),
+      duration_(settings.get<double>(SettingKey::Duration)),
+      save_system_data_(settings.get<bool>(SettingKey::SaveSystemData)),
+      save_diagnostics_data_(settings.get<bool>(SettingKey::SaveDiagnosticsData)),
       simulation_window_(new SimulationWindow),
       simulation_worker_(nullptr),
       simulation_thread_(nullptr),
@@ -33,7 +33,7 @@ SimulationManager::SimulationManager(const Settings& settings, QObject* parent)
     // Data storage
     setupOutputDir();
 
-    if (settings.get<bool>("SaveSettings")) {
+    if (settings.get<bool>(SettingKey::SaveSettings)) {
         DataStorageLogic::saveSettings(output_dir_, settings);
     }
 

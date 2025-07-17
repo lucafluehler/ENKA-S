@@ -5,7 +5,7 @@
 #include <QThread>
 
 #include "core/blocking_queue.h"
-#include "core/settings.h"
+#include "core/settings/settings.h"
 #include "core/snapshot.h"
 #include "queue_storage_worker.h"
 #include "simulation_worker.h"
