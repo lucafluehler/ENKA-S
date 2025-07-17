@@ -39,9 +39,8 @@ private:
 private:
     HitsSettings settings_;
 
-    double system_time_ = 0.0;       // current time of the system
-    const double softening_sqr_;     // squared softening parameters
-    double potential_energy_ = 0.0;  // potential energy of the system
+    double system_time_ = 0.0;    // current time of the system
+    const double softening_sqr_;  // squared softening parameters
 
     data::System system_;                        // current state of the system
     std::vector<math::Vector3D> accelerations_;  // accelerations of the particles

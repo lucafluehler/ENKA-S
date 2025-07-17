@@ -96,7 +96,9 @@ void HitsSimulator::updateParticle(size_t particle_index) {
 }
 
 [[nodiscard]] data::Diagnostics HitsSimulator::getDiagnostics() const {
-    return physics::getDiagnostics(system_, potential_energy_);
+    const auto pred_system = getPredictedSystem(system_time_, true);
+    const auto potential_energy = physics::getPotentialEnergy(pred_system, softening_sqr_);
+    return physics::getDiagnostics(pred_system, potential_energy);
 }
 
 data::System HitsSimulator::getPredictedSystem(double time, bool sync_mode) const {
@@ -132,8 +134,6 @@ void HitsSimulator::calculateAccJrk(const data::System& system,
                                     size_t i,  // particle index
                                     math::Vector3D& acc,
                                     math::Vector3D& jrk) {
-    potential_energy_ = 0.0;
-
     acc.fill(0.0);
     jrk.fill(0.0);
 
@@ -158,9 +158,6 @@ void HitsSimulator::calculateAccJrk(const data::System& system,
         const math::Vector3D jerk_term = v_ij - r_ij * (3.0 * r_dot_v * dist_inv * dist_inv);
 
         jrk += jerk_term * masses[j] * dist_inv_cubed;
-
-        // Potential energy
-        potential_energy_ -= masses[i] * masses[j] * dist_inv;
     }
 }
 
