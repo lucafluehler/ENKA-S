@@ -33,7 +33,7 @@ LoadSimulationTab::LoadSimulationTab(QWidget* parent)
             &LoadSimulationTab::openFolderDialog);
 }
 
-void LoadSimulationTab::updatePreview() { ui_->oglSystemPreview->update(); }
+void LoadSimulationTab::updateInitialSystemPreview() { ui_->oglSystemPreview->update(); }
 
 void LoadSimulationTab::openFolderDialog() {
     QString open_this_path = QCoreApplication::applicationDirPath();
@@ -112,12 +112,10 @@ void LoadSimulationTab::resetSimulationFilePaths() {
     ui_->lblRenderIcon->setMode(mode);
     ui_->lblDiagnosticsIcon->setMode(mode);
     ui_->lblAnalyticsIcon->setMode(mode);
-
-    file_paths = FilePaths();
 }
 
 void LoadSimulationTab::checkFiles(const QString& dir_path) {
-    QVector<FileType> file_paths;
+    QVector<QString> file_paths;
 
     // Settings file
     QString settings_path = QDir(dir_path).filePath(file_names::settings);
