@@ -4,7 +4,7 @@
 #include <enkas/math/vector3d.h>
 
 #include <QMouseEvent>
-#include <QOpenGLFunctions>
+#include <QOpenGLExtraFunctions>
 #include <QOpenGLWidget>
 #include <tuple>
 #include <vector>
@@ -12,7 +12,7 @@
 #include "rendering/camera.h"
 #include "rendering/render_settings.h"
 
-class ParticleRenderer : public QOpenGLWidget, protected QOpenGLFunctions {
+class ParticleRenderer : public QOpenGLWidget, protected QOpenGLExtraFunctions {
     Q_OBJECT
 
 public:
@@ -65,5 +65,6 @@ private:
     enkas::data::System system_;
     Camera camera_;
 
-    GLuint circleVBO_;
+    GLuint vao_ = 0;
+    GLuint vbo_ = 0;
 };

@@ -8,8 +8,8 @@
 #include <QDir>
 #include <QFile>
 #include <QImage>
+#include <QOpenGLExtraFunctions>
 #include <QOpenGLFramebufferObject>
-#include <QOpenGLFunctions>
 #include <QOpenGLWidget>
 #include <QPainter>
 #include <QPixmap>
@@ -71,7 +71,18 @@ void ParticleRenderer::saveScreenshot() {
 
 void ParticleRenderer::initializeGL() {
     initializeOpenGLFunctions();
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+    glGenVertexArrays(1, &vao_);
+    glGenBuffers(1, &vbo_);
+
+    glBindVertexArray(vao_);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_);
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 }
 
 void ParticleRenderer::resizeGL(int w, int h) { glViewport(0, 0, w, h); }
