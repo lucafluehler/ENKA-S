@@ -46,6 +46,13 @@ NewSimulationPresenter::~NewSimulationPresenter() {
     }
 }
 
+void NewSimulationPresenter::active() {
+    const int fps = 30;
+    preview_timer_->start(1000 / fps);
+}
+
+void NewSimulationPresenter::inactive() { preview_timer_->stop(); }
+
 void NewSimulationPresenter::updatePreview() { view_->updatePreview(); }
 
 void NewSimulationPresenter::updateProgress() {

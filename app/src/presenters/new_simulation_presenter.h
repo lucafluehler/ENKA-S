@@ -20,6 +20,8 @@ public:
     ~NewSimulationPresenter();
 
 public slots:
+    void active();
+    void inactive();
     void checkInitialSystemFile();
     void checkSettingsFile();
     void startSimulation();
