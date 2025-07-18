@@ -1,15 +1,9 @@
 #include "euler_settings_widget.h"
 
 #include <QObject>
-#include <string_view>
 
 #include "core/settings/settings.h"
 #include "forms/new_simulation_tab/simulation_settings_widgets/ui_euler_settings_widget.h"
-
-namespace {
-constexpr std::string_view EulerStepId = "EulerStep";
-constexpr std::string_view EulerSofteningId = "EulerSoftening";
-}  // namespace
 
 EulerSettingsWidget::EulerSettingsWidget(QWidget* parent)
     : QWidget(parent), ui_(new Ui::EulerSettingsWidget) {
