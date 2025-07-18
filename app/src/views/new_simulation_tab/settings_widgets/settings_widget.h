@@ -8,22 +8,22 @@ public:
      * @brief Retrieves the current settings from the panel.
      * @return A Settings object containing the current settings.
      */
-    virtual Settings getSettings() const;
+    virtual Settings getSettings() const = 0;
 
     /**
      * @brief Sets the settings of the panel.
      * @param settings The Settings object to set.
      */
-    virtual void setSettings(const Settings& settings);
+    virtual void setSettings(const Settings& settings) = 0;
 
     /**
      * @brief Sets the default settings for the panel. These are applied when resetting the panel.
      * @param settings The Settings object to set as default.
      */
-    virtual void setDefaultSettings(const Settings& settings);
+    virtual void setDefaultSettings(const Settings& settings) = 0;
 
     /**
      * @brief Resets the settings of the panel to the default values.
      */
-    virtual void resetSettings();
+    virtual void resetSettings() = 0;
 };
