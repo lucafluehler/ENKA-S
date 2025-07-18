@@ -10,11 +10,14 @@
 #include <QRandomGenerator>
 #include <QScreen>
 #include <QStackedWidget>
+#include <memory>
 
+#include "core/settings/generation_method.h"
 #include "core/settings/settings.h"
 #include "forms/new_simulation_tab/ui_new_simulation_tab.h"
+#include "settings_widgets/generation/normal_sphere_schema.h"
 #include "settings_widgets/settings_widget.h"
-#include "settings_widgets/simulation/euler_settings_widget.h"
+#include "settings_widgets/simulation/euler_schema.h"
 #include "widgets/file_check_icon.h"
 
 NewSimulationTab::NewSimulationTab(QWidget* parent)
@@ -22,10 +25,8 @@ NewSimulationTab::NewSimulationTab(QWidget* parent)
     ui_->setupUi(this);
     setupSettingsWidgets();
     setupMethodSelection();
-    initializePreview();
     setupSimulationProgressElements();
     resetSettings();
-    setupFileManagement();
 
     // Other signals
     connect(ui_->btnResetSettings, &QPushButton::clicked, this, &NewSimulationTab::resetSettings);
@@ -35,48 +36,55 @@ NewSimulationTab::NewSimulationTab(QWidget* parent)
             &QPushButton::clicked,
             this,
             &NewSimulationTab::requestOpenSimulationWindow);
+    connect(
+        ui_->btnLoadSettings, &QPushButton::clicked, this, &NewSimulationTab::openSettingsDialog);
 }
 
 NewSimulationTab::~NewSimulationTab() { abortSimulation(); }
 
 void NewSimulationTab::setupSettingsWidgets() {
-    simulation_settings_widgets_.insert(SimulationMethod::Euler,
-                                        new EulerSettingsWidget(ui_->stwSimulationSettings));
+    // Setup generation settings schemas
+    auto normalSphereSchema = std::make_shared<NormalSphereSchema>();
+    generation_settings_schemas_[GenerationMethod::NormalSphere] = normalSphereSchema;
+    ui_->swiGenerationSettings->setSchema(normalSphereSchema->settingsSchema());
+    ui_->oglSystemPreview->initializeProcedural(GenerationMethod::NormalSphere);
+
+    connect(ui_->swiGenerationSettings,
+            &SettingsWidget::settingChanged,
+            this,
+            [this](SettingKey key, const QVariant& value) {
+                if (key == SettingKey::FilePath) {
+                    initial_system_path_ = value.toString();
+                    emit checkInitialSystemFile();
+                }
+            });
+
+    // Setup simulation settings schemas
+    auto eulerSchema = std::make_shared<EulerSchema>();
+    simulation_settings_schemas_[SimulationMethod::Euler] = eulerSchema;
+    ui_->swiSimulationSettings->setSchema(eulerSchema->settingsSchema());
 }
 
 void NewSimulationTab::setupMethodSelection() {
     // Populate Generation Method combobox
-    for (const auto method : simulation_settings_widgets_.keys()) {
-        ui_->cobSimulationMethod->addItem(
-            QString::fromStdString(std::string(simulationMethodToString(method))),
-            QVariant::fromValue(method));
+    for (const auto& [method, schema] : simulation_settings_schemas_.asKeyValueRange()) {
+        ui_->cobSimulationMethod->addItem(schema->name(), QVariant::fromValue(method));
     }
 
     // Populate Simulation Method combobox
-    for (const auto method : generation_settings_widgets_.keys()) {
-        ui_->cobGenerationMethod->addItem(
-            QString::fromStdString(std::string(generationMethodToString(method))),
-            QVariant::fromValue(method));
+    for (const auto& [method, schema] : generation_settings_schemas_.asKeyValueRange()) {
+        ui_->cobGenerationMethod->addItem(schema->name(), QVariant::fromValue(method));
     }
 
     // Connect stacked settings widgets to combobox changes
     connect(ui_->cobGenerationMethod,
-            &QComboBox::activated,
-            ui_->stwGenerationSettings,
-            &QStackedWidget::setCurrentIndex);
+            &QComboBox::currentIndexChanged,
+            this,
+            &NewSimulationTab::onGenerationMethodChanged);
     connect(ui_->cobSimulationMethod,
-            &QComboBox::activated,
-            ui_->stwSimulationSettings,
-            &QStackedWidget::setCurrentIndex);
-}
-
-void NewSimulationTab::initializePreview() {
-    ui_->oglNormalSpherePreview->initializeProcedural(GenerationMethod::NormalSphere);
-    ui_->oglUniformCubePreview->initializeProcedural(GenerationMethod::UniformCube);
-    ui_->oglUniformSpherePreview->initializeProcedural(GenerationMethod::UniformSphere);
-    ui_->oglPlummerPreview->initializeProcedural(GenerationMethod::PlummerSphere);
-    ui_->oglSpiralGalaxyPreview->initializeProcedural(GenerationMethod::SpiralGalaxy);
-    ui_->oglCollisionPreview->initializeProcedural(GenerationMethod::CollisionModel);
+            &QComboBox::currentIndexChanged,
+            this,
+            &NewSimulationTab::onSimulationMethodChanged);
 }
 
 void NewSimulationTab::setupSimulationProgressElements() {
@@ -90,60 +98,75 @@ void NewSimulationTab::setupSimulationProgressElements() {
         ui_->btnAbortSimulation, &QPushButton::clicked, this, &NewSimulationTab::abortSimulation);
 }
 
-void NewSimulationTab::setupFileManagement() {
-    connect(ui_->btnLoadSystemData,
-            &QPushButton::clicked,
-            this,
-            &NewSimulationTab::openSystemDataDialog);
-    connect(
-        ui_->btnLoadSettings, &QPushButton::clicked, this, &NewSimulationTab::openSettingsDialog);
-}
-
 void NewSimulationTab::resetSettings() {
-    for (auto* widget : simulation_settings_widgets_) {
-        widget->resetSettings();
+    auto generation_method = ui_->cobGenerationMethod->currentData().value<GenerationMethod>();
+    auto stored_generation_settings = stored_generation_settings_.value(generation_method);
+    ui_->swiGenerationSettings->setSettings(stored_generation_settings);
+
+    auto simulation_method = ui_->cobSimulationMethod->currentData().value<SimulationMethod>();
+    auto stored_simulation_settings = stored_simulation_settings_.value(simulation_method);
+    ui_->swiSimulationSettings->setSettings(stored_simulation_settings);
+}
+
+void NewSimulationTab::loadSettings(const Settings& settings) {
+    // Stored loaded generation settings as new default settings
+    const auto& generation_method = settings.get<GenerationMethod>(SettingKey::GenerationMethod);
+    stored_generation_settings_[generation_method] = settings;
+
+    // Update generation method combobox
+    int index = ui_->cobGenerationMethod->findData(QVariant::fromValue(generation_method));
+    if (index != -1) {
+        ui_->cobGenerationMethod->setCurrentIndex(index);
     }
 
-    for (auto* widget : generation_settings_widgets_) {
-        widget->resetSettings();
+    // Store loaded simulation settings as new default settings
+    const auto& simulation_method = settings.get<SimulationMethod>(SettingKey::SimulationMethod);
+    stored_simulation_settings_[simulation_method] = settings;
+
+    // Update simulation method combobox
+    index = ui_->cobSimulationMethod->findData(QVariant::fromValue(simulation_method));
+    if (index != -1) {
+        ui_->cobSimulationMethod->setCurrentIndex(index);
     }
 }
 
-void NewSimulationTab::updateDefaultSettings(const Settings& settings) {
-    for (auto* widget : simulation_settings_widgets_) {
-        widget->setDefaultSettings(settings);
-    }
+void NewSimulationTab::onGenerationMethodChanged(int new_index) {
+    // Store current settings before changing the method
+    const auto current_method = ui_->cobGenerationMethod->currentData().value<GenerationMethod>();
+    stored_generation_settings_[current_method] = ui_->swiGenerationSettings->getSettings();
 
-    for (auto* widget : generation_settings_widgets_) {
-        widget->setDefaultSettings(settings);
+    // Update settings widget based on the new method
+    const auto& method = ui_->cobGenerationMethod->itemData(new_index).value<GenerationMethod>();
+    const auto& schema = generation_settings_schemas_[method];
+
+    if (!schema) return;
+
+    ui_->swiGenerationSettings->setSchema(schema->settingsSchema());
+    const auto& stored_settings = stored_generation_settings_.value(method);
+    ui_->swiGenerationSettings->setSettings(stored_settings);
+
+    // Update system preview
+    if (method == GenerationMethod::File && !initial_system_path_.isEmpty()) {
+        ui_->oglSystemPreview->initializeFromFile(initial_system_path_);
+    } else {
+        ui_->oglSystemPreview->initializeProcedural(method);
     }
 }
 
-void NewSimulationTab::openSystemDataDialog() {
-    QString open_this_path = QCoreApplication::applicationDirPath();
+void NewSimulationTab::onSimulationMethodChanged(int new_index) {
+    // Store current settings before changing the method
+    const auto current_method = ui_->cobSimulationMethod->currentData().value<SimulationMethod>();
+    stored_simulation_settings_[current_method] = ui_->swiSimulationSettings->getSettings();
 
-    QString output_path = QDir(open_this_path).filePath("output");
-    if (QDir(output_path).exists()) open_this_path = output_path;
+    // Update settings widget based on the new method
+    const auto& method = ui_->cobSimulationMethod->itemData(new_index).value<SimulationMethod>();
+    const auto& schema = simulation_settings_schemas_[method];
 
-    QString system_data_path = QFileDialog::getOpenFileName(
-        nullptr, "Open CSV File", open_this_path, "CSV system file (system.csv)");
+    if (!schema) return;
 
-    if (system_data_path.isEmpty()) {
-        initial_system_path_.clear();
-        ui_->lblSystemDataPath->setText("");
-        ui_->lblSystemDataPath->setToolTip("");
-        ui_->lblSystemDataIcon->setMode(FileCheckIcon::Mode::NotFound);
-        return;
-    }
-
-    QString n = QFileInfo(system_data_path).dir().dirName();
-    ui_->lblSystemDataPath->setText(n.left(36).append(n.length() > 36 ? "..." : ""));
-    ui_->lblSystemDataPath->setToolTip(system_data_path);
-
-    ui_->lblSystemDataIcon->setMode(FileCheckIcon::Mode::Loading);
-
-    initial_system_path_ = system_data_path;
-    emit checkInitialSystemFile();
+    ui_->swiSimulationSettings->setSchema(schema->settingsSchema());
+    const auto& stored_settings = stored_simulation_settings_.value(method);
+    ui_->swiSimulationSettings->setSettings(stored_settings);
 }
 
 void NewSimulationTab::openSettingsDialog() {
@@ -175,7 +198,7 @@ void NewSimulationTab::openSettingsDialog() {
 
 void NewSimulationTab::processSettings(const std::optional<Settings>& settings) {
     if (settings.has_value()) {
-        updateDefaultSettings(*settings);
+        loadSettings(*settings);
         resetSettings();
         ui_->lblSettingsIcon->setMode(FileCheckIcon::Mode::Checked);
     } else {
@@ -185,10 +208,11 @@ void NewSimulationTab::processSettings(const std::optional<Settings>& settings) 
 
 void NewSimulationTab::processInitialSystem(const std::optional<enkas::data::System>& system) {
     if (system.has_value()) {
-        ui_->lblSystemDataIcon->setMode(FileCheckIcon::Mode::Checked);
-        ui_->oglFilePreview->initializeFromFile(initial_system_path_);
+        // ui_->lblSystemDataIcon->setMode(FileCheckIcon::Mode::Checked);
+        ui_->oglSystemPreview->initializeFromFile(initial_system_path_);
     } else {
-        ui_->lblSystemDataIcon->setMode(FileCheckIcon::Mode::Corrupted);
+        // ui_->lblSystemDataIcon->setMode(FileCheckIcon::Mode::Corrupted);
+        initial_system_path_.clear();
     }
 }
 
@@ -216,37 +240,7 @@ void NewSimulationTab::updateSimulationProgress(double time, double duration) {
     ui_->pbaSimulationProgress->setValue(time / duration * 100000);
 }
 
-void NewSimulationTab::updatePreview() {
-    auto method = ui_->cobGenerationMethod->currentData().value<GenerationMethod>();
-
-    switch (method) {
-        case GenerationMethod::File:
-            if (!initial_system_path_.isEmpty()) {
-                ui_->oglFilePreview->update();
-            }
-            break;
-        case GenerationMethod::NormalSphere:
-            ui_->oglNormalSpherePreview->update();
-            break;
-        case GenerationMethod::UniformCube:
-            ui_->oglUniformCubePreview->update();
-            break;
-        case GenerationMethod::UniformSphere:
-            ui_->oglUniformSpherePreview->update();
-            break;
-        case GenerationMethod::PlummerSphere:
-            ui_->oglPlummerPreview->update();
-            break;
-        case GenerationMethod::SpiralGalaxy:
-            ui_->oglSpiralGalaxyPreview->update();
-            break;
-        case GenerationMethod::CollisionModel:
-            ui_->oglCollisionPreview->update();
-            break;
-        default:
-            break;
-    }
-}
+void NewSimulationTab::updatePreview() { ui_->oglSystemPreview->update(); }
 
 Settings NewSimulationTab::fetchSettings() const {
     const auto& generation_method =
@@ -267,16 +261,10 @@ Settings NewSimulationTab::fetchSettings() const {
                         .value();
 
     // Fetch generation settings
-    auto* generation_settings_widget = generation_settings_widgets_.value(generation_method);
-    if (generation_settings_widget) {
-        settings.merge(generation_settings_widget->getSettings());
-    }
+    settings.merge(ui_->swiGenerationSettings->getSettings());
 
     // Fetch simulation settings
-    auto* simulation_settings_widget = simulation_settings_widgets_.value(simulation_method);
-    if (simulation_settings_widget) {
-        settings.merge(simulation_settings_widget->getSettings());
-    }
+    settings.merge(ui_->swiSimulationSettings->getSettings());
 
     return settings;
 }

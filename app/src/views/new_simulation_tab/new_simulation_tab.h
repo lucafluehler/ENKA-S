@@ -7,10 +7,12 @@
 #include <QTimer>
 #include <QVariant>
 #include <QWidget>
+#include <memory>
+#include <optional>
 
 #include "core/settings/settings.h"
 #include "i_new_simulation_view.h"
-#include "settings_widgets/settings_widget.h"
+#include "settings_widgets/settings_schema.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -43,7 +45,9 @@ signals:
     void requestOpenSimulationWindow();
 
 private slots:
-    void openSystemDataDialog();
+    void onGenerationMethodChanged(int index);
+    void onSimulationMethodChanged(int index);
+
     void openSettingsDialog();
 
     void startSimulation();
@@ -52,15 +56,16 @@ private slots:
 private:
     void setupSettingsWidgets();
     void setupMethodSelection();
-    void initializePreview();
     void setupSimulationProgressElements();
-    void setupFileManagement();
     void resetSettings();
-    void updateDefaultSettings(const Settings& settings);
+    void loadSettings(const Settings& settings);
 
     Ui::NewSimulationTab* ui_;
-    QHash<SimulationMethod, SettingsWidget*> simulation_settings_widgets_;
-    QHash<GenerationMethod, SettingsWidget*> generation_settings_widgets_;
+
+    QHash<GenerationMethod, std::shared_ptr<SettingsSchema>> generation_settings_schemas_;
+    QHash<GenerationMethod, Settings> stored_generation_settings_;
+    QHash<SimulationMethod, std::shared_ptr<SettingsSchema>> simulation_settings_schemas_;
+    QHash<SimulationMethod, Settings> stored_simulation_settings_;
 
     QString initial_system_path_;
     QString settings_path_;
