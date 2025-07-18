@@ -87,7 +87,7 @@ void SimulationWindow::toggleMovie(bool checked) {
     }
 }
 
-void SimulationWindow::updateSimulationRendering(SystemSnapshotPtr system_snapshot,
+void SimulationWindow::updateSystemRendering(SystemSnapshotPtr system_snapshot,
                                                  double simulation_duration,
                                                  double fps) {
     if (!system_snapshot) return;
