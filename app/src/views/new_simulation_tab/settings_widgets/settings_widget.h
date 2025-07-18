@@ -3,6 +3,7 @@
 #include <QFormLayout>
 #include <QLayoutItem>
 #include <QMap>
+#include <QObject>
 #include <QVector>
 #include <QWidget>
 
@@ -10,6 +11,8 @@
 #include "setting_descriptor.h"
 
 class SettingsWidget : public QWidget {
+    Q_OBJECT
+
     QFormLayout* form_;
     QMap<SettingKey, QWidget*> editors_;
 
