@@ -49,14 +49,14 @@ void ParticleRenderer::saveScreenshot() {
 
     render(&painter);
 
-    QString download_dir = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
+    QDir video_dir(QStandardPaths::writableLocation(QStandardPaths::DownloadLocation));
+    video_dir.mkpath("VIDEO");
+    video_dir.cd("VIDEO");
 
-    QString video_dir = QDir(download_dir).filePath("VIDEO");
-
-    if (!QDir(video_dir).exists()) QDir().mkdir(video_dir);
-
-    QString timestamp = QDateTime::currentDateTime().toString("_yyyyMMdd_hhmmss_");
-    QString save_path = video_dir + "/ENKAS" + timestamp + QString::number(data.time) + ".png";
+    QString filename = QString("ENKAS_%1_%2.png")
+                           .arg(QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss"))
+                           .arg(system_->time);
+    QString save_path = video_dir.filePath(filename);
 
     if (QFile(save_path).exists()) return;
 
