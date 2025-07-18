@@ -25,8 +25,13 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui_(new Ui::MainW
         QWidget* current = ui_->tabWidget->widget(index);
         if (current == ui_->tabLoadSimulation) {
             load_simulation_presenter_->active();
+            new_simulation_presenter_->inactive();
+        } else if (current == ui_->tabNewSimulation) {
+            load_simulation_presenter_->inactive();
+            new_simulation_presenter_->active();
         } else {
             load_simulation_presenter_->inactive();
+            new_simulation_presenter_->inactive();
         }
     });
 
