@@ -74,12 +74,15 @@ void SystemPreview::initializeHomeScreen() {
     // Generate home screen system
     enkas::generation::CollisionModelSettings settings;
     settings.seed = 42;
-    settings.impact_parameter = 3.0;
+    settings.impact_parameter = 3.4;
     settings.relative_velocity = 0.1;
-    settings.particle_count_1 = 1200;
-    settings.sphere_radius_1 = 0.6;
-    settings.particle_count_2 = 1200;
-    settings.sphere_radius_2 = 0.6;
+    settings.particle_count_1 = 2400;
+    settings.sphere_radius_1 = 0.4;
+    settings.total_mass_1 = 10.0;
+    settings.particle_count_2 = 2400;
+    settings.sphere_radius_2 = 0.4;
+    settings.total_mass_2 = 10.0;
+
     auto system = enkas::generation::Factory::create(settings)->createSystem();
 
     // Feed system to particle renderer
@@ -109,7 +112,7 @@ void SystemPreview::setHomeScreenSettings() {
     render_settings.show_center_of_mass = false;
     render_settings.show_center_of_screen = false;
     render_settings.fov = 60;
-    render_settings.particle_size_param = 0.4;
+    render_settings.particle_size_param = 0.7;
 
     redraw(render_settings);
 }
