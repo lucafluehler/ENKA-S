@@ -249,25 +249,22 @@ void NewSimulationTab::updatePreview() {
 }
 
 Settings NewSimulationTab::fetchSettings() const {
-    const auto& generation_method_str = ui_->cobGenerationMethod->currentText();
-    const auto& simulation_method_str = ui_->cobSimulationMethod->currentText();
-
-    // Fetch general settings
-    auto settings = Settings::create(  //
-                        {SettingKey::GenerationMethod, generation_method_str},
-                        {SettingKey::SimulationMethod, simulation_method_str},
-                        {SettingKey::Duration, ui_->dsbSimDuration->value()},
-                        {SettingKey::SystemDataStep, ui_->dsbSystemTimeStep->value()},
-                        {SettingKey::DiagnosticsDataStep, ui_->dsbDiagnosticsTimeStep->value()},
-                        {SettingKey::SaveSystemData, ui_->cbxSaveSystem->isChecked()},
-                        {SettingKey::SaveDiagnosticsData, ui_->cbxSaveDiagnostics->isChecked()},
-                        {SettingKey::SaveSettings, ui_->cbxSaveSettings->isChecked()})
-                        .value();
-
     const auto& generation_method =
         ui_->cobGenerationMethod->currentData().value<GenerationMethod>();
     const auto& simulation_method =
         ui_->cobSimulationMethod->currentData().value<SimulationMethod>();
+
+    // Fetch general settings
+    auto settings = Settings::create(  //
+                        {{SettingKey::GenerationMethod, generation_method},
+                         {SettingKey::SimulationMethod, simulation_method},
+                         {SettingKey::Duration, ui_->dsbSimDuration->value()},
+                         {SettingKey::SystemDataStep, ui_->dsbSystemTimeStep->value()},
+                         {SettingKey::DiagnosticsDataStep, ui_->dsbDiagnosticsTimeStep->value()},
+                         {SettingKey::SaveSystemData, ui_->cbxSaveSystem->isChecked()},
+                         {SettingKey::SaveDiagnosticsData, ui_->cbxSaveDiagnostics->isChecked()},
+                         {SettingKey::SaveSettings, ui_->cbxSaveSettings->isChecked()}})
+                        .value();
 
     // Fetch generation settings
     auto* generation_settings_widget = generation_settings_widgets_.value(generation_method);
