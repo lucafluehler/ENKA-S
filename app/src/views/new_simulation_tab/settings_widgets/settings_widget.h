@@ -22,6 +22,9 @@ public:
 
     void setSettings(const Settings& s);
 
+signals:
+    void settingChanged(SettingKey key, const QVariant& value);
+
 private:
     void clearLayout(QFormLayout* layout);
 };

@@ -43,12 +43,16 @@ void SettingsWidget::setSchema(const QVector<SettingDescriptor>& schema) {
                 auto* hh = new QWidget;
                 auto* lay = new QHBoxLayout(hh);
                 auto* le = new QLineEdit;
+                connect(le, &QLineEdit::editingFinished, this, [=, this]() {
+                    emit settingChanged(desc.key, le->text());
+                });
                 auto* btn = new QPushButton("…");
                 lay->addWidget(le);
                 lay->addWidget(btn);
-                connect(btn, &QPushButton::clicked, this, [le]() {
+                connect(btn, &QPushButton::clicked, this, [this, le, desc]() {
                     QString f = QFileDialog::getOpenFileName(le, "Select file");
                     if (!f.isEmpty()) le->setText(f);
+                    emit settingChanged(desc.key, f);
                 });
                 editor = hh;
             } break;
