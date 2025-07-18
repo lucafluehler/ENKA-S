@@ -12,6 +12,7 @@
 #include "core/data_storage_logic.h"
 #include "core/settings/settings.h"
 #include "core/snapshot.h"
+#include "presenters/simulation_window_presenter.h"
 #include "simulation_worker.h"
 #include "views/simulation_window/simulation_window.h"
 #include "workers/queue_storage_worker.h"
@@ -92,8 +93,9 @@ double SimulationManager::getTime() const { return time_; }
 void SimulationManager::openSimulationWindow() {
     if (!simulation_window_) return;
 
-    if (simulation_window_->getMode() == SimulationWindow::Mode::Uninitialized)
-        simulation_window_->initLiveMode(data_, duration_);
+    if (simulation_window_presenter_->getMode() == SimulationWindowPresenter::Mode::Uninitialized) {
+        simulation_window_presenter_->initLiveMode(&render_queue_slot_, chart_queue_, duration_);
+    }
 
     simulation_window_->show();
 }
@@ -229,12 +231,10 @@ void SimulationManager::setupSimulationWorker(const Settings& settings) {
 }
 
 void SimulationManager::setupSimulationWindow() {
+    simulation_window_presenter_ = new SimulationWindowPresenter(simulation_window_);
+
     connect(this,
             &SimulationManager::renderDataStep,
-            simulation_window_,
-            &SimulationWindow::renderDataUpdate);
-    connect(this,
-            &SimulationManager::diagnosticsDataStep,
-            simulation_window_,
-            &SimulationWindow::diagnosticsDataUpdate);
+            simulation_window_presenter_,
+            &SimulationWindowPresenter::updateRendering);
 }

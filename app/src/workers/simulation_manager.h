@@ -7,6 +7,7 @@
 #include "core/blocking_queue.h"
 #include "core/settings/settings.h"
 #include "core/snapshot.h"
+#include "presenters/simulation_window_presenter.h"
 #include "queue_storage_worker.h"
 #include "simulation_worker.h"
 #include "views/simulation_window/simulation_window.h"
@@ -71,6 +72,7 @@ private:
     std::filesystem::path output_dir_;  // Output directory for saving data
 
     SimulationWindow* simulation_window_;
+    SimulationWindowPresenter* simulation_window_presenter_;
 
     SimulationWorker* simulation_worker_;
     QThread* simulation_thread_;
