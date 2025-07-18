@@ -74,6 +74,8 @@ void SystemPreview::initializeHomeScreen() {
     // Generate home screen system
     enkas::generation::CollisionModelSettings settings;
     settings.seed = 42;
+    settings.impact_parameter = 3.0;
+    settings.relative_velocity = 0.1;
     settings.particle_count_1 = 1200;
     settings.sphere_radius_1 = 0.6;
     settings.particle_count_2 = 1200;
