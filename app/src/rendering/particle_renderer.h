@@ -9,8 +9,8 @@
 #include <tuple>
 #include <vector>
 
-#include "camera.h"
-#include "render_settings.h"
+#include "rendering/camera.h"
+#include "rendering/render_settings.h"
 
 class ParticleRenderer : public QOpenGLWidget, protected QOpenGLFunctions {
     Q_OBJECT
@@ -20,7 +20,7 @@ public:
 
     void updateData(const std::shared_ptr<enkas::data::System>& data);
     void updateData(const std::unique_ptr<enkas::data::System>& data);
-    void redraw(const RenderSettings& p_settings);
+    void redraw(const RenderSettings& settings);
 
 public slots:
     void saveScreenshot();
@@ -57,9 +57,9 @@ private:
     void setCenterColor();
     void setParticleColor(double distance);
 
-    QPoint last_mouse_pos;
+    QPoint last_mouse_pos_;
 
-    std::vector<std::tuple<double, enkas::math::Vector3D>> rel_positions;
+    std::vector<std::tuple<double, enkas::math::Vector3D>> rel_positions_;
 
     RenderSettings settings_;
     enkas::data::System system_;
