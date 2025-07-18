@@ -11,6 +11,9 @@
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui_(new Ui::MainWindow) {
     ui_->setupUi(this);
 
+    // Ensure home screen is shown first
+    ui_->tabWidget->setCurrentIndex(0);
+
     // Initialize the load simulation tab
     load_simulation_presenter_ = new LoadSimulationPresenter(ui_->tabLoadSimulation);
     connect(ui_->tabLoadSimulation,
