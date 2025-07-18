@@ -1,6 +1,12 @@
 #include "render_settings_widget.h"
 
+#include <QCheckBox>
+#include <QComboBox>
+#include <QDoubleSpinBox>
+#include <QStackedWidget>
+
 #include "forms/simulation_window/ui_render_settings_widget.h"
+#include "rendering/render_settings.h"
 
 RenderSettingsWidget::RenderSettingsWidget(QWidget* parent)
     : QWidget(parent), ui(new Ui::RenderSettingsWidget) {

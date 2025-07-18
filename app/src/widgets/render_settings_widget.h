@@ -1,23 +1,24 @@
 #pragma once
 
-#include <QWidget>
 #include <QMap>
+#include <QWidget>
 
-#include "render_settings.h"
+#include "rendering/render_settings.h"
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class RenderSettingsWidget; }
+namespace Ui {
+class RenderSettingsWidget;
+}
 QT_END_NAMESPACE
 
-class RenderSettingsWidget : public QWidget
-{
+class RenderSettingsWidget : public QWidget {
     Q_OBJECT
 
 public:
     RenderSettingsWidget(QWidget *parent = nullptr);
     ~RenderSettingsWidget();
 
-    void loadRenderSettings(const RenderSettings& settings);
+    void loadRenderSettings(const RenderSettings &settings);
     RenderSettings getRenderSettings() const;
 
 signals:
