@@ -20,5 +20,5 @@ using DiagnosticsSnapshot = const Timed<enkas::data::Diagnostics>;
 using SystemSnapshotPtr = std::shared_ptr<const Timed<enkas::data::System>>;
 using DiagnosticsSnapshotPtr = std::shared_ptr<const Timed<enkas::data::Diagnostics>>;
 
-Q_DECLARE_METATYPE(SystemSnapshotPtr)
-Q_DECLARE_METATYPE(DiagnosticsSnapshotPtr)
+// Q_DECLARE_METATYPE(SystemSnapshotPtr)
+// Q_DECLARE_METATYPE(DiagnosticsSnapshotPtr)
