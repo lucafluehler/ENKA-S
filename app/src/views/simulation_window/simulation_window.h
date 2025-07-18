@@ -16,7 +16,7 @@ class SimulationWindow;
 }
 QT_END_NAMESPACE
 
-class SimulationWindow : public QMainWindow, ISimulationWindowView {
+class SimulationWindow : public QMainWindow, public ISimulationWindowView {
     Q_OBJECT
 
 public:
