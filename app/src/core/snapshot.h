@@ -8,10 +8,10 @@
 
 template <typename T>
 struct Timed {
-    double time;
     T data;
+    double time;
 
-    Timed(double t, T d) : time(t), data(std::move(d)) {}
+    Timed(T d, double t = 0.0) : data(std::move(d)), time(t) {}
 };
 
 using SystemSnapshot = const Timed<enkas::data::System>;

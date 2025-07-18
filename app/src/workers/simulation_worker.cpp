@@ -87,13 +87,13 @@ void SimulationWorker::step() {
     DiagnosticsSnapshotPtr diagnostics_snapshot{nullptr};
 
     if (time - last_system_update_ >= system_step_) {
-        system_snapshot = std::make_shared<SystemSnapshot>(time, simulator_->getSystem());
+        system_snapshot = std::make_shared<SystemSnapshot>(simulator_->getSystem(), time);
         last_system_update_ = time;
     }
 
     if (time - last_diagnostics_update_ >= diagnostics_step_) {
         diagnostics_snapshot =
-            std::make_shared<DiagnosticsSnapshot>(time, simulator_->getDiagnostics());
+            std::make_shared<DiagnosticsSnapshot>(simulator_->getDiagnostics(), time);
         last_diagnostics_update_ = time;
     }
 
