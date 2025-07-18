@@ -1,6 +1,8 @@
 #include "rendering/particle_renderer.h"
 
 #include <enkas/data/system.h>
+#include <enkas/math/rotor3d.h>
+#include <enkas/math/vector3d.h>
 
 #include <QDateTime>
 #include <QDir>
@@ -84,7 +86,7 @@ void ParticleRenderer::paintGL() {
 
     if (settings_.show_center_of_mass) {
         setCOMColor();
-        math::Vector3D rel_pos = getRelPos(data.com_position);
+        enkas::math::Vector3D rel_pos = getRelPos(data.com_position);
 
         const float c_ASPECT_RATIO = static_cast<float>(width()) / height();
         const float c_HALF_TAN_FOV = std::tan(settings_.fov * M_PI / 180.0f / 2.0f);
@@ -112,15 +114,15 @@ void ParticleRenderer::mouseMoveEvent(QMouseEvent* event) {
     float mu = 0.0006;
 
     if (event->buttons() & Qt::LeftButton) {
-        camera_.rel_rotation =
-            math::Rotor3D(1.0, 0.0, -dx * mu, dy * mu * 1.5).normalize() * camera_.rel_rotation;
+        camera_.rel_rotation = enkas::math::Rotor3D(1.0, 0.0, -dx * mu, dy * mu * 1.5).normalize() *
+                               camera_.rel_rotation;
 
         last_mouse_pos_ = event->pos();
     }
 
     if (event->buttons() & Qt::RightButton) {
         camera_.rel_rotation =
-            math::Rotor3D(1.0, dy * mu, 0.0, 0.0).normalize() * camera_.rel_rotation;
+            enkas::math::Rotor3D(1.0, dy * mu, 0.0, 0.0).normalize() * camera_.rel_rotation;
 
         last_mouse_pos_ = event->pos();
     }
@@ -132,7 +134,7 @@ void ParticleRenderer::wheelEvent(QWheelEvent* event) {
 }
 
 void ParticleRenderer::keyPressEvent(QKeyEvent* event) {
-    math::Vector3D movement;
+    enkas::math::Vector3D movement;
 
     const float c_MOVE = 0.02 * camera_.target_distance;
 
@@ -167,7 +169,7 @@ void ParticleRenderer::drawParticles() {
     rel_positions_.clear();
 
     for (const auto& pos : data.positions) {
-        math::Vector3D rel_pos = getRelPos(pos);
+        enkas::math::Vector3D rel_pos = getRelPos(pos);
         rel_positions_.push_back(std::make_tuple(rel_pos.norm(), rel_pos));
     }
 
@@ -310,15 +312,15 @@ void ParticleRenderer::drawCross(float x, float y, float size) {
     glDeleteBuffers(1, &vbo);
 }
 
-math::Vector3D ParticleRenderer::getRelPos(const math::Vector3D& pos) {
-    math::Vector3D rel_pos = camera_.rel_rotation.rotate(camera_.target_pos - pos) -
-                             math::Vector3D(0.0, 0.0, -camera_.target_distance);
+enkas::math::Vector3D ParticleRenderer::getRelPos(const enkas::math::Vector3D& pos) {
+    enkas::math::Vector3D rel_pos = camera_.rel_rotation.rotate(camera_.target_pos - pos) -
+                                    enkas::math::Vector3D(0.0, 0.0, -camera_.target_distance);
     return rel_pos;
 }
 
 QPointF ParticleRenderer::convertPosToLoc(const float c_ASPECT_RATIO,
                                           const float c_HALF_TAN_FOV,
-                                          const math::Vector3D& rel_pos,
+                                          const enkas::math::Vector3D& rel_pos,
                                           bool* is_visible) {
     // Check if particle is behind camera_
     if (rel_pos.z <= 0) {
@@ -342,29 +344,29 @@ QPointF ParticleRenderer::convertPosToLoc(const float c_ASPECT_RATIO,
 void ParticleRenderer::animation() {
     double s = 0.002 * settings_.animation_speed;  // speed parameter
 
-    math::Rotor3D animation;
+    enkas::math::Rotor3D animation;
 
     switch (settings_.animation_style) {
         case AnimationStyle::RIGHT:
-            animation = math::Rotor3D(1.0, 0.0, -s, 0.0);
+            animation = enkas::math::Rotor3D(1.0, 0.0, -s, 0.0);
             break;
         case AnimationStyle::LEFT:
-            animation = math::Rotor3D(1.0, 0.0, s, 0.0);
+            animation = enkas::math::Rotor3D(1.0, 0.0, s, 0.0);
             break;
         case AnimationStyle::UP:
-            animation = math::Rotor3D(1.0, 0.0, 0.0, -s);
+            animation = enkas::math::Rotor3D(1.0, 0.0, 0.0, -s);
             break;
         case AnimationStyle::DOWN:
-            animation = math::Rotor3D(1.0, 0.0, 0.0, s);
+            animation = enkas::math::Rotor3D(1.0, 0.0, 0.0, s);
             break;
         case AnimationStyle::CWISE:
-            animation = math::Rotor3D(1.0, s, 0.0, 0.0);
+            animation = enkas::math::Rotor3D(1.0, s, 0.0, 0.0);
             break;
         case AnimationStyle::CNTRCWISE:
-            animation = math::Rotor3D(1.0, -s, 0.0, 0.0);
+            animation = enkas::math::Rotor3D(1.0, -s, 0.0, 0.0);
             break;
         case AnimationStyle::TUTTI:
-            animation = math::Rotor3D(1.0, s, s, s);
+            animation = enkas::math::Rotor3D(1.0, s, s, s);
             break;
         case AnimationStyle::NONE:
             return;
