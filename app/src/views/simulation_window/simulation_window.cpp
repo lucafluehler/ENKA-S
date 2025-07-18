@@ -7,13 +7,12 @@
 
 #include "core/snapshot.h"
 #include "forms/simulation_window/ui_simulation_window.h"
-#include "i_simulation_window_view.h"
 #include "rendering/particle_renderer.h"
 #include "rendering/render_settings.h"
 #include "widgets/render_settings_widget.h"
 
 SimulationWindow::SimulationWindow(QWidget* parent)
-    : QMainWindow(parent), movie_timer(new QTimer), ui(new Ui::SimulationWindow) {
+    : QMainWindow(parent), movie_timer(new QTimer), ui_(new Ui::SimulationWindow) {
     // Ui Setup
     ui_->setupUi(this);
     ui_->wgtSidebar->hide();
