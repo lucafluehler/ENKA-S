@@ -9,6 +9,7 @@
 #include <tuple>
 #include <vector>
 
+#include "core/snapshot.h"
 #include "rendering/camera.h"
 #include "rendering/render_settings.h"
 
@@ -18,8 +19,7 @@ class ParticleRenderer : public QOpenGLWidget, protected QOpenGLExtraFunctions {
 public:
     ParticleRenderer(QWidget* parent = nullptr);
 
-    void updateData(const std::shared_ptr<enkas::data::System>& data);
-    void updateData(const std::unique_ptr<enkas::data::System>& data);
+    void updateData(SystemSnapshotPtr system);
     void redraw(const RenderSettings& settings);
 
 public slots:
@@ -62,7 +62,7 @@ private:
     std::vector<std::tuple<double, enkas::math::Vector3D>> rel_positions_;
 
     RenderSettings settings_;
-    enkas::data::System system_;
+    SystemSnapshotPtr system_;
     Camera camera_;
 
     GLuint vao_ = 0;

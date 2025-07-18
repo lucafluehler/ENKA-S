@@ -1,6 +1,5 @@
 #include "rendering/particle_renderer.h"
 
-#include <enkas/data/system.h>
 #include <enkas/math/rotor3d.h>
 #include <enkas/math/vector3d.h>
 
@@ -21,6 +20,8 @@
 #include <tuple>
 #include <vector>
 
+#include "core/snapshot.h"
+
 ParticleRenderer::ParticleRenderer(QWidget* parent) : QOpenGLWidget(parent) {
     QSurfaceFormat format;
     format.setSamples(4);
@@ -29,21 +30,15 @@ ParticleRenderer::ParticleRenderer(QWidget* parent) : QOpenGLWidget(parent) {
     setFocusPolicy(Qt::StrongFocus);
 }
 
-void ParticleRenderer::updateData(const std::shared_ptr<RenderData>& d) {
-    if (d) data = *d;
+void ParticleRenderer::updateData(SystemSnapshotPtr system) {
+    if (!system) return;
+    system_ = std::move(system);
     rel_positions_.clear();
-    rel_positions_.reserve(data.positions.size());
-}
-
-void ParticleRenderer::updateData(const std::unique_ptr<RenderData>& d) {
-    if (d) data = *d;
-    rel_positions_.clear();
-    rel_positions_.reserve(data.positions.size());
+    rel_positions_.reserve(system_->data.count());
 }
 
 void ParticleRenderer::redraw(const RenderSettings& settings) {
     settings_ = settings;
-
     update();
 }
 
@@ -66,7 +61,6 @@ void ParticleRenderer::saveScreenshot() {
     if (QFile(save_path).exists()) return;
 
     screenshot.save(save_path);
-    qDebug() << "Screenshot wurde im Download-Ordner gespeichert:" << save_path;
 }
 
 void ParticleRenderer::initializeGL() {
