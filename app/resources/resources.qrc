@@ -28,4 +28,8 @@
         <file>img/load.png</file>
         <file>img/randomize.png</file>
     </qresource>
+        <qresource prefix="/">
+        <file>shaders/particle.vert</file>
+        <file>shaders/particle.frag</file>
+    </qresource>
 </RCC>
