@@ -31,6 +31,10 @@ NewSimulationTab::NewSimulationTab(QWidget* parent)
     connect(ui_->btnResetSettings, &QPushButton::clicked, this, &NewSimulationTab::resetSettings);
     connect(
         ui_->btnStartSimulation, &QPushButton::clicked, this, &NewSimulationTab::startSimulation);
+    connect(ui_->btnOpenLiveWindow,
+            &QPushButton::clicked,
+            this,
+            &NewSimulationTab::requestOpenSimulationWindow);
 }
 
 NewSimulationTab::~NewSimulationTab() { abortSimulation(); }

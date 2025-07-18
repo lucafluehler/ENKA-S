@@ -40,6 +40,7 @@ signals:
     void checkSettingsFile();
     void requestSimulationStart();
     void requestSimulationAbort();
+    void requestOpenSimulationWindow();
 
 private slots:
     void openSystemDataDialog();

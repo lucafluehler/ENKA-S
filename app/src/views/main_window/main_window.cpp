@@ -45,8 +45,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui_(new Ui::MainW
             &NewSimulationTab::requestSimulationAbort,
             new_simulation_presenter_,
             &NewSimulationPresenter::abortSimulation);
-    connect(ui_->tabNewSimulation->btnOpenLiveWindow,
-            &QPushButton::clicked,
+    connect(ui_->tabNewSimulation,
+            &NewSimulationTab::requestOpenSimulationWindow,
             new_simulation_presenter_,
             &NewSimulationPresenter::openSimulationWindow);
 
