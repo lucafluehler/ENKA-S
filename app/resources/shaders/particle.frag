@@ -1,31 +1,40 @@
 #version 410 core
 
+// NEW: This is received from the vertex shader
+in vec2 v_quad_coord;
+
 in float v_distance_to_camera;
 
-// Uniforms from the C++ side
 uniform float u_fog_mu;
 uniform float u_camera_target_distance;
-uniform int u_coloring_method; // 0 for black fog, 1 for white fog
+uniform int u_coloring_method; 
 
 out vec4 frag_color;
 
 void main() {
-    // Make the square a circle by discarding pixels outside a radius of 0.5
-    // `gl_PointCoord` is an input variable for point sprites, but we can fake it.
-    // A simpler way for quads is to use a varying tex coord, but for now this works:
-    vec2 coord = gl_PointCoord - vec2(0.5);
-    if (dot(coord, coord) > 0.25) {
-        discard;
+    // OLD and WRONG:
+    // vec2 coord = gl_PointCoord - vec2(0.5);
+
+    // NEW and CORRECT:
+    // v_quad_coord is from -0.5 to 0.5. dot(v_quad_coord, v_quad_coord)
+    // gives the squared distance from the center. The radius is 0.5, so the
+    // squared radius is 0.25.
+    if (dot(v_quad_coord, v_quad_coord) > 0.25) {
+        discard; // Discard fragment if it's outside the circle
     }
     
     float c = 0.0;
+    float epsilon = 0.00001; // A small number to prevent division by zero
+
     if (u_coloring_method == 0) { // BLACK_FOG
-        float ratio = v_distance_to_camera / (u_camera_target_distance * 1.3);
+        float safe_denom = (u_camera_target_distance * 1.3) + epsilon;
+        float ratio = v_distance_to_camera / safe_denom;
         c = 1.0 / (1.0 + exp((ratio - 1.0) * u_fog_mu));
     } else { // WHITE_FOG
-        float ratio = v_distance_to_camera / u_camera_target_distance;
+        float safe_denom = u_camera_target_distance + epsilon;
+        float ratio = v_distance_to_camera / safe_denom;
         c = 1.0 - (1.0 / (1.0 + exp((ratio - 1.0) * u_fog_mu)));
     }
-    
+        
     frag_color = vec4(c, pow(c, 6.0), pow(c, 8.0), 1.0);
 }

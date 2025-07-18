@@ -14,10 +14,8 @@
 #include <QPixmap>
 #include <QStandardPaths>
 #include <QSurfaceFormat>
-#include <algorithm>
 #include <cmath>
 #include <memory>
-#include <tuple>
 #include <vector>
 
 #include "core/snapshot.h"
@@ -68,17 +66,47 @@ void ParticleRenderer::saveScreenshot() {
 void ParticleRenderer::initializeGL() {
     initializeOpenGLFunctions();
 
-    glGenVertexArrays(1, &vao_);
-    glGenBuffers(1, &vbo_);
+    // Load shaders
+    shader_program_.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/particle.vert");
+    shader_program_.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/particle.frag");
+    if (!shader_program_.link()) {
+        qCritical() << "Shader link error:" << shader_program_.log();
+        return;
+    }
 
-    glBindVertexArray(vao_);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo_);
+    // A simple quad that we will draw for each particle
+    const GLfloat quad_vertices[] = {
+        -0.5f,
+        -0.5f,
+        0.5f,
+        -0.5f,
+        -0.5f,
+        0.5f,
+        0.5f,
+        0.5f,
+    };
+    quad_vbo_.create();
+    quad_vbo_.bind();
+    quad_vbo_.allocate(quad_vertices, sizeof(quad_vertices));
+    quad_vbo_.release();
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (void*)0);
-    glEnableVertexAttribArray(0);
+    particle_position_vbo_.create();
+    particle_position_vbo_.setUsagePattern(QOpenGLBuffer::StreamDraw);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+    vao_.create();
+    vao_.bind();
+
+    quad_vbo_.bind();
+    shader_program_.enableAttributeArray(0);
+    shader_program_.setAttributeBuffer(0, GL_FLOAT, 0, 2, 0);  // location=0, 2 floats
+
+    particle_position_vbo_.bind();
+    shader_program_.enableAttributeArray(1);
+    shader_program_.setAttributeBuffer(1, GL_FLOAT, 0, 3, 0);  // location=1, 3 floats
+
+    glVertexAttribDivisor(1, 1);
+
+    vao_.release();
 }
 
 void ParticleRenderer::resizeGL(int w, int h) { glViewport(0, 0, w, h); }
@@ -89,24 +117,27 @@ void ParticleRenderer::paintGL() {
 
     animation();
 
+    glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
+
     drawParticles();
 
-    if (settings_.show_center_of_mass) {
-        setCOMColor();
-        enkas::math::Vector3D rel_pos = getRelPos(data.com_position);
+    // if (settings_.show_center_of_mass) {
+    //     setCOMColor();
+    //     enkas::math::Vector3D rel_pos = getRelPos(data.com_position);
 
-        const float c_ASPECT_RATIO = static_cast<float>(width()) / height();
-        const float c_HALF_TAN_FOV = std::tan(settings_.fov * M_PI / 180.0f / 2.0f);
+    //     const float c_ASPECT_RATIO = static_cast<float>(width()) / height();
+    //     const float c_HALF_TAN_FOV = std::tan(settings_.fov * M_PI / 180.0f / 2.0f);
 
-        bool is_visible;
-        QPointF com = convertPosToLoc(c_ASPECT_RATIO, c_HALF_TAN_FOV, rel_pos, &is_visible);
-        if (is_visible) drawCross(com.x(), com.y(), 0.02f);
-    }
+    //     bool is_visible;
+    //     QPointF com = convertPosToLoc(c_ASPECT_RATIO, c_HALF_TAN_FOV, rel_pos, &is_visible);
+    //     if (is_visible) drawCross(com.x(), com.y(), 0.02f);
+    // }
 
-    if (settings_.show_center_of_screen && camera_.target_distance > 0) {
-        setCenterColor();
-        drawCross(0.0f, 0.0f, 0.02f);
-    }
+    // if (settings_.show_center_of_screen && camera_.target_distance > 0) {
+    //     setCenterColor();
+    //     drawCross(0.0f, 0.0f, 0.02f);
+    // }
 }
 
 void ParticleRenderer::mousePressEvent(QMouseEvent* event) {
@@ -172,152 +203,128 @@ void ParticleRenderer::keyPressEvent(QKeyEvent* event) {
 }
 
 void ParticleRenderer::drawParticles() {
-    // Map particle distance to the camera_ to its position relative to the camera_
-    rel_positions_.clear();
-
-    for (const auto& pos : data.positions) {
-        enkas::math::Vector3D rel_pos = getRelPos(pos);
-        rel_positions_.push_back(std::make_tuple(rel_pos.norm(), rel_pos));
+    if (!system_ || system_->data.positions.empty()) {
+        return;
     }
 
-    // Sort by increasing distance to the camera_.
-    std::sort(rel_positions_.begin(), rel_positions_.end(), [](const auto& pd1, const auto& pd2) {
-        return get<0>(pd1) > get<0>(pd2);
-    });
+    const auto& positions_d = system_->data.positions;  // 'd' for double
+    const auto num_particles = system_->data.count();
 
-    glGenBuffers(1, &circleVBO_);
-    glBindBuffer(GL_ARRAY_BUFFER, circleVBO_);
-    glVertexPointer(2, GL_FLOAT, 0, 0);
-    glEnableClientState(GL_VERTEX_ARRAY);
+    // Convert to float for GPU processing
+    std::vector<float> positions_f;
+    positions_f.reserve(num_particles * 3);
 
-    const float c_ASPECT_RATIO = static_cast<float>(width()) / height();
-    const float c_HALF_TAN_FOV = std::tan(settings_.fov * M_PI / 180.0f / 2.0f);
-    const float c_SIZE_PARAM = settings_.particle_size_param / 10.0;
-
-    bool is_vertical = width() < height();
-    const float c_X_ASPECT = is_vertical ? static_cast<float>(height()) / width() : 1.0f;
-    const float c_Y_ASPECT = is_vertical ? 1.0f : static_cast<float>(width()) / height();
-
-    std::vector<GLfloat> vertices;
-    const int c_NUM_TRANGLES = 12;
-    vertices.reserve(2 * (c_NUM_TRANGLES + 1));
-
-    for (const auto& [distance, pos] : rel_positions_) {
-        setParticleColor(distance);
-
-        bool is_visible;
-        QPointF screen_pos = convertPosToLoc(c_ASPECT_RATIO, c_HALF_TAN_FOV, pos, &is_visible);
-
-        if (!is_visible) continue;
-
-        drawCircle(vertices,
-                   c_NUM_TRANGLES,
-                   c_X_ASPECT,
-                   c_Y_ASPECT,
-                   screen_pos.x(),
-                   screen_pos.y(),
-                   c_SIZE_PARAM / distance);
+    for (const auto& p : positions_d) {
+        positions_f.push_back(static_cast<float>(p.x));
+        positions_f.push_back(static_cast<float>(p.y));
+        positions_f.push_back(static_cast<float>(p.z));
     }
 
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glDeleteBuffers(1, &circleVBO_);
+    shader_program_.bind();
+    vao_.bind();
+
+    particle_position_vbo_.bind();
+    particle_position_vbo_.allocate(positions_f.data(), positions_f.size() * sizeof(float));
+
+    QMatrix4x4 projection_matrix;
+    projection_matrix.perspective(
+        settings_.fov, static_cast<float>(width()) / height(), 0.1f, 1000.0f);
+
+    QMatrix4x4 view_matrix;
+    view_matrix.translate(0.0f, 0.0f, -camera_.target_distance);
+    QQuaternion q_rotation = QQuaternion(camera_.rel_rotation.s,
+                                         -camera_.rel_rotation.b_yz,
+                                         camera_.rel_rotation.b_xz,
+                                         camera_.rel_rotation.b_xy)
+                                 .conjugated();
+    view_matrix.rotate(q_rotation);
+    view_matrix.translate(-camera_.target_pos.x, -camera_.target_pos.y, -camera_.target_pos.z);
+
+    // Send matrices and settings to the shader
+    shader_program_.setUniformValue("u_projection_matrix", projection_matrix);
+    shader_program_.setUniformValue("u_view_matrix", view_matrix);
+    shader_program_.setUniformValue("u_particle_size",
+                                    static_cast<GLfloat>(settings_.particle_size_param / 10.0f));
+    shader_program_.setUniformValue("u_camera_target_distance", (float)camera_.target_distance);
+
+    if (settings_.coloring_method == ColoringMethod::BlackFog) {
+        shader_program_.setUniformValue("u_coloring_method", 0);
+        shader_program_.setUniformValue("u_fog_mu", (float)settings_.black_fog_param);
+    } else {  // WHITE_FOG
+        shader_program_.setUniformValue("u_coloring_method", 1);
+        shader_program_.setUniformValue("u_fog_mu", (float)settings_.white_fog_param);
+    }
+
+    glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, num_particles);
+
+    vao_.release();
+    shader_program_.release();
 }
 
-void ParticleRenderer::drawCircle(std::vector<GLfloat>& vertices,
-                                  const int c_NUM_TRANGLES,
-                                  const float c_X_ASPECT,
-                                  const float c_Y_ASPECT,
-                                  float x,
-                                  float y,
-                                  float radius) {
-    vertices.clear();
+// void ParticleRenderer::drawCross(float x, float y, float size) {
+//     float thickness = size / 6.0;
 
-    // Center coordinates
-    vertices.push_back(x);
-    vertices.push_back(y);
+//     float x_aspect = 1.0f;
+//     float y_aspect = 1.0f;
+//     if (width() < height()) {
+//         y_aspect = static_cast<float>(width()) / height();
+//     } else {
+//         x_aspect = static_cast<float>(height()) / width();
+//     }
 
-    const float c_ANGLE_INCREMENT = 2.0f * M_PI / c_NUM_TRANGLES;
+//     float x_hor = size * x_aspect;
+//     float x_ver = thickness * x_aspect;
+//     float y_hor = thickness * y_aspect;
+//     float y_ver = size * y_aspect;
 
-    for (int i = 0; i <= c_NUM_TRANGLES; i++) {
-        float angle = i * c_ANGLE_INCREMENT;
-        float triangle_x = x + radius * cos(angle) * c_X_ASPECT;
-        float triangle_y = y + radius * sin(angle) * c_Y_ASPECT;
+//     // Define vertices for the rectangle using two triangles
+//     // Horizontal Rectangle
+//     GLfloat vertices[] = {
+//         // Horizontal Rectangle
+//         x - x_hor,
+//         y - y_hor,
+//         x + x_hor,
+//         y - y_hor,
+//         x + x_hor,
+//         y + y_hor,
+//         x - x_hor,
+//         y - y_hor,
+//         x + x_hor,
+//         y + y_hor,
+//         x - x_hor,
+//         y + y_hor,
 
-        vertices.push_back(triangle_x);
-        vertices.push_back(triangle_y);
-    }
+//         // Vertical Rectangle
+//         x - x_ver,
+//         y - y_ver,
+//         x + x_ver,
+//         y - y_ver,
+//         x + x_ver,
+//         y + y_ver,
+//         x - x_ver,
+//         y - y_ver,
+//         x + x_ver,
+//         y + y_ver,
+//         x - x_ver,
+//         y + y_ver,
+//     };
 
-    // VBO goes brrrrrrrrrrrrrr
-    glBufferData(
-        GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);
-    glDrawArrays(GL_TRIANGLE_FAN, 0, c_NUM_TRANGLES + 2);
-}
+//     // VBO goes brrrrrrrrrrrr
+//     GLuint vbo;
+//     glGenBuffers(1, &vbo);
 
-void ParticleRenderer::drawCross(float x, float y, float size) {
-    float thickness = size / 6.0;
+//     glBindBuffer(GL_ARRAY_BUFFER, vbo);
+//     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    float x_aspect = 1.0f;
-    float y_aspect = 1.0f;
-    if (width() < height()) {
-        y_aspect = static_cast<float>(width()) / height();
-    } else {
-        x_aspect = static_cast<float>(height()) / width();
-    }
+//     glEnableVertexAttribArray(0);
+//     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 
-    float x_hor = size * x_aspect;
-    float x_ver = thickness * x_aspect;
-    float y_hor = thickness * y_aspect;
-    float y_ver = size * y_aspect;
+//     glDrawArrays(GL_TRIANGLES, 0, 12);
 
-    // Define vertices for the rectangle using two triangles
-    // Horizontal Rectangle
-    GLfloat vertices[] = {
-        // Horizontal Rectangle
-        x - x_hor,
-        y - y_hor,
-        x + x_hor,
-        y - y_hor,
-        x + x_hor,
-        y + y_hor,
-        x - x_hor,
-        y - y_hor,
-        x + x_hor,
-        y + y_hor,
-        x - x_hor,
-        y + y_hor,
-
-        // Vertical Rectangle
-        x - x_ver,
-        y - y_ver,
-        x + x_ver,
-        y - y_ver,
-        x + x_ver,
-        y + y_ver,
-        x - x_ver,
-        y - y_ver,
-        x + x_ver,
-        y + y_ver,
-        x - x_ver,
-        y + y_ver,
-    };
-
-    // VBO goes brrrrrrrrrrrr
-    GLuint vbo;
-    glGenBuffers(1, &vbo);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-    glDrawArrays(GL_TRIANGLES, 0, 12);
-
-    glDisableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glDeleteBuffers(1, &vbo);
-}
+//     glDisableVertexAttribArray(0);
+//     glBindBuffer(GL_ARRAY_BUFFER, 0);
+//     glDeleteBuffers(1, &vbo);
+// }
 
 enkas::math::Vector3D ParticleRenderer::getRelPos(const enkas::math::Vector3D& pos) {
     enkas::math::Vector3D rel_pos = camera_.rel_rotation.rotate(camera_.target_pos - pos) -
@@ -325,28 +332,28 @@ enkas::math::Vector3D ParticleRenderer::getRelPos(const enkas::math::Vector3D& p
     return rel_pos;
 }
 
-QPointF ParticleRenderer::convertPosToLoc(const float c_ASPECT_RATIO,
-                                          const float c_HALF_TAN_FOV,
-                                          const enkas::math::Vector3D& rel_pos,
-                                          bool* is_visible) {
-    // Check if particle is behind camera_
-    if (rel_pos.z <= 0) {
-        if (is_visible) *is_visible = false;
-        return QPointF();
-    }
+// QPointF ParticleRenderer::convertPosToLoc(const float c_ASPECT_RATIO,
+//                                           const float c_HALF_TAN_FOV,
+//                                           const enkas::math::Vector3D& rel_pos,
+//                                           bool* is_visible) {
+//     // Check if particle is behind camera_
+//     if (rel_pos.z <= 0) {
+//         if (is_visible) *is_visible = false;
+//         return QPointF();
+//     }
 
-    double x = rel_pos.x / rel_pos.z / c_HALF_TAN_FOV / c_ASPECT_RATIO;
-    double y = rel_pos.y / rel_pos.z / c_HALF_TAN_FOV;
+//     double x = rel_pos.x / rel_pos.z / c_HALF_TAN_FOV / c_ASPECT_RATIO;
+//     double y = rel_pos.y / rel_pos.z / c_HALF_TAN_FOV;
 
-    // Check if particle is outside screen
-    if (x < -1.2 || x > 1.2 || y < -1.2 || y > 1.2) {
-        if (is_visible) *is_visible = false;
-        return QPointF();
-    }
+//     // Check if particle is outside screen
+//     if (x < -1.2 || x > 1.2 || y < -1.2 || y > 1.2) {
+//         if (is_visible) *is_visible = false;
+//         return QPointF();
+//     }
 
-    if (is_visible) *is_visible = true;
-    return QPointF(x, y);
-}
+//     if (is_visible) *is_visible = true;
+//     return QPointF(x, y);
+// }
 
 void ParticleRenderer::animation() {
     double s = 0.002 * settings_.animation_speed;  // speed parameter
@@ -354,28 +361,28 @@ void ParticleRenderer::animation() {
     enkas::math::Rotor3D animation;
 
     switch (settings_.animation_style) {
-        case AnimationStyle::RIGHT:
+        case AnimationStyle::Right:
             animation = enkas::math::Rotor3D(1.0, 0.0, -s, 0.0);
             break;
-        case AnimationStyle::LEFT:
+        case AnimationStyle::Left:
             animation = enkas::math::Rotor3D(1.0, 0.0, s, 0.0);
             break;
-        case AnimationStyle::UP:
+        case AnimationStyle::Up:
             animation = enkas::math::Rotor3D(1.0, 0.0, 0.0, -s);
             break;
-        case AnimationStyle::DOWN:
+        case AnimationStyle::Down:
             animation = enkas::math::Rotor3D(1.0, 0.0, 0.0, s);
             break;
-        case AnimationStyle::CWISE:
+        case AnimationStyle::Clockwise:
             animation = enkas::math::Rotor3D(1.0, s, 0.0, 0.0);
             break;
-        case AnimationStyle::CNTRCWISE:
+        case AnimationStyle::Counterclockwise:
             animation = enkas::math::Rotor3D(1.0, -s, 0.0, 0.0);
             break;
-        case AnimationStyle::TUTTI:
+        case AnimationStyle::Tutti:
             animation = enkas::math::Rotor3D(1.0, s, s, s);
             break;
-        case AnimationStyle::NONE:
+        case AnimationStyle::None:
             return;
         default:
             break;
@@ -386,10 +393,10 @@ void ParticleRenderer::animation() {
 
 void ParticleRenderer::setBackgroundColor() {
     switch (settings_.coloring_method) {
-        case ColoringMethod::BLACK_FOG:
+        case ColoringMethod::BlackFog:
             glClearColor(0.0667f, 0.0667f, 0.0667f, 1.0f);
             break;
-        case ColoringMethod::WHITE_FOG:
+        case ColoringMethod::WhiteFog:
             glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             break;
         default:
@@ -397,47 +404,47 @@ void ParticleRenderer::setBackgroundColor() {
     }
 }
 
-void ParticleRenderer::setCOMColor() {
-    switch (settings_.coloring_method) {
-        case ColoringMethod::BLACK_FOG:
-            glColor3ub(255, 255, 0);
-            break;
-        case ColoringMethod::WHITE_FOG:
-            glColor3ub(0, 220, 0);
-            break;
-        default:
-            break;
-    }
-}
+// void ParticleRenderer::setCOMColor() {
+//     switch (settings_.coloring_method) {
+//         case ColoringMethod::BlackFog:
+//             glColor3ub(255, 255, 0);
+//             break;
+//         case ColoringMethod::WhiteFog:
+//             glColor3ub(0, 220, 0);
+//             break;
+//         default:
+//             break;
+//     }
+// }
 
-void ParticleRenderer::setCenterColor() {
-    switch (settings_.coloring_method) {
-        case ColoringMethod::BLACK_FOG:
-            glColor3ub(255, 255, 255);
-            break;
-        case ColoringMethod::WHITE_FOG:
-            glColor3ub(0, 0, 160);
-            break;
-        default:
-            break;
-    }
-}
+// void ParticleRenderer::setCenterColor() {
+//     switch (settings_.coloring_method) {
+//         case ColoringMethod::BlackFog:
+//             glColor3ub(255, 255, 255);
+//             break;
+//         case ColoringMethod::WhiteFog:
+//             glColor3ub(0, 0, 160);
+//             break;
+//         default:
+//             break;
+//     }
+// }
 
-void ParticleRenderer::setParticleColor(double distance) {
-    double c;
-    double mu;
-    switch (settings_.coloring_method) {
-        case ColoringMethod::BLACK_FOG:
-            mu = settings_.black_fog_param;
-            c = 1 / (1 + std::exp((distance / (camera_.target_distance * 1.3) - 1) * mu));
-            glColor3ub(255 * c, 255 * std::pow(c, 6), 255 * std::pow(c, 8));
-            break;
-        case ColoringMethod::WHITE_FOG:
-            mu = settings_.white_fog_param;
-            c = -1 / (1 + std::exp((distance / (camera_.target_distance * 1) - 1) * mu)) + 1;
-            glColor3ub(255 * c, 255 * std::pow(c, 6), 255 * std::pow(c, 8));
-            break;
-        default:
-            break;
-    }
-}
+// void ParticleRenderer::setParticleColor(double distance) {
+//     double c;
+//     double mu;
+//     switch (settings_.coloring_method) {
+//         case ColoringMethod::BlackFog:
+//             mu = settings_.black_fog_param;
+//             c = 1 / (1 + std::exp((distance / (camera_.target_distance * 1.3) - 1) * mu));
+//             glColor3ub(255 * c, 255 * std::pow(c, 6), 255 * std::pow(c, 8));
+//             break;
+//         case ColoringMethod::WhiteFog:
+//             mu = settings_.white_fog_param;
+//             c = -1 / (1 + std::exp((distance / (camera_.target_distance * 1) - 1) * mu)) + 1;
+//             glColor3ub(255 * c, 255 * std::pow(c, 6), 255 * std::pow(c, 8));
+//             break;
+//         default:
+//             break;
+//     }
+// }

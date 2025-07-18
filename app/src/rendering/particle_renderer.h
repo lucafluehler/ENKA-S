@@ -4,7 +4,10 @@
 #include <enkas/math/vector3d.h>
 
 #include <QMouseEvent>
+#include <QOpenGLBuffer>
 #include <QOpenGLExtraFunctions>
+#include <QOpenGLShaderProgram>
+#include <QOpenGLVertexArrayObject>
 #include <QOpenGLWidget>
 #include <tuple>
 #include <vector>
@@ -17,7 +20,7 @@ class ParticleRenderer : public QOpenGLWidget, protected QOpenGLExtraFunctions {
     Q_OBJECT
 
 public:
-    ParticleRenderer(QWidget* parent = nullptr);
+    explicit ParticleRenderer(QWidget* parent = nullptr);
 
     void updateData(SystemSnapshotPtr system);
     void redraw(const RenderSettings& settings);
@@ -65,6 +68,8 @@ private:
     SystemSnapshotPtr system_;
     Camera camera_;
 
-    GLuint vao_ = 0;
-    GLuint vbo_ = 0;
+    QOpenGLVertexArrayObject vao_;
+    QOpenGLBuffer particle_position_vbo_;  // Holds all particle 3D positions
+    QOpenGLBuffer quad_vbo_;               // Holds the 4 vertices of a simple square
+    QOpenGLShaderProgram shader_program_;
 };
