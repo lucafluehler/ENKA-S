@@ -2,8 +2,7 @@
 
 #include <QDoubleSpinBox>
 
-class FancyDoubleSpinBox : public QDoubleSpinBox
-{
+class FancyDoubleSpinBox : public QDoubleSpinBox {
     Q_OBJECT
 
 public:
