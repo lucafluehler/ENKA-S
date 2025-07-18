@@ -7,6 +7,7 @@
 #include <QLineEdit>
 #include <QMap>
 #include <QPushButton>
+#include <QRandomGenerator>
 #include <QSpinBox>
 #include <QVector>
 #include <QWidget>
@@ -51,6 +52,33 @@ void SettingsWidget::setSchema(const QVector<SettingDescriptor>& schema) {
                 });
                 editor = hh;
             } break;
+
+            case SettingDescriptor::RandomInt: {
+                auto* container = new QWidget;
+                auto* layout = new QHBoxLayout(container);
+                layout->setContentsMargins(0, 0, 0, 0);
+                layout->setSpacing(4);
+
+                auto* spinBox = new QSpinBox;
+                spinBox->setRange(desc.min.toInt(), desc.max.toInt());
+
+                // Randomize on creation
+                int randomized =
+                    QRandomGenerator::global()->bounded(desc.min.toInt(), desc.max.toInt() + 1);
+                spinBox->setValue(randomized);
+
+                auto* button = new QPushButton("Randomize");
+                layout->addWidget(spinBox);
+                layout->addWidget(button);
+
+                connect(button, &QPushButton::clicked, this, [=]() {
+                    int val = QRandomGenerator::global()->bounded(spinBox->minimum(),
+                                                                  spinBox->maximum() + 1);
+                    spinBox->setValue(val);
+                });
+
+                editor = container;
+            } break;
         }
         editors_[desc.key] = editor;
         form_->addRow(desc.label, editor);
@@ -68,6 +96,12 @@ Settings SettingsWidget::getSettings() const {
         else if (auto* h = qobject_cast<QWidget*>(w)) {
             auto* le = h->findChild<QLineEdit*>();
             out.set(key, le->text().toStdString());
+        } else if (auto* h = qobject_cast<QWidget*>(w)) {
+            if (auto* le = h->findChild<QLineEdit*>()) {
+                out.set(key, le->text().toStdString());
+            } else if (auto* sb = h->findChild<QSpinBox*>()) {
+                out.set(key, sb->value());
+            }
         }
     }
     return out;
@@ -84,6 +118,12 @@ void SettingsWidget::setSettings(const Settings& settings) {
         else if (auto* h = qobject_cast<QWidget*>(w)) {
             auto* le = h->findChild<QLineEdit*>();
             le->setText(QString::fromStdString(settings.get<std::string>(key)));
+        } else if (auto* h = qobject_cast<QWidget*>(w)) {
+            if (auto* le = h->findChild<QLineEdit*>()) {
+                le->setText(QString::fromStdString(settings.get<std::string>(key)));
+            } else if (auto* sb = h->findChild<QSpinBox*>()) {
+                sb->setValue(settings.get<int>(key));
+            }
         }
     }
 }
