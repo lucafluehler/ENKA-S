@@ -1,29 +1,27 @@
 #pragma once
 
+#include <QFormLayout>
+#include <QLayoutItem>
+#include <QMap>
+#include <QVector>
+#include <QWidget>
+
 #include "core/settings/settings.h"
+#include "setting_descriptor.h"
 
-class SettingsWidget {
+class SettingsWidget : public QWidget {
+    QFormLayout* form_;
+    QMap<SettingKey, QWidget*> editors_;
+
 public:
-    /**
-     * @brief Retrieves the current settings from the panel.
-     * @return A Settings object containing the current settings.
-     */
-    virtual Settings getSettings() const = 0;
+    SettingsWidget(QWidget* parent = nullptr) { form_ = new QFormLayout(this); }
 
-    /**
-     * @brief Sets the settings of the panel.
-     * @param settings The Settings object to set.
-     */
-    virtual void setSettings(const Settings& settings) = 0;
+    void setSchema(const QVector<SettingDescriptor>& schema);
 
-    /**
-     * @brief Sets the default settings for the panel. These are applied when resetting the panel.
-     * @param settings The Settings object to set as default.
-     */
-    virtual void setDefaultSettings(const Settings& settings) = 0;
+    Settings getSettings() const;
 
-    /**
-     * @brief Resets the settings of the panel to the default values.
-     */
-    virtual void resetSettings() = 0;
+    void setSettings(const Settings& s);
+
+private:
+    void clearLayout(QFormLayout* layout);
 };
