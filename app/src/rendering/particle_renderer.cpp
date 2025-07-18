@@ -24,6 +24,8 @@
 
 ParticleRenderer::ParticleRenderer(QWidget* parent) : QOpenGLWidget(parent) {
     QSurfaceFormat format;
+    format.setVersion(4, 1);
+    format.setProfile(QSurfaceFormat::CoreProfile);
     format.setSamples(4);
     setFormat(format);
 
