@@ -72,7 +72,7 @@ void SimulationWindow::toggleSettings() {
     if (ui_->wgtSettings->isVisible()) {
         ui_->wgtSettings->setVisible(false);
     } else {
-        ui_->wgtSettings->loadRenderSettings(settings);
+        ui_->wgtSettings->loadRenderSettings(settings_);
         ui_->wgtSidebar->setVisible(true);
         ui_->wgtSettings->setVisible(true);
         ui_->btnToggleSidebar->setArrowType(Qt::RightArrow);
@@ -97,7 +97,7 @@ void SimulationWindow::updateSimulationRendering(SystemSnapshotPtr system_snapsh
     ui_->lblFPS->setText(fps_text);
 
     // Redraw Particles
-    ui_->oglParticleRenderer->redraw(settings);
+    ui_->oglParticleRenderer->redraw(settings_);
 
     // Update time_progress label
     const double time = system_snapshot->time;
