@@ -7,6 +7,7 @@
 
 class SettingsSchema {
 public:
+    virtual ~SettingsSchema() = default;
     virtual QString name() const = 0;
     virtual QVector<SettingDescriptor> settingsSchema() const = 0;
 };
