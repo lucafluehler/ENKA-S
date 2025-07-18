@@ -28,7 +28,7 @@ public:
 
     Mode getMode() const { return mode_; };
 
-private slots:
+public slots:
     void updateRendering();
 
 private:
