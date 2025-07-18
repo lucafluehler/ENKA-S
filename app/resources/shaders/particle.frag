@@ -1,4 +1,3 @@
-// In a string literal or a file
 #version 410 core
 
 in float v_distance_to_camera;
