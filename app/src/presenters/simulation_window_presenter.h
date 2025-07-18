@@ -15,7 +15,6 @@ class SimulationWindowPresenter : public QObject {
     Q_OBJECT
 public:
     explicit SimulationWindowPresenter(ISimulationWindowView* view, QObject* parent = nullptr);
-    ~SimulationWindowPresenter();
 
     enum class Mode { Uninitialized, Live, File };
 
