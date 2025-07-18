@@ -8,6 +8,7 @@
 
 #include "core/file_parse_logic.h"
 #include "core/settings/generation_method.h"
+#include "core/snapshot.h"
 #include "rendering/particle_renderer.h"
 
 SystemPreview::SystemPreview(QWidget* parent) : ParticleRenderer(parent) {
@@ -53,7 +54,7 @@ void SystemPreview::initializeProcedural(GenerationMethod method) {
     if (!generator) return;  // Generator creation failed
 
     // Feed system to particle renderer
-    updateData(std::make_shared<enkas::data::System>(generator->createSystem()));
+    updateData(std::make_shared<SystemSnapshot>(generator->createSystem()));
 }
 
 void SystemPreview::initializeFromFile(const QString& system_path) {
@@ -64,7 +65,7 @@ void SystemPreview::initializeFromFile(const QString& system_path) {
     if (!system) return;  // File parsing failed
 
     // Feed system to particle renderer
-    updateData(std::make_shared<enkas::data::System>(system.value()));
+    updateData(std::make_shared<SystemSnapshot>(system.value()));
 }
 
 void SystemPreview::initializeHomeScreen() {
@@ -80,7 +81,7 @@ void SystemPreview::initializeHomeScreen() {
     auto system = enkas::generation::Factory::create(settings)->createSystem();
 
     // Feed system to particle renderer
-    updateData(std::make_shared<enkas::data::System>(system));
+    updateData(std::make_shared<SystemSnapshot>(system));
 }
 
 void SystemPreview::setMethodSettings() {
