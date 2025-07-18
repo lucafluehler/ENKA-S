@@ -6,7 +6,6 @@
 #include <QTimer>
 #include <QVector>
 
-#include "core/blocking_queue.h"
 #include "core/snapshot.h"
 #include "i_simulation_window_view.h"
 #include "rendering/render_settings.h"
@@ -22,43 +21,25 @@ class SimulationWindow : public QMainWindow, ISimulationWindowView {
 
 public:
     explicit SimulationWindow(QWidget *parent = nullptr);
-    ~SimulationWindow() override;
 
-    void initLiveMode(const std::shared_ptr<DataPtr> &data_ptr, double simulation_duration);
+    void initLiveMode() override;
 
-    void initFileMode(QString render_data_path = "",
-                      QString diagnostics_data_path = "",
-                      QString analytics_data_path = "");
-
-    enum class Mode { Uninitialized, Live, File };
-    Mode getMode() const;
-
-protected:
-    void closeEvent(QCloseEvent *event) override;
-    void showEvent(QShowEvent *event) override;
+    void updateSystemRendering(SystemSnapshotPtr system_snapshot,
+                               double simulation_duration,
+                               double fps) override;
 
 public slots:
-    void renderDataUpdate();
-    void diagnosticsDataUpdate();
-    void analyticsDataUpdate();
+    void onDiagnosticsDataUpdate();
 
 private slots:
     void saveSettings();
     void toggleSidebar();
     void toggleSettings();
     void toggleMovie(bool checked);
-    void update();
 
 private:
-    double getSimulationDurationFromFile() const;
+    RenderSettings settings_;
 
-    Mode mode;
-    double simulation_duration;
-    RenderSettings settings;
-
-    QTimer *update_timer;
-    bool update_in_progress;
-    QElapsedTimer *renderer_timer;
     QTimer *movie_timer;
 
     Ui::SimulationWindow *ui_;
