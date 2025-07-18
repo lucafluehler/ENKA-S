@@ -45,8 +45,6 @@ public slots:
     void openSimulationWindow();
 
 private slots:
-    void dataSaverFinished();
-
     void receivedGenerationCompleted();
     void receivedInitializationCompleted();
     void receivedSimulationStep(double time,
