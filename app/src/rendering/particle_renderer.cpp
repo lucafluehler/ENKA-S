@@ -118,7 +118,7 @@ void ParticleRenderer::mouseMoveEvent(QMouseEvent* event) {
     int dx = event->pos().x() - last_mouse_pos_.x();
     int dy = event->pos().y() - last_mouse_pos_.y();
 
-    float mu = 0.0006;
+    const float mu = 0.0006;  // Mouse sensitivity
 
     if (event->buttons() & Qt::LeftButton) {
         camera_.rel_rotation = enkas::math::Rotor3D(1.0, 0.0, -dx * mu, dy * mu * 1.5).normalize() *
