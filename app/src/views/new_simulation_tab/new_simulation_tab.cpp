@@ -243,19 +243,19 @@ void NewSimulationTab::processInitialSystem(const std::optional<enkas::data::Sys
 }
 
 void NewSimulationTab::startSimulation() {
-    emit requestSimulationStart();
-
     // Show fancy simulation preparation loading gif
     ui_->stwProgress->setCurrentIndex(1);
+
+    emit requestSimulationStart();
 }
 
 void NewSimulationTab::showSimulationProgress() { ui_->stwProgress->setCurrentIndex(2); }
 
 void NewSimulationTab::abortSimulation() {
-    emit requestSimulationAbort();
-
     // Show abortion loading gif
     ui_->stwProgress->setCurrentIndex(3);
+
+    emit requestSimulationAbort();
 }
 
 void NewSimulationTab::simulationAborted() { ui_->stwProgress->setCurrentIndex(0); }
