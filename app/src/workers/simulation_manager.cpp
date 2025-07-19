@@ -29,7 +29,13 @@ SimulationManager::SimulationManager(const Settings& settings, QObject* parent)
       system_storage_thread_(nullptr),
       diagnostics_storage_worker_(nullptr),
       diagnostics_storage_thread_(nullptr),
+      chart_queue_(std::make_shared<BlockingQueue<DiagnosticsSnapshotPtr>>(512)),
+      system_storage_queue_(std::make_shared<BlockingQueue<SystemSnapshotPtr>>(512)),
+      diagnostics_storage_queue_(std::make_shared<BlockingQueue<DiagnosticsSnapshotPtr>>(512)),
       aborted_(false) {
+    // Setup render queue slot
+    render_queue_slot_.store(SystemSnapshotPtr{});
+
     // Data storage
     setupOutputDir();
 
