@@ -32,6 +32,7 @@ signals:
 
 private slots:
     void openFolderDialog();
+    void openSettingsFile();
 
 private:
     void resetSimulationFilePaths();

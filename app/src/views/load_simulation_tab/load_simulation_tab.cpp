@@ -1,9 +1,13 @@
 #include "load_simulation_tab.h"
 
+#include <qmessagebox.h>
+
 #include <QCoreApplication>
 #include <QDesktopServices>
 #include <QFileDialog>
+#include <QMessageBox>
 #include <QPushButton>
+#include <QUrl>
 
 #include "core/file_constants.h"
 #include "forms/load_simulation_tab/ui_load_simulation_tab.h"
@@ -15,7 +19,6 @@ LoadSimulationTab::LoadSimulationTab(QWidget* parent)
 
     // More ui adjustments
     ui_->btnOpenSettings->setEnabled(false);
-    ui_->btnOpenInitialSystem->setEnabled(false);
     ui_->btnRun->setEnabled(false);
 
     // Signal management
@@ -23,6 +26,8 @@ LoadSimulationTab::LoadSimulationTab(QWidget* parent)
             &QPushButton::clicked,
             this,
             &LoadSimulationTab::openFolderDialog);
+    connect(
+        ui_->btnOpenSettings, &QPushButton::clicked, this, &LoadSimulationTab::openSettingsFile);
 }
 
 void LoadSimulationTab::updateInitialSystemPreview() { ui_->oglSystemPreview->update(); }
@@ -41,6 +46,8 @@ void LoadSimulationTab::openFolderDialog() {
 
     if (folder_path.isEmpty()) return;
 
+    resetSimulationFilePaths();
+
     QString folder_name = QDir(folder_path).dirName();
 
     // Ensure the folder name is not too long when displayed
@@ -51,27 +58,32 @@ void LoadSimulationTab::openFolderDialog() {
     checkFiles(folder_path);
 }
 
+void LoadSimulationTab::openSettingsFile() {
+    if (settings_file_path_.isEmpty()) return;
+
+    QDesktopServices::openUrl(QUrl::fromLocalFile(settings_file_path_));
+}
+
 void LoadSimulationTab::onSettingsParsed(bool success) {
     if (success) {
         ui_->btnOpenSettings->setEnabled(true);
         ui_->btnOpenSettings->setToolTip(settings_file_path_);
-        ui_->lblSettingsIcon->setMode(FileCheckIcon::Mode::Checked);
+        ui_->lblSettingsStatusIcon->setMode(FileCheckIcon::Mode::Checked);
     } else {
-        ui_->lblSettingsIcon->setMode(FileCheckIcon::Mode::Corrupted);
+        ui_->lblSettingsStatusIcon->setMode(FileCheckIcon::Mode::Corrupted);
+        ui_->btnOpenSettings->setToolTip("");
         ui_->btnOpenSettings->setEnabled(false);
+        settings_file_path_.clear();
     }
 }
 
 void LoadSimulationTab::onInitialSystemParsed(std::optional<enkas::data::System> system) {
     if (system.has_value()) {
-        ui_->btnOpenInitialSystem->setEnabled(true);
-        ui_->btnOpenInitialSystem->setToolTip(system_file_path_);
-        ui_->lblInitialSystemIcon->setMode(FileCheckIcon::Mode::Checked);
+        ui_->lblSystemStatusIcon->setMode(FileCheckIcon::Mode::Checked);
         ui_->oglSystemPreview->initializeFromFile(system_file_path_);
         ui_->btnRun->setEnabled(true);
     } else {
-        ui_->lblInitialSystemIcon->setMode(FileCheckIcon::Mode::Corrupted);
-        ui_->btnOpenInitialSystem->setEnabled(false);
+        ui_->lblSystemStatusIcon->setMode(FileCheckIcon::Mode::Corrupted);
     }
 }
 
@@ -109,7 +121,7 @@ void LoadSimulationTab::checkFiles(const QString& dir_path) {
     QString settings_path = QDir(dir_path).filePath(file_names::settings);
     QFileInfo settings_file(settings_path);
     if (settings_file.exists()) {
-        ui_->lblSettingsIcon->setMode(FileCheckIcon::Mode::Loading);
+        ui_->lblSettingsStatusIcon->setMode(FileCheckIcon::Mode::Loading);
         settings_file_path_ = settings_path;
         any_file_found = true;
     }
@@ -118,7 +130,7 @@ void LoadSimulationTab::checkFiles(const QString& dir_path) {
     QString system_path = QDir(dir_path).filePath(file_names::system);
     QFileInfo system_file(system_path);
     if (system_file.exists()) {
-        ui_->lblInitialSystemIcon->setMode(FileCheckIcon::Mode::Loading);
+        ui_->lblSystemStatusIcon->setMode(FileCheckIcon::Mode::Loading);
         system_file_path_ = system_path;
         any_file_found = true;
     }
@@ -137,24 +149,19 @@ void LoadSimulationTab::checkFiles(const QString& dir_path) {
 
 void LoadSimulationTab::resetSimulationFilePaths() {
     // Reset settings data
-    ui_->lblN->setText("");
-    ui_->lblDuration->setText("");
     ui_->lblGenerationMethod->setText("");
     ui_->lblSimulationMethod->setText("");
 
     // Disable buttons and reset tooltip to path
-    ui_->btnOpenInitialSystem->setEnabled(false);
-    ui_->btnOpenInitialSystem->setToolTip("");
     ui_->btnOpenSettings->setEnabled(false);
     ui_->btnOpenSettings->setToolTip("");
+    ui_->btnRun->setEnabled(false);
 
     // Reset icons
     auto mode = FileCheckIcon::Mode::NotFound;
-    ui_->lblSettingsIcon->setMode(mode);
-    ui_->lblInitialSystemIcon->setMode(mode);
-    ui_->lblSystemDataIcon->setMode(mode);
+    ui_->lblSettingsStatusIcon->setMode(mode);
+    ui_->lblSystemStatusIcon->setMode(mode);
     ui_->lblDiagnosticsStatusIcon->setMode(mode);
-    ui_->lblAnalyticsIcon->setMode(mode);
 
     // Reset file paths
     settings_file_path_.clear();
