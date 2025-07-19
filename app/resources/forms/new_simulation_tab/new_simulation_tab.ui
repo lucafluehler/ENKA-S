@@ -19,6 +19,9 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="locale">
+   <locale language="C" country="AnyTerritory"/>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_11">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -202,6 +205,9 @@
               </property>
               <property name="maximum">
                <double>99999.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>0.010000000000000</double>
               </property>
              </widget>
             </item>
@@ -428,6 +434,9 @@
               </property>
               <property name="maximum">
                <double>99999.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>0.010000000000000</double>
               </property>
              </widget>
             </item>
