@@ -23,6 +23,7 @@ public:
 
     void updateData(SystemSnapshotPtr system);
     void redraw(const RenderSettings& settings);
+    void clearData();
 
 public slots:
     void saveScreenshot();

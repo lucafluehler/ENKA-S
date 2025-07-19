@@ -89,6 +89,8 @@ void SystemPreview::initializeHomeScreen() {
     updateData(std::make_shared<SystemSnapshot>(system));
 }
 
+void SystemPreview::clearPreview() { clearData(); }
+
 void SystemPreview::setMethodSettings() {
     // Render Settings
     RenderSettings render_settings;

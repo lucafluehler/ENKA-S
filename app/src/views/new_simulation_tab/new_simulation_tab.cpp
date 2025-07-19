@@ -16,6 +16,7 @@
 #include "core/settings/settings.h"
 #include "forms/new_simulation_tab/ui_new_simulation_tab.h"
 #include "settings_widgets/generation/collision_model_schema.h"
+#include "settings_widgets/generation/file_schema.h"
 #include "settings_widgets/generation/normal_sphere_schema.h"
 #include "settings_widgets/generation/plummer_sphere_schema.h"
 #include "settings_widgets/generation/spiral_galaxy_schema.h"
@@ -53,20 +54,17 @@ NewSimulationTab::~NewSimulationTab() { abortSimulation(); }
 
 void NewSimulationTab::setupSettingsWidgets() {
     // Setup generation settings schemas
+    auto& gen = generation_settings_schemas_;
     auto normalSphereSchema = std::make_shared<NormalSphereSchema>();
-    generation_settings_schemas_[GenerationMethod::NormalSphere] = normalSphereSchema;
+    gen[GenerationMethod::NormalSphere] = normalSphereSchema;
     ui_->swiGenerationSettings->setSchema(normalSphereSchema->settingsSchema());
     ui_->oglSystemPreview->initializeProcedural(GenerationMethod::NormalSphere);
-    generation_settings_schemas_[GenerationMethod::UniformCube] =
-        std::make_shared<UniformCubeSchema>();
-    generation_settings_schemas_[GenerationMethod::UniformSphere] =
-        std::make_shared<UniformSphereSchema>();
-    generation_settings_schemas_[GenerationMethod::PlummerSphere] =
-        std::make_shared<PlummerSphereSchema>();
-    generation_settings_schemas_[GenerationMethod::CollisionModel] =
-        std::make_shared<CollisionModelSchema>();
-    generation_settings_schemas_[GenerationMethod::SpiralGalaxy] =
-        std::make_shared<SpiralGalaxySchema>();
+    gen[GenerationMethod::UniformCube] = std::make_shared<UniformCubeSchema>();
+    gen[GenerationMethod::UniformSphere] = std::make_shared<UniformSphereSchema>();
+    gen[GenerationMethod::PlummerSphere] = std::make_shared<PlummerSphereSchema>();
+    gen[GenerationMethod::CollisionModel] = std::make_shared<CollisionModelSchema>();
+    gen[GenerationMethod::SpiralGalaxy] = std::make_shared<SpiralGalaxySchema>();
+    gen[GenerationMethod::File] = std::make_shared<FileSchema>();
 
     connect(ui_->swiGenerationSettings,
             &SettingsWidget::settingChanged,
@@ -79,14 +77,14 @@ void NewSimulationTab::setupSettingsWidgets() {
             });
 
     // Setup simulation settings schemas
+    auto& sim = simulation_settings_schemas_;
     auto eulerSchema = std::make_shared<EulerSchema>();
-    simulation_settings_schemas_[SimulationMethod::Euler] = eulerSchema;
+    sim[SimulationMethod::Euler] = eulerSchema;
     ui_->swiSimulationSettings->setSchema(eulerSchema->settingsSchema());
-    simulation_settings_schemas_[SimulationMethod::Leapfrog] = std::make_shared<LeapfrogSchema>();
-    simulation_settings_schemas_[SimulationMethod::Hermite] = std::make_shared<HermiteSchema>();
-    simulation_settings_schemas_[SimulationMethod::Hits] = std::make_shared<HitsSchema>();
-    simulation_settings_schemas_[SimulationMethod::BarnesHutLeapfrog] =
-        std::make_shared<BarnesHutLeapfrogSchema>();
+    sim[SimulationMethod::Leapfrog] = std::make_shared<LeapfrogSchema>();
+    sim[SimulationMethod::Hermite] = std::make_shared<HermiteSchema>();
+    sim[SimulationMethod::Hits] = std::make_shared<HitsSchema>();
+    sim[SimulationMethod::BarnesHutLeapfrog] = std::make_shared<BarnesHutLeapfrogSchema>();
 }
 
 void NewSimulationTab::setupMethodSelection() {
@@ -100,7 +98,7 @@ void NewSimulationTab::setupMethodSelection() {
         ui_->cobGenerationMethod->addItem(schema->name(), QVariant::fromValue(method));
     }
 
-    // Connect stacked settings widgets to combobox changes
+    // Handle selection changes
     connect(ui_->cobGenerationMethod,
             &QComboBox::currentIndexChanged,
             this,
@@ -170,8 +168,12 @@ void NewSimulationTab::onGenerationMethodChanged(int new_index) {
     ui_->swiGenerationSettings->setSettings(stored_settings);
 
     // Update system preview
-    if (method == GenerationMethod::File && !initial_system_path_.isEmpty()) {
-        ui_->oglSystemPreview->initializeFromFile(initial_system_path_);
+    if (method == GenerationMethod::File) {
+        if (initial_system_path_.isEmpty()) {
+            ui_->oglSystemPreview->clearPreview();
+        } else {
+            ui_->oglSystemPreview->initializeFromFile(initial_system_path_);
+        }
     } else {
         ui_->oglSystemPreview->initializeProcedural(method);
     }

@@ -6,13 +6,13 @@
 #include <string_view>
 
 enum class GenerationMethod {
-    File,
     NormalSphere,
     UniformCube,
     UniformSphere,
     PlummerSphere,
     SpiralGalaxy,
-    CollisionModel
+    CollisionModel,
+    File,
 };
 
 constexpr auto GenerationMethodStrings =

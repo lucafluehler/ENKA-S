@@ -33,6 +33,11 @@ public:
      */
     void initializeHomeScreen();
 
+    /**
+     * @brief Clears the system preview.
+     */
+    void clearPreview();
+
 private:
     void setMethodSettings();
     void setHomeScreenSettings();

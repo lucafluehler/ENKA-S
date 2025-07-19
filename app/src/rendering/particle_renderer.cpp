@@ -40,6 +40,11 @@ void ParticleRenderer::redraw(const RenderSettings& settings) {
     update();
 }
 
+void ParticleRenderer::clearData() {
+    system_.reset();
+    update();
+}
+
 void ParticleRenderer::saveScreenshot() {
     QImage screenshot(size(), QImage::Format_RGB32);
 
