@@ -15,9 +15,18 @@
 #include "core/settings/generation_method.h"
 #include "core/settings/settings.h"
 #include "forms/new_simulation_tab/ui_new_simulation_tab.h"
+#include "settings_widgets/generation/collision_model_schema.h"
 #include "settings_widgets/generation/normal_sphere_schema.h"
+#include "settings_widgets/generation/plummer_sphere_schema.h"
+#include "settings_widgets/generation/spiral_galaxy_schema.h"
+#include "settings_widgets/generation/uniform_cube_schema.h"
+#include "settings_widgets/generation/uniform_sphere_schema.h"
 #include "settings_widgets/settings_widget.h"
+#include "settings_widgets/simulation/barneshut_leapfrog_schema.h"
 #include "settings_widgets/simulation/euler_schema.h"
+#include "settings_widgets/simulation/hermite_schema.h"
+#include "settings_widgets/simulation/hits_schema.h"
+#include "settings_widgets/simulation/leapfrog_schema.h"
 #include "widgets/file_check_icon.h"
 
 NewSimulationTab::NewSimulationTab(QWidget* parent)
@@ -48,6 +57,16 @@ void NewSimulationTab::setupSettingsWidgets() {
     generation_settings_schemas_[GenerationMethod::NormalSphere] = normalSphereSchema;
     ui_->swiGenerationSettings->setSchema(normalSphereSchema->settingsSchema());
     ui_->oglSystemPreview->initializeProcedural(GenerationMethod::NormalSphere);
+    generation_settings_schemas_[GenerationMethod::UniformCube] =
+        std::make_shared<UniformCubeSchema>();
+    generation_settings_schemas_[GenerationMethod::UniformSphere] =
+        std::make_shared<UniformSphereSchema>();
+    generation_settings_schemas_[GenerationMethod::PlummerSphere] =
+        std::make_shared<PlummerSphereSchema>();
+    generation_settings_schemas_[GenerationMethod::CollisionModel] =
+        std::make_shared<CollisionModelSchema>();
+    generation_settings_schemas_[GenerationMethod::SpiralGalaxy] =
+        std::make_shared<SpiralGalaxySchema>();
 
     connect(ui_->swiGenerationSettings,
             &SettingsWidget::settingChanged,
@@ -63,6 +82,11 @@ void NewSimulationTab::setupSettingsWidgets() {
     auto eulerSchema = std::make_shared<EulerSchema>();
     simulation_settings_schemas_[SimulationMethod::Euler] = eulerSchema;
     ui_->swiSimulationSettings->setSchema(eulerSchema->settingsSchema());
+    simulation_settings_schemas_[SimulationMethod::Leapfrog] = std::make_shared<LeapfrogSchema>();
+    simulation_settings_schemas_[SimulationMethod::Hermite] = std::make_shared<HermiteSchema>();
+    simulation_settings_schemas_[SimulationMethod::Hits] = std::make_shared<HitsSchema>();
+    simulation_settings_schemas_[SimulationMethod::BarnesHutLeapfrog] =
+        std::make_shared<BarnesHutLeapfrogSchema>();
 }
 
 void NewSimulationTab::setupMethodSelection() {

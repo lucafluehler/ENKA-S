@@ -5,17 +5,17 @@
 #include "views/new_simulation_tab/settings_widgets/setting_descriptor.h"
 #include "views/new_simulation_tab/settings_widgets/settings_schema.h"
 
-class EulerSchema : public SettingsSchema {
+class HitsSchema : public SettingsSchema {
 public:
-    QString name() const override { return "Euler"; }
+    QString name() const override { return "Hermite Individual Time Step"; }
     QVector<SettingDescriptor> settingsSchema() const override {
-        return {{SettingKey::EulerTimeStep,
-                 "Time step",
+        return {{SettingKey::HitsTimeStepParam,
+                 "Time step parameter",
                  SettingDescriptor::Double,
-                 0.01,
+                 0.0001,
                  limits::smallest_greater_than_zero,
                  limits::double_max},
-                {SettingKey::EulerSoftening,
+                {SettingKey::HitsSoftening,
                  "Softening",
                  SettingDescriptor::Double,
                  0.001,

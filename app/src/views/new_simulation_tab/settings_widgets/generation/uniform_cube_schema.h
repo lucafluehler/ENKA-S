@@ -5,44 +5,38 @@
 #include "views/new_simulation_tab/settings_widgets/setting_descriptor.h"
 #include "views/new_simulation_tab/settings_widgets/settings_schema.h"
 
-class NormalSphereSchema : public SettingsSchema {
+class UniformCubeSchema : public SettingsSchema {
 public:
-    QString name() const override { return "Normal Sphere"; }
+    QString name() const override { return "Uniform Cube"; }
     QVector<SettingDescriptor> settingsSchema() const override {
-        return {{SettingKey::NormalSphereSeed,
+        return {{SettingKey::UniformCubeSeed,
                  "Seed",
                  SettingDescriptor::RandomInt,
                  {},
                  limits::random_min,
                  limits::random_max},
-                {SettingKey::NormalSphereParticleCount,
+                {SettingKey::UniformCubeParticleCount,
                  "Particle Count",
                  SettingDescriptor::Int,
                  1000,
                  limits::particle_count_min,
                  limits::particle_count_max},
-                {SettingKey::NormalSpherePositionStdDev,
-                 "Position Std Dev",
-                 SettingDescriptor::Double,
-                 0.1,
-                 limits::smallest_greater_than_zero,
-                 limits::double_max},
-                {SettingKey::NormalSphereVelocityStdDev,
-                 "Velocity Std Dev",
-                 SettingDescriptor::Double,
-                 0.1,
-                 limits::zero,
-                 limits::double_max},
-                {SettingKey::NormalSphereMassMean,
-                 "Mass Mean",
+                {SettingKey::UniformCubeSideLength,
+                 "Side Length",
                  SettingDescriptor::Double,
                  1.0,
                  limits::smallest_greater_than_zero,
                  limits::double_max},
-                {SettingKey::NormalSphereMassStdDev,
-                 "Mass Std Dev",
+                {SettingKey::UniformCubeInitialVelocity,
+                 "Initial Velocity",
                  SettingDescriptor::Double,
-                 0.1,
+                 0.0,
+                 limits::zero,
+                 limits::double_max},
+                {SettingKey::UniformCubeTotalMass,
+                 "Total Mass",
+                 SettingDescriptor::Double,
+                 1000.0,
                  limits::smallest_greater_than_zero,
                  limits::double_max}};
     }
