@@ -144,8 +144,8 @@ void SimulationManager::performSimulationStep(double time,
 
     if (diagnostics_snapshot) {
         // Signal to update the charts data
-        chart_queue_->pushBlocking(diagnostics_snapshot);
-        emit diagnosticsDataStep();
+        // chart_queue_->pushBlocking(diagnostics_snapshot);
+        // emit diagnosticsDataStep();
 
         // Signal to save the diagnostics data (if enabled)
         if (save_diagnostics_data_) {
