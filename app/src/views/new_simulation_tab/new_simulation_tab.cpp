@@ -53,12 +53,17 @@ NewSimulationTab::NewSimulationTab(QWidget* parent)
 NewSimulationTab::~NewSimulationTab() { abortSimulation(); }
 
 void NewSimulationTab::setupSettingsWidgets() {
-    // Setup generation settings schemas
+    // Setup initial generation settings schemas
     auto& gen = generation_settings_schemas_;
     auto normalSphereSchema = std::make_shared<NormalSphereSchema>();
     gen[GenerationMethod::NormalSphere] = normalSphereSchema;
     ui_->swiGenerationSettings->setSchema(normalSphereSchema->settingsSchema());
+    stored_generation_settings_[GenerationMethod::NormalSphere] =
+        ui_->swiGenerationSettings->getSettings();
     ui_->oglSystemPreview->initializeProcedural(GenerationMethod::NormalSphere);
+    previous_generation_method_ = GenerationMethod::NormalSphere;
+
+    // Setup other generation settings schemas
     gen[GenerationMethod::UniformCube] = std::make_shared<UniformCubeSchema>();
     gen[GenerationMethod::UniformSphere] = std::make_shared<UniformSphereSchema>();
     gen[GenerationMethod::PlummerSphere] = std::make_shared<PlummerSphereSchema>();
@@ -76,11 +81,16 @@ void NewSimulationTab::setupSettingsWidgets() {
                 }
             });
 
-    // Setup simulation settings schemas
+    // Setup initial simulation settings schemas
     auto& sim = simulation_settings_schemas_;
     auto eulerSchema = std::make_shared<EulerSchema>();
     sim[SimulationMethod::Euler] = eulerSchema;
     ui_->swiSimulationSettings->setSchema(eulerSchema->settingsSchema());
+    stored_simulation_settings_[SimulationMethod::Euler] =
+        ui_->swiSimulationSettings->getSettings();
+    previous_simulation_method_ = SimulationMethod::Euler;
+
+    // Setup other simulation settings schemas
     sim[SimulationMethod::Leapfrog] = std::make_shared<LeapfrogSchema>();
     sim[SimulationMethod::Hermite] = std::make_shared<HermiteSchema>();
     sim[SimulationMethod::Hits] = std::make_shared<HitsSchema>();
@@ -154,8 +164,8 @@ void NewSimulationTab::loadSettings(const Settings& settings) {
 
 void NewSimulationTab::onGenerationMethodChanged(int new_index) {
     // Store current settings before changing the method
-    const auto current_method = ui_->cobGenerationMethod->currentData().value<GenerationMethod>();
-    stored_generation_settings_[current_method] = ui_->swiGenerationSettings->getSettings();
+    stored_generation_settings_[previous_generation_method_] =
+        ui_->swiGenerationSettings->getSettings();
 
     // Update settings widget based on the new method
     const auto& method = ui_->cobGenerationMethod->itemData(new_index).value<GenerationMethod>();
@@ -177,12 +187,14 @@ void NewSimulationTab::onGenerationMethodChanged(int new_index) {
     } else {
         ui_->oglSystemPreview->initializeProcedural(method);
     }
+
+    previous_generation_method_ = method;
 }
 
 void NewSimulationTab::onSimulationMethodChanged(int new_index) {
     // Store current settings before changing the method
-    const auto current_method = ui_->cobSimulationMethod->currentData().value<SimulationMethod>();
-    stored_simulation_settings_[current_method] = ui_->swiSimulationSettings->getSettings();
+    stored_simulation_settings_[previous_simulation_method_] =
+        ui_->swiSimulationSettings->getSettings();
 
     // Update settings widget based on the new method
     const auto& method = ui_->cobSimulationMethod->itemData(new_index).value<SimulationMethod>();
@@ -193,6 +205,8 @@ void NewSimulationTab::onSimulationMethodChanged(int new_index) {
     ui_->swiSimulationSettings->setSchema(schema->settingsSchema());
     const auto& stored_settings = stored_simulation_settings_.value(method);
     ui_->swiSimulationSettings->setSettings(stored_settings);
+
+    previous_simulation_method_ = method;
 }
 
 void NewSimulationTab::openSettingsDialog() {

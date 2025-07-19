@@ -64,8 +64,11 @@ private:
 
     QMap<GenerationMethod, std::shared_ptr<SettingsSchema>> generation_settings_schemas_;
     QMap<GenerationMethod, Settings> stored_generation_settings_;
+    GenerationMethod previous_generation_method_;
+
     QMap<SimulationMethod, std::shared_ptr<SettingsSchema>> simulation_settings_schemas_;
     QMap<SimulationMethod, Settings> stored_simulation_settings_;
+    SimulationMethod previous_simulation_method_;
 
     QString initial_system_path_;
     QString settings_path_;
