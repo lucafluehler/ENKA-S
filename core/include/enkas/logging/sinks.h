@@ -3,7 +3,9 @@
 #include <enkas/logging/logger.h>
 
 #include <iostream>
+#include <memory>
 #include <mutex>
+#include <vector>
 
 namespace enkas::logging {
 
@@ -35,6 +37,31 @@ public:
     void log(LogLevel, std::string_view) override {
         // Intentionally empty.
     }
+};
+
+/**
+ * @brief A sink that forwards log messages to multiple other sinks.
+ * This class is thread-safe.
+ */
+class MultiSink : public LogSink {
+public:
+    void addSink(std::shared_ptr<LogSink> sink) {
+        if (sink) {
+            std::lock_guard<std::mutex> lock(mutex_);
+            sinks_.push_back(std::move(sink));
+        }
+    }
+
+    void log(LogLevel level, std::string_view message) override {
+        std::lock_guard<std::mutex> lock(mutex_);
+        for (const auto& sink : sinks_) {
+            sink->log(level, message);
+        }
+    }
+
+private:
+    std::mutex mutex_;
+    std::vector<std::shared_ptr<LogSink>> sinks_;
 };
 
 }  // namespace enkas::logging
