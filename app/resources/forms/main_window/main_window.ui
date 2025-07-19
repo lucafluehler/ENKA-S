@@ -218,6 +218,11 @@
         <string>Load Simulation</string>
        </attribute>
       </widget>
+      <widget class="LogsTab" name="tabLogs">
+       <attribute name="title">
+        <string>Logs</string>
+       </attribute>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -239,6 +244,12 @@
    <class>NewSimulationTab</class>
    <extends>QWidget</extends>
    <header>views/new_simulation_tab/new_simulation_tab.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>LogsTab</class>
+   <extends>QWidget</extends>
+   <header>logging/logs_tab.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
