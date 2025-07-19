@@ -23,7 +23,10 @@ void SimulationWindowPresenter::initLiveMode(
     std::atomic<SystemSnapshotPtr>* render_queue_slot,
     std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> chart_queue,
     double simulation_duration) {
+    Q_ASSERT(render_queue_slot != nullptr);
+    Q_ASSERT(chart_queue != nullptr);
     mode_ = Mode::Live;
+
     render_queue_slot_ = render_queue_slot;
     chart_queue_ = std::move(chart_queue);
     simulation_duration_ = simulation_duration;
@@ -43,6 +46,8 @@ void SimulationWindowPresenter::initFileMode(const QString& system_file_path,
 
 void SimulationWindowPresenter::updateRendering() {
     // Retrieve the latest system snapshot from the render queue
+    if (mode_ == Mode::Uninitialized) return;
+
     auto system_snapshot = render_queue_slot_->load(std::memory_order_acquire);
     if (!system_snapshot) return;
 
