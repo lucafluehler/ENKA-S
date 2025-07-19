@@ -36,7 +36,10 @@ private:
     Mode mode_;
     double simulation_duration_;
     QTimer* render_timer_;
-    std::chrono::steady_clock::time_point last_render_time_;
+
+    const int target_fps_ = 100;  // Target FPS for rendering
+    std::chrono::steady_clock::time_point last_fps_update_time_;
+    int frame_count_ = 0;
 
     std::atomic<SystemSnapshotPtr>* render_queue_slot_;
     std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> chart_queue_;

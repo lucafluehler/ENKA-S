@@ -9,6 +9,6 @@ public:
     virtual void initLiveMode() = 0;
 
     virtual void updateSystemRendering(SystemSnapshotPtr system_snapshot,
-                                       double simulation_duration,
-                                       double fps) = 0;
+                                       double simulation_duration) = 0;
+    virtual void updateFPS(int fps) = 0;
 };

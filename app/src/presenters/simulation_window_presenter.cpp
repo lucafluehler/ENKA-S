@@ -15,7 +15,8 @@ SimulationWindowPresenter::SimulationWindowPresenter(ISimulationWindowView* view
       view_(view),
       mode_(Mode::Uninitialized),
       simulation_duration_(0.0),
-      render_timer_(new QTimer(this)) {
+      render_timer_(new QTimer(this)),
+      last_fps_update_time_(std::chrono::steady_clock::now()) {
     connect(render_timer_, &QTimer::timeout, this, &SimulationWindowPresenter::updateRendering);
 }
 
@@ -34,8 +35,7 @@ void SimulationWindowPresenter::initLiveMode(
     view_->initLiveMode();
 
     // Start the rendering timer
-    const int fps = 120;
-    render_timer_->start(1000 / fps);
+    render_timer_->start(1000 / target_fps_);
 }
 
 void SimulationWindowPresenter::initFileMode(const QString& system_file_path,
@@ -45,17 +45,26 @@ void SimulationWindowPresenter::initFileMode(const QString& system_file_path,
 }
 
 void SimulationWindowPresenter::updateRendering() {
-    // Retrieve the latest system snapshot from the render queue
     if (mode_ == Mode::Uninitialized) return;
 
+    // Retrieve the latest system snapshot from the render queue
     auto system_snapshot = render_queue_slot_->load(std::memory_order_acquire);
     if (!system_snapshot) return;
 
-    // Calculate FPS based on the time since the last render
-    const auto now = std::chrono::steady_clock::now();
-    const double fps = 1.0 / std::chrono::duration<double>(now - last_render_time_).count();
-    last_render_time_ = now;
+    // Update the view with the system snapshot
+    view_->updateSystemRendering(system_snapshot, simulation_duration_);
+    frame_count_++;
 
-    // Update the view with the system snapshot and FPS
-    view_->updateSystemRendering(system_snapshot, simulation_duration_, fps);
+    // Check if it's time to update the FPS display
+    const auto now = std::chrono::steady_clock::now();
+    const auto elapsed_time = now - last_fps_update_time_;
+    const auto fps_display_update_interval = std::chrono::milliseconds(200);
+    if (elapsed_time < fps_display_update_interval) return;
+
+    // Calculate FPS
+    const double elapsed_seconds = std::chrono::duration<double>(elapsed_time).count();
+    const int fps = static_cast<int>(frame_count_ / elapsed_seconds);
+    view_->updateFPS(fps);
+    frame_count_ = 0;  // Reset frame count for the next interval
+    last_fps_update_time_ = now;
 }

@@ -88,13 +88,8 @@ void SimulationWindow::toggleMovie(bool checked) {
 }
 
 void SimulationWindow::updateSystemRendering(SystemSnapshotPtr system_snapshot,
-                                                 double simulation_duration,
-                                                 double fps) {
+                                             double simulation_duration) {
     if (!system_snapshot) return;
-
-    // Display FPS
-    const auto fps_text = QString::number(fps, 'f', 1) + " FPS";
-    ui_->lblFPS->setText(fps_text);
 
     // Redraw Particles
     ui_->oglParticleRenderer->updateData(system_snapshot);
@@ -107,4 +102,9 @@ void SimulationWindow::updateSystemRendering(SystemSnapshotPtr system_snapshot,
 
     // Update horizontal progress slider
     ui_->hslNavigation->setValue(1000.0 * time / simulation_duration);
+}
+
+void SimulationWindow::updateFPS(int fps) {
+    const auto fps_text = QString::number(fps) + " FPS";
+    ui_->lblFPS->setText(fps_text);
 }

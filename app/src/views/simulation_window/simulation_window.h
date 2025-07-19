@@ -25,8 +25,8 @@ public:
     void initLiveMode() override;
 
     void updateSystemRendering(SystemSnapshotPtr system_snapshot,
-                               double simulation_duration,
-                               double fps) override;
+                               double simulation_duration) override;
+    void updateFPS(int fps) override;
 
 public slots:
     void onDiagnosticsDataUpdate();
