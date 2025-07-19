@@ -107,7 +107,6 @@ constexpr auto SettingKeyStrings = std::to_array<std::pair<SettingKey, std::stri
      {SettingKey::UniformCubeParticleCount, "UniformCubeParticleCount"},
      {SettingKey::UniformCubeSideLength, "UniformCubeSideLength"},
      {SettingKey::UniformCubeInitialVelocity, "UniformCubeInitialVelocity"},
-
      {SettingKey::UniformCubeTotalMass, "UniformCubeTotalMass"},
      // Uniform Sphere
      {SettingKey::UniformSphereSeed, "UniformSphereSeed"},
