@@ -106,11 +106,11 @@ bool Settings::removeSetting(SettingKey key) {
 
 bool Settings::has(SettingKey key) const { return settings_.contains(key); }
 
-void Settings::set(SettingKey key, SettingValue&& new_value) {
+void Settings::set(SettingKey key, const SettingValue& new_value) {
     if (settings_.find(key) == settings_.end()) {
         keys_.push_back(key);
     }
-    settings_[key] = std::move(new_value);
+    settings_[key] = new_value;
 }
 
 std::optional<nlohmann::json> Settings::toJson() const {

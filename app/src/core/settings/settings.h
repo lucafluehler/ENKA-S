@@ -67,7 +67,7 @@ public:
      * @return The value of the setting.
      */
     template <typename T>
-    [[nodiscard]] auto&& get(SettingKey key) const {
+    [[nodiscard]] T get(SettingKey key) const {
         return std::get<T>(settings_.at(key));
     }
 
@@ -77,7 +77,7 @@ public:
      * @param key The identifier of the setting.
      * @param new_value The new value to set for the setting.
      */
-    void set(SettingKey key, SettingValue&& new_value);
+    void set(SettingKey key, const SettingValue& new_value);
 
     /**
      * @brief Gets the identifiers of all settings.
