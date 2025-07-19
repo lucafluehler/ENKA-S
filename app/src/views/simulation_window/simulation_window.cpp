@@ -97,6 +97,7 @@ void SimulationWindow::updateSystemRendering(SystemSnapshotPtr system_snapshot,
     ui_->lblFPS->setText(fps_text);
 
     // Redraw Particles
+    ui_->oglParticleRenderer->updateData(system_snapshot);
     ui_->oglParticleRenderer->redraw(settings_);
 
     // Update time_progress label
