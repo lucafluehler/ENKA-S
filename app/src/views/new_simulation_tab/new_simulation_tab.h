@@ -2,7 +2,7 @@
 
 #include <enkas/data/system.h>
 
-#include <QHash>
+#include <QMap>
 #include <QString>
 #include <QTimer>
 #include <QVariant>
@@ -62,10 +62,10 @@ private:
 
     Ui::NewSimulationTab* ui_;
 
-    QHash<GenerationMethod, std::shared_ptr<SettingsSchema>> generation_settings_schemas_;
-    QHash<GenerationMethod, Settings> stored_generation_settings_;
-    QHash<SimulationMethod, std::shared_ptr<SettingsSchema>> simulation_settings_schemas_;
-    QHash<SimulationMethod, Settings> stored_simulation_settings_;
+    QMap<GenerationMethod, std::shared_ptr<SettingsSchema>> generation_settings_schemas_;
+    QMap<GenerationMethod, Settings> stored_generation_settings_;
+    QMap<SimulationMethod, std::shared_ptr<SettingsSchema>> simulation_settings_schemas_;
+    QMap<SimulationMethod, Settings> stored_simulation_settings_;
 
     QString initial_system_path_;
     QString settings_path_;
