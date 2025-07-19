@@ -34,40 +34,39 @@ std::unique_ptr<enkas::simulation::Simulator> SimulatorFactory::create(const Set
 }
 
 enkas::simulation::EulerSettings SimulatorFactory::getEulerSettings(const Settings& settings) {
-    enkas::simulation::EulerSettings euler_settings;
-    euler_settings.time_step = settings.get<double>(SettingKey::EulerTimeStep);
-    euler_settings.softening_parameter = settings.get<double>(SettingKey::EulerSoftening);
-    return euler_settings;
+    enkas::simulation::EulerSettings out;
+    out.time_step = settings.get<double>(SettingKey::EulerTimeStep);
+    out.softening_parameter = settings.get<double>(SettingKey::EulerSoftening);
+    return out;
 }
 
 enkas::simulation::LeapfrogSettings SimulatorFactory::getLeapfrogSettings(
     const Settings& settings) {
-    enkas::simulation::LeapfrogSettings leapfrog_settings;
-    leapfrog_settings.time_step = settings.get<double>(SettingKey::LeapfrogTimeStep);
-    leapfrog_settings.softening_parameter = settings.get<double>(SettingKey::LeapfrogSoftening);
-    return leapfrog_settings;
+    enkas::simulation::LeapfrogSettings out;
+    out.time_step = settings.get<double>(SettingKey::LeapfrogTimeStep);
+    out.softening_parameter = settings.get<double>(SettingKey::LeapfrogSoftening);
+    return out;
 }
 
 enkas::simulation::HermiteSettings SimulatorFactory::getHermiteSettings(const Settings& settings) {
-    enkas::simulation::HermiteSettings hermite_settings;
-    hermite_settings.time_step = settings.get<double>(SettingKey::HermiteTimeStep);
-    hermite_settings.softening_parameter = settings.get<double>(SettingKey::HermiteSoftening);
-    return hermite_settings;
+    enkas::simulation::HermiteSettings out;
+    out.time_step = settings.get<double>(SettingKey::HermiteTimeStep);
+    out.softening_parameter = settings.get<double>(SettingKey::HermiteSoftening);
+    return out;
 }
 
 enkas::simulation::HitsSettings SimulatorFactory::getHitsSettings(const Settings& settings) {
-    enkas::simulation::HitsSettings hits_settings;
-    hits_settings.time_step_parameter = settings.get<double>(SettingKey::HitsTimeStepParam);
-    hits_settings.softening_parameter = settings.get<double>(SettingKey::HitsSoftening);
-    return hits_settings;
+    enkas::simulation::HitsSettings out;
+    out.time_step_parameter = settings.get<double>(SettingKey::HitsTimeStepParam);
+    out.softening_parameter = settings.get<double>(SettingKey::HitsSoftening);
+    return out;
 }
 
 enkas::simulation::BarnesHutLeapfrogSettings SimulatorFactory::getBarnesHutLeapfrogSettings(
     const Settings& settings) {
-    enkas::simulation::BarnesHutLeapfrogSettings bhleapfrog_settings;
-    bhleapfrog_settings.time_step = settings.get<double>(SettingKey::BarnesHutLeapfrogTimeStep);
-    bhleapfrog_settings.theta_mac = settings.get<double>(SettingKey::BarnesHutLeapfrogThetaMac);
-    bhleapfrog_settings.softening_parameter =
-        settings.get<double>(SettingKey::BarnesHutLeapfrogSoftening);
-    return bhleapfrog_settings;
+    enkas::simulation::BarnesHutLeapfrogSettings out;
+    out.time_step = settings.get<double>(SettingKey::BarnesHutLeapfrogTimeStep);
+    out.theta_mac = settings.get<double>(SettingKey::BarnesHutLeapfrogThetaMac);
+    out.softening_parameter = settings.get<double>(SettingKey::BarnesHutLeapfrogSoftening);
+    return out;
 }
