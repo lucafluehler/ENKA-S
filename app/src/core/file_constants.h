@@ -4,7 +4,7 @@
 #include <vector>
 
 namespace file_names {
-inline constexpr char settings[] = "settings.csv";
+inline constexpr char settings[] = "settings.json";
 inline constexpr char system[] = "system.csv";
 inline constexpr char diagnostics[] = "diagnostics.csv";
 }  // namespace file_names
