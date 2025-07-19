@@ -69,7 +69,7 @@ void LoadSimulationPresenter::checkFiles() {
 }
 
 void LoadSimulationPresenter::onSettingsParsed(const std::optional<Settings>& settings) {
-    view_->onSettingsParsed(settings.has_value());
+    view_->onSettingsParsed(settings);
 }
 
 void LoadSimulationPresenter::onInitialSystemParsed(

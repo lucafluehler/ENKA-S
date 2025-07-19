@@ -22,7 +22,7 @@ public:
     explicit LoadSimulationTab(QWidget *parent = nullptr);
 
     void updateInitialSystemPreview() override;
-    void onSettingsParsed(bool success) override;
+    void onSettingsParsed(std::optional<Settings> settings) override;
     void onInitialSystemParsed(std::optional<enkas::data::System> system) override;
     void onDiagnosticsSeriesParsed(bool success) override;
     QVector<QString> getFilesToCheck() const override;
@@ -35,7 +35,7 @@ private slots:
     void openSettingsFile();
 
 private:
-    void resetSimulationFilePaths();
+    void resetUI();
     void checkFiles(const QString &dir_path);
 
     Ui::LoadSimulationTab *ui_;

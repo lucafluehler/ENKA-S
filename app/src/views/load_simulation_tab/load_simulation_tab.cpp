@@ -10,6 +10,7 @@
 #include <QUrl>
 
 #include "core/file_constants.h"
+#include "core/settings/generation_method.h"
 #include "forms/load_simulation_tab/ui_load_simulation_tab.h"
 #include "widgets/file_check_icon.h"
 
@@ -46,7 +47,7 @@ void LoadSimulationTab::openFolderDialog() {
 
     if (folder_path.isEmpty()) return;
 
-    resetSimulationFilePaths();
+    resetUI();
 
     QString folder_name = QDir(folder_path).dirName();
 
@@ -64,11 +65,21 @@ void LoadSimulationTab::openSettingsFile() {
     QDesktopServices::openUrl(QUrl::fromLocalFile(settings_file_path_));
 }
 
-void LoadSimulationTab::onSettingsParsed(bool success) {
-    if (success) {
+void LoadSimulationTab::onSettingsParsed(std::optional<Settings> settings) {
+    if (settings.has_value()) {
         ui_->btnOpenSettings->setEnabled(true);
         ui_->btnOpenSettings->setToolTip(settings_file_path_);
         ui_->lblSettingsStatusIcon->setMode(FileCheckIcon::Mode::Checked);
+
+        auto gen_method = settings->get<GenerationMethod>(SettingKey::GenerationMethod);
+        auto gen_method_string =
+            QString::fromStdString(std::string(generationMethodToString(gen_method)));
+        ui_->lblGenerationMethod->setText(gen_method_string);
+
+        auto sim_method = settings->get<SimulationMethod>(SettingKey::SimulationMethod);
+        auto sim_method_string =
+            QString::fromStdString(std::string(simulationMethodToString(sim_method)));
+        ui_->lblSimulationMethod->setText(sim_method_string);
     } else {
         ui_->lblSettingsStatusIcon->setMode(FileCheckIcon::Mode::Corrupted);
         ui_->btnOpenSettings->setToolTip("");
@@ -147,7 +158,7 @@ void LoadSimulationTab::checkFiles(const QString& dir_path) {
     if (any_file_found) emit requestFilesCheck();
 }
 
-void LoadSimulationTab::resetSimulationFilePaths() {
+void LoadSimulationTab::resetUI() {
     // Reset settings data
     ui_->lblGenerationMethod->setText("");
     ui_->lblSimulationMethod->setText("");
@@ -167,4 +178,7 @@ void LoadSimulationTab::resetSimulationFilePaths() {
     settings_file_path_.clear();
     system_file_path_.clear();
     diagnostics_file_path_.clear();
+
+    // Reset the system preview
+    ui_->oglSystemPreview->clearPreview();
 }
