@@ -24,6 +24,7 @@ void SettingsWidget::setSchema(const QVector<SettingDescriptor>& schema) {
 
     for (auto&& desc : schema) {
         QWidget* editor = nullptr;
+        types_[desc.key] = desc.type;
         switch (desc.type) {
             case SettingDescriptor::Double: {
                 auto* sb = new FancyDoubleSpinBox;
@@ -93,18 +94,31 @@ Settings SettingsWidget::getSettings() const {
     Settings out;
     for (auto key : editors_.keys()) {
         QWidget* w = editors_[key];
-        if (auto* d = qobject_cast<QDoubleSpinBox*>(w))
-            out.set(key, d->value());
-        else if (auto* i = qobject_cast<QSpinBox*>(w))
-            out.set(key, i->value());
-        else if (auto* h = qobject_cast<QWidget*>(w)) {
-            auto* le = h->findChild<QLineEdit*>();
-            out.set(key, le->text().toStdString());
-        } else if (auto* h = qobject_cast<QWidget*>(w)) {
-            if (auto* le = h->findChild<QLineEdit*>()) {
-                out.set(key, le->text().toStdString());
-            } else if (auto* sb = h->findChild<QSpinBox*>()) {
-                out.set(key, sb->value());
+        auto type = types_[key];
+        switch (type) {
+            case SettingDescriptor::Double: {
+                auto* d = qobject_cast<QDoubleSpinBox*>(w);
+                if (d) out.set(key, d->value());
+                break;
+            }
+            case SettingDescriptor::Int: {
+                auto* i = qobject_cast<QSpinBox*>(w);
+                if (i) out.set(key, i->value());
+                break;
+            }
+            case SettingDescriptor::FilePath: {
+                if (auto* container = qobject_cast<QWidget*>(w)) {
+                    auto* le = container->findChild<QLineEdit*>();
+                    if (le) out.set(key, le->text().toStdString());
+                }
+                break;
+            }
+            case SettingDescriptor::RandomInt: {
+                if (auto* container = qobject_cast<QWidget*>(w)) {
+                    auto* sb = container->findChild<QSpinBox*>();
+                    if (sb) out.set(key, sb->value());
+                }
+                break;
             }
         }
     }
@@ -115,18 +129,31 @@ void SettingsWidget::setSettings(const Settings& settings) {
     for (auto key : editors_.keys()) {
         if (!settings.has(key)) continue;
         QWidget* w = editors_[key];
-        if (auto* d = qobject_cast<QDoubleSpinBox*>(w))
-            d->setValue(settings.get<double>(key));
-        else if (auto* i = qobject_cast<QSpinBox*>(w))
-            i->setValue(settings.get<int>(key));
-        else if (auto* h = qobject_cast<QWidget*>(w)) {
-            auto* le = h->findChild<QLineEdit*>();
-            le->setText(QString::fromStdString(settings.get<std::string>(key)));
-        } else if (auto* h = qobject_cast<QWidget*>(w)) {
-            if (auto* le = h->findChild<QLineEdit*>()) {
-                le->setText(QString::fromStdString(settings.get<std::string>(key)));
-            } else if (auto* sb = h->findChild<QSpinBox*>()) {
-                sb->setValue(settings.get<int>(key));
+        auto type = types_[key];
+        switch (type) {
+            case SettingDescriptor::Double: {
+                auto* d = qobject_cast<QDoubleSpinBox*>(w);
+                if (d) d->setValue(settings.get<double>(key));
+                break;
+            }
+            case SettingDescriptor::Int: {
+                auto* i = qobject_cast<QSpinBox*>(w);
+                if (i) i->setValue(settings.get<int>(key));
+                break;
+            }
+            case SettingDescriptor::FilePath: {
+                if (auto* container = qobject_cast<QWidget*>(w)) {
+                    auto* le = container->findChild<QLineEdit*>();
+                    if (le) le->setText(QString::fromStdString(settings.get<std::string>(key)));
+                }
+                break;
+            }
+            case SettingDescriptor::RandomInt: {
+                if (auto* container = qobject_cast<QWidget*>(w)) {
+                    auto* sb = container->findChild<QSpinBox*>();
+                    if (sb) sb->setValue(settings.get<int>(key));
+                }
+                break;
             }
         }
     }

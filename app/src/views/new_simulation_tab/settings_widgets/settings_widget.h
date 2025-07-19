@@ -30,4 +30,6 @@ signals:
 
 private:
     void clearLayout(QFormLayout* layout);
+
+    QMap<SettingKey, SettingDescriptor::Type> types_;
 };
