@@ -17,21 +17,21 @@ void FileCheckIcon::updateIcon() {
     switch (mode) {
         case Mode::NotFound:
             setPixmap(QPixmap(QString::fromUtf8(":/LoadDiagnosticsTab/img/not_found.png")));
-            setToolTip("Daten nicht gefunden.");
+            setToolTip("File not found.");
             break;
         case Mode::Loading:
             movie = new QMovie(":/LoadDiagnosticsTab/img/loading.gif");
             setMovie(movie);
             movie->start();
-            setToolTip("Daten werden überprüft.");
+            setToolTip("Checking file...");
             break;
         case Mode::Checked:
             setPixmap(QPixmap(QString::fromUtf8(":/LoadDiagnosticsTab/img/checked.png")));
-            setToolTip("Die Daten wurden erfolgreich geprüft.");
+            setToolTip("File checked successfully.");
             break;
         case Mode::Corrupted:
             setPixmap(QPixmap(QString::fromUtf8(":/LoadDiagnosticsTab/img/corrupted.png")));
-            setToolTip("Die Daten sind fehlerhaft.");
+            setToolTip("File is corrupted.");
             break;
         default:
             break;

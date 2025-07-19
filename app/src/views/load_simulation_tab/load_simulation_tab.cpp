@@ -77,10 +77,10 @@ void LoadSimulationTab::onInitialSystemParsed(std::optional<enkas::data::System>
 
 void LoadSimulationTab::onDiagnosticsSeriesParsed(bool success) {
     if (success) {
-        ui_->lblDiagnosticsIcon->setMode(FileCheckIcon::Mode::Checked);
+        ui_->lblDiagnosticsStatusIcon->setMode(FileCheckIcon::Mode::Checked);
         ui_->btnRun->setEnabled(true);
     } else {
-        ui_->lblDiagnosticsIcon->setMode(FileCheckIcon::Mode::Corrupted);
+        ui_->lblDiagnosticsStatusIcon->setMode(FileCheckIcon::Mode::Corrupted);
     }
 }
 
@@ -127,7 +127,7 @@ void LoadSimulationTab::checkFiles(const QString& dir_path) {
     QString diagnostics_path = QDir(dir_path).filePath(file_names::diagnostics);
     QFileInfo diagnostics_file(diagnostics_path);
     if (diagnostics_file.exists()) {
-        ui_->lblDiagnosticsIcon->setMode(FileCheckIcon::Mode::Loading);
+        ui_->lblDiagnosticsStatusIcon->setMode(FileCheckIcon::Mode::Loading);
         diagnostics_file_path_ = diagnostics_path;
         any_file_found = true;
     }
@@ -152,8 +152,8 @@ void LoadSimulationTab::resetSimulationFilePaths() {
     auto mode = FileCheckIcon::Mode::NotFound;
     ui_->lblSettingsIcon->setMode(mode);
     ui_->lblInitialSystemIcon->setMode(mode);
-    ui_->lblRenderIcon->setMode(mode);
-    ui_->lblDiagnosticsIcon->setMode(mode);
+    ui_->lblSystemDataIcon->setMode(mode);
+    ui_->lblDiagnosticsStatusIcon->setMode(mode);
     ui_->lblAnalyticsIcon->setMode(mode);
 
     // Reset file paths

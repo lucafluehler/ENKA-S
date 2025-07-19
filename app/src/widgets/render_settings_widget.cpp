@@ -13,18 +13,18 @@ RenderSettingsWidget::RenderSettingsWidget(QWidget* parent)
     ui->setupUi(this);
 
     // Map Animation Styles
-    addAnimationStyle("Keine", AnimationStyle::None);
-    addAnimationStyle("Nach Rechts", AnimationStyle::Right);
-    addAnimationStyle("Nach Links", AnimationStyle::Left);
-    addAnimationStyle("Nach Oben", AnimationStyle::Up);
-    addAnimationStyle("Nach Unten", AnimationStyle::Down);
-    addAnimationStyle("Im Uhrzeigersinn", AnimationStyle::Clockwise);
-    addAnimationStyle("Im Gegenuhrzeigersinn", AnimationStyle::Counterclockwise);
+    addAnimationStyle("None", AnimationStyle::None);
+    addAnimationStyle("Right", AnimationStyle::Right);
+    addAnimationStyle("Left", AnimationStyle::Left);
+    addAnimationStyle("Up", AnimationStyle::Up);
+    addAnimationStyle("Down", AnimationStyle::Down);
+    addAnimationStyle("Clockwise", AnimationStyle::Clockwise);
+    addAnimationStyle("Counterclockwise", AnimationStyle::Counterclockwise);
     addAnimationStyle("Tutti", AnimationStyle::Tutti);
 
     // Map Coloring Methods
-    addColoringMethod("Schwarzer Nebel", ColoringMethod::BlackFog);
-    addColoringMethod("Weisser Nebel", ColoringMethod::WhiteFog);
+    addColoringMethod("Black Fog", ColoringMethod::BlackFog);
+    addColoringMethod("White Fog", ColoringMethod::WhiteFog);
 
     // Load defaults
     // loadRenderSettings(RenderSettings());

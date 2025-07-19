@@ -62,12 +62,15 @@
         <pointsize>12</pointsize>
        </font>
       </property>
+      <property name="locale">
+       <locale language="C" country="AnyTerritory"/>
+      </property>
       <property name="currentIndex">
        <number>0</number>
       </property>
       <widget class="QWidget" name="tabHome">
        <attribute name="title">
-        <string>Startseite</string>
+        <string>Home</string>
        </attribute>
        <widget class="SystemPreview" name="oglHomeScreen">
         <property name="geometry">
@@ -90,6 +93,9 @@
           <height>0</height>
          </size>
         </property>
+        <property name="locale">
+         <locale language="C" country="AnyTerritory"/>
+        </property>
        </widget>
        <widget class="QWidget" name="widget" native="true">
         <property name="geometry">
@@ -100,22 +106,15 @@
           <height>44</height>
          </rect>
         </property>
+        <property name="locale">
+         <locale language="C" country="AnyTerritory"/>
+        </property>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
-          <widget class="QLabel" name="label_44">
-           <property name="font">
-            <font>
-             <family>Open Sans</family>
-             <pointsize>14</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Maturaarbeit von Luca Flühler</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <spacer name="horizontalSpacer_2">
+           <property name="locale">
+            <locale language="C" country="AnyTerritory"/>
+           </property>
            <property name="orientation">
             <enum>Qt::Orientation::Horizontal</enum>
            </property>
@@ -135,8 +134,11 @@
              <pointsize>14</pointsize>
             </font>
            </property>
+           <property name="locale">
+            <locale language="C" country="AnyTerritory"/>
+           </property>
            <property name="text">
-            <string>Oktober, 2023</string>
+            <string>v2.0.0</string>
            </property>
           </widget>
          </item>
@@ -151,6 +153,9 @@
           <height>110</height>
          </rect>
         </property>
+        <property name="locale">
+         <locale language="C" country="AnyTerritory"/>
+        </property>
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
           <widget class="QLabel" name="label_43">
@@ -160,6 +165,9 @@
              <pointsize>50</pointsize>
              <bold>true</bold>
             </font>
+           </property>
+           <property name="locale">
+            <locale language="C" country="AnyTerritory"/>
            </property>
            <property name="text">
             <string>ENKA-S</string>
@@ -180,9 +188,11 @@
              <pointsize>14</pointsize>
             </font>
            </property>
+           <property name="locale">
+            <locale language="C" country="AnyTerritory"/>
+           </property>
            <property name="text">
-            <string>Einfacher N-Körper-Analysierer und -Simulator
-für Sternhaufen und Galaxien</string>
+            <string/>
            </property>
            <property name="alignment">
             <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing</set>
@@ -200,12 +210,12 @@ für Sternhaufen und Galaxien</string>
         </sizepolicy>
        </property>
        <attribute name="title">
-        <string>Neue Simulation</string>
+        <string>New Simulation</string>
        </attribute>
       </widget>
       <widget class="LoadSimulationTab" name="tabLoadSimulation">
        <attribute name="title">
-        <string>Simulation laden</string>
+        <string>Load Simulation</string>
        </attribute>
       </widget>
      </widget>

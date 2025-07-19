@@ -44,7 +44,7 @@
         </font>
        </property>
        <property name="title">
-        <string>Anfangssystem</string>
+        <string>Initial System</string>
        </property>
        <property name="checkable">
         <bool>false</bool>
@@ -58,7 +58,7 @@
           <item row="0" column="0">
            <widget class="QLabel" name="label_2">
             <property name="text">
-             <string>Methode</string>
+             <string>Method</string>
             </property>
            </widget>
           </item>
@@ -113,7 +113,7 @@
             <item row="0" column="0">
              <widget class="QLabel" name="label">
               <property name="text">
-               <string>Methode</string>
+               <string>Method</string>
               </property>
              </widget>
             </item>
@@ -123,7 +123,7 @@
             <item row="1" column="0">
              <widget class="QLabel" name="label_23">
               <property name="text">
-               <string>Simulationsdauer</string>
+               <string>Duration</string>
               </property>
              </widget>
             </item>
@@ -251,7 +251,7 @@
             <item row="2" column="0">
              <widget class="QLabel" name="label_27">
               <property name="text">
-               <string>Diagnose</string>
+               <string>Diagnostics</string>
               </property>
              </widget>
             </item>
@@ -261,7 +261,7 @@
                <string notr="true"/>
               </property>
               <property name="text">
-               <string>Speichern</string>
+               <string>Save</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -321,14 +321,14 @@
             <item row="3" column="0">
              <widget class="QLabel" name="label_26">
               <property name="text">
-               <string>Einstellungen</string>
+               <string>Settings</string>
               </property>
              </widget>
             </item>
             <item row="0" column="1">
              <widget class="QLabel" name="label_42">
               <property name="text">
-               <string>Zeitschritt</string>
+               <string>Time Step</string>
               </property>
              </widget>
             </item>
@@ -603,7 +603,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="pgeStartSimulation">
       <layout class="QHBoxLayout" name="horizontalLayout">
@@ -641,7 +641,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Simulation starten</string>
+          <string>Start Simulation</string>
          </property>
          <property name="flat">
           <bool>false</bool>
@@ -686,7 +686,7 @@
           </size>
          </property>
          <property name="text">
-          <string>Simulation wird vorbereitet...</string>
+          <string>Preparing Simulation...</string>
          </property>
         </widget>
        </item>
@@ -785,7 +785,7 @@
           </size>
          </property>
          <property name="text">
-          <string>Simulation öffnen</string>
+          <string>Open Simulation</string>
          </property>
         </widget>
        </item>
@@ -903,7 +903,7 @@
           </size>
          </property>
          <property name="text">
-          <string>Simulation wird abgebrochen...</string>
+          <string>Aborting Simulation...</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
