@@ -33,8 +33,6 @@ ParticleRenderer::ParticleRenderer(QWidget* parent) : QOpenGLWidget(parent) {
 void ParticleRenderer::updateData(SystemSnapshotPtr system) {
     if (!system) return;
     system_ = std::move(system);
-    rel_positions_.clear();
-    rel_positions_.reserve(system_->data.count());
 }
 
 void ParticleRenderer::redraw(const RenderSettings& settings) {

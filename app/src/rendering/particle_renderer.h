@@ -9,7 +9,6 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLWidget>
-#include <tuple>
 #include <vector>
 
 #include "core/snapshot.h"
@@ -61,8 +60,6 @@ private:
     void setParticleColor(double distance);
 
     QPoint last_mouse_pos_;
-
-    std::vector<std::tuple<double, enkas::math::Vector3D>> rel_positions_;
 
     RenderSettings settings_;
     SystemSnapshotPtr system_;
