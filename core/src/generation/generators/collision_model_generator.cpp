@@ -35,11 +35,12 @@ data::System CollisionModelGenerator::createSystem() {
     data::System sphere2 = PlummerSphereGenerator(plummer2_settings).createSystem();
 
     const double avg_radius = (settings_.sphere_radius_1 + settings_.sphere_radius_2) / 2.0;
-    const double separation_distance = settings_.impact_parameter;
+    const double separation_distance = avg_radius * 8.0;
 
     // Move first sphere
     for (auto& pos : sphere1.positions) {
         pos.x += separation_distance / 2.0;
+        pos.y += settings_.impact_parameter / 2.0;
     }
 
     for (auto& vel : sphere1.velocities) {
@@ -49,6 +50,7 @@ data::System CollisionModelGenerator::createSystem() {
     // Move second sphere
     for (auto& pos : sphere2.positions) {
         pos.x -= separation_distance / 2.0;
+        pos.y -= settings_.impact_parameter / 2.0;
     }
 
     for (auto& vel : sphere2.velocities) {
