@@ -43,7 +43,7 @@ data::System CollisionModelGenerator::createSystem() {
     }
 
     for (auto& vel : sphere1.velocities) {
-        vel.x += settings_.relative_velocity / 2.0;
+        vel.x -= settings_.relative_velocity / 2.0;
     }
 
     // Move second sphere
@@ -52,7 +52,7 @@ data::System CollisionModelGenerator::createSystem() {
     }
 
     for (auto& vel : sphere2.velocities) {
-        vel.x -= settings_.relative_velocity / 2.0;
+        vel.x += settings_.relative_velocity / 2.0;
     }
 
     // Combine both systems and center
