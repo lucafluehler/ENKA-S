@@ -172,7 +172,7 @@
           </size>
          </property>
          <property name="title">
-          <string>Daten</string>
+          <string>Data</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <property name="leftMargin">
