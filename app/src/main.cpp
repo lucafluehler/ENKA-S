@@ -5,8 +5,8 @@
 #include <QApplication>
 
 #include "logging/qt_log_sink.h"
-#include "logging/logs_tab.h"
 #include "presenters/main_window_presenter.h"
+#include "views/logs_tab/logs_tab.h"
 #include "views/main_window/main_window.h"
 
 void setupLogging(QObject *parent) {

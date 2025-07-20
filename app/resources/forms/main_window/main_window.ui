@@ -249,7 +249,7 @@
   <customwidget>
    <class>LogsTab</class>
    <extends>QWidget</extends>
-   <header>logging/logs_tab.h</header>
+   <header>views/logs_tab/logs_tab.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
