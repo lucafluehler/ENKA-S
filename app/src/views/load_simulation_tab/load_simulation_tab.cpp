@@ -31,13 +31,8 @@ LoadSimulationTab::LoadSimulationTab(QWidget* parent)
         ui_->btnOpenSettings, &QPushButton::clicked, this, &LoadSimulationTab::openSettingsFile);
 }
 
-void LoadSimulationTab::updateInitialSystemPreview() { ui_->oglSystemPreview->update(); }
-
 void LoadSimulationTab::openFolderDialog() {
     QString open_this_path = QCoreApplication::applicationDirPath();
-
-    QString output_path = QDir(open_this_path).filePath(folder_names::output);
-    if (QDir(output_path).exists()) open_this_path = output_path;
 
     QString folder_path = QFileDialog::getExistingDirectory(
         this,

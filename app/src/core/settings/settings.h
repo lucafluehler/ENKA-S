@@ -16,6 +16,10 @@
 using SettingValue =
     std::variant<int, double, bool, std::string, GenerationMethod, SimulationMethod>;
 
+/**
+ * @brief Class representing a collection of settings.
+ * Acts as a translation layer between the UI and the underlying settings used by the core library.
+ */
 class Settings {
 public:
     Settings() = default;

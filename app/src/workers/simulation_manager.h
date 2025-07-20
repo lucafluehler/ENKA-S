@@ -12,36 +12,84 @@
 #include "simulation_worker.h"
 #include "views/simulation_window/simulation_window.h"
 
+/**
+ * @brief The SimulationManager class manages the simulation process, including
+ *        initialization, running the simulation, and handling data storage.
+ */
 class SimulationManager : public QObject {
     Q_OBJECT
 public:
-    SimulationManager(const Settings& settings, QObject* parent = nullptr);
+    explicit SimulationManager(const Settings& settings, QObject* parent = nullptr);
     ~SimulationManager();
 
-    void startSimulationProcedere();
+    /**
+     * @brief Starts a new simulation.
+     */
+    void startSimulationProcedure() { emit requestGeneration(); }
 
-    double getDuration() const;
-    double getTime() const;
+    /**
+     * @brief Returns the total duration of the simulation.
+     * @return The duration in time step units.
+     */
+    double getDuration() const { return duration_; }
+
+    /**
+     * @brief Returns the current simulation time.
+     * @return The current time in time step units.
+     */
+    double getTime() const { return time_; }
 
 signals:
-    void saveSettings();
-    void saveInitialSystem();
-
+    /**
+     * @brief Requests the generation of a new initial system.
+     */
     void requestGeneration();
+
+    /**
+     * @brief Requests the initialization of the simulator with the previously generated initial
+     * system.
+     */
     void requestInitialization();
+
+    /**
+     * @brief Requests a simulation step.
+     */
     void requestSimulationStep();
 
+    /**
+     * @brief Emitted when the generation of a new initial system is completed.
+     */
     void generationCompleted();
+
+    /**
+     * @brief Emitted when the initialization of the simulator is completed.
+     */
     void initializationCompleted();
+
+    /**
+     * @brief Emitted when a simulation step is completed.
+     */
     void simulationStep(double time);
 
-    void renderDataStep();
+    /**
+     * @brief Emitted when new diagnostics data is available.
+     */
     void diagnosticsDataStep();
 
+    /**
+     * @brief Requests saving the latest render data.
+     */
     void saveRenderData();
+
+    /**
+     * @brief Requests saving the latest diagnostics data.
+     */
     void saveDiagnosticsData();
 
 public slots:
+    /**
+     * @brief Opens the simulation window.
+     */
     void openSimulationWindow();
 
 private slots:
@@ -55,7 +103,6 @@ private:
     void performSimulationStep(double time,
                                SystemSnapshotPtr system_snapshot,
                                DiagnosticsSnapshotPtr diagnostics_snapshot);
-    void saveSettingsToFile();
     void setupOutputDir();
     void setupSystemStorageWorker();
     void setupDiagnosticsStorageWorker();

@@ -6,31 +6,43 @@
 
 #include "core/settings/settings.h"
 
-std::unique_ptr<enkas::generation::Generator> GeneratorFactory::create(const Settings& settings) {
-    auto method = settings.get<GenerationMethod>(SettingKey::GenerationMethod);
+using Generator = enkas::generation::Generator;
+using Factory = enkas::generation::Factory;
+using UniformCubeSettings = enkas::generation::UniformCubeSettings;
+using NormalSphereSettings = enkas::generation::NormalSphereSettings;
+using UniformSphereSettings = enkas::generation::UniformSphereSettings;
+using PlummerSphereSettings = enkas::generation::PlummerSphereSettings;
+using SpiralGalaxySettings = enkas::generation::SpiralGalaxySettings;
+using CollisionModelSettings = enkas::generation::CollisionModelSettings;
 
-    switch (method) {
-        case GenerationMethod::NormalSphere:
-            return enkas::generation::Factory::create(getNormalSphereSettings(settings));
-        case GenerationMethod::UniformCube:
-            return enkas::generation::Factory::create(getUniformCubeSettings(settings));
-        case GenerationMethod::UniformSphere:
-            return enkas::generation::Factory::create(getUniformSphereSettings(settings));
-        case GenerationMethod::PlummerSphere:
-            return enkas::generation::Factory::create(getPlummerSphereSettings(settings));
-        case GenerationMethod::SpiralGalaxy:
-            return enkas::generation::Factory::create(getSpiralGalaxySettings(settings));
-        case GenerationMethod::CollisionModel:
-            return enkas::generation::Factory::create(getCollisionModelSettings(settings));
-        case GenerationMethod::File:
-        default:
-            return nullptr;  // Unsupported generation method
+std::unique_ptr<Generator> GeneratorFactory::create(const Settings& settings) {
+    try {
+        auto method = settings.get<GenerationMethod>(SettingKey::GenerationMethod);
+
+        switch (method) {
+            case GenerationMethod::NormalSphere:
+                return Factory::create(getNormalSphereSettings(settings));
+            case GenerationMethod::UniformCube:
+                return Factory::create(getUniformCubeSettings(settings));
+            case GenerationMethod::UniformSphere:
+                return Factory::create(getUniformSphereSettings(settings));
+            case GenerationMethod::PlummerSphere:
+                return Factory::create(getPlummerSphereSettings(settings));
+            case GenerationMethod::SpiralGalaxy:
+                return Factory::create(getSpiralGalaxySettings(settings));
+            case GenerationMethod::CollisionModel:
+                return Factory::create(getCollisionModelSettings(settings));
+            case GenerationMethod::File:
+            default:
+                return nullptr;  // Unsupported generation method
+        }
+    } catch (const std::exception& e) {
+        return nullptr;  // An expected key was not found in the provided settings
     }
 }
 
-enkas::generation::NormalSphereSettings GeneratorFactory::getNormalSphereSettings(
-    const Settings& settings) {
-    enkas::generation::NormalSphereSettings out;
+NormalSphereSettings GeneratorFactory::getNormalSphereSettings(const Settings& settings) {
+    NormalSphereSettings out;
     out.seed = settings.get<int>(SettingKey::NormalSphereSeed);
     out.particle_count = settings.get<int>(SettingKey::NormalSphereParticleCount);
     out.position_std_dev = settings.get<double>(SettingKey::NormalSpherePositionStdDev);
@@ -40,9 +52,8 @@ enkas::generation::NormalSphereSettings GeneratorFactory::getNormalSphereSetting
     return out;
 }
 
-enkas::generation::UniformCubeSettings GeneratorFactory::getUniformCubeSettings(
-    const Settings& settings) {
-    enkas::generation::UniformCubeSettings out;
+UniformCubeSettings GeneratorFactory::getUniformCubeSettings(const Settings& settings) {
+    UniformCubeSettings out;
     out.seed = settings.get<int>(SettingKey::UniformCubeSeed);
     out.particle_count = settings.get<int>(SettingKey::UniformCubeParticleCount);
     out.side_length = settings.get<double>(SettingKey::UniformCubeSideLength);
@@ -51,9 +62,8 @@ enkas::generation::UniformCubeSettings GeneratorFactory::getUniformCubeSettings(
     return out;
 }
 
-enkas::generation::UniformSphereSettings GeneratorFactory::getUniformSphereSettings(
-    const Settings& settings) {
-    enkas::generation::UniformSphereSettings out;
+UniformSphereSettings GeneratorFactory::getUniformSphereSettings(const Settings& settings) {
+    UniformSphereSettings out;
     out.seed = settings.get<int>(SettingKey::UniformSphereSeed);
     out.particle_count = settings.get<int>(SettingKey::UniformSphereParticleCount);
     out.sphere_radius = settings.get<double>(SettingKey::UniformSphereRadius);
@@ -62,9 +72,8 @@ enkas::generation::UniformSphereSettings GeneratorFactory::getUniformSphereSetti
     return out;
 }
 
-enkas::generation::PlummerSphereSettings GeneratorFactory::getPlummerSphereSettings(
-    const Settings& settings) {
-    enkas::generation::PlummerSphereSettings out;
+PlummerSphereSettings GeneratorFactory::getPlummerSphereSettings(const Settings& settings) {
+    PlummerSphereSettings out;
     out.seed = settings.get<int>(SettingKey::PlummerSphereSeed);
     out.particle_count = settings.get<int>(SettingKey::PlummerSphereParticleCount);
     out.sphere_radius = settings.get<double>(SettingKey::PlummerSphereRadius);
@@ -72,9 +81,8 @@ enkas::generation::PlummerSphereSettings GeneratorFactory::getPlummerSphereSetti
     return out;
 }
 
-enkas::generation::SpiralGalaxySettings GeneratorFactory::getSpiralGalaxySettings(
-    const Settings& settings) {
-    enkas::generation::SpiralGalaxySettings out;
+SpiralGalaxySettings GeneratorFactory::getSpiralGalaxySettings(const Settings& settings) {
+    SpiralGalaxySettings out;
     out.seed = settings.get<int>(SettingKey::SpiralGalaxySeed);
     out.particle_count = settings.get<int>(SettingKey::SpiralGalaxyParticleCount);
     out.num_arms = settings.get<int>(SettingKey::SpiralGalaxyNumArms);
@@ -85,9 +93,8 @@ enkas::generation::SpiralGalaxySettings GeneratorFactory::getSpiralGalaxySetting
     return out;
 }
 
-enkas::generation::CollisionModelSettings GeneratorFactory::getCollisionModelSettings(
-    const Settings& settings) {
-    enkas::generation::CollisionModelSettings out;
+CollisionModelSettings GeneratorFactory::getCollisionModelSettings(const Settings& settings) {
+    CollisionModelSettings out;
     out.seed = settings.get<int>(SettingKey::CollisionModelSeed);
     out.impact_parameter = settings.get<double>(SettingKey::CollisionModelImpactParameter);
     out.relative_velocity = settings.get<double>(SettingKey::CollisionModelRelativeVelocity);

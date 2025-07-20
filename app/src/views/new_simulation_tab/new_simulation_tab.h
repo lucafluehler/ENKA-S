@@ -11,37 +11,61 @@
 #include <optional>
 
 #include "core/settings/settings.h"
+#include "forms/new_simulation_tab/ui_new_simulation_tab.h"
 #include "i_new_simulation_view.h"
 #include "settings_widgets/settings_schema.h"
 
-QT_BEGIN_NAMESPACE
-namespace Ui {
-class NewSimulationTab;
-}
-QT_END_NAMESPACE
-
+/**
+ * @brief NewSimulationTab allows users to configure and start new simulations.
+ *
+ * It provides options for selecting generation and simulation methods, loading settings,
+ * and previewing the initial system.
+ */
 class NewSimulationTab : public QWidget, public INewSimulationView {
     Q_OBJECT
 
 public:
-    NewSimulationTab(QWidget* parent = nullptr);
-    ~NewSimulationTab();
+    /**
+     * @brief Initializes the NewSimulationTab UI and connects signals to slots.
+     * @param parent The parent widget.
+     */
+    explicit NewSimulationTab(QWidget* parent = nullptr);
+    ~NewSimulationTab() override { abortSimulation(); }
 
-    void updatePreview() override;
+    void updatePreview() override { ui_->oglSystemPreview->update(); }
     void processSettings(const std::optional<Settings>& settings) override;
     void processInitialSystem(const std::optional<enkas::data::System>& system) override;
-    void showSimulationProgress() override;
+    void showSimulationProgress() override { ui_->stwProgress->setCurrentIndex(2); }
     void updateSimulationProgress(double time, double duration) override;
-    void simulationAborted() override;
-    QString getInitialSystemPath() const override;
-    QString getSettingsPath() const override;
+    void simulationAborted() override { ui_->stwProgress->setCurrentIndex(0); }
+    QString getInitialSystemPath() const override { return initial_system_path_; }
+    QString getSettingsPath() const override { return settings_path_; }
     Settings fetchSettings() const override;
 
 signals:
+    /** @signal
+     * @brief Emitted when the user-provided initial system file must be checked for validity.
+     */
     void checkInitialSystemFile();
+
+    /** @signal
+     * @brief Emitted when the user-provided settings file must be checked for validity.
+     */
     void checkSettingsFile();
+
+    /** @signal
+     * @brief Emitted when the user requests to start the simulation.
+     */
     void requestSimulationStart();
+
+    /** @signal
+     * @brief Emitted when the user requests to abort the simulation.
+     */
     void requestSimulationAbort();
+
+    /** @signal
+     * @brief Emitted when the user requests to open the simulation window.
+     */
     void requestOpenSimulationWindow();
 
 private slots:

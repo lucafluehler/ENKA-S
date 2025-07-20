@@ -1,5 +1,10 @@
 #pragma once
 
+/**
+ * @brief Defines animation styles for particle rendering.
+ * These styles determine how the system rotates relative to the camera. For example, Right means
+ * that the system appears rotating to the right from the camera's perspective.
+ */
 enum class AnimationStyle {
     None,
     Right,
@@ -11,7 +16,14 @@ enum class AnimationStyle {
     Tutti  // Up, Right, Counterclockwise simultaneously
 };
 
-enum class ColoringMethod { BlackFog, WhiteFog };
+enum class ColoringMethod {
+    // Dark background. Far away particles appear black, close ones appear white. Red in the center.
+    BlackFog,
+
+    // Light background. Far away particles appear white, close ones appear black. Red in the
+    // center.
+    WhiteFog
+};
 
 struct RenderSettings {
     // Toggles

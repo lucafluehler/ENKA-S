@@ -5,6 +5,10 @@
 
 #include "core/settings/setting_key.h"
 
+/**
+ * @namespace limits
+ * @brief Contains constants for numeric minimums and maximums used in settings.
+ */
 namespace limits {
 constexpr double zero = 0.0;
 constexpr double smallest_greater_than_zero = 1e-15;
@@ -15,6 +19,10 @@ constexpr int random_min = 0;
 constexpr int random_max = 1'000'000'000;
 }  // namespace limits
 
+/**
+ * @struct SettingDescriptor
+ * @brief Represents a single setting in the settings schema.
+ */
 struct SettingDescriptor {
     SettingKey key;
     QString label;

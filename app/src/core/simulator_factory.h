@@ -12,15 +12,31 @@
 
 #include "core/settings/settings.h"
 
+/**
+ * @brief Factory class for creating different types of simulators based on settings.
+ */
 class SimulatorFactory {
+    using Simulator = enkas::simulation::Simulator;
+    using EulerSettings = enkas::simulation::EulerSettings;
+    using LeapfrogSettings = enkas::simulation::LeapfrogSettings;
+    using HermiteSettings = enkas::simulation::HermiteSettings;
+    using HitsSettings = enkas::simulation::HitsSettings;
+    using BarnesHutLeapfrogSettings = enkas::simulation::BarnesHutLeapfrogSettings;
+
 public:
-    static std::unique_ptr<enkas::simulation::Simulator> create(const Settings& settings);
+    /**
+     * @brief Creates a simulator based on the provided settings.
+     * Relies on SettingKey::SimulationMethod to determine the type of simulator.
+     * @param settings The settings to configure the simulator.
+     * @return A unique pointer to the created simulator. If the settings do not match any known
+     * simulator type, returns nullptr.
+     */
+    static std::unique_ptr<Simulator> create(const Settings& settings);
 
 private:
-    static enkas::simulation::EulerSettings getEulerSettings(const Settings& settings);
-    static enkas::simulation::LeapfrogSettings getLeapfrogSettings(const Settings& settings);
-    static enkas::simulation::HermiteSettings getHermiteSettings(const Settings& settings);
-    static enkas::simulation::HitsSettings getHitsSettings(const Settings& settings);
-    static enkas::simulation::BarnesHutLeapfrogSettings getBarnesHutLeapfrogSettings(
-        const Settings& settings);
+    static EulerSettings getEulerSettings(const Settings& settings);
+    static LeapfrogSettings getLeapfrogSettings(const Settings& settings);
+    static HermiteSettings getHermiteSettings(const Settings& settings);
+    static HitsSettings getHitsSettings(const Settings& settings);
+    static BarnesHutLeapfrogSettings getBarnesHutLeapfrogSettings(const Settings& settings);
 };

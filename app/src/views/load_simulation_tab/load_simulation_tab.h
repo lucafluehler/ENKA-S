@@ -7,27 +7,36 @@
 #include <QVector>
 #include <QWidget>
 
+#include "forms/load_simulation_tab/ui_load_simulation_tab.h"
 #include "i_load_simulation_view.h"
 
-QT_BEGIN_NAMESPACE
-namespace Ui {
-class LoadSimulationTab;
-}
-QT_END_NAMESPACE
-
+/**
+ * @brief The LoadSimulationTab class provides a user interface for loading simulation data.
+ * It allows users to select a folder containing simulation files and checks for the presence of
+ * required files such as settings, system, and diagnostics.
+ */
 class LoadSimulationTab : public QWidget, public ILoadSimulationView {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Initializes the LoadSimulationTab UI and connects signals to slots.
+     * @param parent The parent widget.
+     */
     explicit LoadSimulationTab(QWidget *parent = nullptr);
+    ~LoadSimulationTab() override = default;
 
-    void updateInitialSystemPreview() override;
+    void updateInitialSystemPreview() override { ui_->oglSystemPreview->update(); }
     void onSettingsParsed(std::optional<Settings> settings) override;
     void onInitialSystemParsed(std::optional<enkas::data::System> system) override;
     void onDiagnosticsSeriesParsed(bool success) override;
     QVector<QString> getFilesToCheck() const override;
 
 signals:
+    /** @signal
+     * @brief Emitted when the user selects a folder to load simulation files.
+     * If the folder contains expected files, their paths are stored.
+     */
     void requestFilesCheck();
 
 private slots:

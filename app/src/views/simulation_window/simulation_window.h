@@ -16,11 +16,20 @@ class SimulationWindow;
 }
 QT_END_NAMESPACE
 
+/**
+ * @brief The SimulationWindow class provides the main window for the simulation,
+ * allowing users to visualize and interact with particle systems.
+ */
 class SimulationWindow : public QMainWindow, public ISimulationWindowView {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Initializes the UI and sets up the simulation window.
+     * @param parent The parent widget for this window.
+     */
     explicit SimulationWindow(QWidget *parent = nullptr);
+    ~SimulationWindow() override = default;
 
     void initLiveMode() override;
 
@@ -29,6 +38,9 @@ public:
     void updateFPS(int fps) override;
 
 public slots:
+    /**
+     * @brief Called when new diagnostics data is available.
+     */
     void onDiagnosticsDataUpdate();
 
 private slots:
@@ -40,7 +52,7 @@ private slots:
 private:
     RenderSettings settings_;
 
-    QTimer *movie_timer;
+    QTimer *movie_timer;  // Used for recording the simulation
 
     Ui::SimulationWindow *ui_;
 };

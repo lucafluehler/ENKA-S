@@ -4,22 +4,36 @@
 
 #include <QObject>
 #include <QString>
+#include <string_view>
 
-// Forward declaration to avoid including the whole header
-namespace enkas::logging {
-enum class LogLevel;
-}
-
+/**
+ * @brief QtLogSink is a log sink that integrates with Qt's signal-slot mechanism.
+ * It allows logging messages from any thread and emits a signal to pass the message
+ * to the GUI thread for display.
+ */
 class QtLogSink : public QObject, public enkas::logging::LogSink {
     Q_OBJECT
 
 public:
-    explicit QtLogSink(QObject* parent = nullptr);
+    explicit QtLogSink(QObject* parent) : QObject(parent) {}
+    ~QtLogSink() override = default;
 
-    // This method will be called from any thread by the logger
-    void log(enkas::logging::LogLevel level, std::string_view message) override;
+    /**
+     * @brief Logs a message with the specified log level.
+     * This method is called by the logging framework to log messages.
+     * It emits a signal that can be connected to a slot for displaying the message.
+     *
+     * @param level The log level of the message.
+     * @param message The message text to log.
+     */
+    void log(enkas::logging::LogLevel level, std::string_view message) override {
+        emit messageLogged(level, QString::fromStdString(std::string(message)));
+    }
 
 signals:
-    // This signal will be emitted to safely pass the log message to the GUI thread
+    /** @signal
+     * @brief Signal emitted when a log message is received.
+     * This signal carries the log level and the message text.
+     */
     void messageLogged(enkas::logging::LogLevel level, const QString& message);
 };

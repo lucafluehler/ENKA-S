@@ -57,7 +57,7 @@ SimulationManager::SimulationManager(const Settings& settings, QObject* parent)
     setupSimulationWorker(settings);
 
     // Simulation Window
-    setupSimulationWindow();
+    simulation_window_presenter_ = new SimulationWindowPresenter(simulation_window_);
 }
 
 SimulationManager::~SimulationManager() {
@@ -89,12 +89,6 @@ SimulationManager::~SimulationManager() {
         simulation_thread_->wait();
     }
 }
-
-void SimulationManager::startSimulationProcedere() { emit requestGeneration(); }
-
-double SimulationManager::getDuration() const { return duration_; }
-
-double SimulationManager::getTime() const { return time_; }
 
 void SimulationManager::openSimulationWindow() {
     if (!simulation_window_) return;
@@ -133,7 +127,6 @@ void SimulationManager::performSimulationStep(double time,
     if (system_snapshot) {
         // Signal to update the render data
         render_queue_slot_.store(system_snapshot, std::memory_order_release);
-        emit renderDataStep();
 
         // Signal to save the system data (if enabled)
         if (save_system_data_) {
@@ -234,13 +227,4 @@ void SimulationManager::setupSimulationWorker(const Settings& settings) {
             &SimulationManager::receivedSimulationStep);
 
     simulation_thread_->start();
-}
-
-void SimulationManager::setupSimulationWindow() {
-    simulation_window_presenter_ = new SimulationWindowPresenter(simulation_window_);
-
-    connect(this,
-            &SimulationManager::renderDataStep,
-            simulation_window_presenter_,
-            &SimulationWindowPresenter::updateRendering);
 }

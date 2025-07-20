@@ -34,6 +34,11 @@ public:
           save_function_(std::move(save_function)) {}
 
 public:
+    /**
+     * @brief Runs the worker, processing snapshots from the queue and saving them using the
+     * provided function. Continues until an abort signal is received in the form of a nullptr
+     * snapshot.
+     */
     void run() override {
         while (true) {
             auto snapshot = queue_->popBlocking();
@@ -43,8 +48,12 @@ public:
         emit workFinished();
     }
 
+    /**
+     * @brief Aborts the worker by pushing a nullptr to the queue, which will break the processing
+     * loop in run().
+     */
     void abort() override {
-        queue_->pushBlocking(nullptr);  // wake up run() by placing a nullptr sentinel
+        queue_->pushBlocking(nullptr);  // sentinel to stop processing
     }
 
 private:

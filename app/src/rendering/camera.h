@@ -3,6 +3,9 @@
 #include <enkas/math/rotor3d.h>
 #include <enkas/math/vector3d.h>
 
+/**
+ * @brief Contains the necessary data for an orbiting camera.
+ */
 struct Camera {
     enkas::math::Vector3D target_pos;
     float target_distance = 6.0f;

@@ -40,9 +40,9 @@ RenderSettingsWidget::RenderSettingsWidget(QWidget* parent)
             &QStackedWidget::setCurrentIndex);
 
     // Settings changed
-    connect(ui->chbShowCOM, &QCheckBox::stateChanged, this, &RenderSettingsWidget::settingsChanged);
+    connect(ui->chbShowCOM, &QCheckBox::checkStateChanged, this, &RenderSettingsWidget::settingsChanged);
     connect(
-        ui->chbShowCenter, &QCheckBox::stateChanged, this, &RenderSettingsWidget::settingsChanged);
+        ui->chbShowCenter, &QCheckBox::checkStateChanged, this, &RenderSettingsWidget::settingsChanged);
     connect(ui->cbxAnimation,
             &QComboBox::currentIndexChanged,
             this,

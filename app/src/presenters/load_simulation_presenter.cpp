@@ -12,7 +12,10 @@ LoadSimulationPresenter::LoadSimulationPresenter(ILoadSimulationView* view, QObj
     : QObject(parent), view_(view), preview_timer_(new QTimer(this)) {
     Q_ASSERT(view_ != nullptr);
     // Set up timer for preview updates
-    connect(preview_timer_, &QTimer::timeout, this, &LoadSimulationPresenter::onTimerTimeout);
+    connect(preview_timer_,
+            &QTimer::timeout,
+            this,
+            &LoadSimulationPresenter::updateInitialSystemPreview);
 
     // Initialize file parse worker
     file_parse_worker_ = new FileParseWorker();
@@ -41,15 +44,6 @@ LoadSimulationPresenter::~LoadSimulationPresenter() {
         file_parse_thread_->wait();
     }
 }
-
-void LoadSimulationPresenter::active() {
-    const int fps = 30;
-    preview_timer_->start(1000 / fps);
-}
-
-void LoadSimulationPresenter::inactive() { preview_timer_->stop(); }
-
-void LoadSimulationPresenter::onTimerTimeout() { view_->updateInitialSystemPreview(); }
 
 void LoadSimulationPresenter::checkFiles() {
     const auto& file_paths = view_->getFilesToCheck();

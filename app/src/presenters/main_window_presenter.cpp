@@ -12,5 +12,3 @@ MainWindowPresenter::MainWindowPresenter(IMainWindowView* view, QObject* parent)
     const int fps = 30;  // Frames per second
     home_screen_timer_->start(1000 / fps);
 }
-
-void MainWindowPresenter::updateHomeScreen() { view_->updateHomeScreen(); }

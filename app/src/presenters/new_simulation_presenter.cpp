@@ -46,13 +46,6 @@ NewSimulationPresenter::~NewSimulationPresenter() {
     }
 }
 
-void NewSimulationPresenter::active() {
-    const int fps = 30;
-    preview_timer_->start(1000 / fps);
-}
-
-void NewSimulationPresenter::inactive() { preview_timer_->stop(); }
-
 void NewSimulationPresenter::updatePreview() { view_->updatePreview(); }
 
 void NewSimulationPresenter::updateProgress() {
@@ -94,7 +87,7 @@ void NewSimulationPresenter::startSimulation() {
             this,
             &NewSimulationPresenter::onInitializationCompleted);
 
-    simulation_manager_->startSimulationProcedere();
+    simulation_manager_->startSimulationProcedure();
 
     // Stop preview timer to halt preview animation
     preview_timer_->stop();
@@ -108,11 +101,9 @@ void NewSimulationPresenter::onInitializationCompleted() {
 }
 
 void NewSimulationPresenter::abortSimulation() {
-    if (simulation_manager_) {
-        simulation_manager_ = nullptr;
-    }
+    simulation_manager_ = nullptr;
 
-    // Restart preview timer -> restarts preview animations
+    // Restart preview timer to resume preview animations
     preview_timer_->start();
 
     view_->simulationAborted();

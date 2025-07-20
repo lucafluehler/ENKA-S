@@ -335,29 +335,6 @@ enkas::math::Vector3D ParticleRenderer::getRelPos(const enkas::math::Vector3D& p
     return rel_pos;
 }
 
-// QPointF ParticleRenderer::convertPosToLoc(const float c_ASPECT_RATIO,
-//                                           const float c_HALF_TAN_FOV,
-//                                           const enkas::math::Vector3D& rel_pos,
-//                                           bool* is_visible) {
-//     // Check if particle is behind camera_
-//     if (rel_pos.z <= 0) {
-//         if (is_visible) *is_visible = false;
-//         return QPointF();
-//     }
-
-//     double x = rel_pos.x / rel_pos.z / c_HALF_TAN_FOV / c_ASPECT_RATIO;
-//     double y = rel_pos.y / rel_pos.z / c_HALF_TAN_FOV;
-
-//     // Check if particle is outside screen
-//     if (x < -1.2 || x > 1.2 || y < -1.2 || y > 1.2) {
-//         if (is_visible) *is_visible = false;
-//         return QPointF();
-//     }
-
-//     if (is_visible) *is_visible = true;
-//     return QPointF(x, y);
-// }
-
 void ParticleRenderer::animation() {
     double s = 0.002 * settings_.animation_speed;  // speed parameter
 
@@ -427,25 +404,6 @@ void ParticleRenderer::setBackgroundColor() {
 //             break;
 //         case ColoringMethod::WhiteFog:
 //             glColor3ub(0, 0, 160);
-//             break;
-//         default:
-//             break;
-//     }
-// }
-
-// void ParticleRenderer::setParticleColor(double distance) {
-//     double c;
-//     double mu;
-//     switch (settings_.coloring_method) {
-//         case ColoringMethod::BlackFog:
-//             mu = settings_.black_fog_param;
-//             c = 1 / (1 + std::exp((distance / (camera_.target_distance * 1.3) - 1) * mu));
-//             glColor3ub(255 * c, 255 * std::pow(c, 6), 255 * std::pow(c, 8));
-//             break;
-//         case ColoringMethod::WhiteFog:
-//             mu = settings_.white_fog_param;
-//             c = -1 / (1 + std::exp((distance / (camera_.target_distance * 1) - 1) * mu)) + 1;
-//             glColor3ub(255 * c, 255 * std::pow(c, 6), 255 * std::pow(c, 8));
 //             break;
 //         default:
 //             break;

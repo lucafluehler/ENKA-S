@@ -50,8 +50,6 @@ NewSimulationTab::NewSimulationTab(QWidget* parent)
         ui_->btnLoadSettings, &QPushButton::clicked, this, &NewSimulationTab::openSettingsDialog);
 }
 
-NewSimulationTab::~NewSimulationTab() { abortSimulation(); }
-
 void NewSimulationTab::setupSettingsWidgets() {
     // Setup initial generation settings schemas
     auto& gen = generation_settings_schemas_;
@@ -263,8 +261,6 @@ void NewSimulationTab::startSimulation() {
     emit requestSimulationStart();
 }
 
-void NewSimulationTab::showSimulationProgress() { ui_->stwProgress->setCurrentIndex(2); }
-
 void NewSimulationTab::abortSimulation() {
     // Show abortion loading gif
     ui_->stwProgress->setCurrentIndex(3);
@@ -272,15 +268,11 @@ void NewSimulationTab::abortSimulation() {
     emit requestSimulationAbort();
 }
 
-void NewSimulationTab::simulationAborted() { ui_->stwProgress->setCurrentIndex(0); }
-
 void NewSimulationTab::updateSimulationProgress(double time, double duration) {
     QString time_text = QString("%1 / %2").arg(time).arg(duration);
     ui_->lblSimulationProgress->setText(time_text);
     ui_->pbaSimulationProgress->setValue(time / duration * 100000);
 }
-
-void NewSimulationTab::updatePreview() { ui_->oglSystemPreview->update(); }
 
 Settings NewSimulationTab::fetchSettings() const {
     const auto& generation_method =
@@ -308,7 +300,3 @@ Settings NewSimulationTab::fetchSettings() const {
 
     return settings;
 }
-
-QString NewSimulationTab::getInitialSystemPath() const { return initial_system_path_; }
-
-QString NewSimulationTab::getSettingsPath() const { return settings_path_; }

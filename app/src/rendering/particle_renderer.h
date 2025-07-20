@@ -9,23 +9,48 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLWidget>
-#include <vector>
 
 #include "core/snapshot.h"
 #include "rendering/camera.h"
 #include "rendering/render_settings.h"
 
+/**
+ * @brief ParticleRenderer is a QOpenGLWidget that renders particles in a 3D space.
+ * It supports mouse interactions, camera movements, and rendering settings.
+ */
 class ParticleRenderer : public QOpenGLWidget, protected QOpenGLExtraFunctions {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Initializes OpenGL settings.
+     * @param parent The parent widget.
+     */
     explicit ParticleRenderer(QWidget* parent = nullptr);
+    ~ParticleRenderer() override = default;
 
+    /**
+     * @brief Updates the particle system data.
+     * @param system The new particle system snapshot.
+     * @note This does not trigger a redraw.
+     */
     void updateData(SystemSnapshotPtr system);
+
+    /**
+     * @brief Redraws the widget with the given settings.
+     * @param settings The rendering settings to apply.
+     */
     void redraw(const RenderSettings& settings);
+
+    /**
+     * @brief Clears the current particle data.
+     */
     void clearData();
 
 public slots:
+    /**
+     * @brief Saves a screenshot of the current rendering.
+     */
     void saveScreenshot();
 
 protected:
@@ -40,25 +65,13 @@ protected:
 
 private:
     void drawParticles();
-    void drawCircle(std::vector<GLfloat>& vertices,
-                    const int c_NUM_TRANGLES,
-                    const float c_X_ASPECT,
-                    const float c_Y_ASPECT,
-                    float x,
-                    float y,
-                    float radius);
     void drawCross(float x, float y, float size);
     enkas::math::Vector3D getRelPos(const enkas::math::Vector3D& pos);
-    QPointF convertPosToLoc(const float c_ASPECT_RATIO,
-                            const float c_HALF_TAN_FOV,
-                            const enkas::math::Vector3D& rel_pos,
-                            bool* is_visible);
     void animation();
 
     void setBackgroundColor();
     void setCOMColor();
     void setCenterColor();
-    void setParticleColor(double distance);
 
     QPoint last_mouse_pos_;
 

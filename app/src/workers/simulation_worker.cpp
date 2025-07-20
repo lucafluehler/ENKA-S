@@ -33,11 +33,6 @@ SimulationWorker::SimulationWorker(const Settings& settings, QObject* parent)
     simulator_ = SimulatorFactory::create(settings);
 }
 
-SimulationWorker::~SimulationWorker() {
-    generator_ = nullptr;
-    simulator_ = nullptr;
-}
-
 void SimulationWorker::startGeneration() {
     if (file_mode_) {
         // Load the initial system from a file

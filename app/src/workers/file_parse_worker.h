@@ -80,9 +80,3 @@ signals:
      */
     void diagnosticsSeriesParsed(const std::optional<DiagnosticsSeries>& series);
 };
-
-// Q_DECLARE_METATYPE(std::optional<Settings>);
-// Q_DECLARE_METATYPE(std::optional<SystemFrame>);
-// Q_DECLARE_METATYPE(std::optional<enkas::data::System>);
-// Q_DECLARE_METATYPE(std::optional<std::vector<double>>);
-// Q_DECLARE_METATYPE(std::optional<DiagnosticsSeries>);

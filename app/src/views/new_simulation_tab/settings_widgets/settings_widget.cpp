@@ -158,9 +158,3 @@ void SettingsWidget::setSettings(const Settings& settings) {
         }
     }
 }
-
-void SettingsWidget::clearLayout(QFormLayout* layout) {
-    while (layout->rowCount() > 0) {
-        layout->removeRow(0);
-    }
-}

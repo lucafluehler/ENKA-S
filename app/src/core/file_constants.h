@@ -9,10 +9,6 @@ inline constexpr char system[] = "system.csv";
 inline constexpr char diagnostics[] = "diagnostics.csv";
 }  // namespace file_names
 
-namespace folder_names {
-inline constexpr char output[] = "output";
-}  // namespace folder_names
-
 namespace csv_headers {
 inline const std::vector<std::string> system = {
     "time", "pos_x", "pos_y", "pos_z", "vel_x", "vel_y", "vel_z", "mass"};
