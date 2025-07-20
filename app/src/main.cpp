@@ -18,7 +18,7 @@ void setupLogging(QObject *parent) {
     multi_sink->addSink(std::make_shared<enkas::logging::ConsoleSink>());
 #endif
 
-    auto qt_sink = std::make_shared<QtLogSink>(parent);
+    auto qt_sink = std::make_shared<QtLogSink>(nullptr);
     multi_sink->addSink(qt_sink);
 
 #if defined(QT_DEBUG)
