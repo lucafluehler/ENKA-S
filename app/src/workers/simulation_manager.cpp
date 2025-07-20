@@ -9,6 +9,7 @@
 #include <QThread>
 #include <chrono>
 #include <filesystem>
+#include <format>
 
 #include "core/data_storage_logic.h"
 #include "core/settings/settings.h"
@@ -170,12 +171,8 @@ void SimulationManager::performSimulationStep(double time,
 
 void SimulationManager::setupOutputDir() {
     auto now = std::chrono::system_clock::now();
-    auto now_t = std::chrono::system_clock::to_time_t(now);
-    std::tm local = *std::localtime(&now_t);
-
-    std::ostringstream oss;
-    oss << std::put_time(&local, "%Y-%m-%d_%H-%M-%S");
-    std::string timestamp = oss.str();
+    const auto rounded_now = std::chrono::round<std::chrono::seconds>(now);
+    const std::string timestamp = std::format("{:%Y-%m-%d_%H-%M-%S}", rounded_now);
 
     auto base = std::filesystem::current_path();
     output_dir_ = base / ("enkas_output_" + timestamp);
