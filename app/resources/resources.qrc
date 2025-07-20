@@ -1,35 +1,50 @@
 <RCC>
-    <qresource prefix="/MainWindow">
-        <file>img/titel.png</file>
-        <file>img/icon.png</file>
+    <!-- The main application icon -->
+    <qresource prefix="/app">
+        <file>icons/icon.png</file>
+        <file>icons/icon.ico</file>
+    </qresource> 
+    
+    <!-- Icons to represent different states for file validity checks -->
+    <qresource prefix="/file_states">
+        <file>icons/checked.png</file>
+        <file>icons/corrupted.png</file>
+        <file>icons/not_found.png</file>
+    </qresource> 
+    
+    <!-- Icons for animation control buttons -->
+    <qresource prefix="/controls">
+        <file>icons/left_double.png</file>
+        <file>icons/left.png</file>
+        <file>icons/pause.png</file>
+        <file>icons/play.png</file>
+        <file>icons/right.png</file>
+        <file>icons/right_double.png</file>
+    </qresource> 
+    
+    <!-- Icons for taking snapshots from a rendering -->
+    <qresource prefix="/snapshot">
+        <file>icons/camera.png</file>
+        <file>icons/movie.png</file>
+    </qresource> 
+
+    <!-- Utility animations -->    
+    <qresource prefix="/animations">
+        <file alias="loading.gif">animations/loading.gif</file>
     </qresource>
-    <qresource prefix="/LoadDiagnosticsTab">
-        <file>img/checked.png</file>
-        <file>img/corrupted.png</file>
-        <file>img/not_found.png</file>
-        <file>img/loading.gif</file>
-        <file>img/open.png</file>
+
+    <!-- Utility icons -->
+    <qresource prefix="/others">
+        <file>icons/gear.png</file>
+        <file>icons/open.png</file>
+        <file>icons/reset.png</file>
+        <file>icons/load.png</file>
+        <file>icons/randomize.png</file>
     </qresource>
-    <qresource prefix="/SimulationWindow">
-        <file>img/camera.png</file>
-        <file>img/gear.png</file>
-        <file>img/left.png</file>
-        <file>img/left_double.png</file>
-        <file>img/pause.png</file>
-        <file>img/play.png</file>
-        <file>img/right.png</file>
-        <file>img/right_double.png</file>
-        <file>img/movie.png</file>
-    </qresource>
-    <qresource prefix="/NewSimulationTab">
-        <file>img/gm_normal_sphere.png</file>
-        <file>img/gm_uniform_cube.png</file>
-        <file>img/reset.png</file>
-        <file>img/load.png</file>
-        <file>img/randomize.png</file>
-    </qresource>
-        <qresource prefix="/">
-        <file>shaders/particle.vert</file>
-        <file>shaders/particle.frag</file>
+
+    <!-- Shaders -->
+    <qresource prefix="/shaders">
+        <file alias="particle.vert">shaders/particle.vert</file>
+        <file alias="particle.frag">shaders/particle.frag</file>
     </qresource>
 </RCC>

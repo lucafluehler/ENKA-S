@@ -32,7 +32,7 @@
    <string>ENKA-S</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../resources.qrc">
+   <iconset>
     <normaloff>:/MainWindow/img/icon.png</normaloff>:/MainWindow/img/icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -43,6 +43,9 @@
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
          <widget class="QFrame" name="frame">
+          <property name="locale">
+           <locale language="C" country="AnyTerritory"/>
+          </property>
           <property name="frameShape">
            <enum>QFrame::Shape::Box</enum>
           </property>
@@ -70,6 +73,9 @@
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
+             <property name="locale">
+              <locale language="C" country="AnyTerritory"/>
+             </property>
             </widget>
            </item>
           </layout>
@@ -85,12 +91,15 @@
               <height>30</height>
              </size>
             </property>
+            <property name="locale">
+             <locale language="C" country="AnyTerritory"/>
+            </property>
             <property name="text">
              <string>...</string>
             </property>
             <property name="icon">
-             <iconset>
-              <normaloff>../img/camera.png</normaloff>../img/camera.png</iconset>
+             <iconset resource="../../resources.qrc">
+              <normaloff>:/snapshot/icons/camera.png</normaloff>:/snapshot/icons/camera.png</iconset>
             </property>
            </widget>
           </item>
@@ -109,6 +118,9 @@
               <bold>true</bold>
              </font>
             </property>
+            <property name="locale">
+             <locale language="C" country="AnyTerritory"/>
+            </property>
             <property name="text">
              <string>Loading...</string>
             </property>
@@ -119,6 +131,9 @@
           </item>
           <item>
            <spacer name="horizontalSpacer_2">
+            <property name="locale">
+             <locale language="C" country="AnyTerritory"/>
+            </property>
             <property name="orientation">
              <enum>Qt::Orientation::Horizontal</enum>
             </property>
@@ -144,12 +159,15 @@
               <height>30</height>
              </size>
             </property>
+            <property name="locale">
+             <locale language="C" country="AnyTerritory"/>
+            </property>
             <property name="text">
              <string>...</string>
             </property>
             <property name="icon">
-             <iconset>
-              <normaloff>../img/left_double.png</normaloff>../img/left_double.png</iconset>
+             <iconset resource="../../resources.qrc">
+              <normaloff>:/controls/icons/left_double.png</normaloff>:/controls/icons/left_double.png</iconset>
             </property>
            </widget>
           </item>
@@ -167,12 +185,15 @@
               <height>30</height>
              </size>
             </property>
+            <property name="locale">
+             <locale language="C" country="AnyTerritory"/>
+            </property>
             <property name="text">
              <string>...</string>
             </property>
             <property name="icon">
-             <iconset>
-              <normaloff>../img/left.png</normaloff>../img/left.png</iconset>
+             <iconset resource="../../resources.qrc">
+              <normaloff>:/controls/icons/left.png</normaloff>:/controls/icons/left.png</iconset>
             </property>
            </widget>
           </item>
@@ -190,12 +211,15 @@
               <height>30</height>
              </size>
             </property>
+            <property name="locale">
+             <locale language="C" country="AnyTerritory"/>
+            </property>
             <property name="text">
              <string>...</string>
             </property>
             <property name="icon">
-             <iconset>
-              <normaloff>../img/play.png</normaloff>../img/play.png</iconset>
+             <iconset resource="../../resources.qrc">
+              <normaloff>:/controls/icons/play.png</normaloff>:/controls/icons/play.png</iconset>
             </property>
            </widget>
           </item>
@@ -213,12 +237,15 @@
               <height>30</height>
              </size>
             </property>
+            <property name="locale">
+             <locale language="C" country="AnyTerritory"/>
+            </property>
             <property name="text">
              <string>...</string>
             </property>
             <property name="icon">
-             <iconset>
-              <normaloff>../img/right.png</normaloff>../img/right.png</iconset>
+             <iconset resource="../../resources.qrc">
+              <normaloff>:/controls/icons/right.png</normaloff>:/controls/icons/right.png</iconset>
             </property>
            </widget>
           </item>
@@ -236,17 +263,23 @@
               <height>30</height>
              </size>
             </property>
+            <property name="locale">
+             <locale language="C" country="AnyTerritory"/>
+            </property>
             <property name="text">
              <string>...</string>
             </property>
             <property name="icon">
-             <iconset>
-              <normaloff>../img/right_double.png</normaloff>../img/right_double.png</iconset>
+             <iconset resource="../../resources.qrc">
+              <normaloff>:/controls/icons/right_double.png</normaloff>:/controls/icons/right_double.png</iconset>
             </property>
            </widget>
           </item>
           <item>
            <spacer name="horizontalSpacer">
+            <property name="locale">
+             <locale language="C" country="AnyTerritory"/>
+            </property>
             <property name="orientation">
              <enum>Qt::Orientation::Horizontal</enum>
             </property>
@@ -272,6 +305,9 @@
               <pointsize>12</pointsize>
               <bold>true</bold>
              </font>
+            </property>
+            <property name="locale">
+             <locale language="C" country="AnyTerritory"/>
             </property>
             <property name="text">
              <string/>
@@ -299,6 +335,9 @@
           <height>0</height>
          </size>
         </property>
+        <property name="locale">
+         <locale language="C" country="AnyTerritory"/>
+        </property>
         <layout class="QVBoxLayout" name="verticalLayout_4">
          <property name="spacing">
           <number>12</number>
@@ -316,7 +355,11 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QWidget" name="wgtDiagnostics" native="true"/>
+          <widget class="QWidget" name="wgtDiagnostics" native="true">
+           <property name="locale">
+            <locale language="C" country="AnyTerritory"/>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="RenderSettingsWidget" name="wgtSettings" native="true">
@@ -325,6 +368,9 @@
              <width>0</width>
              <height>270</height>
             </size>
+           </property>
+           <property name="locale">
+            <locale language="C" country="AnyTerritory"/>
            </property>
           </widget>
          </item>
@@ -340,6 +386,9 @@
             <width>30</width>
             <height>30</height>
            </size>
+          </property>
+          <property name="locale">
+           <locale language="C" country="AnyTerritory"/>
           </property>
           <property name="text">
            <string>...</string>
@@ -357,6 +406,9 @@
         </item>
         <item>
          <spacer name="verticalSpacer">
+          <property name="locale">
+           <locale language="C" country="AnyTerritory"/>
+          </property>
           <property name="orientation">
            <enum>Qt::Orientation::Vertical</enum>
           </property>
@@ -382,12 +434,15 @@
             <height>30</height>
            </size>
           </property>
+          <property name="locale">
+           <locale language="C" country="AnyTerritory"/>
+          </property>
           <property name="text">
            <string/>
           </property>
           <property name="icon">
            <iconset resource="../../resources.qrc">
-            <normaloff>:/SimulationWindow/img/movie.png</normaloff>:/SimulationWindow/img/movie.png</iconset>
+            <normaloff>:/snapshot/icons/movie.png</normaloff>:/snapshot/icons/movie.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -417,12 +472,15 @@
             <height>30</height>
            </size>
           </property>
+          <property name="locale">
+           <locale language="C" country="AnyTerritory"/>
+          </property>
           <property name="text">
            <string>...</string>
           </property>
           <property name="icon">
            <iconset resource="../../resources.qrc">
-            <normaloff>:/SimulationWindow/img/camera.png</normaloff>:/SimulationWindow/img/camera.png</iconset>
+            <normaloff>:/snapshot/icons/camera.png</normaloff>:/snapshot/icons/camera.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -437,6 +495,9 @@
         </item>
         <item>
          <widget class="Line" name="line">
+          <property name="locale">
+           <locale language="C" country="AnyTerritory"/>
+          </property>
           <property name="orientation">
            <enum>Qt::Orientation::Horizontal</enum>
           </property>
@@ -450,12 +511,15 @@
             <height>30</height>
            </size>
           </property>
+          <property name="locale">
+           <locale language="C" country="AnyTerritory"/>
+          </property>
           <property name="text">
            <string>...</string>
           </property>
           <property name="icon">
            <iconset resource="../../resources.qrc">
-            <normaloff>:/SimulationWindow/img/gear.png</normaloff>:/SimulationWindow/img/gear.png</iconset>
+            <normaloff>:/others/icons/gear.png</normaloff>:/others/icons/gear.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -520,6 +584,9 @@ QSlider::handle:horizontal {
 QSlider::handle:horizontal:hover {
     background: #666666; /* Color of the handle */
 }</string>
+      </property>
+      <property name="locale">
+       <locale language="C" country="AnyTerritory"/>
       </property>
       <property name="maximum">
        <number>1000</number>

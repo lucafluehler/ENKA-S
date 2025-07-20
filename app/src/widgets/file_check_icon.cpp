@@ -16,21 +16,21 @@ void FileCheckIcon::updateIcon() {
 
     switch (mode) {
         case Mode::NotFound:
-            setPixmap(QPixmap(QString::fromUtf8(":/LoadDiagnosticsTab/img/not_found.png")));
+            setPixmap(QPixmap(QString::fromUtf8(":/file_states/icons/not_found.png")));
             setToolTip("File not found.");
             break;
         case Mode::Loading:
-            movie = new QMovie(":/LoadDiagnosticsTab/img/loading.gif");
+            movie = new QMovie(":/file_states/icons/loading.gif");
             setMovie(movie);
             movie->start();
             setToolTip("Checking file...");
             break;
         case Mode::Checked:
-            setPixmap(QPixmap(QString::fromUtf8(":/LoadDiagnosticsTab/img/checked.png")));
+            setPixmap(QPixmap(QString::fromUtf8(":/file_states/icons/checked.png")));
             setToolTip("File checked successfully.");
             break;
         case Mode::Corrupted:
-            setPixmap(QPixmap(QString::fromUtf8(":/LoadDiagnosticsTab/img/corrupted.png")));
+            setPixmap(QPixmap(QString::fromUtf8(":/file_states/icons/corrupted.png")));
             setToolTip("File is corrupted.");
             break;
         default:

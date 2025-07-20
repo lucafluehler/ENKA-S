@@ -476,7 +476,7 @@
            </property>
            <property name="icon">
             <iconset resource="../../resources.qrc">
-             <normaloff>:/NewSimulationTab/img/load.png</normaloff>:/NewSimulationTab/img/load.png</iconset>
+             <normaloff>:/others/icons/load.png</normaloff>:/others/icons/load.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -535,7 +535,7 @@
             <string/>
            </property>
            <property name="pixmap">
-            <pixmap resource="../../resources.qrc">:/LoadDiagnosticsTab/img/not_found.png</pixmap>
+            <pixmap>:/LoadDiagnosticsTab/img/not_found.png</pixmap>
            </property>
            <property name="scaledContents">
             <bool>true</bool>
@@ -571,7 +571,7 @@
            </property>
            <property name="icon">
             <iconset resource="../../resources.qrc">
-             <normaloff>:/NewSimulationTab/img/reset.png</normaloff>:/NewSimulationTab/img/reset.png</iconset>
+             <normaloff>:/others/icons/reset.png</normaloff>:/others/icons/reset.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -717,7 +717,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap resource="../../resources.qrc">:/LoadDiagnosticsTab/img/loading.gif</pixmap>
+          <pixmap resource="../../resources.qrc">:/animations/loading.gif</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
@@ -756,7 +756,7 @@
          </property>
          <property name="icon">
           <iconset resource="../../resources.qrc">
-           <normaloff>:/LoadDiagnosticsTab/img/corrupted.png</normaloff>:/LoadDiagnosticsTab/img/corrupted.png</iconset>
+           <normaloff>:/file_states/icons/corrupted.png</normaloff>:/file_states/icons/corrupted.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -855,7 +855,7 @@
          </property>
          <property name="icon">
           <iconset resource="../../resources.qrc">
-           <normaloff>:/LoadDiagnosticsTab/img/corrupted.png</normaloff>:/LoadDiagnosticsTab/img/corrupted.png</iconset>
+           <normaloff>:/file_states/icons/corrupted.png</normaloff>:/file_states/icons/corrupted.png</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -937,7 +937,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap resource="../../resources.qrc">:/LoadDiagnosticsTab/img/loading.gif</pixmap>
+          <pixmap resource="../../resources.qrc">:/animations/loading.gif</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
@@ -965,14 +965,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>FileCheckIcon</class>
-   <extends>QLabel</extends>
-   <header>widgets/file_check_icon.h</header>
-  </customwidget>
-  <customwidget>
    <class>FancyDoubleSpinBox</class>
    <extends>QDoubleSpinBox</extends>
    <header>widgets/fancy_double_spin_box.h</header>
+  </customwidget>
+  <customwidget>
+   <class>FileCheckIcon</class>
+   <extends>QLabel</extends>
+   <header>widgets/file_check_icon.h</header>
   </customwidget>
   <customwidget>
    <class>SystemPreview</class>
