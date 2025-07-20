@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
     MainWindow main_window;
-    MainWindowPresenter presenter(&main_window);
+    MainWindowPresenter presenter(&main_window, &app);
 
     setupLogging(&main_window);
 

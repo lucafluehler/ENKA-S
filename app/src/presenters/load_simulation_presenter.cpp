@@ -21,6 +21,7 @@ LoadSimulationPresenter::LoadSimulationPresenter(ILoadSimulationView* view, QObj
     file_parse_worker_ = new FileParseWorker();
     file_parse_thread_ = new QThread(this);
     file_parse_worker_->moveToThread(file_parse_thread_);
+    connect(file_parse_thread_, &QThread::finished, file_parse_worker_, &QObject::deleteLater);
 
     connect(file_parse_worker_,
             &FileParseWorker::settingsParsed,

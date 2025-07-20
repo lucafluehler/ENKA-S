@@ -66,7 +66,7 @@ SimulationManager::SimulationManager(const Settings& settings, QObject* parent)
     setupSimulationWorker(settings);
 
     // Simulation Window
-    simulation_window_presenter_ = new SimulationWindowPresenter(simulation_window_);
+    simulation_window_presenter_ = new SimulationWindowPresenter(simulation_window_, this);
 
     ENKAS_LOG_INFO("Simulation manager initialized successfully.");
 }
@@ -189,6 +189,9 @@ void SimulationManager::setupSystemStorageWorker() {
             &QThread::started,
             system_storage_worker_,
             &QueueStorageWorkerBase::run);
+    connect(
+        system_storage_thread_, &QThread::finished, system_storage_worker_, &QObject::deleteLater);
+
     system_storage_thread_->start();
 
     ENKAS_LOG_INFO("System storage worker started. Data will be saved to: {}",
@@ -206,6 +209,10 @@ void SimulationManager::setupDiagnosticsStorageWorker() {
             &QThread::started,
             diagnostics_storage_worker_,
             &QueueStorageWorkerBase::run);
+    connect(diagnostics_storage_thread_,
+            &QThread::finished,
+            diagnostics_storage_worker_,
+            &QObject::deleteLater);
     diagnostics_storage_thread_->start();
 
     ENKAS_LOG_INFO("Diagnostics storage worker started. Data will be saved to: {}",
@@ -216,6 +223,7 @@ void SimulationManager::setupSimulationWorker(const Settings& settings) {
     simulation_worker_ = new SimulationWorker(settings);
     simulation_thread_ = new QThread(this);
     simulation_worker_->moveToThread(simulation_thread_);
+    connect(simulation_thread_, &QThread::finished, simulation_worker_, &QObject::deleteLater);
 
     // Signals from Manager to Worker
     connect(this,
