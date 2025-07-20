@@ -1,5 +1,7 @@
 #include "presenters/simulation_window_presenter.h"
 
+#include <enkas/logging/logger.h>
+
 #include <QObject>
 #include <QTimer>
 #include <atomic>
@@ -45,11 +47,22 @@ void SimulationWindowPresenter::initFileMode(const QString& system_file_path,
 }
 
 void SimulationWindowPresenter::updateRendering() {
-    if (mode_ == Mode::Uninitialized) return;
+    if (mode_ == Mode::Uninitialized) {
+        ENKAS_LOG_ERROR("SimulationWindowPresenter is not initialized. Cannot update rendering.");
+        return;
+    }
+
+    if (render_queue_slot_ == nullptr) {
+        ENKAS_LOG_ERROR("Render queue slot is not set. Cannot update rendering.");
+        return;
+    }
 
     // Retrieve the latest system snapshot from the render queue
     auto system_snapshot = render_queue_slot_->load(std::memory_order_acquire);
-    if (!system_snapshot) return;
+    if (!system_snapshot) {
+        ENKAS_LOG_DEBUG("No system snapshot available for rendering.");
+        return;
+    }
 
     // Update the view with the system snapshot
     view_->updateSystemRendering(system_snapshot, simulation_duration_);
