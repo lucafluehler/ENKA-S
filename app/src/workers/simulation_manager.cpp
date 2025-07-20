@@ -1,6 +1,7 @@
 #include "simulation_manager.h"
 
 #include <enkas/generation/generator.h>
+#include <enkas/logging/logger.h>
 #include <enkas/simulation/simulator.h>
 
 #include <QElapsedTimer>
@@ -36,11 +37,18 @@ SimulationManager::SimulationManager(const Settings& settings, QObject* parent)
     // Setup render queue slot
     render_queue_slot_.store(SystemSnapshotPtr{});
 
+    const bool save_settings = settings.get<bool>(SettingKey::SaveSettings);
+    ENKAS_LOG_DEBUG("Configuration: SaveSettings={}, SaveSystemData={}, SaveDiagnosticsData={}",
+                    save_settings,
+                    save_system_data_,
+                    save_diagnostics_data_);
+
     // Data storage
     setupOutputDir();
 
-    if (settings.get<bool>(SettingKey::SaveSettings)) {
+    if (save_settings) {
         DataStorageLogic::saveSettings(output_dir_, settings);
+        ENKAS_LOG_INFO("Settings saved to: {}", output_dir_.string());
     }
 
     if (save_system_data_) {
@@ -58,9 +66,12 @@ SimulationManager::SimulationManager(const Settings& settings, QObject* parent)
 
     // Simulation Window
     simulation_window_presenter_ = new SimulationWindowPresenter(simulation_window_);
+
+    ENKAS_LOG_INFO("Simulation manager initialized successfully.");
 }
 
 SimulationManager::~SimulationManager() {
+    ENKAS_LOG_INFO("Simulation manager is being destroyed. Aborting any ongoing processes...");
     aborted_ = true;
 
     if (simulation_window_) {
@@ -88,10 +99,15 @@ SimulationManager::~SimulationManager() {
         simulation_thread_->quit();
         simulation_thread_->wait();
     }
+
+    ENKAS_LOG_INFO("Simulation manager destroyed successfully.");
 }
 
 void SimulationManager::openSimulationWindow() {
-    if (!simulation_window_) return;
+    if (!simulation_window_) {
+        ENKAS_LOG_ERROR("Simulation window is not initialized. Cannot open it.");
+        return;
+    }
 
     if (simulation_window_presenter_->getMode() == SimulationWindowPresenter::Mode::Uninitialized) {
         simulation_window_presenter_->initLiveMode(&render_queue_slot_, chart_queue_, duration_);
@@ -177,6 +193,9 @@ void SimulationManager::setupSystemStorageWorker() {
             system_storage_worker_,
             &QueueStorageWorkerBase::run);
     system_storage_thread_->start();
+
+    ENKAS_LOG_INFO("System storage worker started. Data will be saved to: {}",
+                   output_dir_.string());
 }
 
 void SimulationManager::setupDiagnosticsStorageWorker() {
@@ -191,6 +210,9 @@ void SimulationManager::setupDiagnosticsStorageWorker() {
             diagnostics_storage_worker_,
             &QueueStorageWorkerBase::run);
     diagnostics_storage_thread_->start();
+
+    ENKAS_LOG_INFO("Diagnostics storage worker started. Data will be saved to: {}",
+                   output_dir_.string());
 }
 
 void SimulationManager::setupSimulationWorker(const Settings& settings) {
@@ -227,4 +249,6 @@ void SimulationManager::setupSimulationWorker(const Settings& settings) {
             &SimulationManager::receivedSimulationStep);
 
     simulation_thread_->start();
+
+    ENKAS_LOG_INFO("Simulation thread started.");
 }

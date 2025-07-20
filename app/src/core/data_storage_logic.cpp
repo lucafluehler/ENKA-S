@@ -1,5 +1,7 @@
 #include "data_storage_logic.h"
 
+#include <enkas/logging/logger.h>
+
 #include <csv-parser/csv.hpp>
 #include <filesystem>
 #include <fstream>
@@ -27,17 +29,21 @@ void DataStorageLogic::saveSettings(const std::filesystem::path& dir_path,
     // Convert Settings to JSON
     auto settings_json_opt = settings.toJson();
     if (!settings_json_opt) {
+        ENKAS_LOG_ERROR("Failed to convert settings to JSON");
         return;  // Conversion failed
     }
 
     std::filesystem::path file_path = dir_path / file_names::settings;
     std::ofstream file(file_path);
     if (!file.is_open()) {
+        ENKAS_LOG_ERROR("Failed to open settings file for writing: {}", file_path.string());
         return;
     }
 
     const int indent_level = 4;  // spaces
     file << settings_json_opt->dump(indent_level);
+
+    ENKAS_LOG_INFO("Settings saved to file: {}", file_path.string());
 }
 
 void DataStorageLogic::saveSystemData(const std::filesystem::path& dir_path,
@@ -52,7 +58,10 @@ void DataStorageLogic::saveSystemData(const std::filesystem::path& dir_path,
 
     // Open the file for appending
     std::ofstream file(file_path, std::ios::app);
-    if (!file.is_open()) return;
+    if (!file.is_open()) {
+        ENKAS_LOG_ERROR("Failed to open system data file for writing: {}", file_path.string());
+        return;
+    }
 
     auto writer = csv::make_csv_writer(file);
 
@@ -72,6 +81,8 @@ void DataStorageLogic::saveSystemData(const std::filesystem::path& dir_path,
                                            getString(system.velocities[i].z),
                                            getString(system.masses[i])};
     }
+
+    ENKAS_LOG_INFO("System data saved to file: {}", file_path.string());
 }
 
 void DataStorageLogic::saveDiagnosticsData(const std::filesystem::path& dir_path,
@@ -86,7 +97,10 @@ void DataStorageLogic::saveDiagnosticsData(const std::filesystem::path& dir_path
 
     // Open the file for appending
     std::ofstream file(file_path, std::ios::app);
-    if (!file.is_open()) return;
+    if (!file.is_open()) {
+        ENKAS_LOG_ERROR("Failed to open diagnostics data file for writing: {}", file_path.string());
+        return;
+    }
 
     auto writer = csv::make_csv_writer(file);
 
@@ -109,4 +123,6 @@ void DataStorageLogic::saveDiagnosticsData(const std::filesystem::path& dir_path
                                        getString(diagnostics.r_vir),
                                        getString(diagnostics.ms_vel),
                                        getString(diagnostics.t_cr)};
+
+    ENKAS_LOG_INFO("Diagnostics data saved to file: {}", file_path.string());
 }

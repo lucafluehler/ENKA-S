@@ -1,5 +1,8 @@
 #pragma once
 
+#include <enkas/logging/logger.h>
+#include <qassert.h>
+
 #include <QObject>
 #include <functional>
 #include <memory>
@@ -31,7 +34,9 @@ public:
                        QObject* parent = nullptr)
         : QueueStorageWorkerBase(parent),
           queue_(std::move(queue)),
-          save_function_(std::move(save_function)) {}
+          save_function_(std::move(save_function)) {
+        Q_ASSERT(queue_ != nullptr);
+    }
 
 public:
     /**
@@ -40,11 +45,13 @@ public:
      * snapshot.
      */
     void run() override {
+        ENKAS_LOG_INFO("Queue storage worker started.");
         while (true) {
             auto snapshot = queue_->popBlocking();
             if (!snapshot) break;  // sentinel on abort()
             save_function_(snapshot);
         }
+        ENKAS_LOG_INFO("Queue storage worker finished processing.");
         emit workFinished();
     }
 
@@ -53,6 +60,7 @@ public:
      * loop in run().
      */
     void abort() override {
+        ENKAS_LOG_INFO("Aborting queue storage worker.");
         queue_->pushBlocking(nullptr);  // sentinel to stop processing
     }
 

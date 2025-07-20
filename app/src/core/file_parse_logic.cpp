@@ -1,6 +1,7 @@
 #include "file_parse_logic.h"
 
 #include <enkas/data/system.h>
+#include <enkas/logging/logger.h>
 
 #include <csv-parser/csv.hpp>
 #include <filesystem>
@@ -13,6 +14,7 @@
 std::optional<Settings> FileParseLogic::parseSettings(const std::filesystem::path& file_path) {
     std::ifstream file(file_path);
     if (!file.is_open()) {
+        ENKAS_LOG_ERROR("Failed to open settings file: {}", file_path.string());
         return std::nullopt;
     }
 
@@ -20,16 +22,21 @@ std::optional<Settings> FileParseLogic::parseSettings(const std::filesystem::pat
         nlohmann::json data;
         file >> data;
 
+        ENKAS_LOG_INFO("Successfully parsed settings file: {}", file_path.string());
         return Settings::create(data);
 
     } catch (const nlohmann::json::parse_error&) {
+        ENKAS_LOG_ERROR("Failed to parse settings file: {}", file_path.string());
         return std::nullopt;
     }
 }
 
 std::optional<SystemFrame> FileParseLogic::parseNextSystemFrame(
     const std::filesystem::path& file_path, double previous_timestamp) {
-    if (!std::filesystem::exists(file_path)) return std::nullopt;
+    if (!std::filesystem::exists(file_path)) {
+        ENKAS_LOG_ERROR("File does not exist: {}", file_path.string());
+        return std::nullopt;
+    }
 
     try {
         auto format =
@@ -38,6 +45,7 @@ std::optional<SystemFrame> FileParseLogic::parseNextSystemFrame(
 
         // Header validation
         if (reader.get_col_names() != csv_headers::system) {
+            ENKAS_LOG_ERROR("Invalid CSV header in file: {}", file_path.string());
             return std::nullopt;
         }
 
@@ -71,13 +79,16 @@ std::optional<SystemFrame> FileParseLogic::parseNextSystemFrame(
         }
 
         if (found_target_frame) {
+            ENKAS_LOG_INFO("Successfully parsed system frame from file: {}", file_path.string());
             return next_frame;
         }
 
         // No frame was found after the given timestamp.
+        ENKAS_LOG_INFO("No new system frame found after timestamp: {}", previous_timestamp);
         return std::nullopt;
 
     } catch (const std::exception& e) {
+        ENKAS_LOG_ERROR("Error occurred while parsing system frame: {}", e.what());
         return std::nullopt;
     }
 }
@@ -86,14 +97,19 @@ std::optional<enkas::data::System> FileParseLogic::parseInitialSystem(
     const std::filesystem::path& file_path) {
     auto frame = parseNextSystemFrame(file_path, 0.0);
     if (frame) {
+        ENKAS_LOG_INFO("Successfully parsed initial system from file: {}", file_path.string());
         return frame->system;
     }
+    ENKAS_LOG_ERROR("Failed to parse initial system from file: {}", file_path.string());
     return std::nullopt;
 }
 
 std::optional<std::vector<double>> FileParseLogic::parseSystemTimestamps(
     const std::filesystem::path& file_path) {
-    if (!std::filesystem::exists(file_path)) return std::nullopt;
+    if (!std::filesystem::exists(file_path)) {
+        ENKAS_LOG_ERROR("File does not exist: {}", file_path.string());
+        return std::nullopt;
+    }
 
     try {
         auto format = csv::CSVFormat().header_row(0);
@@ -101,6 +117,7 @@ std::optional<std::vector<double>> FileParseLogic::parseSystemTimestamps(
 
         // Header validation
         if (reader.get_col_names() != csv_headers::system) {
+            ENKAS_LOG_ERROR("Invalid CSV header in file: {}", file_path.string());
             return std::nullopt;
         }
 
@@ -109,16 +126,28 @@ std::optional<std::vector<double>> FileParseLogic::parseSystemTimestamps(
             unique_timestamps.insert(row["time"].get<double>());
         }
 
+        if (unique_timestamps.empty()) {
+            ENKAS_LOG_ERROR("No timestamps found in file: {}", file_path.string());
+            return std::nullopt;  // No timestamps found
+        }
+
+        ENKAS_LOG_INFO("Successfully parsed {} unique timestamps from file: {}",
+                       unique_timestamps.size(),
+                       file_path.string());
         return std::vector<double>(unique_timestamps.begin(), unique_timestamps.end());
 
     } catch (const std::exception& e) {
+        ENKAS_LOG_ERROR("Error occurred while parsing system timestamps: {}", e.what());
         return std::nullopt;
     }
 }
 
 std::optional<DiagnosticsSeries> FileParseLogic::parseDiagnosticsSeries(
     const std::filesystem::path& file_path) {
-    if (!std::filesystem::exists(file_path)) return std::nullopt;
+    if (!std::filesystem::exists(file_path)) {
+        ENKAS_LOG_ERROR("File does not exist: {}", file_path.string());
+        return std::nullopt;
+    }
 
     try {
         auto format =
@@ -127,6 +156,7 @@ std::optional<DiagnosticsSeries> FileParseLogic::parseDiagnosticsSeries(
 
         // Header validation
         if (reader.get_col_names() != csv_headers::diagnostics) {
+            ENKAS_LOG_ERROR("Invalid CSV header in file: {}", file_path.string());
             return std::nullopt;
         }
 
@@ -151,12 +181,15 @@ std::optional<DiagnosticsSeries> FileParseLogic::parseDiagnosticsSeries(
         }
 
         if (series.timestamps.empty()) {
+            ENKAS_LOG_ERROR("File had header but no data: {}", file_path.string());
             return std::nullopt;  // File had header but no data
         }
 
+        ENKAS_LOG_INFO("Successfully parsed diagnostics series from file: {}", file_path.string());
         return series;
 
     } catch (const std::exception& e) {
+        ENKAS_LOG_ERROR("Error occurred while parsing diagnostics series: {}", e.what());
         return std::nullopt;
     }
 }

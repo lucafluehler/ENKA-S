@@ -1,6 +1,8 @@
 #include "core/generator_factory.h"
 
 #include <enkas/generation/generation_factory.h>
+#include <enkas/generation/generator.h>
+#include <enkas/logging/logger.h>
 
 #include <memory>
 
@@ -34,9 +36,12 @@ std::unique_ptr<Generator> GeneratorFactory::create(const Settings& settings) {
                 return Factory::create(getCollisionModelSettings(settings));
             case GenerationMethod::File:
             default:
+                ENKAS_LOG_ERROR("Unsupported generation method: {}",
+                                std::string(generationMethodToString(method)));
                 return nullptr;  // Unsupported generation method
         }
     } catch (const std::exception& e) {
+        ENKAS_LOG_ERROR("Error occurred while creating generator: {}", e.what());
         return nullptr;  // An expected key was not found in the provided settings
     }
 }

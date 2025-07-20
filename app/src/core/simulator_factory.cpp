@@ -38,9 +38,12 @@ std::unique_ptr<Simulator> SimulatorFactory::create(const Settings& settings) {
             case SimulationMethod::BarnesHutLeapfrog:
                 return Factory::create(getBarnesHutLeapfrogSettings(settings));
             default:
-                return nullptr;  // Unsupported generation method
+                ENKAS_LOG_ERROR("Unsupported simulation method: {}",
+                                std::string(simulationMethodToString(method)));
+                return nullptr;  // Unsupported simulation method
         }
     } catch (const std::exception& e) {
+        ENKAS_LOG_ERROR("Error occurred while creating simulator: {}", e.what());
         return nullptr;  // An expected key was not found in the provided settings
     }
 }

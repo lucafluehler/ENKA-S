@@ -2,6 +2,7 @@
 
 #include <enkas/data/system.h>
 #include <enkas/generation/generator.h>
+#include <enkas/logging/logger.h>
 #include <enkas/simulation/simulator.h>
 
 #include <memory>
@@ -31,6 +32,8 @@ SimulationWorker::SimulationWorker(const Settings& settings, QObject* parent)
 
     // Setup simulator
     simulator_ = SimulatorFactory::create(settings);
+
+    ENKAS_LOG_INFO("Simulation worker initialized successfully.");
 }
 
 void SimulationWorker::startGeneration() {
@@ -39,6 +42,7 @@ void SimulationWorker::startGeneration() {
         auto initial_system_opt = FileParseLogic::parseInitialSystem(file_path_);
 
         if (!initial_system_opt) {
+            ENKAS_LOG_ERROR("Failed to parse initial system from file: {}", file_path_.string());
             emit error();
             return;
         }
@@ -47,6 +51,7 @@ void SimulationWorker::startGeneration() {
     } else {
         // Generate the initial system using the generator
         if (!generator_) {
+            ENKAS_LOG_ERROR("Generator is not initialized.");
             emit error();
             return;
         }
@@ -54,21 +59,26 @@ void SimulationWorker::startGeneration() {
         initial_system_ = std::make_unique<enkas::data::System>(generator_->createSystem());
     }
 
+    ENKAS_LOG_INFO("Initial system generated successfully with {} particles.",
+                   initial_system_->count());
     emit generationCompleted();
 }
 
 void SimulationWorker::startInitialization() {
     if (!simulator_ || !initial_system_) {
+        ENKAS_LOG_ERROR("Simulator or initial system is not initialized.");
         emit error();
         return;
     }
 
     simulator_->setSystem(*initial_system_);
+    ENKAS_LOG_INFO("Simulator successfully initialized with the initial system.");
     emit initializationCompleted();
 }
 
 void SimulationWorker::step() {
     if (!simulator_) {
+        ENKAS_LOG_ERROR("Simulator is not initialized, cannot perform simulation step.");
         emit error();
         return;
     }
