@@ -79,7 +79,7 @@ std::optional<SystemFrame> FileParseLogic::parseNextSystemFrame(
         }
 
         if (found_target_frame) {
-            ENKAS_LOG_INFO("Successfully parsed system frame from file: {}", file_path.string());
+            // ENKAS_LOG_INFO("Successfully parsed system frame from file: {}", file_path.string());
             return next_frame;
         }
 
