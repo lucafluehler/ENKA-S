@@ -3,6 +3,7 @@
 #include <enkas/generation/generation_factory.h>
 #include <enkas/generation/generation_settings.h>
 #include <enkas/generation/generator.h>
+#include <enkas/logging/logger.h>
 
 #include <memory>
 
@@ -48,10 +49,15 @@ void SystemPreview::initializeProcedural(GenerationMethod method) {
             break;
         case GenerationMethod::File:
         default:
+            ENKAS_LOG_ERROR("Unsupported generation method for procedural preview: {}",
+                            generationMethodToString(method));
             return;  // Unsupported method
     }
 
-    if (!generator) return;  // Generator creation failed
+    if (!generator) {
+        ENKAS_LOG_ERROR("Failed to create generator for procedural preview");
+        return;
+    }
 
     // Feed system to particle renderer
     updateData(std::make_shared<SystemSnapshot>(generator->createSystem()));
@@ -62,7 +68,10 @@ void SystemPreview::initializeFromFile(const QString& system_path) {
 
     auto system = FileParseLogic::parseInitialSystem(system_path.toStdString());
 
-    if (!system) return;  // File parsing failed
+    if (!system) {
+        ENKAS_LOG_ERROR("Failed to parse initial system from file: {}", system_path.toStdString());
+        return;
+    }
 
     // Feed system to particle renderer
     updateData(std::make_shared<SystemSnapshot>(system.value()));
