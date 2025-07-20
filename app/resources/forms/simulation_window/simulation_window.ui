@@ -110,7 +110,7 @@
              </font>
             </property>
             <property name="text">
-             <string>Wird geladen...</string>
+             <string>Loading...</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
@@ -316,33 +316,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QTabWidget" name="tabData">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <property name="currentIndex">
-            <number>0</number>
-           </property>
-           <property name="elideMode">
-            <enum>Qt::TextElideMode::ElideNone</enum>
-           </property>
-           <widget class="DiagnosticsTab" name="tabDiagnostics">
-            <attribute name="title">
-             <string>Diagnostik</string>
-            </attribute>
-           </widget>
-           <widget class="QWidget" name="tab_2">
-            <attribute name="title">
-             <string>Analyse</string>
-            </attribute>
-           </widget>
-          </widget>
+          <widget class="QWidget" name="wgtDiagnostics" native="true"/>
          </item>
          <item>
           <widget class="RenderSettingsWidget" name="wgtSettings" native="true">
@@ -566,12 +540,6 @@ QSlider::handle:horizontal:hover {
    <class>RenderSettingsWidget</class>
    <extends>QWidget</extends>
    <header>widgets/render_settings_widget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>DiagnosticsTab</class>
-   <extends>QWidget</extends>
-   <header>views/diagnostics_tab/diagnostics_tab.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

@@ -1,15 +1,13 @@
-#include "diagnostics_tab.h"
+#include "diagnostics_widget.h"
 
 #include <QPalette>
 
 #include "enkas/data/diagnostics.h"
-#include "forms/diagnostics_tab/ui_diagnostics_tab.h"
 
-DiagnosticsTab::DiagnosticsTab(QWidget *parent) : QWidget(parent), ui(new Ui::DiagnosticsTab) {
-    ui->setupUi(this);
+DiagnosticsWidget::DiagnosticsWidget(QWidget *parent) : QWidget(parent) {
     QPalette palette;
     palette.setColor(QPalette::Window, Qt::white);
-    ui->scrollAreaWidgetContents->setPalette(palette);
+    setPalette(palette);
 
     addTitle("Energie");
     addLineChart("Energievergleich",
@@ -24,9 +22,7 @@ DiagnosticsTab::DiagnosticsTab(QWidget *parent) : QWidget(parent), ui(new Ui::Di
     addTitle("Drehimpuls");
 }
 
-DiagnosticsTab::~DiagnosticsTab() { delete ui; }
-
-void DiagnosticsTab::addTitle(QString title) {
+void DiagnosticsWidget::addTitle(QString title) {
     QLabel *label = new QLabel(title);
 
     QFont font = label->font();
@@ -38,7 +34,7 @@ void DiagnosticsTab::addTitle(QString title) {
     insertWidget(label);
 }
 
-void DiagnosticsTab::addHLine() {
+void DiagnosticsWidget::addHLine() {
     QFrame *line = new QFrame();
     line->setFrameShape(QFrame::HLine);
     line->setFrameShadow(QFrame::Sunken);
@@ -47,12 +43,12 @@ void DiagnosticsTab::addHLine() {
     insertWidget(line);
 }
 
-void DiagnosticsTab::addLineChart(QString title,
-                                  QString x_axis_title,
-                                  QString y_axis_title,
-                                  QVector<QString> data_titles,
-                                  QVector<LabelType> label_types,
-                                  QWidget *parent) {
+void DiagnosticsWidget::addLineChart(QString title,
+                                     QString x_axis_title,
+                                     QString y_axis_title,
+                                     QVector<QString> data_titles,
+                                     QVector<LabelType> label_types,
+                                     QWidget *parent) {
     LineChartWidget *widget =
         new LineChartWidget(title, x_axis_title, y_axis_title, data_titles, label_types, parent);
     line_charts.push_back(widget);
@@ -60,13 +56,13 @@ void DiagnosticsTab::addLineChart(QString title,
     insertWidget(widget);
 }
 
-void DiagnosticsTab::insertWidget(QWidget *widget) {
+void DiagnosticsWidget::insertWidget(QWidget *widget) {
     // QVBoxLayout *layout = qobject_cast<QVBoxLayout *>(ui->scrollAreaWidgetContents->layout());
     // size_t i = layout->count() - 1;
     // layout->insertWidget(i, widget);
 }
 
-void DiagnosticsTab::update(const enkas::data::Diagnostics &data) {
+void DiagnosticsWidget::update(const enkas::data::Diagnostics &data) {
     // for (auto *line_chart : line_charts) {
     //     QString title = line_chart->title();
 

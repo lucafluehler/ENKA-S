@@ -14,18 +14,12 @@
 #include "enkas/data/diagnostics.h"
 #include "widgets/line_chart_widget.h"
 
-QT_BEGIN_NAMESPACE
-namespace Ui {
-class DiagnosticsTab;
-}
-QT_END_NAMESPACE
-
-class DiagnosticsTab : public QWidget {
+class DiagnosticsWidget : public QWidget {
     Q_OBJECT
 
 public:
-    DiagnosticsTab(QWidget *parent = nullptr);
-    ~DiagnosticsTab();
+    explicit DiagnosticsWidget(QWidget *parent = nullptr);
+    ~DiagnosticsWidget() = default;
 
     void update(const enkas::data::Diagnostics &data);
 
@@ -41,5 +35,4 @@ private:
     void insertWidget(QWidget *widget);
 
     QVector<LineChartWidget *> line_charts;
-    Ui::DiagnosticsTab *ui;
 };
