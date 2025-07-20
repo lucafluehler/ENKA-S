@@ -8,11 +8,7 @@
 #include <vector>
 
 #include "core/settings/settings.h"
-
-struct SystemFrame {
-    double timestamp;
-    enkas::data::System system;
-};
+#include "core/snapshot.h"
 
 struct DiagnosticsSeries {
     std::vector<double> timestamps;
@@ -29,13 +25,13 @@ public:
     static std::optional<Settings> parseSettings(const std::filesystem::path& file_path);
 
     /**
-     * @brief Reads the system frame just after the specified timestamp from the CSV file.
-     * @param previous_timestamp The timestamp after which to read the next frame. If 0.0, reads the
-     * first frame.
-     * @return An optional Frame object containing the timestamp and system data.
+     * @brief Reads the system snapshot just after the specified timestamp from the CSV file.
+     * @param previous_timestamp The timestamp after which to read the next snapshot. If 0.0, reads
+     * the first snapshot.
+     * @return An optional SystemSnapshot object containing the timestamp and system data.
      */
-    static std::optional<SystemFrame> parseNextSystemFrame(const std::filesystem::path& file_path,
-                                                           double previous_timestamp);
+    static std::optional<SystemSnapshot> parseNextSystemSnapshot(
+        const std::filesystem::path& file_path, double previous_timestamp);
 
     /**
      * @brief Reads the initial system data from the CSV file.

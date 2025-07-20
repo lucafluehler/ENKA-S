@@ -8,6 +8,7 @@
 
 #include "core/file_parse_logic.h"
 #include "core/settings/settings.h"
+#include "core/snapshot.h"
 
 class FileParseWorker : public QObject {
     Q_OBJECT
@@ -24,14 +25,14 @@ public slots:
     void parseSettings(const QString& file_path);
 
     /**
-     * @brief Asynchronously parses the next system frame from the specified file.
+     * @brief Asynchronously parses the next system snapshot from the specified file.
      * @param file_path The path to the CSV file.
-     * @param previous_timestamp The timestamp after which to read the next frame.
+     * @param previous_timestamp The timestamp after which to read the next snapshot.
      */
-    void parseNextSystemFrame(const QString& file_path, double previous_timestamp = 0.0);
+    void parseNextSystemSnapshot(const QString& file_path, double previous_timestamp = 0.0);
 
     /**
-     * @brief Asynchronously parses the initial system frame from the specified file.
+     * @brief Asynchronously parses the initial system from the specified file.
      * @param file_path The path to the CSV file.
      */
     void parseInitialSystem(const QString& file_path);
@@ -57,16 +58,16 @@ signals:
     void settingsParsed(const std::optional<Settings>& settings);
 
     /**
-     * @brief Emitted when a system frame has been parsed.
-     * @param frame The parsed system frame data if successful.
+     * @brief Emitted when a system snapshot has been parsed.
+     * @param snapshot The parsed system snapshot data if successful.
      */
-    void systemFrameParsed(const std::optional<SystemFrame>& frame);
+    void systemSnapshotParsed(const std::optional<SystemSnapshot>& snapshot);
 
     /**
-     * @brief Emitted when the initial system frame has been parsed.
-     * @param frame The parsed initial system frame data if successful.
+     * @brief Emitted when the initial system has been parsed.
+     * @param system The parsed initial system data if successful.
      */
-    void initialSystemParsed(const std::optional<enkas::data::System>& frame);
+    void initialSystemParsed(const std::optional<enkas::data::System>& system);
 
     /**
      * @brief Emitted when all system timestamps have been parsed.

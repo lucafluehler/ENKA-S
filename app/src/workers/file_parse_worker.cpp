@@ -11,9 +11,10 @@ void FileParseWorker::parseSettings(const QString& file_path) {
     emit settingsParsed(settings);
 }
 
-void FileParseWorker::parseNextSystemFrame(const QString& file_path, double previous_timestamp) {
-    auto frame = FileParseLogic::parseNextSystemFrame(file_path.toStdString(), previous_timestamp);
-    emit systemFrameParsed(frame);
+void FileParseWorker::parseNextSystemSnapshot(const QString& file_path, double previous_timestamp) {
+    auto snapshot =
+        FileParseLogic::parseNextSystemSnapshot(file_path.toStdString(), previous_timestamp);
+    emit systemSnapshotParsed(snapshot);
 }
 
 void FileParseWorker::parseInitialSystem(const QString& file_path) {

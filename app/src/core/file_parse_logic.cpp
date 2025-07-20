@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "core/settings/settings.h"
+#include "core/snapshot.h"
 #include "file_constants.h"
 
 std::optional<Settings> FileParseLogic::parseSettings(const std::filesystem::path& file_path) {
@@ -31,7 +32,7 @@ std::optional<Settings> FileParseLogic::parseSettings(const std::filesystem::pat
     }
 }
 
-std::optional<SystemFrame> FileParseLogic::parseNextSystemFrame(
+std::optional<SystemSnapshot> FileParseLogic::parseNextSystemSnapshot(
     const std::filesystem::path& file_path, double previous_timestamp) {
     if (!std::filesystem::exists(file_path)) {
         ENKAS_LOG_ERROR("File does not exist: {}", file_path.string());
@@ -49,56 +50,58 @@ std::optional<SystemFrame> FileParseLogic::parseNextSystemFrame(
             return std::nullopt;
         }
 
-        SystemFrame next_frame;
-        bool found_target_frame = false;
+        enkas::data::System system;
+        double timestamp = 0.0;
+        bool found_target_snapshot = false;
 
         for (const auto& row : reader) {
             double current_time = row["time"].get<double>();
 
             if (current_time > previous_timestamp) {
-                // This is the first row of the frame we want.
-                if (!found_target_frame) {
-                    found_target_frame = true;
-                    next_frame.timestamp = current_time;
+                // This is the first row of the snapshot we want.
+                if (!found_target_snapshot) {
+                    found_target_snapshot = true;
+                    timestamp = current_time;
                 }
 
-                // If the time changes again, we've finished the frame.
-                if (current_time != next_frame.timestamp) {
+                // If the time changes again, we've finished the snapshot.
+                if (current_time != timestamp) {
                     break;
                 }
 
-                // Add particle data to the frame
-                next_frame.system.positions.emplace_back(row["pos_x"].get<double>(),
-                                                         row["pos_y"].get<double>(),
-                                                         row["pos_z"].get<double>());
-                next_frame.system.velocities.emplace_back(row["vel_x"].get<double>(),
-                                                          row["vel_y"].get<double>(),
-                                                          row["vel_z"].get<double>());
-                next_frame.system.masses.push_back(row["mass"].get<double>());
+                // Add particle data to the snapshot
+                system.positions.emplace_back(row["pos_x"].get<double>(),
+                                              row["pos_y"].get<double>(),
+                                              row["pos_z"].get<double>());
+                system.velocities.emplace_back(row["vel_x"].get<double>(),
+                                               row["vel_y"].get<double>(),
+                                               row["vel_z"].get<double>());
+                system.masses.push_back(row["mass"].get<double>());
             }
         }
 
-        if (found_target_frame) {
-            // ENKAS_LOG_INFO("Successfully parsed system frame from file: {}", file_path.string());
-            return next_frame;
+        if (found_target_snapshot) {
+            // ENKAS_LOG_INFO("Successfully parsed system snapshot from file: {}",
+            // file_path.string());
+            return SystemSnapshot(std::move(system), timestamp);
         }
 
-        // No frame was found after the given timestamp.
-        ENKAS_LOG_INFO("No new system frame found after timestamp: {}", previous_timestamp);
+        // No snapshot was found after the given timestamp.
+        ENKAS_LOG_INFO("No new system snapshot found after timestamp: {}", previous_timestamp);
         return std::nullopt;
 
     } catch (const std::exception& e) {
-        ENKAS_LOG_ERROR("Error occurred while parsing system frame: {}", e.what());
+        ENKAS_LOG_ERROR("Error occurred while parsing system snapshot: {}", e.what());
         return std::nullopt;
     }
 }
 
 std::optional<enkas::data::System> FileParseLogic::parseInitialSystem(
     const std::filesystem::path& file_path) {
-    auto frame = parseNextSystemFrame(file_path, 0.0);
-    if (frame) {
+    auto snapshot = parseNextSystemSnapshot(file_path, 0.0);
+    if (snapshot) {
         ENKAS_LOG_INFO("Successfully parsed initial system from file: {}", file_path.string());
-        return frame->system;
+        return snapshot->data;
     }
     ENKAS_LOG_ERROR("Failed to parse initial system from file: {}", file_path.string());
     return std::nullopt;
