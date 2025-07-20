@@ -77,6 +77,13 @@ void SystemPreview::initializeFromFile(const QString& system_path) {
     updateData(std::make_shared<SystemSnapshot>(system.value()));
 }
 
+void SystemPreview::initializeSystem(const enkas::data::System& system) {
+    setMethodSettings();
+
+    // Feed system to particle renderer
+    updateData(std::make_shared<SystemSnapshot>(system));
+}
+
 void SystemPreview::initializeHomeScreen() {
     setHomeScreenSettings();
 

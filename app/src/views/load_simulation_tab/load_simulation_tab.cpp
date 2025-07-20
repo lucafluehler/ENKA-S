@@ -86,7 +86,7 @@ void LoadSimulationTab::onSettingsParsed(std::optional<Settings> settings) {
 void LoadSimulationTab::onInitialSystemParsed(std::optional<enkas::data::System> system) {
     if (system.has_value()) {
         ui_->lblSystemStatusIcon->setMode(FileCheckIcon::Mode::Checked);
-        ui_->oglSystemPreview->initializeFromFile(system_file_path_);
+        ui_->oglSystemPreview->initializeSystem(*system);
         ui_->btnRun->setEnabled(true);
     } else {
         ui_->lblSystemStatusIcon->setMode(FileCheckIcon::Mode::Corrupted);

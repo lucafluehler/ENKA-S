@@ -1,5 +1,6 @@
 #pragma once
 
+#include <enkas/data/system.h>
 #include <enkas/generation/generation_settings.h>
 
 #include <QObject>
@@ -27,6 +28,12 @@ public:
      * @param system_path The path to the system file.
      */
     void initializeFromFile(const QString& system_path);
+
+    /**
+     * @brief Initializes the preview with the given system.
+     * @param system The system to initialize the preview with.
+     */
+    void initializeSystem(const enkas::data::System& system);
 
     /**
      * @brief Initializes the preview for the home screen with a default system.
