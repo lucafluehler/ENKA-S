@@ -30,7 +30,7 @@ public:
      * @param parent The parent widget.
      */
     explicit NewSimulationTab(QWidget* parent = nullptr);
-    ~NewSimulationTab() override { abortSimulation(); }
+    ~NewSimulationTab() override = default;
 
     void updatePreview() override { ui_->oglSystemPreview->update(); }
     void processSettings(const std::optional<Settings>& settings) override;

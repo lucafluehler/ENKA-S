@@ -88,7 +88,7 @@ void NewSimulationPresenter::startSimulation() {
     auto settings = view_->fetchSettings();
 
     // Initialize Simulation Manager
-    simulation_manager_ = new SimulationManager(settings);
+    simulation_manager_ = new SimulationManager(settings, this);
 
     connect(simulation_manager_,
             &SimulationManager::initializationCompleted,
@@ -116,7 +116,7 @@ void NewSimulationPresenter::abortSimulation() {
 
     ENKAS_LOG_INFO("Aborting simulation...");
 
-    delete simulation_manager_;
+    simulation_manager_->deleteLater();
     simulation_manager_ = nullptr;
 
     // Restart preview timer to resume preview animations
