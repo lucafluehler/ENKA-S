@@ -30,6 +30,7 @@ public:
 
 public slots:
     void updateData(DiagnosticsSnapshot& diagnostics);
+    void fillCharts(const DiagnosticsSeries& series);
 
 private:
     void createBaseUi();

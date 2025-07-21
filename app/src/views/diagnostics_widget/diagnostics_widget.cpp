@@ -137,3 +137,63 @@ void DiagnosticsWidget::updateData(DiagnosticsSnapshot& diag) {
         }
     }
 }
+
+void DiagnosticsWidget::fillCharts(const DiagnosticsSeries& series) {
+    if (definitions_.empty()) {
+        return;
+    }
+
+    max_time_ = 0.0;
+    std::fill(min_values_.begin(), min_values_.end(), std::numeric_limits<double>::max());
+    std::fill(max_values_.begin(), max_values_.end(), std::numeric_limits<double>::lowest());
+
+    // Clear the series if the input series is empty
+    if (series.empty()) {
+        for (size_t i = 0; i < charts_.size(); ++i) {
+            series_[i]->clear();
+            auto* chart = charts_[i];
+            auto* axisX = qobject_cast<QValueAxis*>(chart->axes(Qt::Horizontal).first());
+            auto* axisY = qobject_cast<QValueAxis*>(chart->axes(Qt::Vertical).first());
+            if (axisX && axisY) {
+                axisX->setRange(0, 1.0);
+                axisY->setRange(0, 1.0);
+            }
+        }
+        return;
+    }
+
+    // Prepare a list of points for each series so we can update them in one go
+    std::vector<QList<QPointF>> all_points(definitions_.size());
+
+    for (const auto& diag_point : series) {
+        max_time_ = std::max(max_time_, diag_point.time);
+
+        for (size_t i = 0; i < definitions_.size(); ++i) {
+            const double value = definitions_[i].value_extractor(diag_point);
+
+            min_values_[i] = std::min(min_values_[i], value);
+            max_values_[i] = std::max(max_values_[i], value);
+
+            all_points[i].append(QPointF(diag_point.time, value));
+        }
+    }
+
+    for (size_t i = 0; i < definitions_.size(); ++i) {
+        series_[i]->replace(all_points[i]);
+
+        auto* chart = charts_[i];
+        auto* axisX = qobject_cast<QValueAxis*>(chart->axes(Qt::Horizontal).first());
+        auto* axisY = qobject_cast<QValueAxis*>(chart->axes(Qt::Vertical).first());
+
+        if (axisX && axisY) {
+            axisX->setRange(0, std::max(max_time_, 1e-9));
+
+            const double y_margin = (max_values_[i] - min_values_[i]) * 0.05;
+            axisY->setRange(min_values_[i] - y_margin, max_values_[i] + y_margin);
+
+            if (qFuzzyCompare(axisY->min(), axisY->max())) {
+                axisY->setRange(axisY->min() - 1.0, axisY->max() + 1.0);
+            }
+        }
+    }
+}

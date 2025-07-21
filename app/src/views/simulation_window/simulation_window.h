@@ -36,6 +36,7 @@ public:
 
     void updateSystemRendering(SystemSnapshotPtr system_snapshot) override;
     void updateCharts(DiagnosticsSnapshotPtr diagnostics_snapshot) override;
+    void fillCharts(const DiagnosticsSeries &series) override;
     void updateFPS(int fps) override;
 
 private slots:

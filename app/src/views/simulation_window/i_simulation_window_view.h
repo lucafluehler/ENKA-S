@@ -34,6 +34,12 @@ public:
     virtual void updateCharts(DiagnosticsSnapshotPtr diagnostics_snapshot) = 0;
 
     /**
+     * @brief Populate the charts with a batch of diagnostics data.
+     * @param series The diagnostics data series to fill the charts with.
+     */
+    virtual void fillCharts(const DiagnosticsSeries& series) = 0;
+
+    /**
      * @brief Updates the frames per second (FPS) display.
      * @param fps The current frames per second to display.
      */

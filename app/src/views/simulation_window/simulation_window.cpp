@@ -133,6 +133,10 @@ void SimulationWindow::updateCharts(DiagnosticsSnapshotPtr diagnostics_snapshot)
     ui_->wgtDiagnostics->updateData(*diagnostics_snapshot);
 }
 
+void SimulationWindow::fillCharts(const DiagnosticsSeries& series) {
+    ui_->wgtDiagnostics->fillCharts(series);
+}
+
 void SimulationWindow::setupCharts() {
     std::vector<DiagnosticsWidget::ChartDefinition> charts;
 
