@@ -8,6 +8,9 @@
 
 #include "core/system_ring_buffer.h"
 
+/**
+ * @brief Worker for writing to the system ring buffer by parsing files.
+ */
 class SystemBufferWorker : public QObject {
     Q_OBJECT
 
@@ -16,10 +19,21 @@ public:
                        const std::filesystem::path& file_path,
                        QObject* parent = nullptr);
 
+    /**
+     * @brief Aborts the worker, stopping any further processing and shutting down the buffer.
+     */
     void abort();
+
+    /**
+     * @brief Requests parsing a snapshot at the tail of the buffer and pushing it to the tail.
+     */
     void requestStepBackward();
 
 public slots:
+    /**
+     * @brief Runs the worker, processing snapshots from the file and pushing them to the buffer.
+     * It will continue until an abort signal is received.
+     */
     void run();
 
 private:
