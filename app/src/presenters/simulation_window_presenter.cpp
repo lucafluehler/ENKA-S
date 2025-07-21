@@ -56,11 +56,9 @@ void SimulationWindowPresenter::updateRendering() {
     }
 
     // Retrieve the latest system snapshot from the render queue
+    // If the rendering is faster than the simulation, we do not want to drop frames, but instead
+    // pass the nullptr to the view, which must handle it properly.
     auto system_snapshot = render_queue_slot_->load(std::memory_order_acquire);
-    if (!system_snapshot) {
-        ENKAS_LOG_DEBUG("No system snapshot available for rendering.");
-        return;
-    }
 
     // Update the view with the system snapshot
     view_->updateSystemRendering(system_snapshot);

@@ -102,11 +102,17 @@ void SimulationWindow::toggleMovie(bool checked) {
 }
 
 void SimulationWindow::updateSystemRendering(SystemSnapshotPtr system_snapshot) {
-    if (!system_snapshot) return;
+    if (system_snapshot) {
+        ui_->oglParticleRenderer->updateData(system_snapshot);
+    }
 
-    // Redraw Particles
-    ui_->oglParticleRenderer->updateData(system_snapshot);
+    // Redraw Particles even if no system snapshot is available, in order to avoid frame drops.
     ui_->oglParticleRenderer->redraw(settings_);
+
+    if (!system_snapshot) {
+        // If no system snapshot is available we cannot update the time progress.
+        return;
+    }
 
     // Update time_progress label
     const double time = system_snapshot->time;
