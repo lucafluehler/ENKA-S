@@ -10,8 +10,9 @@ public:
      * @brief Initializes the view for live mode.
      * In live mode, the particle rendering of the simulated system and its diagnostics charts are
      * updated in real-time.
+     * @param simulation_duration The total duration of the simulation, used for time navigation.
      */
-    virtual void initLiveMode() = 0;
+    virtual void initLiveMode(double simulation_duration) = 0;
 
     /**
      * @brief Initializes the view for file mode.
@@ -21,12 +22,10 @@ public:
     virtual void initFileMode() = 0;
 
     /**
-     * @brief Updates the system rendering with the provided snapshot and simulation duration.
+     * @brief Updates the system rendering with the provided snapshot.
      * @param system_snapshot The snapshot of the system to render.
-     * @param simulation_duration The duration of the simulation for which the snapshot is valid.
      */
-    virtual void updateSystemRendering(SystemSnapshotPtr system_snapshot,
-                                       double simulation_duration) = 0;
+    virtual void updateSystemRendering(SystemSnapshotPtr system_snapshot) = 0;
 
     /**
      * @brief Updates the charts with the latest diagnostics data.

@@ -74,7 +74,6 @@ private:
     ISimulationWindowView* view_;
 
     Mode mode_;
-    double simulation_duration_;
     QTimer* render_timer_;
 
     const int target_fps_ = 120;

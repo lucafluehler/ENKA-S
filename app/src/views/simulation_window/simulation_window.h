@@ -31,11 +31,10 @@ public:
     explicit SimulationWindow(QWidget *parent = nullptr);
     ~SimulationWindow() override = default;
 
-    void initLiveMode() override;
+    void initLiveMode(double simulation_duration) override;
     void initFileMode() override;
 
-    void updateSystemRendering(SystemSnapshotPtr system_snapshot,
-                               double simulation_duration) override;
+    void updateSystemRendering(SystemSnapshotPtr system_snapshot) override;
     void updateCharts(DiagnosticsSnapshotPtr diagnostics_snapshot) override;
     void updateFPS(int fps) override;
 
@@ -53,4 +52,6 @@ private:
     QTimer *movie_timer;  // Used for recording the simulation
 
     Ui::SimulationWindow *ui_;
+
+    double simulation_duration_ = 0.0;
 };

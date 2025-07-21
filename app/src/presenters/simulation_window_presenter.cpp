@@ -16,7 +16,6 @@ SimulationWindowPresenter::SimulationWindowPresenter(ISimulationWindowView* view
     : QObject(parent),
       view_(view),
       mode_(Mode::Uninitialized),
-      simulation_duration_(0.0),
       render_timer_(new QTimer(this)),
       last_fps_update_time_(std::chrono::steady_clock::now()) {
     connect(render_timer_, &QTimer::timeout, this, &SimulationWindowPresenter::updateRendering);
@@ -32,9 +31,8 @@ void SimulationWindowPresenter::initLiveMode(
 
     render_queue_slot_ = render_queue_slot;
     chart_queue_ = std::move(chart_queue);
-    simulation_duration_ = simulation_duration;
 
-    view_->initLiveMode();
+    view_->initLiveMode(simulation_duration);
 
     // Start the rendering timer
     render_timer_->start(1000 / target_fps_);
@@ -65,7 +63,7 @@ void SimulationWindowPresenter::updateRendering() {
     }
 
     // Update the view with the system snapshot
-    view_->updateSystemRendering(system_snapshot, simulation_duration_);
+    view_->updateSystemRendering(system_snapshot);
     frame_count_++;
 
     // Check if it's time to update the FPS display

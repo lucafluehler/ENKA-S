@@ -45,7 +45,7 @@ SimulationWindow::SimulationWindow(QWidget* parent)
     setupCharts();
 }
 
-void SimulationWindow::initLiveMode() {
+void SimulationWindow::initLiveMode(double simulation_duration) {
     ui_->btnJumpToStart->setVisible(false);
     ui_->btnStepBack->setVisible(false);
     ui_->btnPlayStop->setVisible(false);
@@ -53,6 +53,8 @@ void SimulationWindow::initLiveMode() {
     ui_->btnJumpToEnd->setVisible(false);
     ui_->btnChangeSpeed->setVisible(false);
     ui_->hslNavigation->setEnabled(false);
+
+    simulation_duration_ = simulation_duration;
 }
 
 void SimulationWindow::initFileMode() {
@@ -99,8 +101,7 @@ void SimulationWindow::toggleMovie(bool checked) {
     }
 }
 
-void SimulationWindow::updateSystemRendering(SystemSnapshotPtr system_snapshot,
-                                             double simulation_duration) {
+void SimulationWindow::updateSystemRendering(SystemSnapshotPtr system_snapshot) {
     if (!system_snapshot) return;
 
     // Redraw Particles
@@ -109,11 +110,11 @@ void SimulationWindow::updateSystemRendering(SystemSnapshotPtr system_snapshot,
 
     // Update time_progress label
     const double time = system_snapshot->time;
-    const auto time_text = QString("%1 / %2").arg(time).arg(simulation_duration);
+    const auto time_text = QString("%1 / %2").arg(time).arg(simulation_duration_);
     ui_->lblTime->setText(time_text);
 
     // Update horizontal progress slider
-    ui_->hslNavigation->setValue(1000.0 * time / simulation_duration);
+    ui_->hslNavigation->setValue(1000.0 * time / simulation_duration_);
 }
 
 void SimulationWindow::updateFPS(int fps) {
