@@ -22,6 +22,12 @@ public:
                                        double simulation_duration) = 0;
 
     /**
+     * @brief Updates the charts with the latest diagnostics data.
+     * @param diagnostics_snapshot The snapshot of the diagnostics data to render.
+     */
+    virtual void updateCharts(DiagnosticsSnapshotPtr diagnostics_snapshot) = 0;
+
+    /**
      * @brief Updates the frames per second (FPS) display.
      * @param fps The current frames per second to display.
      */

@@ -1,82 +1,139 @@
 #include "diagnostics_widget.h"
 
-#include <QPalette>
+#include <enkas/data/diagnostics.h>
 
-#include "enkas/data/diagnostics.h"
+#include <QPainter>
+#include <QScrollArea>
+#include <QString>
+#include <QVBoxLayout>
+#include <QValueAxis>
+#include <QWidget>
+#include <QtCharts>
+#include <functional>
+#include <vector>
 
-DiagnosticsWidget::DiagnosticsWidget(QWidget *parent) : QWidget(parent) {
-    QPalette palette;
-    palette.setColor(QPalette::Window, Qt::white);
-    setPalette(palette);
+#include "core/snapshot.h"
 
-    addTitle("Energie");
-    addLineChart("Energievergleich",
-                 "Zeit",
-                 "Energie",
-                 {"Gesamtenergie", "Kinetische Energie", "Potentielle Energie"});
-    // addLineChart("Relative Abweichung der Gesamtenergie", "Zeit", "Relative Abweichung");
-    addLineChart("Gesamtenergie", "Zeit", "Energie");
-    addLineChart("Kinetische Energie", "Zeit", "Energie");
-    addLineChart("Potentielle Energie", "Zeit", "Energie");
-    addHLine();
-    addTitle("Drehimpuls");
+DiagnosticsWidget::DiagnosticsWidget(QWidget* parent) : QWidget(parent) { createBaseUi(); }
+
+void DiagnosticsWidget::createBaseUi() {
+    this->setFixedWidth(600);
+
+    container_layout_ = new QVBoxLayout(this);
+    container_layout_->setContentsMargins(0, 0, 0, 0);
+
+    scroll_area_ = new QScrollArea(this);
+    scroll_area_->setWidgetResizable(true);
+    scroll_area_->setFrameShape(QFrame::NoFrame);
+
+    scroll_area_widget_contents_ = new QWidget();
+    charts_layout_ = new QVBoxLayout(scroll_area_widget_contents_);
+
+    scroll_area_->setWidget(scroll_area_widget_contents_);
+    container_layout_->addWidget(scroll_area_);
 }
 
-void DiagnosticsWidget::addTitle(QString title) {
-    QLabel *label = new QLabel(title);
+void DiagnosticsWidget::clearCharts() {
+    QLayoutItem* item;
+    while ((item = charts_layout_->takeAt(0)) != nullptr) {
+        delete item->widget();
+        delete item;
+    }
 
-    QFont font = label->font();
-    font.setFamilies({QString::fromUtf8("Open Sans")});
-    font.setBold(true);
-    font.setPointSize(14);
-    label->setFont(font);
-
-    insertWidget(label);
+    charts_.clear();
+    series_.clear();
+    definitions_.clear();
+    min_values_.clear();
+    max_values_.clear();
+    max_time_ = 0.0;
 }
 
-void DiagnosticsWidget::addHLine() {
-    QFrame *line = new QFrame();
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-    line->setLineWidth(2);
+void DiagnosticsWidget::setupCharts(std::vector<ChartDefinition> chart_definitions,
+                                    const QString& time_unit) {
+    clearCharts();
 
-    insertWidget(line);
+    definitions_ = std::move(chart_definitions);
+
+    min_values_.resize(definitions_.size(), std::numeric_limits<double>::max());
+    max_values_.resize(definitions_.size(), std::numeric_limits<double>::lowest());
+
+    for (const auto& def : definitions_) {
+        auto series = new QLineSeries();
+
+        // Thicker, dark red line
+        QPen pen;
+        pen.setColor(QColor(139, 0, 0));
+        pen.setWidth(2);
+        series->setPen(pen);
+
+        auto chart = new QChart();
+
+        // Add big, bold title
+        chart->setTitle(def.title);
+        QFont titleFont;
+        titleFont.setPointSize(12);
+        titleFont.setBold(true);
+        chart->setTitleFont(titleFont);
+
+        chart->addSeries(series);
+        chart->legend()->hide();
+
+        // Configure X Axis
+        auto axisX = new QValueAxis();
+        axisX->setTitleText("Time / " + time_unit);
+        axisX->setLabelFormat("%.2f");
+        chart->addAxis(axisX, Qt::AlignBottom);
+        series->attachAxis(axisX);
+
+        // Configure Y Axis
+        auto axisY = new QValueAxis();
+        axisY->setTitleText(def.title + " / " + def.unit);
+        axisY->setLabelFormat("%.2e");
+        axisY->setTickCount(10);
+        chart->addAxis(axisY, Qt::AlignLeft);
+        series->attachAxis(axisY);
+
+        auto chartView = new QChartView(chart);
+        chartView->setRenderHint(QPainter::Antialiasing);
+        chartView->setRubberBand(QChartView::HorizontalRubberBand);
+        chartView->setMinimumHeight(400);
+
+        charts_layout_->addWidget(chartView);
+
+        charts_.push_back(chart);
+        series_.push_back(series);
+    }
 }
 
-void DiagnosticsWidget::addLineChart(QString title,
-                                     QString x_axis_title,
-                                     QString y_axis_title,
-                                     QVector<QString> data_titles,
-                                     QVector<LabelType> label_types,
-                                     QWidget *parent) {
-    LineChartWidget *widget =
-        new LineChartWidget(title, x_axis_title, y_axis_title, data_titles, label_types, parent);
-    line_charts.push_back(widget);
+void DiagnosticsWidget::updateData(DiagnosticsSnapshot& diag) {
+    if (definitions_.empty()) {
+        return;
+    }
 
-    insertWidget(widget);
-}
+    const double timestamp = diag.time;
+    max_time_ = std::max(max_time_, timestamp);
 
-void DiagnosticsWidget::insertWidget(QWidget *widget) {
-    // QVBoxLayout *layout = qobject_cast<QVBoxLayout *>(ui->scrollAreaWidgetContents->layout());
-    // size_t i = layout->count() - 1;
-    // layout->insertWidget(i, widget);
-}
+    for (size_t i = 0; i < definitions_.size(); ++i) {
+        const double value = definitions_[i].value_extractor(diag);
 
-void DiagnosticsWidget::update(const enkas::data::Diagnostics &data) {
-    // for (auto *line_chart : line_charts) {
-    //     QString title = line_chart->title();
+        series_[i]->append(timestamp, value);
 
-    //     if (title == "Energievergleich") {
-    //         line_chart->append(data.time, data.e_kin + data.e_pot, "Gesamtenergie");
-    //         line_chart->append(data.time, data.e_kin, "Kinetische Energie");
-    //         line_chart->append(data.time, data.e_pot, "Potentielle Energie");
-    //     } else if (title == "Gesamtenergie") {
-    //         double e_tot = data.e_kin + data.e_pot;
-    //         line_chart->append(data.time, e_tot);
-    //     } else if (title == "Kinetische Energie") {
-    //         line_chart->append(data.time, data.e_kin);
-    //     } else if (title == "Potentielle Energie") {
-    //         line_chart->append(data.time, data.e_pot);
-    //     }
-    // }
+        auto* chart = charts_[i];
+        auto* axisX = qobject_cast<QValueAxis*>(chart->axes(Qt::Horizontal).first());
+        auto* axisY = qobject_cast<QValueAxis*>(chart->axes(Qt::Vertical).first());
+
+        if (axisX && axisY) {
+            axisX->setRange(0, max_time_);
+
+            min_values_[i] = std::min(min_values_[i], value);
+            max_values_[i] = std::max(max_values_[i], value);
+
+            const double y_margin = (max_values_[i] - min_values_[i]) * 0.05;
+            axisY->setRange(min_values_[i] - y_margin, max_values_[i] + y_margin);
+
+            if (qFuzzyCompare(axisY->min(), axisY->max())) {
+                axisY->setRange(axisY->min() - 1.0, axisY->max() + 1.0);
+            }
+        }
+    }
 }

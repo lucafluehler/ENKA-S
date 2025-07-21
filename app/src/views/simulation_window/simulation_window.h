@@ -35,13 +35,8 @@ public:
 
     void updateSystemRendering(SystemSnapshotPtr system_snapshot,
                                double simulation_duration) override;
+    void updateCharts(DiagnosticsSnapshotPtr diagnostics_snapshot) override;
     void updateFPS(int fps) override;
-
-public slots:
-    /**
-     * @brief Called when new diagnostics data is available.
-     */
-    void onDiagnosticsDataUpdate();
 
 private slots:
     void saveSettings();
@@ -50,6 +45,8 @@ private slots:
     void toggleMovie(bool checked);
 
 private:
+    void setupCharts();
+
     RenderSettings settings_;
 
     QTimer *movie_timer;  // Used for recording the simulation

@@ -5,6 +5,7 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
+#include "core/chart_extractors.h"
 #include "core/snapshot.h"
 #include "forms/simulation_window/ui_simulation_window.h"
 #include "rendering/particle_renderer.h"
@@ -39,9 +40,10 @@ SimulationWindow::SimulationWindow(QWidget* parent)
 
     connect(
         movie_timer, &QTimer::timeout, ui_->oglParticleRenderer, &ParticleRenderer::saveScreenshot);
-}
 
-void SimulationWindow::onDiagnosticsDataUpdate() {}
+    // Add charts for displaying the diagnostics data
+    setupCharts();
+}
 
 void SimulationWindow::initLiveMode() {
     ui_->btnJumpToStart->setVisible(false);
@@ -107,4 +109,54 @@ void SimulationWindow::updateSystemRendering(SystemSnapshotPtr system_snapshot,
 void SimulationWindow::updateFPS(int fps) {
     const auto fps_text = QString::number(fps) + " FPS";
     ui_->lblFPS->setText(fps_text);
+}
+
+void SimulationWindow::updateCharts(DiagnosticsSnapshotPtr diagnostics_snapshot) {
+    if (!diagnostics_snapshot) return;
+    ui_->wgtDiagnostics->updateData(*diagnostics_snapshot);
+}
+
+void SimulationWindow::setupCharts() {
+    std::vector<DiagnosticsWidget::ChartDefinition> charts;
+
+    charts.push_back(
+        {.title = "Total Energy", .unit = "J", .value_extractor = [](DiagnosticsSnapshot& s) {
+             return s.data.e_kin + s.data.e_pot;
+         }});
+
+    charts.push_back({.title = "Total Energy Change",
+                      .unit = "%",
+                      .value_extractor = createPercentageChangeExtractor(
+                          [](DiagnosticsSnapshot& s) { return s.data.e_kin + s.data.e_pot; })});
+
+    charts.push_back({.title = "Kinetic Energy",
+                      .unit = "J",
+                      .value_extractor = [](DiagnosticsSnapshot& s) { return s.data.e_kin; }});
+
+    charts.push_back({.title = "Potential Energy",
+                      .unit = "J",
+                      .value_extractor = [](DiagnosticsSnapshot& s) { return s.data.e_pot; }});
+
+    charts.push_back({.title = "Total Angular Momentum",
+                      .unit = "kg*m^2/s",
+                      .value_extractor = [](DiagnosticsSnapshot& s) { return s.data.L_tot; }});
+
+    charts.push_back({.title = "Total Angular Momentum Change",
+                      .unit = "%",
+                      .value_extractor = createPercentageChangeExtractor(
+                          [](DiagnosticsSnapshot& s) { return s.data.L_tot; })});
+
+    charts.push_back({.title = "Virial Radius",
+                      .unit = "kpc",
+                      .value_extractor = [](DiagnosticsSnapshot& s) { return s.data.r_vir; }});
+
+    charts.push_back({.title = "Mean Square Velocity",
+                      .unit = "H_L/H_T",
+                      .value_extractor = [](DiagnosticsSnapshot& s) { return s.data.ms_vel; }});
+
+    charts.push_back({.title = "Crossing Time",
+                      .unit = "H_T",
+                      .value_extractor = [](DiagnosticsSnapshot& s) { return s.data.t_cr; }});
+
+    ui_->wgtDiagnostics->setupCharts(std::move(charts), "H_T");
 }

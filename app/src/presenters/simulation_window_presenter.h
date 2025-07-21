@@ -65,6 +65,11 @@ public slots:
      */
     void updateRendering();
 
+    /**
+     * @brief Updates the charts with the latest diagnostics data.
+     */
+    void updateCharts();
+
 private:
     ISimulationWindowView* view_;
 

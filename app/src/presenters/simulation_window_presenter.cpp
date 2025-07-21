@@ -81,3 +81,18 @@ void SimulationWindowPresenter::updateRendering() {
     frame_count_ = 0;  // Reset frame count for the next interval
     last_fps_update_time_ = now;
 }
+
+void SimulationWindowPresenter::updateCharts() {
+    if (mode_ != Mode::Live || !chart_queue_) {
+        ENKAS_LOG_ERROR("Cannot update charts: not in live mode or chart queue is not set.");
+        return;
+    }
+
+    DiagnosticsSnapshotPtr diagnostics_snapshot = chart_queue_->popBlocking();
+    if (!diagnostics_snapshot) {
+        ENKAS_LOG_DEBUG("No diagnostics data available for updating charts.");
+        return;
+    }
+
+    view_->updateCharts(diagnostics_snapshot);
+}

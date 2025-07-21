@@ -355,7 +355,13 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QWidget" name="wgtDiagnostics" native="true">
+          <widget class="DiagnosticsWidget" name="wgtDiagnostics" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="locale">
             <locale language="C" country="AnyTerritory"/>
            </property>
@@ -607,6 +613,12 @@ QSlider::handle:horizontal:hover {
    <class>RenderSettingsWidget</class>
    <extends>QWidget</extends>
    <header>widgets/render_settings_widget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>DiagnosticsWidget</class>
+   <extends>QWidget</extends>
+   <header>views/diagnostics_widget/diagnostics_widget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

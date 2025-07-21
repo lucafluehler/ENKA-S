@@ -2,37 +2,49 @@
 
 #include <enkas/data/diagnostics.h>
 
-#include <QGroupBox>
-#include <QLabel>
-#include <QMap>
+#include <QScrollArea>
 #include <QString>
-#include <QVector>
+#include <QVBoxLayout>
 #include <QWidget>
-#include <QtCharts/QChartView>
-#include <QtCharts/QLineSeries>
+#include <QtCharts>
+#include <functional>
+#include <vector>
 
-#include "enkas/data/diagnostics.h"
-#include "widgets/line_chart_widget.h"
+#include "core/snapshot.h"
 
 class DiagnosticsWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit DiagnosticsWidget(QWidget *parent = nullptr);
-    ~DiagnosticsWidget() = default;
+    struct ChartDefinition {
+        QString title;
+        QString unit;
+        std::function<double(DiagnosticsSnapshot&)> value_extractor;
+    };
 
-    void update(const enkas::data::Diagnostics &data);
+    explicit DiagnosticsWidget(QWidget* parent = nullptr);
+
+    ~DiagnosticsWidget() override = default;
+
+    void setupCharts(std::vector<ChartDefinition> chart_definitions, const QString& time_unit);
+
+public slots:
+    void updateData(DiagnosticsSnapshot& diagnostics);
 
 private:
-    void addTitle(QString title);
-    void addHLine();
-    void addLineChart(QString title,
-                      QString x_axis_title,
-                      QString y_axis_title,
-                      QVector<QString> data_titles = QVector<QString>(),
-                      QVector<LabelType> label_types = QVector<LabelType>(),
-                      QWidget *parent = nullptr);
-    void insertWidget(QWidget *widget);
+    void createBaseUi();
+    void clearCharts();
 
-    QVector<LineChartWidget *> line_charts;
+    QVBoxLayout* container_layout_;
+    QScrollArea* scroll_area_;
+    QWidget* scroll_area_widget_contents_;
+    QVBoxLayout* charts_layout_;
+
+    std::vector<ChartDefinition> definitions_;
+    std::vector<QChart*> charts_;
+    std::vector<QLineSeries*> series_;
+
+    double max_time_ = 0.0;
+    std::vector<double> min_values_;
+    std::vector<double> max_values_;
 };

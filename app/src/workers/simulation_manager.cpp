@@ -44,6 +44,10 @@ SimulationManager::SimulationManager(const Settings& settings, QObject* parent)
                     save_system_data_,
                     save_diagnostics_data_);
 
+    // Simulation Window
+    simulation_window_presenter_ = new SimulationWindowPresenter(simulation_window_, this);
+    simulation_window_presenter_->initLiveMode(&render_queue_slot_, chart_queue_, duration_);
+
     // Data storage
     setupOutputDir();
 
@@ -64,9 +68,6 @@ SimulationManager::SimulationManager(const Settings& settings, QObject* parent)
 
     // Simulation
     setupSimulationWorker(settings);
-
-    // Simulation Window
-    simulation_window_presenter_ = new SimulationWindowPresenter(simulation_window_, this);
 
     ENKAS_LOG_INFO("Simulation manager initialized successfully.");
 }
@@ -110,10 +111,6 @@ void SimulationManager::openSimulationWindow() {
         return;
     }
 
-    if (simulation_window_presenter_->getMode() == SimulationWindowPresenter::Mode::Uninitialized) {
-        simulation_window_presenter_->initLiveMode(&render_queue_slot_, chart_queue_, duration_);
-    }
-
     simulation_window_->show();
 }
 
@@ -154,8 +151,8 @@ void SimulationManager::performSimulationStep(double time,
 
     if (diagnostics_snapshot) {
         // Signal to update the charts data
-        // chart_queue_->pushBlocking(diagnostics_snapshot);
-        // emit diagnosticsDataStep();
+        chart_queue_->pushBlocking(diagnostics_snapshot);
+        simulation_window_presenter_->updateCharts();
 
         // Signal to save the diagnostics data (if enabled)
         if (save_diagnostics_data_) {
