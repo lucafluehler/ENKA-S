@@ -8,9 +8,9 @@
 #include <json/json.hpp>
 #include <vector>
 
+#include "core/files/file_constants.h"
 #include "core/settings/settings.h"
 #include "core/snapshot.h"
-#include "file_constants.h"
 
 std::optional<Settings> FileParseLogic::parseSettings(const std::filesystem::path& file_path) {
     std::ifstream file(file_path);

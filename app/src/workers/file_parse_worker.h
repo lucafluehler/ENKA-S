@@ -6,7 +6,7 @@
 #include <optional>
 #include <vector>
 
-#include "core/file_parse_logic.h"
+#include "core/files/file_parse_logic.h"
 #include "core/settings/settings.h"
 #include "core/snapshot.h"
 

@@ -4,7 +4,7 @@
 #include <QTimer>
 #include <optional>
 
-#include "core/file_parse_logic.h"
+#include "core/files/file_parse_logic.h"
 #include "enkas/data/system.h"
 #include "views/load_simulation_tab/i_load_simulation_view.h"
 

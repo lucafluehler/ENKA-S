@@ -2,7 +2,7 @@
 
 #include <QObject>
 
-#include "core/file_parse_logic.h"
+#include "core/files/file_parse_logic.h"
 
 FileParseWorker::FileParseWorker(QObject* parent) : QObject(parent) {}
 

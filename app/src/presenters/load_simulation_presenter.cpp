@@ -4,7 +4,7 @@
 #include <QThread>
 #include <QTimer>
 
-#include "core/file_constants.h"
+#include "core/files/file_constants.h"
 #include "views/load_simulation_tab/i_load_simulation_view.h"
 #include "workers/file_parse_worker.h"
 

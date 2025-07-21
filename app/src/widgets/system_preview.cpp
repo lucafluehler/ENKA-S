@@ -7,7 +7,7 @@
 
 #include <memory>
 
-#include "core/file_parse_logic.h"
+#include "core/files/file_parse_logic.h"
 #include "core/settings/generation_method.h"
 #include "core/snapshot.h"
 #include "rendering/particle_renderer.h"

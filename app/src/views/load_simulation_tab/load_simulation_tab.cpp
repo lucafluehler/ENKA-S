@@ -9,7 +9,7 @@
 #include <QPushButton>
 #include <QUrl>
 
-#include "core/file_constants.h"
+#include "core/files/file_constants.h"
 #include "core/settings/generation_method.h"
 #include "forms/load_simulation_tab/ui_load_simulation_tab.h"
 #include "widgets/file_check_icon.h"
