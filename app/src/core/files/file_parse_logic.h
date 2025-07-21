@@ -10,11 +10,6 @@
 #include "core/settings/settings.h"
 #include "core/snapshot.h"
 
-struct DiagnosticsSeries {
-    std::vector<double> timestamps;
-    std::vector<enkas::data::Diagnostics> diagnostics_data;
-};
-
 class FileParseLogic {
 public:
     /**

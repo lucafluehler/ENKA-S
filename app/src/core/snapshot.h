@@ -17,5 +17,7 @@ struct Timed {
 using SystemSnapshot = const Timed<enkas::data::System>;
 using DiagnosticsSnapshot = const Timed<enkas::data::Diagnostics>;
 
+using DiagnosticsSeries = std::vector<Timed<enkas::data::Diagnostics>>;
+
 using SystemSnapshotPtr = std::shared_ptr<const Timed<enkas::data::System>>;
 using DiagnosticsSnapshotPtr = std::shared_ptr<const Timed<enkas::data::Diagnostics>>;

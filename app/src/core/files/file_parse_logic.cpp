@@ -165,7 +165,7 @@ std::optional<DiagnosticsSeries> FileParseLogic::parseDiagnosticsSeries(
 
         DiagnosticsSeries series;
         for (const auto& row : reader) {
-            series.timestamps.push_back(row["time"].get<double>());
+            double time = row["time"].get<double>();
 
             enkas::data::Diagnostics d;
             d.e_kin = row["e_kin"].get<double>();
@@ -180,10 +180,11 @@ std::optional<DiagnosticsSeries> FileParseLogic::parseDiagnosticsSeries(
             d.r_vir = row["r_vir"].get<double>();
             d.ms_vel = row["ms_vel"].get<double>();
             d.t_cr = row["t_cr"].get<double>();
-            series.diagnostics_data.push_back(d);
+
+            series.push_back(Timed<enkas::data::Diagnostics>(std::move(d), time));
         }
 
-        if (series.timestamps.empty()) {
+        if (series.empty()) {
             ENKAS_LOG_ERROR("File had header but no data: {}", file_path.string());
             return std::nullopt;  // File had header but no data
         }
