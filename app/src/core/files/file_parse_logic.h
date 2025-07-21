@@ -29,6 +29,15 @@ public:
         const std::filesystem::path& file_path, double previous_timestamp);
 
     /**
+     * @brief Reads the system snapshot just before the specified timestamp from the CSV file.
+     * @param current_timestamp The timestamp before which to read the next snapshot. If 0.0, reads
+     * std::nullopt.
+     * @return An optional SystemSnapshot object containing the timestamp and system data.
+     */
+    static std::optional<SystemSnapshot> parsePreviousSystemSnapshot(
+        const std::filesystem::path& file_path, double current_timestamp);
+
+    /**
      * @brief Reads the initial system data from the CSV file.
      * @param file_path The path to the CSV file containing system data.
      * @return An optional System object containing the initial system data.

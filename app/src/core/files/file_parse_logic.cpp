@@ -96,6 +96,55 @@ std::optional<SystemSnapshot> FileParseLogic::parseNextSystemSnapshot(
     }
 }
 
+std::optional<SystemSnapshot> FileParseLogic::parsePreviousSystemSnapshot(
+    const std::filesystem::path& file_path, double current_timestamp) {
+    auto timestamps_opt = parseSystemTimestamps(file_path);
+    if (!timestamps_opt) {
+        ENKAS_LOG_INFO("Timestamps could not be parsed. Cannot find previous snapshot.");
+        return std::nullopt;
+    }
+
+    const auto& timestamps = *timestamps_opt;
+    if (timestamps.empty() || current_timestamp <= timestamps.front()) {
+        ENKAS_LOG_INFO("No previous snapshot available for timestamp: {}", current_timestamp);
+        return std::nullopt;
+    }
+
+    // Find index of the timestamp just before current_timestamp
+    auto it = std::lower_bound(timestamps.begin(), timestamps.end(), current_timestamp);
+    if (it == timestamps.begin()) {
+        ENKAS_LOG_INFO("No previous snapshot available for timestamp: {}", current_timestamp);
+        return std::nullopt;
+    }
+    --it;
+    double target_timestamp = *it;
+
+    try {
+        csv::CSVReader reader(file_path.string(), csv::CSVFormat().header_row(0));
+
+        enkas::data::System system;
+
+        for (const auto& row : reader) {
+            double time = row["time"].get<double>();
+            if (time == target_timestamp) {
+                system.positions.emplace_back(row["pos_x"].get<double>(),
+                                              row["pos_y"].get<double>(),
+                                              row["pos_z"].get<double>());
+                system.velocities.emplace_back(row["vel_x"].get<double>(),
+                                               row["vel_y"].get<double>(),
+                                               row["vel_z"].get<double>());
+                system.masses.push_back(row["mass"].get<double>());
+            }
+        }
+
+        return system;
+
+    } catch (const std::exception& e) {
+        ENKAS_LOG_ERROR("Error occurred while parsing snapshot: {}", e.what());
+        return std::nullopt;
+    }
+}
+
 std::optional<enkas::data::System> FileParseLogic::parseInitialSystem(
     const std::filesystem::path& file_path) {
     auto snapshot = parseNextSystemSnapshot(file_path, 0.0);
