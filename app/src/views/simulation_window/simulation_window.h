@@ -32,6 +32,7 @@ public:
     ~SimulationWindow() override = default;
 
     void initLiveMode() override;
+    void initFileMode() override;
 
     void updateSystemRendering(SystemSnapshotPtr system_snapshot,
                                double simulation_duration) override;

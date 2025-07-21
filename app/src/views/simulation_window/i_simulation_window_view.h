@@ -14,6 +14,13 @@ public:
     virtual void initLiveMode() = 0;
 
     /**
+     * @brief Initializes the view for file mode.
+     * In file mode, the user can navigate through a recorded simulation, allowing for step-by-step
+     * playback and analysis.
+     */
+    virtual void initFileMode() = 0;
+
+    /**
      * @brief Updates the system rendering with the provided snapshot and simulation duration.
      * @param system_snapshot The snapshot of the system to render.
      * @param simulation_duration The duration of the simulation for which the snapshot is valid.

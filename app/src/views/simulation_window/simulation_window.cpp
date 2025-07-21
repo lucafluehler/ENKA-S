@@ -55,6 +55,16 @@ void SimulationWindow::initLiveMode() {
     ui_->hslNavigation->setEnabled(false);
 }
 
+void SimulationWindow::initFileMode() {
+    ui_->btnJumpToStart->setVisible(true);
+    ui_->btnStepBack->setVisible(true);
+    ui_->btnPlayStop->setVisible(true);
+    ui_->btnStepForward->setVisible(true);
+    ui_->btnJumpToEnd->setVisible(true);
+    ui_->btnChangeSpeed->setVisible(true);
+    ui_->hslNavigation->setEnabled(true);
+}
+
 void SimulationWindow::saveSettings() {
     if (ui_->wgtSettings->isHidden()) return;
     settings_ = ui_->wgtSettings->getRenderSettings();
