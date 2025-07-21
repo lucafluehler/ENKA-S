@@ -9,9 +9,9 @@
 #include <variant>
 #include <vector>
 
-#include "generation_method.h"
-#include "setting_key.h"
-#include "simulation_method.h"
+#include "core/settings/generation_method.h"
+#include "core/settings/setting_key.h"
+#include "core/settings/simulation_method.h"
 
 using SettingValue =
     std::variant<int, double, bool, std::string, GenerationMethod, SimulationMethod>;

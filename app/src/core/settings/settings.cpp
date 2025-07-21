@@ -1,13 +1,13 @@
-#include "settings.h"
+#include "core/settings/settings.h"
 
 #include <algorithm>
 #include <stdexcept>
 #include <string>
 #include <unordered_set>
 
-#include "generation_method.h"
-#include "setting_key.h"
-#include "simulation_method.h"
+#include "core/settings/generation_method.h"
+#include "core/settings/setting_key.h"
+#include "core/settings/simulation_method.h"
 
 std::optional<Settings> Settings::create(
     std::initializer_list<std::pair<SettingKey, SettingValue>> items) {
