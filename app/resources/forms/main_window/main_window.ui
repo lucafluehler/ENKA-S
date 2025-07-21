@@ -41,7 +41,10 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../../resources.qrc">
-    <normaloff>:/MainWindow/img/icon.png</normaloff>:/MainWindow/img/icon.png</iconset>
+    <normaloff>:/app/icons/icon.png</normaloff>:/app/icons/icon.png</iconset>
+  </property>
+  <property name="locale">
+   <locale language="C" country="AnyTerritory"/>
   </property>
   <property name="documentMode">
    <bool>false</bool>
