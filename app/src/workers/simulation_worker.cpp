@@ -7,10 +7,10 @@
 
 #include <memory>
 
+#include "core/factories/generator_factory.h"
+#include "core/factories/simulator_factory.h"
 #include "core/files/file_parse_logic.h"
-#include "core/generator_factory.h"
 #include "core/settings/settings.h"
-#include "core/simulator_factory.h"
 #include "core/snapshot.h"
 
 SimulationWorker::SimulationWorker(const Settings& settings, QObject* parent)

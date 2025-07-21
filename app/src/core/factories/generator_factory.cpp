@@ -1,4 +1,4 @@
-#include "core/generator_factory.h"
+#include "core/factories/generator_factory.h"
 
 #include <enkas/generation/generation_factory.h>
 #include <enkas/generation/generator.h>

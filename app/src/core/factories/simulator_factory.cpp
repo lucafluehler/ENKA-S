@@ -1,4 +1,4 @@
-#include "core/simulator_factory.h"
+#include "core/factories/simulator_factory.h"
 
 #include <enkas/logging/logger.h>
 #include <enkas/simulation/simulation_factory.h>
