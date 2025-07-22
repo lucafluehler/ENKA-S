@@ -31,6 +31,20 @@ NewSimulationPresenter::NewSimulationPresenter(INewSimulationView* view, QObject
     file_parse_worker_->moveToThread(file_parse_thread_);
     connect(file_parse_thread_, &QThread::finished, file_parse_worker_, &QObject::deleteLater);
 
+    connect(this,
+            &NewSimulationPresenter::requestParseSettings,
+            file_parse_worker_,
+            &FileParseWorker::parseSettings);
+    connect(this,
+            &NewSimulationPresenter::requestOpenSystemFile,
+            file_parse_worker_,
+            &FileParseWorker::openSystemFile);
+
+    connect(this,
+            &NewSimulationPresenter::requestInitialSnapshot,
+            file_parse_worker_,
+            &FileParseWorker::requestInitialSnapshot);
+
     connect(file_parse_worker_,
             &FileParseWorker::settingsParsed,
             this,
@@ -69,11 +83,11 @@ void NewSimulationPresenter::updateProgress() {
 }
 
 void NewSimulationPresenter::checkInitialSystemFile() {
-    file_parse_worker_->openSystemFile(view_->getInitialSystemPath());
+    emit requestOpenSystemFile(view_->getInitialSystemPath());
 }
 
 void NewSimulationPresenter::checkSettingsFile() {
-    file_parse_worker_->parseSettings(view_->getSettingsPath());
+    emit requestParseSettings(view_->getSettingsPath());
 }
 
 void NewSimulationPresenter::onSettingsParsed(const std::optional<Settings>& settings) {
@@ -90,7 +104,7 @@ void NewSimulationPresenter::onInitialSystemParsed(const std::optional<SystemSna
 
 void NewSimulationPresenter::onSystemFileOpened(
     const std::optional<std::vector<double>>& timestamps) {
-    file_parse_worker_->requestInitialSnapshot();
+    emit requestInitialSnapshot();
 }
 
 void NewSimulationPresenter::startSimulation() {

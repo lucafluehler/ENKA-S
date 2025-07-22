@@ -30,6 +30,24 @@ public:
     explicit NewSimulationPresenter(INewSimulationView* view, QObject* parent = nullptr);
     ~NewSimulationPresenter();
 
+signals:
+    /**
+     * @brief Requests to parse settings from a file.
+     * @param file_path The path to the settings file.
+     */
+    void requestParseSettings(const QString& file_path);
+
+    /**
+     * @brief Requests to open a system file for simulation.
+     * @param file_path The path to the system file.
+     */
+    void requestOpenSystemFile(const QString& file_path);
+
+    /**
+     * @brief Requests to parse the initial snapshot.
+     */
+    void requestInitialSnapshot();
+
 public slots:
     /**
      * @brief Called when the tab becomes active, starting the timer for updating the particle
