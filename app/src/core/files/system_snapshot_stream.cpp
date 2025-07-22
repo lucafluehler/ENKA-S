@@ -202,18 +202,20 @@ std::optional<SystemSnapshot> SystemSnapshotStream::getNextSnapshot() {
     return parseSnapshotFromIndex(current_index_iterator_->second, current_index_iterator_->first);
 }
 
-std::optional<SystemSnapshot> SystemSnapshotStream::getPreviousSnapshot() {
-    if (!is_initialized_ || index_.empty() || current_index_iterator_ == index_.begin()) {
+std::optional<SystemSnapshot> SystemSnapshotStream::getPrecedingSnapshot(double timestamp) {
+    if (!is_initialized_ || index_.empty()) {
         return std::nullopt;
     }
 
-    if (current_index_iterator_ == index_.end()) {
-        current_index_iterator_ = --index_.end();
-    } else {
-        --current_index_iterator_;
+    auto it = index_.lower_bound(timestamp);
+
+    if (it == index_.begin()) {
+        return std::nullopt;
     }
 
-    return parseSnapshotFromIndex(current_index_iterator_->second, current_index_iterator_->first);
+    --it;
+
+    return parseSnapshotFromIndex(it->second, it->first);
 }
 
 std::vector<double> SystemSnapshotStream::getAllTimestamps() const {

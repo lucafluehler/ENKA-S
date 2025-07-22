@@ -57,10 +57,11 @@ public:
     std::optional<SystemSnapshot> getNextSnapshot();
 
     /**
-     * @brief Retrieves the snapshot immediately preceding the last one that was read.
+     * @brief Retrieves the snapshot immediately preceding the passed timestamp.
+     * @param timestamp The target time.
      * @return The previous snapshot, or std::nullopt if at the beginning.
      */
-    std::optional<SystemSnapshot> getPreviousSnapshot();
+    std::optional<SystemSnapshot> getPrecedingSnapshot(double timestamp);
 
     /**
      * @brief Retrieves the very first snapshot in the file.

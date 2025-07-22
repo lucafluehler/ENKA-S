@@ -30,9 +30,9 @@ void FileParseWorker::requestNextSnapshot() {
     emit snapshotReady(snapshot);
 }
 
-void FileParseWorker::requestPreviousSnapshot() {
+void FileParseWorker::requestPrecedingSnapshot(double timestamp) {
     if (!snapshot_provider_) return;
-    auto snapshot = snapshot_provider_->getPreviousSnapshot();
+    auto snapshot = snapshot_provider_->getPrecedingSnapshot(timestamp);
     emit snapshotReady(snapshot);
 }
 

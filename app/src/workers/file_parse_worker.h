@@ -55,8 +55,9 @@ public slots:
 
     /**
      * @brief Requests the previous system snapshot.
+     * @param timestamp The timestamp to find the preceding snapshot for.
      */
-    void requestPreviousSnapshot();
+    void requestPrecedingSnapshot(double timestamp);
 
 signals:
     /** @signal
