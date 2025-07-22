@@ -3,8 +3,10 @@
 #include <QObject>
 #include <QThread>
 #include <QTimer>
+#include <optional>
 
 #include "core/files/file_constants.h"
+#include "core/snapshot.h"
 #include "enkas/logging/logger.h"
 #include "views/load_simulation_tab/i_load_simulation_view.h"
 #include "workers/file_parse_worker.h"
@@ -25,18 +27,42 @@ LoadSimulationPresenter::LoadSimulationPresenter(ILoadSimulationView* view, QObj
     file_parse_worker_->moveToThread(file_parse_thread_);
     connect(file_parse_thread_, &QThread::finished, file_parse_worker_, &QObject::deleteLater);
 
+    connect(this,
+            &LoadSimulationPresenter::requestParseSettings,
+            file_parse_worker_,
+            &FileParseWorker::parseSettings);
+
+    connect(this,
+            &LoadSimulationPresenter::requestOpenSystemFile,
+            file_parse_worker_,
+            &FileParseWorker::openSystemFile);
+
+    connect(this,
+            &LoadSimulationPresenter::requestParseDiagnosticsSeries,
+            file_parse_worker_,
+            &FileParseWorker::parseDiagnosticsSeries);
+
+    connect(this,
+            &LoadSimulationPresenter::requestInitialSnapshot,
+            file_parse_worker_,
+            &FileParseWorker::requestInitialSnapshot);
+
     connect(file_parse_worker_,
             &FileParseWorker::settingsParsed,
             this,
             &LoadSimulationPresenter::onSettingsParsed);
     connect(file_parse_worker_,
-            &FileParseWorker::initialSystemParsed,
-            this,
-            &LoadSimulationPresenter::onInitialSystemParsed);
-    connect(file_parse_worker_,
             &FileParseWorker::diagnosticsSeriesParsed,
             this,
             &LoadSimulationPresenter::onDiagnosticsSeriesParsed);
+    connect(file_parse_worker_,
+            &FileParseWorker::snapshotReady,
+            this,
+            &LoadSimulationPresenter::onInitialSystemParsed);
+    connect(file_parse_worker_,
+            &FileParseWorker::systemFileOpened,
+            this,
+            &LoadSimulationPresenter::onSystemFileOpened);
 
     file_parse_thread_->start();
 }
@@ -56,13 +82,12 @@ void LoadSimulationPresenter::checkFiles() {
 
     for (const auto& file_path : file_paths) {
         if (file_path.endsWith(file_names::settings)) {
-            file_parse_worker_->parseSettings(file_path);
+            emit requestParseSettings(file_path);
         } else if (file_path.endsWith(file_names::system)) {
             system_file_path_ = file_path.toStdString();
-            file_parse_worker_->parseInitialSystem(file_path);
-            file_parse_worker_->parseSystemTimestamps(file_path);
+            emit requestOpenSystemFile(file_path);
         } else if (file_path.endsWith(file_names::diagnostics)) {
-            file_parse_worker_->parseDiagnosticsSeries(file_path);
+            emit requestParseDiagnosticsSeries(file_path);
         }
     }
 }
@@ -71,16 +96,20 @@ void LoadSimulationPresenter::onSettingsParsed(const std::optional<Settings>& se
     view_->onSettingsParsed(settings);
 }
 
-void LoadSimulationPresenter::onInitialSystemParsed(
-    const std::optional<enkas::data::System>& system) {
-    view_->onInitialSystemParsed(system);
+void LoadSimulationPresenter::onInitialSystemParsed(const std::optional<SystemSnapshot>& snapshot) {
+    if (snapshot) {
+        view_->onInitialSystemParsed(snapshot->data);
+    } else {
+        view_->onInitialSystemParsed(std::nullopt);
+    }
 }
 
-void LoadSimulationPresenter::onSystemTimestampsParsed(
+void LoadSimulationPresenter::onSystemFileOpened(
     const std::optional<std::vector<double>>& timestamps) {
     if (timestamps) {
         timestamps_ = std::make_shared<std::vector<double>>(*timestamps);
     }
+    emit requestInitialSnapshot();
 }
 
 void LoadSimulationPresenter::onDiagnosticsSeriesParsed(

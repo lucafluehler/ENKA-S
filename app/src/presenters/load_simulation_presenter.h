@@ -30,6 +30,12 @@ public:
     explicit LoadSimulationPresenter(ILoadSimulationView* view, QObject* parent = nullptr);
     ~LoadSimulationPresenter();
 
+signals:
+    void requestParseSettings(const QString& file_path);
+    void requestParseDiagnosticsSeries(const QString& file_path);
+    void requestOpenSystemFile(const QString& file_path);
+    void requestInitialSnapshot();
+
 public slots:
     /**
      * @brief Called when the view requests to check user files.
@@ -64,8 +70,8 @@ public slots:
 private slots:
     void updateInitialSystemPreview() { view_->updateInitialSystemPreview(); }
     void onSettingsParsed(const std::optional<Settings>& settings);
-    void onInitialSystemParsed(const std::optional<enkas::data::System>& system);
-    void onSystemTimestampsParsed(const std::optional<std::vector<double>>& timestamps);
+    void onInitialSystemParsed(const std::optional<SystemSnapshot>& snapshot);
+    void onSystemFileOpened(const std::optional<std::vector<double>>& timestamps);
     void onDiagnosticsSeriesParsed(const std::optional<DiagnosticsSeries>& series);
 
 private:
