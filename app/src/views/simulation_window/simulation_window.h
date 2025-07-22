@@ -42,9 +42,24 @@ public:
     void fillCharts(const DiagnosticsSeries &series) override;
 
 signals:
+    /** @signal
+     * @brief Emitted when the simulation window is closed.
+     */
     void windowClosed();
+
+    /** @signal
+     * @brief Emitted when the play / pause button is prressed.
+     */
     void togglePlayback();
+
+    /** @signal
+     * @brief Emitted when the step forward button is pressed.
+     */
     void stepForward();
+
+    /** @signal
+     * @brief Emitted when the step backward button is pressed.
+     */
     void stepBackward();
 
 private slots:
