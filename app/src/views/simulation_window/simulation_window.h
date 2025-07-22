@@ -32,18 +32,29 @@ public:
     ~SimulationWindow() override = default;
 
     void initLiveMode(double simulation_duration) override;
-    void initFileMode() override;
+    void initReplayMode(std::shared_ptr<std::vector<double>> timestamps,
+                        std::shared_ptr<DiagnosticsSeries> diagnostics_series) override;
 
     void updateSystemRendering(SystemSnapshotPtr system_snapshot) override;
+    void updateFPS(int fps) override;
+
     void updateCharts(DiagnosticsSnapshotPtr diagnostics_snapshot) override;
     void fillCharts(const DiagnosticsSeries &series) override;
-    void updateFPS(int fps) override;
+
+signals:
+    void windowClosed();
+    void togglePlayback();
+    void stepForward();
+    void stepBackward();
 
 private slots:
     void saveSettings();
     void toggleSidebar();
     void toggleSettings();
     void toggleMovie(bool checked);
+
+protected:
+    void closeEvent(QCloseEvent *event) override;
 
 private:
     void setupCharts();
@@ -54,5 +65,9 @@ private:
 
     Ui::SimulationWindow *ui_;
 
+    // Stored data for live mode
     double simulation_duration_ = 0.0;
+
+    // Stored data for replay mode
+    std::shared_ptr<std::vector<double>> timestamps_ = nullptr;
 };

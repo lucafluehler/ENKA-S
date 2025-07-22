@@ -30,9 +30,9 @@ public:
      * @brief Enumeration for the different modes of the simulation window.
      * Uninitialized: The presenter has not been initialized.
      * Live: The presenter is in live mode, receiving real-time data.
-     * File: The presenter is in file mode, reading from files.
+     * Replay: The presenter is in replay mode, reading from recorded data.
      */
-    enum class Mode { Uninitialized, Live, File };
+    enum class Mode { Uninitialized, Live, Replay };
 
     /**
      * @brief Initializes the presenter for live mode.
@@ -45,12 +45,14 @@ public:
                       double simulation_duration);
 
     /**
-     * @brief Initializes the presenter for file mode.
-     * @param system_file_path Path to the system file.
-     * @param diagnostics_file_path Path to the diagnostics file.
+     * @brief Initializes the presenter for replay mode.
+     * @param system_ring_buffer Shared pointer to the system ring buffer for replaying system data.
+     * @param timestamps Shared pointer to a vector of timestamps for the replay.
+     * @param diagnostics_series Shared pointer to the diagnostics data for the charts.
      */
-    void initFileMode(const QString& system_file_path = "",
-                      const QString& diagnostics_file_path = "");
+    void initReplayMode(std::atomic<SystemSnapshotPtr>* render_queue_slot,
+                        std::shared_ptr<std::vector<double>> timestamps,
+                        std::shared_ptr<DiagnosticsSeries> diagnostics_series);
 
     /**
      * @brief Returns the current mode of the presenter.
@@ -81,5 +83,7 @@ private:
     int frame_count_ = 0;
 
     std::atomic<SystemSnapshotPtr>* render_queue_slot_;
+
+    // For live mode
     std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> chart_queue_;
 };

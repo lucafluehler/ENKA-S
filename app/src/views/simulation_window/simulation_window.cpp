@@ -38,6 +38,12 @@ SimulationWindow::SimulationWindow(QWidget* parent)
             &ParticleRenderer::saveScreenshot);
     connect(ui_->btnMovie, &QToolButton::toggled, this, &SimulationWindow::toggleMovie);
 
+    // Replay controls
+    connect(
+        ui_->btnTogglePlayback, &QPushButton::clicked, this, [this]() { emit togglePlayback(); });
+    connect(ui_->btnStepForward, &QPushButton::clicked, this, [this]() { emit stepForward(); });
+    connect(ui_->btnStepBackward, &QPushButton::clicked, this, [this]() { emit stepBackward(); });
+
     connect(
         movie_timer, &QTimer::timeout, ui_->oglParticleRenderer, &ParticleRenderer::saveScreenshot);
 
@@ -47,8 +53,8 @@ SimulationWindow::SimulationWindow(QWidget* parent)
 
 void SimulationWindow::initLiveMode(double simulation_duration) {
     ui_->btnJumpToStart->setVisible(false);
-    ui_->btnStepBack->setVisible(false);
-    ui_->btnPlayStop->setVisible(false);
+    ui_->btnStepBackward->setVisible(false);
+    ui_->btnTogglePlayback->setVisible(false);
     ui_->btnStepForward->setVisible(false);
     ui_->btnJumpToEnd->setVisible(false);
     ui_->btnChangeSpeed->setVisible(false);
@@ -57,14 +63,23 @@ void SimulationWindow::initLiveMode(double simulation_duration) {
     simulation_duration_ = simulation_duration;
 }
 
-void SimulationWindow::initFileMode() {
+void SimulationWindow::initReplayMode(std::shared_ptr<std::vector<double>> timestamps,
+                                      std::shared_ptr<DiagnosticsSeries> diagnostics_series) {
+    // Setup the UI for replay mode
     ui_->btnJumpToStart->setVisible(true);
-    ui_->btnStepBack->setVisible(true);
-    ui_->btnPlayStop->setVisible(true);
+    ui_->btnStepBackward->setVisible(true);
+    ui_->btnTogglePlayback->setVisible(true);
     ui_->btnStepForward->setVisible(true);
     ui_->btnJumpToEnd->setVisible(true);
     ui_->btnChangeSpeed->setVisible(true);
     ui_->hslNavigation->setEnabled(true);
+
+    // Store the timestamps and load the chart data
+    timestamps_ = std::move(timestamps);
+
+    if (diagnostics_series) {
+        ui_->wgtDiagnostics->fillCharts(*diagnostics_series);
+    }
 }
 
 void SimulationWindow::saveSettings() {
@@ -135,6 +150,11 @@ void SimulationWindow::updateCharts(DiagnosticsSnapshotPtr diagnostics_snapshot)
 
 void SimulationWindow::fillCharts(const DiagnosticsSeries& series) {
     ui_->wgtDiagnostics->fillCharts(series);
+}
+
+void SimulationWindow::closeEvent(QCloseEvent* event) {
+    emit windowClosed();
+    QMainWindow::closeEvent(event);
 }
 
 void SimulationWindow::setupCharts() {

@@ -34,28 +34,30 @@ void SimulationWindowPresenter::initLiveMode(
 
     view_->initLiveMode(simulation_duration);
 
-    // Start the rendering timer
     render_timer_->start(1000 / target_fps_);
 }
 
-void SimulationWindowPresenter::initFileMode(const QString& system_file_path,
-                                             const QString& diagnostics_file_path) {
-    mode_ = Mode::File;
-    // TODO
+void SimulationWindowPresenter::initReplayMode(
+    std::atomic<SystemSnapshotPtr>* render_queue_slot,
+    std::shared_ptr<std::vector<double>> timestamps,
+    std::shared_ptr<DiagnosticsSeries> diagnostics_series) {
+    Q_ASSERT((render_queue_slot != nullptr && timestamps != nullptr) ||
+             diagnostics_series != nullptr);
+    mode_ = Mode::Replay;
+
+    render_queue_slot_ = render_queue_slot;
+
+    view_->initReplayMode(timestamps, diagnostics_series);
+
+    render_timer_->start(1000 / target_fps_);
 }
 
 void SimulationWindowPresenter::updateRendering() {
-    if (mode_ == Mode::Uninitialized) {
-        ENKAS_LOG_ERROR("SimulationWindowPresenter is not initialized. Cannot update rendering.");
-        return;
-    }
-
-    if (render_queue_slot_ == nullptr) {
+    if (!render_queue_slot_) {
         ENKAS_LOG_ERROR("Render queue slot is not set. Cannot update rendering.");
         return;
     }
 
-    // Retrieve the latest system snapshot from the render queue
     // If the rendering is faster than the simulation, we do not want to drop frames, but instead
     // pass the nullptr to the view, which must handle it properly.
     auto system_snapshot = render_queue_slot_->load(std::memory_order_acquire);
