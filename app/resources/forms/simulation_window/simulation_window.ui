@@ -32,8 +32,8 @@
    <string>ENKA-S</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>:/MainWindow/img/icon.png</normaloff>:/MainWindow/img/icon.png</iconset>
+   <iconset resource="../../resources.qrc">
+    <normaloff>:/app/icons/icon.png</normaloff>:/app/icons/icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
