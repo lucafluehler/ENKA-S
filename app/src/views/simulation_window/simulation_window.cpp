@@ -75,7 +75,10 @@ void SimulationWindow::initReplayMode(std::shared_ptr<std::vector<double>> times
     ui_->hslNavigation->setEnabled(true);
 
     // Store the timestamps and load the chart data
-    timestamps_ = std::move(timestamps);
+    if (timestamps) {
+        timestamps_ = std::move(timestamps);
+        simulation_duration_ = timestamps_->back();
+    }
 
     if (diagnostics_series) {
         ui_->wgtDiagnostics->fillCharts(*diagnostics_series);
@@ -138,9 +141,12 @@ void SimulationWindow::updateSystemRendering(SystemSnapshotPtr system_snapshot) 
     ui_->hslNavigation->setValue(1000.0 * time / simulation_duration_);
 }
 
-void SimulationWindow::updateFPS(int fps) {
+void SimulationWindow::updateDebugInfo(int fps, int sps) {
     const auto fps_text = QString::number(fps) + " FPS";
     ui_->lblFPS->setText(fps_text);
+
+    const auto sps_text = QString::number(sps) + " SPS";
+    ui_->lblSPS->setText(sps_text);
 }
 
 void SimulationWindow::updateCharts(DiagnosticsSnapshotPtr diagnostics_snapshot) {

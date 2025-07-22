@@ -36,7 +36,7 @@ public:
                         std::shared_ptr<DiagnosticsSeries> diagnostics_series) override;
 
     void updateSystemRendering(SystemSnapshotPtr system_snapshot) override;
-    void updateFPS(int fps) override;
+    void updateDebugInfo(int fps, int sps) override;
 
     void updateCharts(DiagnosticsSnapshotPtr diagnostics_snapshot) override;
     void fillCharts(const DiagnosticsSeries &series) override;

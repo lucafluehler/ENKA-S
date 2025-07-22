@@ -79,8 +79,9 @@ private:
     QTimer* render_timer_;
 
     const int target_fps_ = 120;
-    std::chrono::steady_clock::time_point last_fps_update_time_;
+    std::chrono::steady_clock::time_point last_debug_info_update_time_;
     int frame_count_ = 0;
+    int snapshot_count_ = 0;
 
     std::atomic<SystemSnapshotPtr>* render_queue_slot_;
 

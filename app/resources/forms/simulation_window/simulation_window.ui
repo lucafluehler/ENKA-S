@@ -292,6 +292,19 @@
            </spacer>
           </item>
           <item>
+           <widget class="QLabel" name="lblSPS">
+            <property name="minimumSize">
+             <size>
+              <width>80</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QLabel" name="lblFPS">
             <property name="minimumSize">
              <size>

@@ -17,7 +17,7 @@ SimulationWindowPresenter::SimulationWindowPresenter(ISimulationWindowView* view
       view_(view),
       mode_(Mode::Uninitialized),
       render_timer_(new QTimer(this)),
-      last_fps_update_time_(std::chrono::steady_clock::now()) {
+      last_debug_info_update_time_(std::chrono::steady_clock::now()) {
     connect(render_timer_, &QTimer::timeout, this, &SimulationWindowPresenter::updateRendering);
 }
 
@@ -60,7 +60,8 @@ void SimulationWindowPresenter::updateRendering() {
 
     // If the rendering is faster than the simulation, we do not want to drop frames, but instead
     // pass the nullptr to the view, which must handle it properly.
-    auto system_snapshot = render_queue_slot_->load(std::memory_order_acquire);
+    auto system_snapshot = render_queue_slot_->exchange(nullptr, std::memory_order_acq_rel);
+    if (system_snapshot) snapshot_count_++;
 
     // Update the view with the system snapshot
     view_->updateSystemRendering(system_snapshot);
@@ -68,16 +69,18 @@ void SimulationWindowPresenter::updateRendering() {
 
     // Check if it's time to update the FPS display
     const auto now = std::chrono::steady_clock::now();
-    const auto elapsed_time = now - last_fps_update_time_;
+    const auto elapsed_time = now - last_debug_info_update_time_;
     const auto fps_display_update_interval = std::chrono::milliseconds(200);
     if (elapsed_time < fps_display_update_interval) return;
 
     // Calculate FPS
     const double elapsed_seconds = std::chrono::duration<double>(elapsed_time).count();
     const int fps = static_cast<int>(frame_count_ / elapsed_seconds);
-    view_->updateFPS(fps);
-    frame_count_ = 0;  // Reset frame count for the next interval
-    last_fps_update_time_ = now;
+    const int sps = static_cast<int>(snapshot_count_ / elapsed_seconds);
+    view_->updateDebugInfo(fps, sps);
+    frame_count_ = 0;     // Reset frame count for the next interval
+    snapshot_count_ = 0;  // Reset snapshot count for the next interval
+    last_debug_info_update_time_ = now;
 }
 
 void SimulationWindowPresenter::updateCharts() {

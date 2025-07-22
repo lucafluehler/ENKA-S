@@ -43,8 +43,9 @@ public:
     virtual void fillCharts(const DiagnosticsSeries& series) = 0;
 
     /**
-     * @brief Updates the frames per second (FPS) display.
+     * @brief Updates the debug information displayed in the UI.
      * @param fps The current frames per second to display.
+     * @param sps The current snapshots per second to display.
      */
-    virtual void updateFPS(int fps) = 0;
+    virtual void updateDebugInfo(int fps, int sps) = 0;
 };
