@@ -535,7 +535,7 @@
             <string/>
            </property>
            <property name="pixmap">
-            <pixmap>:/LoadDiagnosticsTab/img/not_found.png</pixmap>
+            <pixmap resource="../../resources.qrc">:/file_states/icons/not_found.png</pixmap>
            </property>
            <property name="scaledContents">
             <bool>true</bool>

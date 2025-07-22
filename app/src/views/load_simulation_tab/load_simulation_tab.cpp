@@ -110,12 +110,12 @@ QVector<QString> LoadSimulationTab::getFilesToCheck() const {
         file_paths.append(settings_file_path_);
     }
 
-    if (!system_file_path_.isEmpty()) {
-        file_paths.append(system_file_path_);
-    }
-
     if (!diagnostics_file_path_.isEmpty()) {
         file_paths.append(diagnostics_file_path_);
+    }
+
+    if (!system_file_path_.isEmpty()) {
+        file_paths.append(system_file_path_);
     }
 
     return file_paths;
