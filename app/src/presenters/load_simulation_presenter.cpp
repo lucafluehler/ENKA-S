@@ -5,8 +5,10 @@
 #include <QTimer>
 
 #include "core/files/file_constants.h"
+#include "enkas/logging/logger.h"
 #include "views/load_simulation_tab/i_load_simulation_view.h"
 #include "workers/file_parse_worker.h"
+#include "workers/simulation_player.h"
 
 LoadSimulationPresenter::LoadSimulationPresenter(ILoadSimulationView* view, QObject* parent)
     : QObject(parent), view_(view), preview_timer_(new QTimer(this)) {
@@ -56,7 +58,9 @@ void LoadSimulationPresenter::checkFiles() {
         if (file_path.endsWith(file_names::settings)) {
             file_parse_worker_->parseSettings(file_path);
         } else if (file_path.endsWith(file_names::system)) {
+            system_file_path_ = file_path.toStdString();
             file_parse_worker_->parseInitialSystem(file_path);
+            file_parse_worker_->parseSystemTimestamps(file_path);
         } else if (file_path.endsWith(file_names::diagnostics)) {
             file_parse_worker_->parseDiagnosticsSeries(file_path);
         }
@@ -72,7 +76,44 @@ void LoadSimulationPresenter::onInitialSystemParsed(
     view_->onInitialSystemParsed(system);
 }
 
+void LoadSimulationPresenter::onSystemTimestampsParsed(
+    const std::optional<std::vector<double>>& timestamps) {
+    if (timestamps) {
+        timestamps_ = std::make_shared<std::vector<double>>(*timestamps);
+    }
+}
+
 void LoadSimulationPresenter::onDiagnosticsSeriesParsed(
     const std::optional<DiagnosticsSeries>& series) {
     view_->onDiagnosticsSeriesParsed(series.has_value());
+
+    if (series) {
+        diagnostics_series_ = std::make_shared<DiagnosticsSeries>(*series);
+    }
+}
+
+void LoadSimulationPresenter::playSimulation() {
+    if ((!timestamps_ || system_file_path_.empty()) && !diagnostics_series_) {
+        ENKAS_LOG_ERROR("No valid simulation data to play.");
+        return;
+    }
+
+    if (simulation_player_) {
+        ENKAS_LOG_ERROR("Simulation player is already initialized.");
+        return;
+    }
+
+    inactive();  // Stop the preview timer
+
+    simulation_player_ = new SimulationPlayer();
+    simulation_player_->run(system_file_path_, timestamps_, diagnostics_series_);
+}
+
+void LoadSimulationPresenter::endSimulationPlayback() {
+    if (simulation_player_) {
+        simulation_player_->deleteLater();
+        simulation_player_ = nullptr;
+    }
+
+    active();  // Restart the preview timer
 }

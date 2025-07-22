@@ -1,16 +1,19 @@
 #pragma once
 
+#include <enkas/data/system.h>
+
 #include <QObject>
 #include <QTimer>
+#include <memory>
 #include <optional>
 
-#include "core/files/file_parse_logic.h"
-#include "enkas/data/system.h"
+#include "core/snapshot.h"
 #include "views/load_simulation_tab/i_load_simulation_view.h"
 
 class QThread;
 class ILoadSimulationView;
 class FileParseWorker;
+class SimulationPlayer;
 
 /**
  * @brief LoadSimulationPresenter handles the logic for loading and parsing simulation files.
@@ -48,15 +51,34 @@ public slots:
      */
     void inactive() { preview_timer_->stop(); }
 
+    /**
+     * @brief Starts the simulation playback with the loaded data.
+     */
+    void playSimulation();
+
+    /**
+     * @brief Ends the simulation playback.
+     */
+    void endSimulationPlayback();
+
 private slots:
     void updateInitialSystemPreview() { view_->updateInitialSystemPreview(); }
     void onSettingsParsed(const std::optional<Settings>& settings);
     void onInitialSystemParsed(const std::optional<enkas::data::System>& system);
+    void onSystemTimestampsParsed(const std::optional<std::vector<double>>& timestamps);
     void onDiagnosticsSeriesParsed(const std::optional<DiagnosticsSeries>& series);
 
 private:
     ILoadSimulationView* view_ = nullptr;
+
     QTimer* preview_timer_ = nullptr;
+
     FileParseWorker* file_parse_worker_ = nullptr;
     QThread* file_parse_thread_ = nullptr;
+
+    std::filesystem::path system_file_path_;
+    std::shared_ptr<std::vector<double>> timestamps_ = nullptr;
+    std::shared_ptr<DiagnosticsSeries> diagnostics_series_ = nullptr;
+
+    SimulationPlayer* simulation_player_ = nullptr;
 };
