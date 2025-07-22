@@ -22,49 +22,7 @@ LoadSimulationPresenter::LoadSimulationPresenter(ILoadSimulationView* view, QObj
             &LoadSimulationPresenter::updateInitialSystemPreview);
 
     // Initialize file parse worker
-    file_parse_worker_ = new FileParseWorker();
-    file_parse_thread_ = new QThread(this);
-    file_parse_worker_->moveToThread(file_parse_thread_);
-    connect(file_parse_thread_, &QThread::finished, file_parse_worker_, &QObject::deleteLater);
-
-    connect(this,
-            &LoadSimulationPresenter::requestParseSettings,
-            file_parse_worker_,
-            &FileParseWorker::parseSettings);
-
-    connect(this,
-            &LoadSimulationPresenter::requestOpenSystemFile,
-            file_parse_worker_,
-            &FileParseWorker::openSystemFile);
-
-    connect(this,
-            &LoadSimulationPresenter::requestParseDiagnosticsSeries,
-            file_parse_worker_,
-            &FileParseWorker::parseDiagnosticsSeries);
-
-    connect(this,
-            &LoadSimulationPresenter::requestInitialSnapshot,
-            file_parse_worker_,
-            &FileParseWorker::requestInitialSnapshot);
-
-    connect(file_parse_worker_,
-            &FileParseWorker::settingsParsed,
-            this,
-            &LoadSimulationPresenter::onSettingsParsed);
-    connect(file_parse_worker_,
-            &FileParseWorker::diagnosticsSeriesParsed,
-            this,
-            &LoadSimulationPresenter::onDiagnosticsSeriesParsed);
-    connect(file_parse_worker_,
-            &FileParseWorker::snapshotReady,
-            this,
-            &LoadSimulationPresenter::onInitialSystemParsed);
-    connect(file_parse_worker_,
-            &FileParseWorker::systemFileOpened,
-            this,
-            &LoadSimulationPresenter::onSystemFileOpened);
-
-    file_parse_thread_->start();
+    setupFileParseWorker();
 }
 
 LoadSimulationPresenter::~LoadSimulationPresenter() {
@@ -145,4 +103,50 @@ void LoadSimulationPresenter::endSimulationPlayback() {
     }
 
     active();  // Restart the preview timer
+}
+
+void LoadSimulationPresenter::setupFileParseWorker() {
+    file_parse_worker_ = new FileParseWorker();
+    file_parse_thread_ = new QThread(this);
+    file_parse_worker_->moveToThread(file_parse_thread_);
+    connect(file_parse_thread_, &QThread::finished, file_parse_worker_, &QObject::deleteLater);
+
+    connect(this,
+            &LoadSimulationPresenter::requestParseSettings,
+            file_parse_worker_,
+            &FileParseWorker::parseSettings);
+
+    connect(this,
+            &LoadSimulationPresenter::requestOpenSystemFile,
+            file_parse_worker_,
+            &FileParseWorker::openSystemFile);
+
+    connect(this,
+            &LoadSimulationPresenter::requestParseDiagnosticsSeries,
+            file_parse_worker_,
+            &FileParseWorker::parseDiagnosticsSeries);
+
+    connect(this,
+            &LoadSimulationPresenter::requestInitialSnapshot,
+            file_parse_worker_,
+            &FileParseWorker::requestInitialSnapshot);
+
+    connect(file_parse_worker_,
+            &FileParseWorker::settingsParsed,
+            this,
+            &LoadSimulationPresenter::onSettingsParsed);
+    connect(file_parse_worker_,
+            &FileParseWorker::diagnosticsSeriesParsed,
+            this,
+            &LoadSimulationPresenter::onDiagnosticsSeriesParsed);
+    connect(file_parse_worker_,
+            &FileParseWorker::snapshotReady,
+            this,
+            &LoadSimulationPresenter::onInitialSystemParsed);
+    connect(file_parse_worker_,
+            &FileParseWorker::systemFileOpened,
+            this,
+            &LoadSimulationPresenter::onSystemFileOpened);
+
+    file_parse_thread_->start();
 }

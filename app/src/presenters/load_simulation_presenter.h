@@ -75,6 +75,8 @@ private slots:
     void onDiagnosticsSeriesParsed(const std::optional<DiagnosticsSeries>& series);
 
 private:
+    void setupFileParseWorker();
+
     ILoadSimulationView* view_ = nullptr;
 
     QTimer* preview_timer_ = nullptr;
