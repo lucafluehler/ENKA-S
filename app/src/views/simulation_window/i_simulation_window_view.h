@@ -15,11 +15,14 @@ public:
     virtual void initLiveMode(double simulation_duration) = 0;
 
     /**
-     * @brief Initializes the view for file mode.
-     * In file mode, the user can navigate through a recorded simulation, allowing for step-by-step
-     * playback and analysis.
+     * @brief Initializes the view for replay mode.
+     * In replay mode, the particle rendering of the simulated system and its diagnostics charts are
+     * updated based on recorded data.
+     * @param timestamps Shared pointer to a vector of timestamps for the replay.
+     * @param diagnostics_series Shared pointer to the diagnostics data for the charts.
      */
-    virtual void initFileMode() = 0;
+    virtual void initReplayMode(std::shared_ptr<std::vector<double>> timestamps,
+                                std::shared_ptr<DiagnosticsSeries> diagnostics_series) = 0;
 
     /**
      * @brief Updates the system rendering with the provided snapshot.
