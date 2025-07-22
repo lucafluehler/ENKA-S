@@ -172,7 +172,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QToolButton" name="btnStepBack">
+           <widget class="QToolButton" name="btnStepBackward">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -198,7 +198,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QToolButton" name="btnPlayStop">
+           <widget class="QToolButton" name="btnTogglePlayback">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
