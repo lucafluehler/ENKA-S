@@ -29,6 +29,7 @@ LoadSimulationTab::LoadSimulationTab(QWidget* parent)
             &LoadSimulationTab::openFolderDialog);
     connect(
         ui_->btnOpenSettings, &QPushButton::clicked, this, &LoadSimulationTab::openSettingsFile);
+    connect(ui_->btnRun, &QPushButton::clicked, this, [this]() { emit playSimulation(); });
 }
 
 void LoadSimulationTab::openFolderDialog() {
@@ -36,7 +37,7 @@ void LoadSimulationTab::openFolderDialog() {
 
     QString folder_path = QFileDialog::getExistingDirectory(
         this,
-        "Simulations-Ordner wählen...",
+        "Select simulation folder...",
         open_this_path,
         QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 

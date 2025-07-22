@@ -39,6 +39,11 @@ signals:
      */
     void requestFilesCheck();
 
+    /** @signal
+     * @brief Emitted when the user requests to play the simulation with the loaded data.
+     */
+    void playSimulation();
+
 private slots:
     void openFolderDialog();
     void openSettingsFile();
