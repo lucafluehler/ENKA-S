@@ -20,7 +20,7 @@ void FileCheckIcon::updateIcon() {
             setToolTip("File not found.");
             break;
         case Mode::Loading:
-            movie = new QMovie(":/file_states/icons/loading.gif");
+            movie = new QMovie(":/animations/loading.gif");
             setMovie(movie);
             movie->start();
             setToolTip("Checking file...");
