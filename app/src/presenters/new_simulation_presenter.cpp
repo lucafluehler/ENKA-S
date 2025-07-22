@@ -26,39 +26,7 @@ NewSimulationPresenter::NewSimulationPresenter(INewSimulationView* view, QObject
     connect(progress_timer_, &QTimer::timeout, this, &NewSimulationPresenter::updateProgress);
 
     // Initialize file parse worker
-    file_parse_worker_ = new FileParseWorker();
-    file_parse_thread_ = new QThread(this);
-    file_parse_worker_->moveToThread(file_parse_thread_);
-    connect(file_parse_thread_, &QThread::finished, file_parse_worker_, &QObject::deleteLater);
-
-    connect(this,
-            &NewSimulationPresenter::requestParseSettings,
-            file_parse_worker_,
-            &FileParseWorker::parseSettings);
-    connect(this,
-            &NewSimulationPresenter::requestOpenSystemFile,
-            file_parse_worker_,
-            &FileParseWorker::openSystemFile);
-
-    connect(this,
-            &NewSimulationPresenter::requestInitialSnapshot,
-            file_parse_worker_,
-            &FileParseWorker::requestInitialSnapshot);
-
-    connect(file_parse_worker_,
-            &FileParseWorker::settingsParsed,
-            this,
-            &NewSimulationPresenter::onSettingsParsed);
-    connect(file_parse_worker_,
-            &FileParseWorker::systemFileOpened,
-            this,
-            &NewSimulationPresenter::onSystemFileOpened);
-    connect(file_parse_worker_,
-            &FileParseWorker::snapshotReady,
-            this,
-            &NewSimulationPresenter::onInitialSystemParsed);
-
-    file_parse_thread_->start();
+    setupFileParseWorker();
 }
 
 NewSimulationPresenter::~NewSimulationPresenter() {
@@ -162,4 +130,40 @@ void NewSimulationPresenter::openSimulationWindow() {
     } else {
         ENKAS_LOG_ERROR("Simulation manager is not initialized, cannot open simulation window.");
     }
+}
+
+void NewSimulationPresenter::setupFileParseWorker() {
+    file_parse_worker_ = new FileParseWorker();
+    file_parse_thread_ = new QThread(this);
+    file_parse_worker_->moveToThread(file_parse_thread_);
+    connect(file_parse_thread_, &QThread::finished, file_parse_worker_, &QObject::deleteLater);
+
+    connect(this,
+            &NewSimulationPresenter::requestParseSettings,
+            file_parse_worker_,
+            &FileParseWorker::parseSettings);
+    connect(this,
+            &NewSimulationPresenter::requestOpenSystemFile,
+            file_parse_worker_,
+            &FileParseWorker::openSystemFile);
+
+    connect(this,
+            &NewSimulationPresenter::requestInitialSnapshot,
+            file_parse_worker_,
+            &FileParseWorker::requestInitialSnapshot);
+
+    connect(file_parse_worker_,
+            &FileParseWorker::settingsParsed,
+            this,
+            &NewSimulationPresenter::onSettingsParsed);
+    connect(file_parse_worker_,
+            &FileParseWorker::systemFileOpened,
+            this,
+            &NewSimulationPresenter::onSystemFileOpened);
+    connect(file_parse_worker_,
+            &FileParseWorker::snapshotReady,
+            this,
+            &NewSimulationPresenter::onInitialSystemParsed);
+
+    file_parse_thread_->start();
 }

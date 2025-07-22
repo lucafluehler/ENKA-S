@@ -98,6 +98,8 @@ private slots:
     void onInitializationCompleted();
 
 private:
+    void setupFileParseWorker();
+
     INewSimulationView* view_ = nullptr;
 
     QTimer* preview_timer_ = nullptr;
