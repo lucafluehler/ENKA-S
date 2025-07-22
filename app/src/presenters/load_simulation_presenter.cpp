@@ -93,6 +93,11 @@ void LoadSimulationPresenter::playSimulation() {
     inactive();  // Stop the preview timer
 
     simulation_player_ = new SimulationPlayer();
+    connect(simulation_player_,
+            &SimulationPlayer::windowClosed,
+            this,
+            &LoadSimulationPresenter::endSimulationPlayback);
+
     simulation_player_->run(system_file_path_, timestamps_, diagnostics_series_);
 }
 
