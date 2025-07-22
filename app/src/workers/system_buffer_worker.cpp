@@ -9,20 +9,22 @@ SystemBufferWorker::SystemBufferWorker(std::shared_ptr<SystemRingBuffer> buffer,
     : QObject(parent), buffer_(std::move(buffer)), file_path_(file_path) {}
 
 void SystemBufferWorker::abort() {
-    stop_requested_ = true;
+    stop_requested_.store(true, std::memory_order_release);
     buffer_->shutdown();
 }
 
-void SystemBufferWorker::requestStepBackward() { ++backward_steps_; }
+void SystemBufferWorker::requestStepBackward() {
+    backward_steps_.fetch_add(1, std::memory_order_release);
+}
 
 void SystemBufferWorker::run() {
-    while (!stop_requested_.load()) {
-        while (backward_steps_.fetch_sub(1, std::memory_order_relaxed) > 0) {
-            if (stop_requested_.load()) break;
+    while (!stop_requested_.load(std::memory_order_acquire)) {
+        while (backward_steps_.fetch_sub(1, std::memory_order_acquire) > 0) {
+            if (stop_requested_.load(std::memory_order_acquire)) break;
             stepBackward();
         }
 
-        if (!stop_requested_.load()) {
+        if (!stop_requested_.load(std::memory_order_acquire)) {
             stepForward();
         }
     }
