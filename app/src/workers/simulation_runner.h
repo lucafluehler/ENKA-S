@@ -13,14 +13,14 @@
 #include "views/simulation_window/simulation_window.h"
 
 /**
- * @brief The SimulationManager class manages the simulation process, including
+ * @brief The SimulationRunner class manages the simulation process, including
  *        initialization, running the simulation, and handling data storage.
  */
-class SimulationManager : public QObject {
+class SimulationRunner : public QObject {
     Q_OBJECT
 public:
-    explicit SimulationManager(const Settings& settings, QObject* parent = nullptr);
-    ~SimulationManager();
+    explicit SimulationRunner(const Settings& settings, QObject* parent = nullptr);
+    ~SimulationRunner();
 
     /**
      * @brief Starts a new simulation.

@@ -12,7 +12,7 @@
 class QThread;
 class INewSimulationView;
 class FileParseWorker;
-class SimulationManager;
+class SimulationRunner;
 
 /**
  * @brief Manages the new simulation view and handles simulation-related operations.
@@ -86,5 +86,5 @@ private:
     FileParseWorker* file_parse_worker_ = nullptr;
     QThread* file_parse_thread_ = nullptr;
 
-    SimulationManager* simulation_manager_ = nullptr;
+    SimulationRunner* simulation_runner_ = nullptr;
 };

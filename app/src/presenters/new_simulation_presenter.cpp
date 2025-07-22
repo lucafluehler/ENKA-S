@@ -12,7 +12,7 @@
 #include "core/settings/settings.h"
 #include "views/new_simulation_tab/i_new_simulation_view.h"
 #include "workers/file_parse_worker.h"
-#include "workers/simulation_manager.h"
+#include "workers/simulation_runner.h"
 
 NewSimulationPresenter::NewSimulationPresenter(INewSimulationView* view, QObject* parent)
     : QObject(parent),
@@ -52,13 +52,13 @@ NewSimulationPresenter::~NewSimulationPresenter() {
 void NewSimulationPresenter::updatePreview() { view_->updatePreview(); }
 
 void NewSimulationPresenter::updateProgress() {
-    if (!simulation_manager_) {
+    if (!simulation_runner_) {
         ENKAS_LOG_ERROR("Simulation manager is not initialized, cannot update progress.");
         return;
     }
 
-    const double time = simulation_manager_->getTime();
-    const double duration = simulation_manager_->getDuration();
+    const double time = simulation_runner_->getTime();
+    const double duration = simulation_runner_->getDuration();
 
     view_->updateSimulationProgress(time, duration);
 }
@@ -81,7 +81,7 @@ void NewSimulationPresenter::onInitialSystemParsed(
 }
 
 void NewSimulationPresenter::startSimulation() {
-    if (simulation_manager_) {
+    if (simulation_runner_) {
         ENKAS_LOG_ERROR("Simulation manager is already initialized.");
         return;
     }
@@ -89,14 +89,14 @@ void NewSimulationPresenter::startSimulation() {
     auto settings = view_->fetchSettings();
 
     // Initialize Simulation Manager
-    simulation_manager_ = new SimulationManager(settings, this);
+    simulation_runner_ = new SimulationRunner(settings, this);
 
-    connect(simulation_manager_,
-            &SimulationManager::initializationCompleted,
+    connect(simulation_runner_,
+            &SimulationRunner::initializationCompleted,
             this,
             &NewSimulationPresenter::onInitializationCompleted);
 
-    simulation_manager_->startSimulationProcedure();
+    simulation_runner_->startSimulationProcedure();
 
     // Stop preview timer to halt preview animation
     preview_timer_->stop();
@@ -110,15 +110,15 @@ void NewSimulationPresenter::onInitializationCompleted() {
 }
 
 void NewSimulationPresenter::abortSimulation() {
-    if (!simulation_manager_) {
+    if (!simulation_runner_) {
         ENKAS_LOG_DEBUG("Simulation is not running, nothing to abort.");
         return;
     }
 
     ENKAS_LOG_INFO("Aborting simulation...");
 
-    simulation_manager_->deleteLater();
-    simulation_manager_ = nullptr;
+    simulation_runner_->deleteLater();
+    simulation_runner_ = nullptr;
 
     // Restart preview timer to resume preview animations
     preview_timer_->start();
@@ -130,8 +130,8 @@ void NewSimulationPresenter::abortSimulation() {
 }
 
 void NewSimulationPresenter::openSimulationWindow() {
-    if (simulation_manager_) {
-        simulation_manager_->openSimulationWindow();
+    if (simulation_runner_) {
+        simulation_runner_->openSimulationWindow();
     } else {
         ENKAS_LOG_ERROR("Simulation manager is not initialized, cannot open simulation window.");
     }

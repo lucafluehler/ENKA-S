@@ -1,4 +1,4 @@
-#include "simulation_manager.h"
+#include "simulation_runner.h"
 
 #include <enkas/generation/generator.h>
 #include <enkas/logging/logger.h>
@@ -19,7 +19,7 @@
 #include "views/simulation_window/simulation_window.h"
 #include "workers/queue_storage_worker.h"
 
-SimulationManager::SimulationManager(const Settings& settings, QObject* parent)
+SimulationRunner::SimulationRunner(const Settings& settings, QObject* parent)
     : QObject(parent),
       duration_(settings.get<double>(SettingKey::Duration)),
       save_system_data_(settings.get<bool>(SettingKey::SaveSystemData)),
@@ -72,7 +72,7 @@ SimulationManager::SimulationManager(const Settings& settings, QObject* parent)
     ENKAS_LOG_INFO("Simulation manager initialized successfully.");
 }
 
-SimulationManager::~SimulationManager() {
+SimulationRunner::~SimulationRunner() {
     ENKAS_LOG_INFO("Simulation manager is being destroyed. Aborting any ongoing processes...");
     aborted_ = true;
 
@@ -105,7 +105,7 @@ SimulationManager::~SimulationManager() {
     ENKAS_LOG_INFO("Simulation manager destroyed successfully.");
 }
 
-void SimulationManager::openSimulationWindow() {
+void SimulationRunner::openSimulationWindow() {
     if (!simulation_window_) {
         ENKAS_LOG_ERROR("Simulation window is not initialized. Cannot open it.");
         return;
@@ -114,27 +114,27 @@ void SimulationManager::openSimulationWindow() {
     simulation_window_->show();
 }
 
-void SimulationManager::receivedGenerationCompleted() {
+void SimulationRunner::receivedGenerationCompleted() {
     emit generationCompleted();
     if (aborted_) return;
     emit requestInitialization();
 }
 
-void SimulationManager::receivedInitializationCompleted() {
+void SimulationRunner::receivedInitializationCompleted() {
     emit initializationCompleted();
     if (aborted_) return;
     emit requestSimulationStep();
 }
 
-void SimulationManager::receivedSimulationStep(double time,
-                                               SystemSnapshotPtr system_snapshot,
-                                               DiagnosticsSnapshotPtr diagnostics_snapshot) {
+void SimulationRunner::receivedSimulationStep(double time,
+                                              SystemSnapshotPtr system_snapshot,
+                                              DiagnosticsSnapshotPtr diagnostics_snapshot) {
     performSimulationStep(time, system_snapshot, diagnostics_snapshot);
 }
 
-void SimulationManager::performSimulationStep(double time,
-                                              SystemSnapshotPtr system_snapshot,
-                                              DiagnosticsSnapshotPtr diagnostics_snapshot) {
+void SimulationRunner::performSimulationStep(double time,
+                                             SystemSnapshotPtr system_snapshot,
+                                             DiagnosticsSnapshotPtr diagnostics_snapshot) {
     emit simulationStep(time);
     time_ = time;
 
@@ -166,7 +166,7 @@ void SimulationManager::performSimulationStep(double time,
     }
 }
 
-void SimulationManager::setupOutputDir() {
+void SimulationRunner::setupOutputDir() {
     auto now = std::chrono::system_clock::now();
     const auto rounded_now = std::chrono::round<std::chrono::seconds>(now);
     const std::string timestamp = std::format("{:%Y-%m-%d_%H-%M-%S}", rounded_now);
@@ -175,7 +175,7 @@ void SimulationManager::setupOutputDir() {
     output_dir_ = base / ("enkas_output_" + timestamp);
 }
 
-void SimulationManager::setupSystemStorageWorker() {
+void SimulationRunner::setupSystemStorageWorker() {
     system_storage_worker_ = new QueueStorageWorker<SystemSnapshotPtr>(
         system_storage_queue_, [this](auto const& snapshot) {
             DataStorageLogic::saveSystemData(output_dir_, snapshot->time, snapshot->data);
@@ -195,7 +195,7 @@ void SimulationManager::setupSystemStorageWorker() {
                    output_dir_.string());
 }
 
-void SimulationManager::setupDiagnosticsStorageWorker() {
+void SimulationRunner::setupDiagnosticsStorageWorker() {
     diagnostics_storage_worker_ = new QueueStorageWorker<DiagnosticsSnapshotPtr>(
         diagnostics_storage_queue_, [this](auto const& snapshot) {
             DataStorageLogic::saveDiagnosticsData(output_dir_, snapshot->time, snapshot->data);
@@ -216,7 +216,7 @@ void SimulationManager::setupDiagnosticsStorageWorker() {
                    output_dir_.string());
 }
 
-void SimulationManager::setupSimulationWorker(const Settings& settings) {
+void SimulationRunner::setupSimulationWorker(const Settings& settings) {
     simulation_worker_ = new SimulationWorker(settings);
     simulation_thread_ = new QThread(this);
     simulation_worker_->moveToThread(simulation_thread_);
@@ -224,15 +224,15 @@ void SimulationManager::setupSimulationWorker(const Settings& settings) {
 
     // Signals from Manager to Worker
     connect(this,
-            &SimulationManager::requestGeneration,
+            &SimulationRunner::requestGeneration,
             simulation_worker_,
             &SimulationWorker::startGeneration);
     connect(this,
-            &SimulationManager::requestInitialization,
+            &SimulationRunner::requestInitialization,
             simulation_worker_,
             &SimulationWorker::startInitialization);
     connect(this,
-            &SimulationManager::requestSimulationStep,
+            &SimulationRunner::requestSimulationStep,
             simulation_worker_,
             &SimulationWorker::step);
 
@@ -240,15 +240,15 @@ void SimulationManager::setupSimulationWorker(const Settings& settings) {
     connect(simulation_worker_,
             &SimulationWorker::generationCompleted,
             this,
-            &SimulationManager::receivedGenerationCompleted);
+            &SimulationRunner::receivedGenerationCompleted);
     connect(simulation_worker_,
             &SimulationWorker::initializationCompleted,
             this,
-            &SimulationManager::receivedInitializationCompleted);
+            &SimulationRunner::receivedInitializationCompleted);
     connect(simulation_worker_,
             &SimulationWorker::simulationStep,
             this,
-            &SimulationManager::receivedSimulationStep);
+            &SimulationRunner::receivedSimulationStep);
 
     simulation_thread_->start();
 
