@@ -7,6 +7,7 @@
 #include <optional>
 
 #include "core/settings/settings.h"
+#include "core/snapshot.h"
 #include "views/new_simulation_tab/i_new_simulation_view.h"
 
 class QThread;
@@ -74,7 +75,8 @@ private slots:
     void updatePreview();
     void updateProgress();
     void onSettingsParsed(const std::optional<Settings>& settings);
-    void onInitialSystemParsed(const std::optional<enkas::data::System>& system);
+    void onInitialSystemParsed(const std::optional<SystemSnapshot>& snapshot);
+    void onSystemFileOpened(const std::optional<std::vector<double>>& timestamps);
     void onInitializationCompleted();
 
 private:

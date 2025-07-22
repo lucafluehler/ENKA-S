@@ -10,6 +10,7 @@
 #include <optional>
 
 #include "core/settings/settings.h"
+#include "core/snapshot.h"
 #include "views/new_simulation_tab/i_new_simulation_view.h"
 #include "workers/file_parse_worker.h"
 #include "workers/simulation_runner.h"
@@ -35,7 +36,11 @@ NewSimulationPresenter::NewSimulationPresenter(INewSimulationView* view, QObject
             this,
             &NewSimulationPresenter::onSettingsParsed);
     connect(file_parse_worker_,
-            &FileParseWorker::initialSystemParsed,
+            &FileParseWorker::systemFileOpened,
+            this,
+            &NewSimulationPresenter::onSystemFileOpened);
+    connect(file_parse_worker_,
+            &FileParseWorker::snapshotReady,
             this,
             &NewSimulationPresenter::onInitialSystemParsed);
 
@@ -64,7 +69,7 @@ void NewSimulationPresenter::updateProgress() {
 }
 
 void NewSimulationPresenter::checkInitialSystemFile() {
-    file_parse_worker_->parseInitialSystem(view_->getInitialSystemPath());
+    file_parse_worker_->openSystemFile(view_->getInitialSystemPath());
 }
 
 void NewSimulationPresenter::checkSettingsFile() {
@@ -75,9 +80,17 @@ void NewSimulationPresenter::onSettingsParsed(const std::optional<Settings>& set
     view_->processSettings(settings);
 }
 
-void NewSimulationPresenter::onInitialSystemParsed(
-    const std::optional<enkas::data::System>& system) {
-    view_->processInitialSystem(system);
+void NewSimulationPresenter::onInitialSystemParsed(const std::optional<SystemSnapshot>& snapshot) {
+    if (snapshot) {
+        view_->processInitialSystem(snapshot->data);
+    } else {
+        view_->processInitialSystem(std::nullopt);
+    }
+}
+
+void NewSimulationPresenter::onSystemFileOpened(
+    const std::optional<std::vector<double>>& timestamps) {
+    file_parse_worker_->requestInitialSnapshot();
 }
 
 void NewSimulationPresenter::startSimulation() {
