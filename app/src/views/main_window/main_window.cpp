@@ -20,6 +20,10 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui_(new Ui::MainW
             &LoadSimulationTab::requestFilesCheck,
             load_simulation_presenter_,
             &LoadSimulationPresenter::checkFiles);
+    connect(ui_->tabLoadSimulation,
+            &LoadSimulationTab::playSimulation,
+            load_simulation_presenter_,
+            &LoadSimulationPresenter::playSimulation);
 
     connect(ui_->tabWidget, &QTabWidget::currentChanged, this, [this](int index) {
         QWidget* current = ui_->tabWidget->widget(index);
