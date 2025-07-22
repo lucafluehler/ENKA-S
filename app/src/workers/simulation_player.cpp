@@ -107,4 +107,8 @@ void SimulationPlayer::onStepBackward() {
     if (auto system_snapshot = system_ring_buffer_->readBackward()) {
         render_queue_slot_.store(*system_snapshot, std::memory_order_release);
     }
+
+    if (system_buffer_worker_) {
+        system_buffer_worker_->requestStepBackward();
+    }
 }

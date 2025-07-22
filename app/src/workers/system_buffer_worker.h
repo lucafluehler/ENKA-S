@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <memory>
 
+#include "core/files/system_snapshot_stream.h"
 #include "core/system_ring_buffer.h"
 
 /**
@@ -43,8 +44,9 @@ private:
     std::shared_ptr<SystemRingBuffer> buffer_;
     std::filesystem::path file_path_;
 
-    std::atomic<int> backward_steps_{0};
-    std::atomic<bool> stop_requested_{false};
+    std::atomic<int> backward_steps_ = 0;
+    std::atomic<bool> stop_requested_ = false;
 
-    double last_timestamp_{0.0};
+    std::unique_ptr<SystemSnapshotStream> stream_ = nullptr;
+    double last_timestamp_ = 0.0;
 };
