@@ -13,6 +13,7 @@
 #include <functional>
 #include <vector>
 
+#include "core/charts/downsampling.h"
 #include "core/snapshot.h"
 
 DiagnosticsWidget::DiagnosticsWidget(QWidget* parent)
@@ -65,6 +66,8 @@ void DiagnosticsWidget::setupCharts(std::vector<ChartDefinition> chart_definitio
 
     min_values_.resize(definitions_.size(), std::numeric_limits<double>::max());
     max_values_.resize(definitions_.size(), std::numeric_limits<double>::lowest());
+
+    full_data_.resize(definitions_.size());
 
     for (const auto& def : definitions_) {
         auto series = new QLineSeries();
@@ -128,8 +131,8 @@ void DiagnosticsWidget::updateData(DiagnosticsSnapshot& diag) {
 
     for (size_t i = 0; i < definitions_.size(); ++i) {
         const double value = definitions_[i].value_extractor(diag);
+        full_data_[i].push_back(QPointF(timestamp, value));
 
-        series_[i]->append(timestamp, value);
         min_values_[i] = std::min(min_values_[i], value);
         max_values_[i] = std::max(max_values_[i], value);
     }
@@ -200,15 +203,30 @@ void DiagnosticsWidget::refreshCharts() {
         return;
     }
 
-    const QRect viewport_rect = scroll_area_->viewport()->rect();
+    const int scroll_y = scroll_area_->verticalScrollBar()->value();
+    const int viewport_height = scroll_area_->viewport()->height();
+    const QRect visible_content_rect(
+        0, scroll_y, scroll_area_->viewport()->width(), viewport_height);
 
     for (size_t i = 0; i < definitions_.size(); ++i) {
         // Check if the chart is visible in the viewport
         auto* chart_view = chart_views_[i];
-        const QRect chart_rect = chart_view->geometry();
-        if (!viewport_rect.intersects(chart_rect)) {
-            continue;  // Skip the update for this invisible chart
+        const QRect chart_view_rect = chart_view->geometry();
+        if (!visible_content_rect.intersects(chart_view_rect)) {
+            continue;
         }
+
+        // Downsample the data for the visible chart
+        const size_t threshold = chart_view->width() * 2;
+
+        std::vector<QPointF> downsampled_points =
+            largestTriangleThreeBuckets(full_data_[i], threshold);
+
+        QList<QPointF> list;
+        list.reserve(downsampled_points.size());
+        for (auto& pt : downsampled_points) list.append(pt);
+
+        series_[i]->replace(list);
 
         // The chart is visible, update its axes
         auto* axisX = x_axes_[i];

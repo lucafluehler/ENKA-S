@@ -5,7 +5,7 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-#include "core/chart_extractors.h"
+#include "core/charts/chart_extractors.h"
 #include "core/snapshot.h"
 #include "forms/simulation_window/ui_simulation_window.h"
 #include "rendering/particle_renderer.h"

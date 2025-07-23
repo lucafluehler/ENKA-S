@@ -58,4 +58,6 @@ private:
     double max_time_ = 0.0;
     std::vector<double> min_values_;
     std::vector<double> max_values_;
+
+    std::vector<std::vector<QPointF>> full_data_;
 };
