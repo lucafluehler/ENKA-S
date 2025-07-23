@@ -4,6 +4,7 @@
 
 #include <QScrollArea>
 #include <QString>
+#include <QTimer>
 #include <QVBoxLayout>
 #include <QWidget>
 #include <QtCharts>
@@ -32,9 +33,14 @@ public slots:
     void updateData(DiagnosticsSnapshot& diagnostics);
     void fillCharts(const DiagnosticsSeries& series);
 
+private slots:
+    void refreshCharts();
+
 private:
     void createBaseUi();
     void clearCharts();
+
+    QTimer* refresh_timer_;
 
     QVBoxLayout* container_layout_;
     QScrollArea* scroll_area_;
@@ -44,6 +50,9 @@ private:
     std::vector<ChartDefinition> definitions_;
     std::vector<QChart*> charts_;
     std::vector<QLineSeries*> series_;
+
+    std::vector<QValueAxis*> x_axes_;
+    std::vector<QValueAxis*> y_axes_;
 
     double max_time_ = 0.0;
     std::vector<double> min_values_;

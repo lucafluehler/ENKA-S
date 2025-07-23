@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QScrollArea>
 #include <QString>
+#include <QTimer>
 #include <QVBoxLayout>
 #include <QValueAxis>
 #include <QWidget>
@@ -14,7 +15,12 @@
 
 #include "core/snapshot.h"
 
-DiagnosticsWidget::DiagnosticsWidget(QWidget* parent) : QWidget(parent) { createBaseUi(); }
+DiagnosticsWidget::DiagnosticsWidget(QWidget* parent)
+    : QWidget(parent), refresh_timer_(new QTimer(this)) {
+    createBaseUi();
+    connect(refresh_timer_, &QTimer::timeout, this, &DiagnosticsWidget::refreshCharts);
+    refresh_timer_->start(1000 / 5);  // Refresh rate: 5 Hz
+}
 
 void DiagnosticsWidget::createBaseUi() {
     this->setFixedWidth(600);
@@ -42,6 +48,8 @@ void DiagnosticsWidget::clearCharts() {
 
     charts_.clear();
     series_.clear();
+    x_axes_.clear();
+    y_axes_.clear();
     definitions_.clear();
     min_values_.clear();
     max_values_.clear();
@@ -102,6 +110,8 @@ void DiagnosticsWidget::setupCharts(std::vector<ChartDefinition> chart_definitio
 
         charts_.push_back(chart);
         series_.push_back(series);
+        x_axes_.push_back(axisX);
+        y_axes_.push_back(axisY);
     }
 }
 
@@ -117,24 +127,8 @@ void DiagnosticsWidget::updateData(DiagnosticsSnapshot& diag) {
         const double value = definitions_[i].value_extractor(diag);
 
         series_[i]->append(timestamp, value);
-
-        auto* chart = charts_[i];
-        auto* axisX = qobject_cast<QValueAxis*>(chart->axes(Qt::Horizontal).first());
-        auto* axisY = qobject_cast<QValueAxis*>(chart->axes(Qt::Vertical).first());
-
-        if (axisX && axisY) {
-            axisX->setRange(0, max_time_);
-
-            min_values_[i] = std::min(min_values_[i], value);
-            max_values_[i] = std::max(max_values_[i], value);
-
-            const double y_margin = (max_values_[i] - min_values_[i]) * 0.05;
-            axisY->setRange(min_values_[i] - y_margin, max_values_[i] + y_margin);
-
-            if (qFuzzyCompare(axisY->min(), axisY->max())) {
-                axisY->setRange(axisY->min() - 1.0, axisY->max() + 1.0);
-            }
-        }
+        min_values_[i] = std::min(min_values_[i], value);
+        max_values_[i] = std::max(max_values_[i], value);
     }
 }
 
@@ -194,6 +188,26 @@ void DiagnosticsWidget::fillCharts(const DiagnosticsSeries& series) {
             if (qFuzzyCompare(axisY->min(), axisY->max())) {
                 axisY->setRange(axisY->min() - 1.0, axisY->max() + 1.0);
             }
+        }
+    }
+}
+
+void DiagnosticsWidget::refreshCharts() {
+    if (definitions_.empty()) {
+        return;
+    }
+
+    for (size_t i = 0; i < definitions_.size(); ++i) {
+        auto* axisX = x_axes_[i];
+        auto* axisY = y_axes_[i];
+
+        axisX->setRange(0, std::max(max_time_, 1e-9));
+
+        const double y_margin = (max_values_[i] - min_values_[i]) * 0.05;
+        axisY->setRange(min_values_[i] - y_margin, max_values_[i] + y_margin);
+
+        if (qFuzzyCompare(axisY->min(), axisY->max())) {
+            axisY->setRange(axisY->min() - 1.0, axisY->max() + 1.0);
         }
     }
 }
