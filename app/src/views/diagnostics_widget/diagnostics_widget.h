@@ -49,6 +49,7 @@ private:
 
     std::vector<ChartDefinition> definitions_;
     std::vector<QChart*> charts_;
+    std::vector<QChartView*> chart_views_;
     std::vector<QLineSeries*> series_;
 
     std::vector<QValueAxis*> x_axes_;

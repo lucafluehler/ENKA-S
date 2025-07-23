@@ -47,6 +47,7 @@ void DiagnosticsWidget::clearCharts() {
     }
 
     charts_.clear();
+    chart_views_.clear();
     series_.clear();
     x_axes_.clear();
     y_axes_.clear();
@@ -101,6 +102,7 @@ void DiagnosticsWidget::setupCharts(std::vector<ChartDefinition> chart_definitio
         chart->addAxis(axisY, Qt::AlignLeft);
         series->attachAxis(axisY);
 
+        // Configure chart appearance
         auto chartView = new QChartView(chart);
         chartView->setRenderHint(QPainter::Antialiasing);
         chartView->setRubberBand(QChartView::HorizontalRubberBand);
@@ -110,6 +112,7 @@ void DiagnosticsWidget::setupCharts(std::vector<ChartDefinition> chart_definitio
 
         charts_.push_back(chart);
         series_.push_back(series);
+        chart_views_.push_back(chartView);
         x_axes_.push_back(axisX);
         y_axes_.push_back(axisY);
     }
@@ -197,7 +200,17 @@ void DiagnosticsWidget::refreshCharts() {
         return;
     }
 
+    const QRect viewport_rect = scroll_area_->viewport()->rect();
+
     for (size_t i = 0; i < definitions_.size(); ++i) {
+        // Check if the chart is visible in the viewport
+        auto* chart_view = chart_views_[i];
+        const QRect chart_rect = chart_view->geometry();
+        if (!viewport_rect.intersects(chart_rect)) {
+            continue;  // Skip the update for this invisible chart
+        }
+
+        // The chart is visible, update its axes
         auto* axisX = x_axes_[i];
         auto* axisY = y_axes_[i];
 
