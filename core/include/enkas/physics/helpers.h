@@ -178,6 +178,28 @@ inline void scaleToHenonUnits(data::System& system, double total_energy) {
 }
 
 /**
+ * @brief Fills a Diagnostics struct with the current diagnostics data of a system.
+ * @param system The system to analyze.
+ * @param potential_energy The potential energy of the system.
+ * @param diagnostics The Diagnostics struct to fill with the calculated properties.
+ * @note The potential energy must be provided as its calculation is computationally expensive
+ * and differs between algorithms used.
+ */
+inline void fillDiagnostics(const data::System& system,
+                            double potential_energy,
+                            data::Diagnostics& diagnostics) {
+    diagnostics.e_kin = getKineticEnergy(system);
+    diagnostics.e_pot = potential_energy;
+    diagnostics.L_tot = getAngularMomentum(system).norm();
+    const CenterOfMass com = getCenterOfMass(system);
+    diagnostics.com_pos = com.position;
+    diagnostics.com_vel = com.velocity;
+    diagnostics.ms_vel = 2.0 * diagnostics.e_kin;
+    diagnostics.r_vir = 0.5 / std::abs(diagnostics.e_pot);
+    diagnostics.t_cr = 2.0 * diagnostics.r_vir / std::sqrt(diagnostics.ms_vel);
+}
+
+/**
  * @brief Calculates the diagnostics of a system.
  * @param system The system to analyze.
  * @param potential_energy The potential energy of the system.
@@ -186,20 +208,10 @@ inline void scaleToHenonUnits(data::System& system, double total_energy) {
  * @return A Diagnostics struct containing the calculated properties.
  */
 [[nodiscard]]
-inline data::Diagnostics getDiagnostics(const data::System& system, double potential_energy) {
-    data::Diagnostics data;
-
-    data.e_kin = getKineticEnergy(system);
-    data.e_pot = potential_energy;
-    data.L_tot = getAngularMomentum(system).norm();
-    const CenterOfMass com = getCenterOfMass(system);
-    data.com_pos = com.position;
-    data.com_vel = com.velocity;
-    data.ms_vel = 2.0 * data.e_kin;
-    data.r_vir = 0.5 / std::abs(data.e_pot);
-    data.t_cr = 2.0 * data.r_vir / std::sqrt(data.ms_vel);
-
-    return data;
+inline data::Diagnostics calculateDiagnostics(const data::System& system, double potential_energy) {
+    data::Diagnostics diagnostics;
+    fillDiagnostics(system, potential_energy, diagnostics);
+    return diagnostics;
 }
 
 }  // namespace enkas::physics
