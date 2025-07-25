@@ -12,7 +12,6 @@
 #include "core/files/file_constants.h"
 #include "core/settings/settings.h"
 
-
 std::optional<Settings> FileParseLogic::parseSettings(const std::filesystem::path& file_path) {
     std::ifstream file(file_path);
     if (!file.is_open()) {
@@ -231,7 +230,7 @@ std::optional<DiagnosticsSeries> FileParseLogic::parseDiagnosticsSeries(
             d.ms_vel = row["ms_vel"].get<double>();
             d.t_cr = row["t_cr"].get<double>();
 
-            series.push_back(Timed<enkas::data::Diagnostics>(std::move(d), time));
+            series.push_back(Snapshot<enkas::data::Diagnostics>(std::move(d), time));
         }
 
         if (series.empty()) {
