@@ -206,12 +206,12 @@ void ParticleRenderer::keyPressEvent(QKeyEvent* event) {
 }
 
 void ParticleRenderer::drawParticles() {
-    if (!system_ || system_->data.positions.empty()) {
+    if (!system_ || system_->data->positions.empty()) {
         return;
     }
 
-    const auto& positions_d = system_->data.positions;  // 'd' for double
-    const auto num_particles = system_->data.count();
+    const auto& positions_d = system_->data->positions;  // 'd' for double
+    const auto num_particles = system_->data->count();
 
     // Convert to float for GPU processing
     std::vector<float> positions_f;

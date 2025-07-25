@@ -57,7 +57,7 @@ void LoadSimulationPresenter::onSettingsParsed(const std::optional<Settings>& se
 
 void LoadSimulationPresenter::onInitialSystemParsed(const std::optional<SystemSnapshot>& snapshot) {
     if (snapshot) {
-        view_->onInitialSystemParsed(snapshot->data);
+        view_->onInitialSystemParsed(*snapshot->data);
     } else {
         view_->onInitialSystemParsed(std::nullopt);
     }

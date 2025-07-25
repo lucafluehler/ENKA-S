@@ -179,7 +179,7 @@ void SimulationRunner::setupOutputDir() {
 void SimulationRunner::setupSystemStorageWorker() {
     system_storage_worker_ = new QueueStorageWorker<SystemSnapshotPtr>(
         system_storage_queue_, [this](auto const& snapshot) {
-            DataStorageLogic::saveSystemData(output_dir_, snapshot->time, snapshot->data);
+            DataStorageLogic::saveSystemData(output_dir_, snapshot->time, *snapshot->data);
         });
     system_storage_thread_ = new QThread(this);
     system_storage_worker_->moveToThread(system_storage_thread_);
@@ -199,7 +199,7 @@ void SimulationRunner::setupSystemStorageWorker() {
 void SimulationRunner::setupDiagnosticsStorageWorker() {
     diagnostics_storage_worker_ = new QueueStorageWorker<DiagnosticsSnapshotPtr>(
         diagnostics_storage_queue_, [this](auto const& snapshot) {
-            DataStorageLogic::saveDiagnosticsData(output_dir_, snapshot->time, snapshot->data);
+            DataStorageLogic::saveDiagnosticsData(output_dir_, snapshot->time, *snapshot->data);
         });
     diagnostics_storage_thread_ = new QThread(this);
     diagnostics_storage_worker_->moveToThread(diagnostics_storage_thread_);

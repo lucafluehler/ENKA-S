@@ -65,7 +65,7 @@ void NewSimulationPresenter::onSettingsParsed(const std::optional<Settings>& set
 
 void NewSimulationPresenter::onInitialSystemParsed(const std::optional<SystemSnapshot>& snapshot) {
     if (snapshot) {
-        view_->processInitialSystem(snapshot->data);
+        view_->processInitialSystem(*snapshot->data);
     } else {
         view_->processInitialSystem(std::nullopt);
     }

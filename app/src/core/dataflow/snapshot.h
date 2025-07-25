@@ -3,15 +3,15 @@
 #include <enkas/data/diagnostics.h>
 #include <enkas/data/system.h>
 
-#include <QMetaType>
 #include <memory>
 
 template <typename T>
 struct Timed {
-    T data;
+    std::shared_ptr<T> data;
     double time;
 
-    Timed(T d, double t = 0.0) : data(std::move(d)), time(t) {}
+    Timed(std::shared_ptr<T> d, double t = 0.0) : data(std::move(d)), time(t) {}
+    Timed(T d, double t = 0.0) : data(std::make_shared<T>(std::move(d))), time(t) {}
 };
 
 using SystemSnapshot = const Timed<enkas::data::System>;

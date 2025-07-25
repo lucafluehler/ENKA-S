@@ -168,42 +168,42 @@ void SimulationWindow::setupCharts() {
 
     charts.push_back(
         {.title = "Total Energy", .unit = "J", .value_extractor = [](DiagnosticsSnapshot& s) {
-             return s.data.e_kin + s.data.e_pot;
+             return s.data->e_kin + s.data->e_pot;
          }});
 
     charts.push_back({.title = "Total Energy Change",
                       .unit = "%",
                       .value_extractor = createPercentageChangeExtractor(
-                          [](DiagnosticsSnapshot& s) { return s.data.e_kin + s.data.e_pot; })});
+                          [](DiagnosticsSnapshot& s) { return s.data->e_kin + s.data->e_pot; })});
 
     charts.push_back({.title = "Kinetic Energy",
                       .unit = "J",
-                      .value_extractor = [](DiagnosticsSnapshot& s) { return s.data.e_kin; }});
+                      .value_extractor = [](DiagnosticsSnapshot& s) { return s.data->e_kin; }});
 
     charts.push_back({.title = "Potential Energy",
                       .unit = "J",
-                      .value_extractor = [](DiagnosticsSnapshot& s) { return s.data.e_pot; }});
+                      .value_extractor = [](DiagnosticsSnapshot& s) { return s.data->e_pot; }});
 
     charts.push_back({.title = "Total Angular Momentum",
                       .unit = "kg*m^2/s",
-                      .value_extractor = [](DiagnosticsSnapshot& s) { return s.data.L_tot; }});
+                      .value_extractor = [](DiagnosticsSnapshot& s) { return s.data->L_tot; }});
 
     charts.push_back({.title = "Total Angular Momentum Change",
                       .unit = "%",
                       .value_extractor = createPercentageChangeExtractor(
-                          [](DiagnosticsSnapshot& s) { return s.data.L_tot; })});
+                          [](DiagnosticsSnapshot& s) { return s.data->L_tot; })});
 
     charts.push_back({.title = "Virial Radius",
                       .unit = "kpc",
-                      .value_extractor = [](DiagnosticsSnapshot& s) { return s.data.r_vir; }});
+                      .value_extractor = [](DiagnosticsSnapshot& s) { return s.data->r_vir; }});
 
     charts.push_back({.title = "Mean Square Velocity",
                       .unit = "H_L/H_T",
-                      .value_extractor = [](DiagnosticsSnapshot& s) { return s.data.ms_vel; }});
+                      .value_extractor = [](DiagnosticsSnapshot& s) { return s.data->ms_vel; }});
 
     charts.push_back({.title = "Crossing Time",
                       .unit = "H_T",
-                      .value_extractor = [](DiagnosticsSnapshot& s) { return s.data.t_cr; }});
+                      .value_extractor = [](DiagnosticsSnapshot& s) { return s.data->t_cr; }});
 
     ui_->wgtDiagnostics->setupCharts(std::move(charts), "H_T");
 }

@@ -151,7 +151,7 @@ std::optional<enkas::data::System> FileParseLogic::parseInitialSystem(
     auto snapshot = parseNextSystemSnapshot(file_path, 0.0);
     if (snapshot) {
         ENKAS_LOG_INFO("Successfully parsed initial system from file: {}", file_path.string());
-        return snapshot->data;
+        return *snapshot->data;
     }
     ENKAS_LOG_ERROR("Failed to parse initial system from file: {}", file_path.string());
     return std::nullopt;
