@@ -36,21 +36,21 @@ public:
 
     /**
      * @brief Initializes the presenter for live mode.
-     * @param render_queue_slot Pointer to the atomic slot for the render queue.
+     * @param rendering_snapshot Shared pointer to the snapshot to be rendered.
      * @param chart_queue Shared pointer to the diagnostics chart queue.
      * @param simulation_duration Duration of the simulation in seconds.
      */
-    void initLiveMode(std::atomic<SystemSnapshotPtr>* render_queue_slot,
+    void initLiveMode(std::shared_ptr<std::atomic<SystemSnapshotPtr>> rendering_snapshot,
                       std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> chart_queue,
                       double simulation_duration);
 
     /**
      * @brief Initializes the presenter for replay mode.
-     * @param system_ring_buffer Shared pointer to the system ring buffer for replaying system data.
+     * @param rendering_snapshot Shared pointer to the snapshot to be rendered.
      * @param timestamps Shared pointer to a vector of timestamps for the replay.
      * @param diagnostics_series Shared pointer to the diagnostics data for the charts.
      */
-    void initReplayMode(std::atomic<SystemSnapshotPtr>* render_queue_slot,
+    void initReplayMode(std::shared_ptr<std::atomic<SystemSnapshotPtr>> rendering_snapshot,
                         std::shared_ptr<std::vector<double>> timestamps,
                         std::shared_ptr<DiagnosticsSeries> diagnostics_series);
 
@@ -83,7 +83,7 @@ private:
     int frame_count_ = 0;
     int snapshot_count_ = 0;
 
-    std::atomic<SystemSnapshotPtr>* render_queue_slot_;
+    std::shared_ptr<std::atomic<SystemSnapshotPtr>> rendering_snapshot_;
 
     // For live mode
     std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> chart_queue_;

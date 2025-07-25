@@ -22,14 +22,14 @@ SimulationWindowPresenter::SimulationWindowPresenter(ISimulationWindowView* view
 }
 
 void SimulationWindowPresenter::initLiveMode(
-    std::atomic<SystemSnapshotPtr>* render_queue_slot,
+    std::shared_ptr<std::atomic<SystemSnapshotPtr>> rendering_snapshot,
     std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> chart_queue,
     double simulation_duration) {
-    Q_ASSERT(render_queue_slot != nullptr);
+    Q_ASSERT(rendering_snapshot != nullptr);
     Q_ASSERT(chart_queue != nullptr);
     mode_ = Mode::Live;
 
-    render_queue_slot_ = render_queue_slot;
+    rendering_snapshot_ = rendering_snapshot;
     chart_queue_ = std::move(chart_queue);
 
     view_->initLiveMode(simulation_duration);
@@ -38,14 +38,14 @@ void SimulationWindowPresenter::initLiveMode(
 }
 
 void SimulationWindowPresenter::initReplayMode(
-    std::atomic<SystemSnapshotPtr>* render_queue_slot,
+    std::shared_ptr<std::atomic<SystemSnapshotPtr>> rendering_snapshot,
     std::shared_ptr<std::vector<double>> timestamps,
     std::shared_ptr<DiagnosticsSeries> diagnostics_series) {
-    Q_ASSERT((render_queue_slot != nullptr && timestamps != nullptr) ||
+    Q_ASSERT((rendering_snapshot != nullptr && timestamps != nullptr) ||
              diagnostics_series != nullptr);
     mode_ = Mode::Replay;
 
-    render_queue_slot_ = render_queue_slot;
+    rendering_snapshot_ = rendering_snapshot;
 
     view_->initReplayMode(timestamps, diagnostics_series);
 
@@ -53,14 +53,14 @@ void SimulationWindowPresenter::initReplayMode(
 }
 
 void SimulationWindowPresenter::updateRendering() {
-    if (!render_queue_slot_) {
-        ENKAS_LOG_ERROR("Render queue slot is not set. Cannot update rendering.");
+    if (!rendering_snapshot_) {
+        ENKAS_LOG_ERROR("Rendering snapshot is not set. Cannot update rendering.");
         return;
     }
 
     // If the rendering is faster than the simulation, we do not want to drop frames, but instead
     // pass the nullptr to the view, which must handle it properly.
-    auto system_snapshot = render_queue_slot_->exchange(nullptr, std::memory_order_acq_rel);
+    auto system_snapshot = rendering_snapshot_->exchange(nullptr, std::memory_order_acq_rel);
     if (system_snapshot) snapshot_count_++;
 
     // Update the view with the system snapshot

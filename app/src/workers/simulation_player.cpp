@@ -16,9 +16,8 @@
 SimulationPlayer::SimulationPlayer(QObject* parent)
     : QObject(parent),
       simulation_window_(new SimulationWindow()),
-      data_update_timer_(new QTimer(this)) {
-    render_queue_slot_.store(SystemSnapshotPtr{});
-
+      data_update_timer_(new QTimer(this)),
+      rendering_snapshot_(std::make_shared<std::atomic<SystemSnapshotPtr>>(SystemSnapshotPtr{})) {
     // Setup simulation window
     const auto& win = simulation_window_;
     connect(win, &SimulationWindow::togglePlayback, this, &SimulationPlayer::onTogglePlayback);
@@ -61,7 +60,7 @@ void SimulationPlayer::run(const std::filesystem::path& system_file_path,
     }
 
     simulation_window_presenter_->initReplayMode(
-        &render_queue_slot_, timestamps, diagnostics_series);
+        rendering_snapshot_, timestamps, diagnostics_series);
     simulation_window_->show();
 
     setupDataUpdateTimer();
@@ -99,13 +98,13 @@ void SimulationPlayer::onTogglePlayback() {
 
 void SimulationPlayer::onStepForward() {
     if (auto system_snapshot = system_ring_buffer_->readForward()) {
-        render_queue_slot_.store(*system_snapshot, std::memory_order_release);
+        rendering_snapshot_->store(*system_snapshot, std::memory_order_release);
     }
 }
 
 void SimulationPlayer::onStepBackward() {
     if (auto system_snapshot = system_ring_buffer_->readBackward()) {
-        render_queue_slot_.store(*system_snapshot, std::memory_order_release);
+        rendering_snapshot_->store(*system_snapshot, std::memory_order_release);
     }
 
     if (system_buffer_worker_) {

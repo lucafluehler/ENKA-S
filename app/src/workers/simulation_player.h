@@ -66,7 +66,7 @@ private:
     QThread* system_buffer_thread_;
 
     QTimer* data_update_timer_ = nullptr;
-    std::atomic<SystemSnapshotPtr> render_queue_slot_;
+    std::shared_ptr<std::atomic<SystemSnapshotPtr>> rendering_snapshot_;
 
     std::shared_ptr<SystemRingBuffer> system_ring_buffer_ = nullptr;
     std::filesystem::path system_file_path_ = "";
