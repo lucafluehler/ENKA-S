@@ -6,8 +6,8 @@
 #include <chrono>
 #include <memory>
 
-#include "core/blocking_queue.h"
-#include "core/snapshot.h"
+#include "core/dataflow/blocking_queue.h"
+#include "core/dataflow/snapshot.h"
 
 class ISimulationWindowView;
 

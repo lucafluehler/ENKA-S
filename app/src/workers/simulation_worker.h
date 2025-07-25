@@ -7,8 +7,9 @@
 #include <QObject>
 #include <memory>
 
+#include "core/dataflow/snapshot.h"
 #include "core/settings/settings.h"
-#include "core/snapshot.h"
+
 
 /**
  * @brief The SimulationWorker class is responsible for managing the simulation process,

@@ -11,13 +11,14 @@
 #include <filesystem>
 #include <format>
 
+#include "core/dataflow/snapshot.h"
 #include "core/files/data_storage_logic.h"
 #include "core/settings/settings.h"
-#include "core/snapshot.h"
 #include "presenters/simulation_window_presenter.h"
 #include "simulation_worker.h"
 #include "views/simulation_window/simulation_window.h"
 #include "workers/queue_storage_worker.h"
+
 
 SimulationRunner::SimulationRunner(const Settings& settings, QObject* parent)
     : QObject(parent),

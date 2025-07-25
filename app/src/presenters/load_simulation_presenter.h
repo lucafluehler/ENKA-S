@@ -7,7 +7,7 @@
 #include <memory>
 #include <optional>
 
-#include "core/snapshot.h"
+#include "core/dataflow/snapshot.h"
 #include "views/load_simulation_tab/i_load_simulation_view.h"
 
 class QThread;

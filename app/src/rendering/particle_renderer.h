@@ -10,7 +10,7 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLWidget>
 
-#include "core/snapshot.h"
+#include "core/dataflow/snapshot.h"
 #include "rendering/camera.h"
 #include "rendering/render_settings.h"
 

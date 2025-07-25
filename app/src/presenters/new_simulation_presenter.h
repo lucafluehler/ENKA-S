@@ -6,9 +6,10 @@
 #include <QTimer>
 #include <optional>
 
+#include "core/dataflow/snapshot.h"
 #include "core/settings/settings.h"
-#include "core/snapshot.h"
 #include "views/new_simulation_tab/i_new_simulation_view.h"
+
 
 class QThread;
 class INewSimulationView;

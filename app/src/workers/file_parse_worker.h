@@ -6,9 +6,10 @@
 #include <optional>
 #include <vector>
 
+#include "core/dataflow/snapshot.h"
 #include "core/files/system_snapshot_stream.h"
 #include "core/settings/settings.h"
-#include "core/snapshot.h"
+
 
 class FileParseWorker : public QObject {
     Q_OBJECT

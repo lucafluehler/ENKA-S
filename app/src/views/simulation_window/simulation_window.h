@@ -6,7 +6,7 @@
 #include <QTimer>
 #include <QVector>
 
-#include "core/snapshot.h"
+#include "core/dataflow/snapshot.h"
 #include "i_simulation_window_view.h"
 #include "rendering/render_settings.h"
 

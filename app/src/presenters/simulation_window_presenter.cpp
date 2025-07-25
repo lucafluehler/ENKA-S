@@ -8,8 +8,8 @@
 #include <chrono>
 #include <memory>
 
-#include "core/blocking_queue.h"
-#include "core/snapshot.h"
+#include "core/dataflow/blocking_queue.h"
+#include "core/dataflow/snapshot.h"
 #include "views/simulation_window/i_simulation_window_view.h"
 
 SimulationWindowPresenter::SimulationWindowPresenter(ISimulationWindowView* view, QObject* parent)

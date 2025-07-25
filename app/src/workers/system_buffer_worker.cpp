@@ -2,7 +2,7 @@
 
 #include <enkas/logging/logger.h>
 
-#include "core/snapshot.h"
+#include "core/dataflow/snapshot.h"
 
 SystemBufferWorker::SystemBufferWorker(std::shared_ptr<SystemRingBuffer> buffer,
                                        const std::filesystem::path& file_path,

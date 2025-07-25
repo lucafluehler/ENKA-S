@@ -4,9 +4,9 @@
 #include <QObject>
 #include <QThread>
 
-#include "core/blocking_queue.h"
+#include "core/dataflow/blocking_queue.h"
+#include "core/dataflow/snapshot.h"
 #include "core/settings/settings.h"
-#include "core/snapshot.h"
 #include "presenters/simulation_window_presenter.h"
 #include "queue_storage_worker.h"
 #include "simulation_worker.h"

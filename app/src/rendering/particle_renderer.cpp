@@ -18,7 +18,7 @@
 #include <memory>
 #include <vector>
 
-#include "core/snapshot.h"
+#include "core/dataflow/snapshot.h"
 
 ParticleRenderer::ParticleRenderer(QWidget* parent) : QOpenGLWidget(parent) {
     QSurfaceFormat format;

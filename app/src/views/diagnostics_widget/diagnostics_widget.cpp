@@ -14,7 +14,7 @@
 #include <vector>
 
 #include "core/charts/downsampling.h"
-#include "core/snapshot.h"
+#include "core/dataflow/snapshot.h"
 
 DiagnosticsWidget::DiagnosticsWidget(QWidget* parent)
     : QWidget(parent), refresh_timer_(new QTimer(this)) {

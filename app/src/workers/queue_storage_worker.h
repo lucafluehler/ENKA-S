@@ -7,7 +7,7 @@
 #include <functional>
 #include <memory>
 
-#include "core/blocking_queue.h"
+#include "core/dataflow/blocking_queue.h"
 
 class QueueStorageWorkerBase : public QObject {
     Q_OBJECT

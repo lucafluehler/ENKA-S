@@ -6,8 +6,9 @@
 #include <filesystem>
 #include <memory>
 
+#include "core/dataflow/system_ring_buffer.h"
 #include "core/files/system_snapshot_stream.h"
-#include "core/system_ring_buffer.h"
+
 
 /**
  * @brief Worker for writing to the system ring buffer by parsing files.

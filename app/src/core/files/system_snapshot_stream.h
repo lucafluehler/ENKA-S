@@ -8,7 +8,7 @@
 #include <optional>
 #include <vector>
 
-#include "core/snapshot.h"
+#include "core/dataflow/snapshot.h"
 
 /**
  * @brief An efficient provider for reading SystemSnapshots from a large CSV file.

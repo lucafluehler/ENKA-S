@@ -5,7 +5,7 @@
 #include <optional>
 #include <vector>
 
-#include "core/snapshot.h"
+#include "core/dataflow/snapshot.h"
 
 /**
  * @brief A thread-safe ring buffer for storing and managing system snapshots.

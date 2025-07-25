@@ -3,7 +3,7 @@
 #include <limits>
 #include <memory>
 
-#include "core/snapshot.h"
+#include "core/dataflow/snapshot.h"
 
 /**
  * @brief Creates a stateful value extractor that calculates the percentage change

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/snapshot.h"
+#include "core/dataflow/snapshot.h"
 
 class ISimulationWindowView {
 public:

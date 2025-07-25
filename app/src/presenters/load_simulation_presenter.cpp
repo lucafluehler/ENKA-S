@@ -5,12 +5,13 @@
 #include <QTimer>
 #include <optional>
 
+#include "core/dataflow/snapshot.h"
 #include "core/files/file_constants.h"
-#include "core/snapshot.h"
 #include "enkas/logging/logger.h"
 #include "views/load_simulation_tab/i_load_simulation_view.h"
 #include "workers/file_parse_worker.h"
 #include "workers/simulation_player.h"
+
 
 LoadSimulationPresenter::LoadSimulationPresenter(ILoadSimulationView* view, QObject* parent)
     : QObject(parent), view_(view), preview_timer_(new QTimer(this)) {

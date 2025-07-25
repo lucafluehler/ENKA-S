@@ -5,8 +5,8 @@
 #include <memory>
 #include <vector>
 
-#include "core/snapshot.h"
-#include "core/system_ring_buffer.h"
+#include "core/dataflow/snapshot.h"
+#include "core/dataflow/system_ring_buffer.h"
 #include "presenters/simulation_window_presenter.h"
 #include "views/simulation_window/simulation_window.h"
 #include "workers/system_buffer_worker.h"

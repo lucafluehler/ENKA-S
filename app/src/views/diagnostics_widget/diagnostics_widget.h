@@ -11,7 +11,7 @@
 #include <functional>
 #include <vector>
 
-#include "core/snapshot.h"
+#include "core/dataflow/snapshot.h"
 
 class DiagnosticsWidget : public QWidget {
     Q_OBJECT

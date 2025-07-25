@@ -7,8 +7,9 @@
 #include <optional>
 #include <vector>
 
+#include "core/dataflow/snapshot.h"
 #include "core/settings/settings.h"
-#include "core/snapshot.h"
+
 
 class FileParseLogic {
 public:
