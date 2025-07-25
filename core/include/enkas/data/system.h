@@ -11,6 +11,14 @@ struct System {
     std::vector<math::Vector3D> velocities;
     std::vector<double> masses;
 
+    System() = default;
+
+    /**
+     * @brief Constructs a System with a specified number of particles.
+     * @param particle_count The number of particles in the system.
+     */
+    explicit System(size_t particle_count) { resize(particle_count); }
+
     /**
      * @brief Returns the number of particles in the system.
      */
