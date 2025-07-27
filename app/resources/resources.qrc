@@ -40,6 +40,8 @@
         <file>icons/reset.png</file>
         <file>icons/load.png</file>
         <file>icons/randomize.png</file>
+        <file>icons/bug.png</file>
+        <file>icons/info.png</file>
     </qresource>
 
     <!-- Shaders -->
