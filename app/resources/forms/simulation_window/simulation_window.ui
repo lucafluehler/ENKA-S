@@ -337,7 +337,7 @@
       <item>
        <widget class="QWidget" name="wgtSidebar" native="true">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+         <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -370,13 +370,29 @@
          <item>
           <widget class="DiagnosticsWidget" name="wgtDiagnostics" native="true">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>270</height>
+            </size>
+           </property>
            <property name="locale">
             <locale language="C" country="AnyTerritory"/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="DebugInfoWidget" name="wgtDebugInfo" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
           </widget>
          </item>
@@ -523,6 +539,29 @@
          </widget>
         </item>
         <item>
+         <widget class="QToolButton" name="btnToggleDebugInfo">
+          <property name="minimumSize">
+           <size>
+            <width>30</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>...</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../../resources.qrc">
+            <normaloff>:/others/icons/info.png</normaloff>:/others/icons/info.png</iconset>
+          </property>
+          <property name="popupMode">
+           <enum>QToolButton::ToolButtonPopupMode::InstantPopup</enum>
+          </property>
+          <property name="autoRaise">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QToolButton" name="btnToggleSettings">
           <property name="minimumSize">
            <size>
@@ -638,6 +677,12 @@ QSlider::handle:horizontal:hover {
    <class>ParticleRenderer</class>
    <extends>QOpenGLWidget</extends>
    <header>rendering/particle_renderer.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DebugInfoWidget</class>
+   <extends>QWidget</extends>
+   <header>widgets/debug_info_widget.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>
