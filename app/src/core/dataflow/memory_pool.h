@@ -33,11 +33,10 @@ public:
      * @param pool_size The number of buffers to preallocate in the pool.
      * @param args Arguments to initialize the T objects.
      */
-    explicit MemoryPool(size_t pool_size, InitArgs&&... args) {
+    explicit MemoryPool(size_t pool_size, InitArgs... args) {
         if (pool_size == 0) throw std::invalid_argument("Pool size must be greater than zero.");
 
-        for (size_t i = 0; i < pool_size; ++i)
-            buffers_.push(new T(std::forward<InitArgs>(args)...));
+        for (size_t i = 0; i < pool_size; ++i) buffers_.push(new T(args...));
     }
 
     ~MemoryPool() {
@@ -46,12 +45,6 @@ public:
             buffers_.pop();
         }
     }
-
-    // Disable copy and move semantics to ensure single ownership of the pool.
-    MemoryPool(const MemoryPool&) = delete;
-    MemoryPool& operator=(const MemoryPool&) = delete;
-    MemoryPool(MemoryPool&&) = delete;
-    MemoryPool& operator=(MemoryPool&&) = delete;
 
     /**
      * @brief Acquires a buffer from the pool.
