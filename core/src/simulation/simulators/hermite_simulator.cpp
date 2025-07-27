@@ -13,22 +13,27 @@ HermiteSimulator::HermiteSimulator(const HermiteSettings& settings)
     : settings_(settings),
       softening_sqr_(settings.softening_parameter * settings.softening_parameter) {}
 
-void HermiteSimulator::setSystem(const data::System& initial_system) {
+void HermiteSimulator::initialize(std::shared_ptr<data::System> initial_system,
+                                  std::shared_ptr<data::System> system_buffer) {
     ENKAS_LOG_INFO("Setting up Hermite simulator with new initial system...");
 
-    system_ = initial_system;
+    previous_system_ = initial_system;
+    system_ = system_buffer;
 
-    const size_t particle_count = system_.count();
+    const size_t particle_count = previous_system_->count();
     accelerations_.resize(particle_count);
     jerks_.resize(particle_count);
     ENKAS_LOG_DEBUG("System contains {} particles.", particle_count);
 
     // Scale particles to Hénon Units
-    const double e_kin = physics::getKineticEnergy(system_);
-    const double e_pot = physics::getPotentialEnergy(system_, softening_sqr_);
+    const double e_kin = physics::getKineticEnergy(*previous_system_);
+    const double e_pot = physics::getPotentialEnergy(*previous_system_, softening_sqr_);
     const double total_energy = std::abs(e_kin + e_pot * physics::G);
-    physics::scaleToHenonUnits(system_, total_energy);
-    ENKAS_LOG_DEBUG("Scaling to Hénon units with total energy: {}", total_energy);
+    physics::scaleToHenonUnits(*previous_system_, total_energy);
+    ENKAS_LOG_DEBUG("Scaling to Hénon units with total energy: {:.4e}.", total_energy);
+
+    // Update system masses after scaling
+    system_->masses = previous_system_->masses;
 
     // Initialize accelerations vector
     ENKAS_LOG_INFO("Initializing accelerations...");
@@ -38,14 +43,31 @@ void HermiteSimulator::setSystem(const data::System& initial_system) {
     ENKAS_LOG_INFO("System setup complete. Simulation ready to start.");
 }
 
-void HermiteSimulator::step() {
+void HermiteSimulator::step(std::shared_ptr<data::System> system_buffer,
+                            std::shared_ptr<data::Diagnostics> diagnostics_buffer) {
+    // Use new memory buffer if provided, otherwise use the existing one
+    if (system_buffer) {
+        system_ = system_buffer;
+        system_->masses = previous_system_->masses;
+    }
+
+    calculateNextSystemState();
+
+    // If diagnostics buffer is provided, fill it with the current diagnostics data
+    if (diagnostics_buffer) {
+        physics::fillDiagnostics(*system_, potential_energy_, *diagnostics_buffer);
+    }
+
+    // Swap the previous system with the new one
+    std::swap(previous_system_, system_);
+}
+
+void HermiteSimulator::calculateNextSystemState() {
     if (isStopRequested()) return;
 
-    const size_t particle_count = system_.count();
+    const size_t particle_count = system_->count();
     if (particle_count == 0) return;
 
-    const auto old_positions = system_.positions;
-    const auto old_velocities = system_.velocities;
     const auto old_accelerations = accelerations_;
     const auto old_jerks = jerks_;
 
@@ -55,10 +77,12 @@ void HermiteSimulator::step() {
 
     // Predict particle position and velocity up to order jerk
     for (size_t i = 0; i < particle_count; ++i) {
-        system_.positions[i] +=
-            old_velocities[i] * dt + old_accelerations[i] * dt2 * 0.5 + old_jerks[i] * dt3 / 6.0;
+        system_->positions[i] = previous_system_->positions[i] +
+                                previous_system_->velocities[i] * dt +
+                                old_accelerations[i] * dt2 * 0.5 + old_jerks[i] * dt3 / 6.0;
 
-        system_.velocities[i] += old_accelerations[i] * dt + old_jerks[i] * dt2 * 0.5;
+        system_->velocities[i] =
+            previous_system_->velocities[i] + old_accelerations[i] * dt + old_jerks[i] * dt2 * 0.5;
     }
 
     // Calculate acceleration and jerk for the entire system
@@ -66,13 +90,14 @@ void HermiteSimulator::step() {
 
     // Correct particle position and velocity using hermite scheme
     for (size_t i = 0; i < particle_count; ++i) {
-        system_.velocities[i] = old_velocities[i] +
-                                (old_accelerations[i] + accelerations_[i]) * dt * 0.5 +
-                                (old_jerks[i] - jerks_[i]) * dt2 / 12.0;
+        system_->velocities[i] = previous_system_->velocities[i] +
+                                 (old_accelerations[i] + accelerations_[i]) * dt * 0.5 +
+                                 (old_jerks[i] - jerks_[i]) * dt2 / 12.0;
 
-        system_.positions[i] = old_positions[i] +
-                               (old_velocities[i] + system_.velocities[i]) * dt * 0.5 +
-                               (old_accelerations[i] - accelerations_[i]) * dt2 / 12.0;
+        system_->positions[i] =
+            previous_system_->positions[i] +
+            (previous_system_->velocities[i] + system_->velocities[i]) * dt * 0.5 +
+            (old_accelerations[i] - accelerations_[i]) * dt2 / 12.0;
     }
 
     // Update system time with time_step
@@ -81,14 +106,8 @@ void HermiteSimulator::step() {
 
 [[nodiscard]] double HermiteSimulator::getSystemTime() const { return system_time_; }
 
-[[nodiscard]] data::System HermiteSimulator::getSystem() const { return system_; }
-
-[[nodiscard]] data::Diagnostics HermiteSimulator::getDiagnostics() const {
-    return physics::getDiagnostics(system_, potential_energy_);
-}
-
 void HermiteSimulator::updateForces() {
-    const size_t particle_count = system_.count();
+    const size_t particle_count = system_->count();
     if (particle_count == 0) return;
 
     potential_energy_ = 0.0;
@@ -98,9 +117,9 @@ void HermiteSimulator::updateForces() {
     std::fill(jerks_.begin(), jerks_.end(), math::Vector3D{});
 
     // Calculate pair-wise accelerations and jerks
-    const auto& positions = system_.positions;
-    const auto& velocities = system_.velocities;
-    const auto& masses = system_.masses;
+    const auto& positions = system_->positions;
+    const auto& velocities = system_->velocities;
+    const auto& masses = system_->masses;
 
     for (size_t i = 0; i < particle_count; ++i) {
         if (isStopRequested()) return;

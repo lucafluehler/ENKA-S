@@ -13,13 +13,15 @@ HitsSimulator::HitsSimulator(const HitsSettings& settings)
     : settings_(settings),
       softening_sqr_(settings.softening_parameter * settings.softening_parameter) {}
 
-void HitsSimulator::setSystem(const data::System& initial_system) {
-    ENKAS_LOG_INFO("Setting up HITS simulator with new initial system...");
+void HitsSimulator::initialize(std::shared_ptr<data::System> initial_system,
+                               std::shared_ptr<data::System> system_buffer) {
+    ENKAS_LOG_INFO("Setting up Euler simulator with new initial system...");
 
     system_ = initial_system;
+    temp_system_ = system_buffer;
 
     // Resize vectors to the number of particles in the system
-    const size_t particle_count = system_.count();
+    const size_t particle_count = system_->count();
     accelerations_.resize(particle_count);
     jerks_.resize(particle_count);
     snaps_.resize(particle_count);
@@ -29,19 +31,22 @@ void HitsSimulator::setSystem(const data::System& initial_system) {
     ENKAS_LOG_DEBUG("System contains {} particles.", particle_count);
 
     // Scale particles to Hénon Units.
-    const double e_kin = physics::getKineticEnergy(system_);
-    const double e_pot = physics::getPotentialEnergy(system_, softening_sqr_);
+    const double e_kin = physics::getKineticEnergy(*system_);
+    const double e_pot = physics::getPotentialEnergy(*system_, softening_sqr_);
     const double total_energy = std::abs(e_kin + e_pot * physics::G);
-    physics::scaleToHenonUnits(system_, total_energy);
-    ENKAS_LOG_DEBUG("Scaling to Hénon units with total energy: {}", total_energy);
+    physics::scaleToHenonUnits(*system_, total_energy);
+    ENKAS_LOG_DEBUG("Scaling to Hénon units with total energy: {:.4e}", total_energy);
+
+    // Update system masses after scaling
+    temp_system_->masses = system_->masses;
 
     // Initialize time step of each particle using Aarseth's initialization formula
     // (MULTIPLE TIME SCALES, 1985)
     ENKAS_LOG_INFO("Initializing accelerations, jerks and time steps...");
-    for (size_t i = 0; i < system_.count(); i++) {
+    for (size_t i = 0; i < particle_count; i++) {
         auto& acc = accelerations_[i];
         auto& jrk = jerks_[i];
-        calculateAccJrk(system_, i, acc, jrk);
+        calculateAccJrk(*system_, i, acc, jrk);
 
         const double eta = settings_.time_step_parameter;
         if (acc.norm() == 0.0 || jrk.norm() == 0.0) {
@@ -56,7 +61,26 @@ void HitsSimulator::setSystem(const data::System& initial_system) {
     ENKAS_LOG_INFO("System setup complete. Simulation ready to start.");
 }
 
-void HitsSimulator::step() {
+void HitsSimulator::step(std::shared_ptr<data::System> system_buffer,
+                         std::shared_ptr<data::Diagnostics> diagnostics_buffer) {
+    calculateNextSystemState();
+
+    // Synchronize the system if a buffer is provided
+    if (system_buffer) {
+        predictSystem(*system_, *system_buffer, system_time_, true);
+        system_buffer->masses = system_->masses;
+    }
+
+    // If diagnostics buffer is provided, fill it with the current diagnostics data
+    if (diagnostics_buffer) {
+        predictSystem(*system_, *temp_system_, system_time_, true);
+        physics::fillDiagnostics(*temp_system_,
+                                 physics::getPotentialEnergy(*temp_system_, softening_sqr_),
+                                 *diagnostics_buffer);
+    }
+}
+
+void HitsSimulator::calculateNextSystemState() {
     if (particle_schedule_.empty()) return;
 
     // Choose first particle in map as min_i(t_i + dt_i)
@@ -75,59 +99,54 @@ void HitsSimulator::step() {
 
 [[nodiscard]] double HitsSimulator::getSystemTime() const { return system_time_; }
 
-[[nodiscard]] data::System HitsSimulator::getSystem() const {
-    return getPredictedSystem(system_time_, true);
-}
-
 void HitsSimulator::updateParticle(size_t particle_index) {
     // Predictor
-    auto pred_system = getPredictedSystem(system_time_, false);
+    predictSystem(*system_, *temp_system_, system_time_, false);
 
     // Evaluator
     math::Vector3D acc;
     math::Vector3D jrk;
-    calculateAccJrk(pred_system, particle_index, acc, jrk);
+    calculateAccJrk(*temp_system_, particle_index, acc, jrk);
 
     // Corrector
-    correctParticle(pred_system, particle_index, acc, jrk);
+    correctParticle(*temp_system_, particle_index, acc, jrk);
 
     // Update time step
     updateParticleTimeStep(particle_index);
 }
 
-[[nodiscard]] data::Diagnostics HitsSimulator::getDiagnostics() const {
-    const auto pred_system = getPredictedSystem(system_time_, true);
-    const auto potential_energy = physics::getPotentialEnergy(pred_system, softening_sqr_);
-    return physics::getDiagnostics(pred_system, potential_energy);
-}
-
-data::System HitsSimulator::getPredictedSystem(double time, bool sync_mode) const {
-    data::System pred_system = system_;
-
-    const size_t particle_count = pred_system.count();
+void HitsSimulator::predictSystem(const data::System& reference_system,
+                                  data::System& pred_system,
+                                  double time,
+                                  bool sync_mode) const {
+    const size_t particle_count = reference_system.count();
 
     for (size_t i = 0; i < particle_count; i++) {
         const double dt = time - particle_times_[i];
         const double dt2 = dt * dt;
         const double dt3 = dt2 * dt;
+
+        pred_system.positions[i] = reference_system.positions[i] +
+                                   reference_system.velocities[i] * dt +
+                                   accelerations_[i] * dt2 / 2.0 + jerks_[i] * dt3 / 6.0;
+
+        pred_system.velocities[i] =
+            reference_system.velocities[i] + accelerations_[i] * dt + jerks_[i] * dt2 / 2.0;
+
+        // If the particles need to be synced for data retrieval, we need
+        // to use higher order terms for our taylor series.
+        if (!sync_mode) continue;
+
         const double dt4 = dt3 * dt;
         const double dt5 = dt4 * dt;
-
-        pred_system.positions[i] +=
-            pred_system.velocities[i] * dt + accelerations_[i] * dt2 / 2.0 + jerks_[i] * dt3 / 6.0;
-
-        pred_system.velocities[i] += accelerations_[i] * dt + jerks_[i] * dt2 / 2.0;
-
-        if (!sync_mode) continue;
-        // If the particles need to be synced for returning the system, we need
-        // to use higher order terms for our taylor series.
 
         pred_system.positions[i] += snaps_[i] * dt4 / 24.0 + crackles_[i] * dt5 / 120.0;
 
         pred_system.velocities[i] += snaps_[i] * dt3 / 6.0 + crackles_[i] * dt4 / 24.0;
     }
 
-    return pred_system;
+    // Update the system's masses
+    pred_system.masses = reference_system.masses;
 }
 
 void HitsSimulator::calculateAccJrk(const data::System& system,
@@ -179,8 +198,8 @@ void HitsSimulator::correctParticle(const data::System& pred_system,
     const math::Vector3D crk_dt3 =
         (accelerations_[i] - pred_acc) * 12.0 + (jerks_[i] + pred_jrk) * 6.0 * dt;
 
-    system_.positions[i] = pred_system.positions[i] + snp_dt3 * dt / 24.0 + crk_dt3 * dt2 / 120.0;
-    system_.velocities[i] = pred_system.velocities[i] + snp_dt3 / 6.0 + crk_dt3 * dt / 24.0;
+    system_->positions[i] = pred_system.positions[i] + snp_dt3 * dt / 24.0 + crk_dt3 * dt2 / 120.0;
+    system_->velocities[i] = pred_system.velocities[i] + snp_dt3 / 6.0 + crk_dt3 * dt / 24.0;
 
     //    system_.velocities[i] +=   (accelerations_[i] + pred_acc)*dt/2
     //                             + (jerks_[i] - pred_jrk)*dt2/12;
@@ -211,7 +230,7 @@ void HitsSimulator::updateParticleTimeStep(size_t particle_index) {
     }
 
     // Set an upper limit to the relative change of dt
-    const double mu = 0.3;  // allow for 20 % change
+    const double mu = 0.3;  // allow for 30 % change
     const double upper_limit = particle_dt * (1 + mu);
     particle_dt = std::min(upper_limit, new_dt);
 

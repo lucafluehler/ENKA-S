@@ -16,16 +16,20 @@ public:
 
     ~HitsSimulator() override = default;
 
-    void setSystem(const data::System& initial_system) override;
-    void step() override;
+    void initialize(std::shared_ptr<data::System> initial_system,
+                    std::shared_ptr<data::System> system_buffer) override;
+
+    void step(std::shared_ptr<data::System> system_buffer = nullptr,
+              std::shared_ptr<data::Diagnostics> diagnostics_buffer = nullptr) override;
 
     [[nodiscard]] double getSystemTime() const override;
-    [[nodiscard]] data::System getSystem() const override;
-    [[nodiscard]] data::Diagnostics getDiagnostics() const override;
 
 private:
     void updateParticle(size_t particle_index);
-    data::System getPredictedSystem(double time, bool sync_mode) const;
+    void predictSystem(const data::System& reference_system,
+                       data::System& pred_system,
+                       double time,
+                       bool sync_mode) const;
     void calculateAccJrk(const data::System& system,
                          size_t particle_index,
                          math::Vector3D& acc,
@@ -37,16 +41,21 @@ private:
     void updateParticleTimeStep(size_t particle_index);
 
 private:
+    void calculateNextSystemState();
+
     HitsSettings settings_;
 
     double system_time_ = 0.0;    // current time of the system
     const double softening_sqr_;  // squared softening parameters
 
-    data::System system_;                        // current state of the system
+    // state of the system at the previous step
+    std::shared_ptr<data::System> system_ = nullptr;       // contains the current system state
+    std::shared_ptr<data::System> temp_system_ = nullptr;  // used to predict a system at some time
+
     std::vector<math::Vector3D> accelerations_;  // accelerations of the particles
     std::vector<math::Vector3D> jerks_;          // jerks of the particles
     std::vector<math::Vector3D> snaps_;          // snaps of the particles
-    std::vector<math::Vector3D> crackles_;       // crackles of the
+    std::vector<math::Vector3D> crackles_;       // crackles of the particles
 
     std::vector<double> particle_times_;       // particle times
     std::vector<double> particle_time_steps_;  // particle time steps
