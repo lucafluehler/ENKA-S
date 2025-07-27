@@ -174,7 +174,6 @@ void SimulationWorker::runSimulation() {
         }
 
         // Update debug info
-        debug_info_->time.store(time, std::memory_order_relaxed);
         debug_info_->current_step.fetch_add(1, std::memory_order_relaxed);
         debug_info_->system_data_pool_size = system_data_pool_->size();
         debug_info_->diagnostics_data_pool_size = diagnostics_data_pool_->size();

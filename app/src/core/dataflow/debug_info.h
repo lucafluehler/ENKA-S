@@ -9,7 +9,6 @@ static constexpr size_t QUEUE_NOT_PRESENT = std::numeric_limits<size_t>::max();
 struct LiveDebugInfo {
     // Simulation statistics
     std::atomic<int> current_step = 0;
-    std::atomic<double> time = 0.0;
     double duration = 0.0;
 
     // Memory pool statistics
