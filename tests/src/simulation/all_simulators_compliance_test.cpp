@@ -12,7 +12,7 @@ enkas::simulation::EulerSettings SimulatorComplianceTest<
                         enkas::simulation::EulerSettings>>::CreateDefaultSettings() {
     enkas::simulation::EulerSettings settings;
     settings.time_step = 0.01;
-    settings.softening_parameter = 0.01;
+    settings.softening_parameter = 0.0001;
     return settings;
 }
 
@@ -22,7 +22,7 @@ enkas::simulation::LeapfrogSettings SimulatorComplianceTest<
                         enkas::simulation::LeapfrogSettings>>::CreateDefaultSettings() {
     enkas::simulation::LeapfrogSettings settings;
     settings.time_step = 0.01;
-    settings.softening_parameter = 0.01;
+    settings.softening_parameter = 0.0001;
     return settings;
 }
 
@@ -32,7 +32,7 @@ enkas::simulation::HermiteSettings SimulatorComplianceTest<
                         enkas::simulation::HermiteSettings>>::CreateDefaultSettings() {
     enkas::simulation::HermiteSettings settings;
     settings.time_step = 0.01;
-    settings.softening_parameter = 0.01;
+    settings.softening_parameter = 0.0001;
     return settings;
 }
 
@@ -52,7 +52,7 @@ enkas::simulation::BarnesHutLeapfrogSettings SimulatorComplianceTest<
                         enkas::simulation::BarnesHutLeapfrogSettings>>::CreateDefaultSettings() {
     enkas::simulation::BarnesHutLeapfrogSettings settings;
     settings.time_step = 0.01;
-    settings.softening_parameter = 0.01;
+    settings.softening_parameter = 0.0001;
     settings.theta_mac = 0.5;
     return settings;
 }
