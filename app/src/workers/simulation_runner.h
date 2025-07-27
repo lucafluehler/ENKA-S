@@ -37,7 +37,7 @@ public:
      * @brief Returns the current simulation time.
      * @return The current time in time step units.
      */
-    double getTime() const { return time_; }
+    double getTime() const { return simulation_worker_ ? simulation_worker_->getTime() : 0.0; }
 
 signals:
     /**
@@ -52,9 +52,9 @@ signals:
     void requestInitialization();
 
     /**
-     * @brief Requests a simulation step.
+     * @brief Requests the simulation to start.
      */
-    void requestSimulationStep();
+    void requestSimulationStart();
 
     /**
      * @brief Emitted when the generation of a new initial system is completed.
@@ -66,26 +66,6 @@ signals:
      */
     void initializationCompleted();
 
-    /**
-     * @brief Emitted when a simulation step is completed.
-     */
-    void simulationStep(double time);
-
-    /**
-     * @brief Emitted when new diagnostics data is available.
-     */
-    void diagnosticsDataStep();
-
-    /**
-     * @brief Requests saving the latest render data.
-     */
-    void saveRenderData();
-
-    /**
-     * @brief Requests saving the latest diagnostics data.
-     */
-    void saveDiagnosticsData();
-
 public slots:
     /**
      * @brief Opens the simulation window.
@@ -95,14 +75,8 @@ public slots:
 private slots:
     void receivedGenerationCompleted();
     void receivedInitializationCompleted();
-    void receivedSimulationStep(double time,
-                                SystemSnapshotPtr system_snapshot,
-                                DiagnosticsSnapshotPtr diagnostics_snapshot);
 
 private:
-    void performSimulationStep(double time,
-                               SystemSnapshotPtr system_snapshot,
-                               DiagnosticsSnapshotPtr diagnostics_snapshot);
     void setupOutputDir();
     void setupSystemStorageWorker();
     void setupDiagnosticsStorageWorker();
@@ -110,7 +84,6 @@ private:
     void setupSimulationWindow();
 
     double duration_;             // Total duration of the simulation
-    double time_;                 // Current simulation time
     bool save_system_data_;       // Flag to indicate if system data should be saved
     bool save_diagnostics_data_;  // Flag to indicate if diagnostics data should be saved
 
@@ -119,19 +92,19 @@ private:
     SimulationWindow* simulation_window_;
     SimulationWindowPresenter* simulation_window_presenter_;
 
-    SimulationWorker* simulation_worker_;
-    QThread* simulation_thread_;
+    SimulationWorker* simulation_worker_ = nullptr;
+    QThread* simulation_thread_ = nullptr;
 
-    QueueStorageWorkerBase* system_storage_worker_;
-    QThread* system_storage_thread_;
+    QueueStorageWorkerBase* system_storage_worker_ = nullptr;
+    QThread* system_storage_thread_ = nullptr;
 
-    QueueStorageWorkerBase* diagnostics_storage_worker_;
-    QThread* diagnostics_storage_thread_;
+    QueueStorageWorkerBase* diagnostics_storage_worker_ = nullptr;
+    QThread* diagnostics_storage_thread_ = nullptr;
 
-    std::atomic<SystemSnapshotPtr> render_queue_slot_;
+    std::shared_ptr<std::atomic<SystemSnapshotPtr>> rendering_snapshot_;
     std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> chart_queue_;
     std::shared_ptr<BlockingQueue<SystemSnapshotPtr>> system_storage_queue_;
     std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> diagnostics_storage_queue_;
 
-    bool aborted_;  // Flag to indicate if the simulation was aborted
+    bool aborted_ = false;  // Flag to indicate if the simulation was aborted
 };

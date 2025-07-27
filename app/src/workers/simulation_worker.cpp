@@ -12,14 +12,23 @@
 #include "core/factories/simulator_factory.h"
 #include "core/files/file_parse_logic.h"
 #include "core/settings/settings.h"
+#include "enkas/data/diagnostics.h"
 
-
-SimulationWorker::SimulationWorker(const Settings& settings, QObject* parent)
+SimulationWorker::SimulationWorker(
+    const Settings& settings,
+    std::shared_ptr<std::atomic<SystemSnapshotPtr>> rendering_snapshot,
+    std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> chart_queue,
+    std::shared_ptr<BlockingQueue<SystemSnapshotPtr>> system_storage_queue,
+    std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> diagnostics_storage_queue,
+    QObject* parent)
     : QObject(parent),
-      last_system_update_(0.0),
-      last_diagnostics_update_(0.0),
+      rendering_snapshot_(rendering_snapshot),
+      chart_queue_(chart_queue),
+      system_storage_queue_(system_storage_queue),
+      diagnostics_storage_queue_(diagnostics_storage_queue),
       system_step_(settings.get<double>(SettingKey::SystemDataStep)),
-      diagnostics_step_(settings.get<double>(SettingKey::DiagnosticsDataStep)) {
+      diagnostics_step_(settings.get<double>(SettingKey::DiagnosticsDataStep)),
+      duration_(settings.get<double>(SettingKey::Duration)) {
     // Setup generator
     auto method = settings.get<GenerationMethod>(SettingKey::GenerationMethod);
     file_mode_ = (method == GenerationMethod::File);
@@ -34,6 +43,13 @@ SimulationWorker::SimulationWorker(const Settings& settings, QObject* parent)
     // Setup simulator
     simulator_ = SimulatorFactory::create(settings);
 
+    // Setup memory pools for diagnostics data and snapshots. The system data pool will be
+    // initialized later with the particle count from the initial system.
+    diagnostics_data_pool_ = std::make_unique<MemoryPool<enkas::data::Diagnostics>>(pool_size_);
+    system_snapshot_pool_ = std::make_unique<MemoryPool<Snapshot<enkas::data::System>>>(pool_size_);
+    diagnostics_snapshot_pool_ =
+        std::make_unique<MemoryPool<Snapshot<enkas::data::Diagnostics>>>(pool_size_);
+
     ENKAS_LOG_INFO("Simulation worker initialized successfully.");
 }
 
@@ -44,7 +60,6 @@ void SimulationWorker::startGeneration() {
 
         if (!initial_system_opt) {
             ENKAS_LOG_ERROR("Failed to parse initial system from file: {}", file_path_.string());
-            emit error();
             return;
         }
 
@@ -53,55 +68,105 @@ void SimulationWorker::startGeneration() {
         // Generate the initial system using the generator
         if (!generator_) {
             ENKAS_LOG_ERROR("Generator is not initialized.");
-            emit error();
             return;
         }
 
         initial_system_ = std::make_unique<enkas::data::System>(generator_->createSystem());
     }
 
-    ENKAS_LOG_INFO("Initial system generated successfully with {} particles.",
-                   initial_system_->count());
+    // Initialize the system data pool with the particle count from the initial system
+    const size_t particle_count = initial_system_->count();
+    system_data_pool_ =
+        std::make_unique<MemoryPool<enkas::data::System, size_t>>(pool_size_, particle_count);
+
+    ENKAS_LOG_INFO("Initial system generated successfully with {} particles.", particle_count);
     emit generationCompleted();
 }
 
 void SimulationWorker::startInitialization() {
     if (!simulator_ || !initial_system_) {
         ENKAS_LOG_ERROR("Simulator or initial system is not initialized.");
-        emit error();
         return;
     }
 
-    simulator_->setSystem(*initial_system_);
+    // Pass two initial data buffers to the simulator
+    auto initial_system_data = system_data_pool_->acquire();
+    *initial_system_data = *initial_system_;
+
+    auto temp_system_buffer = system_data_pool_->acquire();
+
+    simulator_->initialize(initial_system_data, temp_system_buffer);
+
     ENKAS_LOG_INFO("Simulator successfully initialized with the initial system.");
     emit initializationCompleted();
 }
 
-void SimulationWorker::step() {
+void SimulationWorker::runSimulation() {
     if (!simulator_) {
-        ENKAS_LOG_ERROR("Simulator is not initialized, cannot perform simulation step.");
-        emit error();
+        ENKAS_LOG_ERROR("Simulator is not initialized, cannot run simulation.");
         return;
     }
 
-    simulator_->step();
+    ENKAS_LOG_INFO("Starting simulation...");
 
-    // Check whether it is time to retrieve data
-    double time = simulator_->getSystemTime();
+    // Reset time and step count
+    double time = 0.0;
+    time_.store(time);
+    step_count_.store(0, std::memory_order_relaxed);
+    while (time < duration_ && !stop_requested_.load()) {
+        const bool retrieve_system_data = (time - last_system_update_ >= system_step_);
+        const bool retrieve_diagnostics_data =
+            (time - last_diagnostics_update_ >= diagnostics_step_);
 
-    SystemSnapshotPtr system_snapshot{nullptr};
-    DiagnosticsSnapshotPtr diagnostics_snapshot{nullptr};
+        std::shared_ptr<enkas::data::System> system_data = nullptr;
+        std::shared_ptr<enkas::data::Diagnostics> diagnostics_data = nullptr;
 
-    if (time - last_system_update_ >= system_step_) {
-        system_snapshot = std::make_shared<SystemSnapshot>(simulator_->getSystem(), time);
-        last_system_update_ = time;
+        if (retrieve_system_data) {
+            system_data = system_data_pool_->acquire();
+        }
+
+        if (retrieve_diagnostics_data) {
+            diagnostics_data = diagnostics_data_pool_->acquire();
+        }
+
+        simulator_->step(system_data, diagnostics_data);
+        time = simulator_->getSystemTime();
+        time_.store(time);
+
+        if (retrieve_system_data) {
+            auto system_snapshot = system_snapshot_pool_->acquire();
+            system_snapshot->data = std::move(system_data);
+            system_snapshot->time = time;
+
+            if (rendering_snapshot_) {
+                rendering_snapshot_->store(system_snapshot, std::memory_order_release);
+            }
+
+            if (system_storage_queue_) {
+                system_storage_queue_->pushBlocking(system_snapshot);
+            }
+
+            last_system_update_ = time;
+        }
+
+        if (retrieve_diagnostics_data) {
+            auto diagnostics_snapshot = diagnostics_snapshot_pool_->acquire();
+            diagnostics_snapshot->data = std::move(diagnostics_data);
+            diagnostics_snapshot->time = time;
+
+            if (chart_queue_) {
+                chart_queue_->pushBlocking(diagnostics_snapshot);
+            }
+
+            if (diagnostics_storage_queue_) {
+                diagnostics_storage_queue_->pushBlocking(diagnostics_snapshot);
+            }
+
+            last_diagnostics_update_ = time;
+        }
+
+        step_count_.fetch_add(1, std::memory_order_relaxed);
     }
 
-    if (time - last_diagnostics_update_ >= diagnostics_step_) {
-        diagnostics_snapshot =
-            std::make_shared<DiagnosticsSnapshot>(simulator_->getDiagnostics(), time);
-        last_diagnostics_update_ = time;
-    }
-
-    emit simulationStep(time, system_snapshot, diagnostics_snapshot);
+    ENKAS_LOG_INFO("Simulation completed successfully.");
 }

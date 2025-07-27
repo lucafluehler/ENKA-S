@@ -19,26 +19,16 @@
 #include "views/simulation_window/simulation_window.h"
 #include "workers/queue_storage_worker.h"
 
-
 SimulationRunner::SimulationRunner(const Settings& settings, QObject* parent)
     : QObject(parent),
       duration_(settings.get<double>(SettingKey::Duration)),
       save_system_data_(settings.get<bool>(SettingKey::SaveSystemData)),
       save_diagnostics_data_(settings.get<bool>(SettingKey::SaveDiagnosticsData)),
       simulation_window_(new SimulationWindow),
-      simulation_worker_(nullptr),
-      simulation_thread_(nullptr),
-      system_storage_worker_(nullptr),
-      system_storage_thread_(nullptr),
-      diagnostics_storage_worker_(nullptr),
-      diagnostics_storage_thread_(nullptr),
+      rendering_snapshot_(std::make_shared<std::atomic<SystemSnapshotPtr>>(SystemSnapshotPtr{})),
       chart_queue_(std::make_shared<BlockingQueue<DiagnosticsSnapshotPtr>>(512)),
       system_storage_queue_(std::make_shared<BlockingQueue<SystemSnapshotPtr>>(512)),
-      diagnostics_storage_queue_(std::make_shared<BlockingQueue<DiagnosticsSnapshotPtr>>(512)),
-      aborted_(false) {
-    // Setup render queue slot
-    render_queue_slot_.store(SystemSnapshotPtr{});
-
+      diagnostics_storage_queue_(std::make_shared<BlockingQueue<DiagnosticsSnapshotPtr>>(512)) {
     const bool save_settings = settings.get<bool>(SettingKey::SaveSettings);
     ENKAS_LOG_DEBUG("Configuration: SaveSettings={}, SaveSystemData={}, SaveDiagnosticsData={}",
                     save_settings,
@@ -47,7 +37,7 @@ SimulationRunner::SimulationRunner(const Settings& settings, QObject* parent)
 
     // Simulation Window
     simulation_window_presenter_ = new SimulationWindowPresenter(simulation_window_, this);
-    simulation_window_presenter_->initLiveMode(&render_queue_slot_, chart_queue_, duration_);
+    simulation_window_presenter_->initLiveMode(rendering_snapshot_, chart_queue_, duration_);
 
     // Data storage
     setupOutputDir();
@@ -70,40 +60,44 @@ SimulationRunner::SimulationRunner(const Settings& settings, QObject* parent)
     // Simulation
     setupSimulationWorker(settings);
 
-    ENKAS_LOG_INFO("Simulation manager initialized successfully.");
+    ENKAS_LOG_INFO("Simulation runner initialized successfully.");
 }
 
 SimulationRunner::~SimulationRunner() {
-    ENKAS_LOG_INFO("Simulation manager is being destroyed. Aborting any ongoing processes...");
+    ENKAS_LOG_INFO("Simulation runner is being destroyed. Aborting any ongoing processes...");
     aborted_ = true;
 
     if (simulation_window_) {
         simulation_window_->close();
         simulation_window_->deleteLater();
         simulation_window_ = nullptr;
+        ENKAS_LOG_DEBUG("Simulation window deleted.");
     }
 
+    if (simulation_worker_) simulation_worker_->abort();
     if (system_storage_worker_) system_storage_worker_->abort();
     if (diagnostics_storage_worker_) diagnostics_storage_worker_->abort();
 
-    // Join storage threads
+    // Join threads
+    if (simulation_thread_ && simulation_thread_->isRunning()) {
+        simulation_thread_->quit();
+        simulation_thread_->wait();
+        ENKAS_LOG_DEBUG("Simulation worker thread joined.");
+    }
+
     if (system_storage_thread_ && system_storage_thread_->isRunning()) {
         system_storage_thread_->quit();
         system_storage_thread_->wait();
+        ENKAS_LOG_DEBUG("System storage worker thread joined.");
     }
 
     if (diagnostics_storage_thread_ && diagnostics_storage_thread_->isRunning()) {
         diagnostics_storage_thread_->quit();
         diagnostics_storage_thread_->wait();
+        ENKAS_LOG_DEBUG("Diagnostics storage worker thread joined.");
     }
 
-    // Join simulation thread
-    if (simulation_thread_ && simulation_thread_->isRunning()) {
-        simulation_thread_->quit();
-        simulation_thread_->wait();
-    }
-
-    ENKAS_LOG_INFO("Simulation manager destroyed successfully.");
+    ENKAS_LOG_INFO("Simulation runner destroyed successfully.");
 }
 
 void SimulationRunner::openSimulationWindow() {
@@ -124,47 +118,7 @@ void SimulationRunner::receivedGenerationCompleted() {
 void SimulationRunner::receivedInitializationCompleted() {
     emit initializationCompleted();
     if (aborted_) return;
-    emit requestSimulationStep();
-}
-
-void SimulationRunner::receivedSimulationStep(double time,
-                                              SystemSnapshotPtr system_snapshot,
-                                              DiagnosticsSnapshotPtr diagnostics_snapshot) {
-    performSimulationStep(time, system_snapshot, diagnostics_snapshot);
-}
-
-void SimulationRunner::performSimulationStep(double time,
-                                             SystemSnapshotPtr system_snapshot,
-                                             DiagnosticsSnapshotPtr diagnostics_snapshot) {
-    emit simulationStep(time);
-    time_ = time;
-
-    if (system_snapshot) {
-        // Signal to update the render data
-        render_queue_slot_.store(system_snapshot, std::memory_order_release);
-
-        // Signal to save the system data (if enabled)
-        if (save_system_data_) {
-            system_storage_queue_->pushBlocking(system_snapshot);
-            emit saveRenderData();
-        }
-    }
-
-    if (diagnostics_snapshot) {
-        // Signal to update the charts data
-        chart_queue_->pushBlocking(diagnostics_snapshot);
-        simulation_window_presenter_->updateCharts();
-
-        // Signal to save the diagnostics data (if enabled)
-        if (save_diagnostics_data_) {
-            diagnostics_storage_queue_->pushBlocking(diagnostics_snapshot);
-            emit saveDiagnosticsData();
-        }
-    }
-
-    if (time <= duration_ && !aborted_) {
-        emit requestSimulationStep();
-    }
+    emit requestSimulationStart();
 }
 
 void SimulationRunner::setupOutputDir() {
@@ -218,7 +172,11 @@ void SimulationRunner::setupDiagnosticsStorageWorker() {
 }
 
 void SimulationRunner::setupSimulationWorker(const Settings& settings) {
-    simulation_worker_ = new SimulationWorker(settings);
+    simulation_worker_ = new SimulationWorker(settings,
+                                              rendering_snapshot_,
+                                              chart_queue_,
+                                              system_storage_queue_,
+                                              diagnostics_storage_queue_);
     simulation_thread_ = new QThread(this);
     simulation_worker_->moveToThread(simulation_thread_);
     connect(simulation_thread_, &QThread::finished, simulation_worker_, &QObject::deleteLater);
@@ -233,9 +191,9 @@ void SimulationRunner::setupSimulationWorker(const Settings& settings) {
             simulation_worker_,
             &SimulationWorker::startInitialization);
     connect(this,
-            &SimulationRunner::requestSimulationStep,
+            &SimulationRunner::requestSimulationStart,
             simulation_worker_,
-            &SimulationWorker::step);
+            &SimulationWorker::runSimulation);
 
     // Signals from Worker to Manager
     connect(simulation_worker_,
@@ -246,10 +204,6 @@ void SimulationRunner::setupSimulationWorker(const Settings& settings) {
             &SimulationWorker::initializationCompleted,
             this,
             &SimulationRunner::receivedInitializationCompleted);
-    connect(simulation_worker_,
-            &SimulationWorker::simulationStep,
-            this,
-            &SimulationRunner::receivedSimulationStep);
 
     simulation_thread_->start();
 
