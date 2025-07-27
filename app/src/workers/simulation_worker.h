@@ -11,6 +11,7 @@
 #include <memory>
 
 #include "core/dataflow/blocking_queue.h"
+#include "core/dataflow/debug_info.h"
 #include "core/dataflow/memory_pool.h"
 #include "core/dataflow/snapshot.h"
 #include "core/settings/settings.h"
@@ -25,13 +26,14 @@ class SimulationWorker : public QObject {
 public:
     /**
      * @brief Constructs a SimulationWorker with the given settings.
+     * @param settings The settings to configure the worker.
      * @param render_queue_slot A shared pointer to the render queue slot for system snapshots.
      * @param chart_queue A shared pointer to the diagnostics queue for chart data.
      * @param system_storage_queue A shared pointer to the queue for system snapshots to be stored
      * in a file.
      * @param diagnostics_storage_queue A shared pointer to the queue for diagnostics snapshots to
      * be stored in a file.
-     * @param settings The settings to configure the worker.
+     * @param debug_info A shared pointer to the debug information for live mode.
      * @param parent The parent QObject.
      */
     explicit SimulationWorker(
@@ -40,6 +42,7 @@ public:
         std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> chart_queue,
         std::shared_ptr<BlockingQueue<SystemSnapshotPtr>> system_storage_queue,
         std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> diagnostics_storage_queue,
+        std::shared_ptr<LiveDebugInfo> debug_info,
         QObject* parent = nullptr);
     ~SimulationWorker() override = default;
 
@@ -53,12 +56,6 @@ public:
      * @return The current time in time step units.
      */
     double getTime() const { return time_.load(); }
-
-    /**
-     * @brief Returns the number of simulation steps taken.
-     * @return The number of steps.
-     */
-    int getStepCount() const { return step_count_.load(std::memory_order_relaxed); }
 
 public slots:
     /**
@@ -94,6 +91,8 @@ private:
     std::unique_ptr<enkas::generation::Generator> generator_;
     std::unique_ptr<enkas::simulation::Simulator> simulator_;
 
+    std::shared_ptr<LiveDebugInfo> debug_info_;
+
     const size_t pool_size_ = 512;  // Size of each memory pool
     std::unique_ptr<MemoryPool<enkas::data::System, size_t>> system_data_pool_;
     std::unique_ptr<MemoryPool<enkas::data::Diagnostics>> diagnostics_data_pool_;
@@ -117,9 +116,8 @@ private:
     double system_step_;       // After each system step, the system data will be retrieved
     double diagnostics_step_;  // After each diagnostics step, the diagnostics data will be
 
-    double duration_;                  // Total duration of the simulation
-    std::atomic<double> time_ = 0.0;   // Current simulation time
-    std::atomic<int> step_count_ = 0;  // Number of simulation steps taken
+    double duration_;                 // Total duration of the simulation
+    std::atomic<double> time_ = 0.0;  // Current simulation time
 
     std::atomic<bool> stop_requested_ = false;
 };

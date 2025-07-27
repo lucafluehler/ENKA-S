@@ -20,12 +20,14 @@ SimulationWorker::SimulationWorker(
     std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> chart_queue,
     std::shared_ptr<BlockingQueue<SystemSnapshotPtr>> system_storage_queue,
     std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> diagnostics_storage_queue,
+    std::shared_ptr<LiveDebugInfo> debug_info,
     QObject* parent)
     : QObject(parent),
       rendering_snapshot_(rendering_snapshot),
       chart_queue_(chart_queue),
       system_storage_queue_(system_storage_queue),
       diagnostics_storage_queue_(diagnostics_storage_queue),
+      debug_info_(debug_info),
       system_step_(settings.get<double>(SettingKey::SystemDataStep)),
       diagnostics_step_(settings.get<double>(SettingKey::DiagnosticsDataStep)),
       duration_(settings.get<double>(SettingKey::Duration)) {
@@ -49,6 +51,12 @@ SimulationWorker::SimulationWorker(
     system_snapshot_pool_ = std::make_unique<MemoryPool<Snapshot<enkas::data::System>>>(pool_size_);
     diagnostics_snapshot_pool_ =
         std::make_unique<MemoryPool<Snapshot<enkas::data::Diagnostics>>>(pool_size_);
+
+    // Update debug info
+    debug_info_->system_data_pool_capacity = pool_size_;
+    debug_info_->diagnostics_data_pool_capacity = pool_size_;
+    debug_info_->system_snapshot_pool_capacity = pool_size_;
+    debug_info_->diagnostics_snapshot_pool_capacity = pool_size_;
 
     ENKAS_LOG_INFO("Simulation worker initialized successfully.");
 }
@@ -112,7 +120,7 @@ void SimulationWorker::runSimulation() {
     // Reset time and step count
     double time = 0.0;
     time_.store(time);
-    step_count_.store(0, std::memory_order_relaxed);
+    debug_info_->current_step.store(0, std::memory_order_relaxed);
     while (time < duration_ && !stop_requested_.load()) {
         const bool retrieve_system_data = (time - last_system_update_ >= system_step_);
         const bool retrieve_diagnostics_data =
@@ -165,7 +173,22 @@ void SimulationWorker::runSimulation() {
             last_diagnostics_update_ = time;
         }
 
-        step_count_.fetch_add(1, std::memory_order_relaxed);
+        // Update debug info
+        debug_info_->time.store(time, std::memory_order_relaxed);
+        debug_info_->current_step.fetch_add(1, std::memory_order_relaxed);
+        debug_info_->system_data_pool_size = system_data_pool_->size();
+        debug_info_->diagnostics_data_pool_size = diagnostics_data_pool_->size();
+        debug_info_->system_snapshot_pool_size = system_snapshot_pool_->size();
+        debug_info_->diagnostics_snapshot_pool_size = diagnostics_snapshot_pool_->size();
+        if (chart_queue_) {
+            debug_info_->chart_queue_size = chart_queue_->size();
+        }
+        if (system_storage_queue_) {
+            debug_info_->system_storage_queue_size = system_storage_queue_->size();
+        }
+        if (diagnostics_storage_queue_) {
+            debug_info_->diagnostics_storage_queue_size = diagnostics_storage_queue_->size();
+        }
     }
 
     ENKAS_LOG_INFO("Simulation completed successfully.");
