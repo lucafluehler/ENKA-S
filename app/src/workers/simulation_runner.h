@@ -5,6 +5,7 @@
 #include <QThread>
 
 #include "core/dataflow/blocking_queue.h"
+#include "core/dataflow/debug_info.h"
 #include "core/dataflow/snapshot.h"
 #include "core/settings/settings.h"
 #include "presenters/simulation_window_presenter.h"
@@ -103,8 +104,10 @@ private:
 
     std::shared_ptr<std::atomic<SystemSnapshotPtr>> rendering_snapshot_;
     std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> chart_queue_;
-    std::shared_ptr<BlockingQueue<SystemSnapshotPtr>> system_storage_queue_;
-    std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> diagnostics_storage_queue_;
+    std::shared_ptr<BlockingQueue<SystemSnapshotPtr>> system_storage_queue_ = nullptr;
+    std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> diagnostics_storage_queue_ = nullptr;
+
+    std::shared_ptr<LiveDebugInfo> debug_info_;
 
     bool aborted_ = false;  // Flag to indicate if the simulation was aborted
 };

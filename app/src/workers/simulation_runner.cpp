@@ -26,18 +26,17 @@ SimulationRunner::SimulationRunner(const Settings& settings, QObject* parent)
       save_diagnostics_data_(settings.get<bool>(SettingKey::SaveDiagnosticsData)),
       simulation_window_(new SimulationWindow),
       rendering_snapshot_(std::make_shared<std::atomic<SystemSnapshotPtr>>(SystemSnapshotPtr{})),
-      chart_queue_(std::make_shared<BlockingQueue<DiagnosticsSnapshotPtr>>(512)),
-      system_storage_queue_(std::make_shared<BlockingQueue<SystemSnapshotPtr>>(512)),
-      diagnostics_storage_queue_(std::make_shared<BlockingQueue<DiagnosticsSnapshotPtr>>(512)) {
+      chart_queue_(std::make_shared<BlockingQueue<DiagnosticsSnapshotPtr>>(512)) {
     const bool save_settings = settings.get<bool>(SettingKey::SaveSettings);
     ENKAS_LOG_DEBUG("Configuration: SaveSettings={}, SaveSystemData={}, SaveDiagnosticsData={}",
                     save_settings,
                     save_system_data_,
                     save_diagnostics_data_);
 
-    // Simulation Window
-    simulation_window_presenter_ = new SimulationWindowPresenter(simulation_window_, this);
-    simulation_window_presenter_->initLiveMode(rendering_snapshot_, chart_queue_, duration_);
+    // Debug Info
+    debug_info_ = std::make_shared<LiveDebugInfo>();
+    debug_info_->duration = duration_;
+    debug_info_->chart_queue_capacity = 512;  // Default capacity for the chart queue
 
     // Data storage
     setupOutputDir();
@@ -47,15 +46,23 @@ SimulationRunner::SimulationRunner(const Settings& settings, QObject* parent)
         ENKAS_LOG_INFO("Settings saved to: {}", output_dir_.string());
     }
 
+    const size_t queue_capacity = 512;
     if (save_system_data_) {
-        system_storage_queue_ = std::make_shared<BlockingQueue<SystemSnapshotPtr>>(512);
+        system_storage_queue_ = std::make_shared<BlockingQueue<SystemSnapshotPtr>>(queue_capacity);
         setupSystemStorageWorker();
+        debug_info_->system_storage_queue_capacity = queue_capacity;
     }
 
     if (save_diagnostics_data_) {
-        diagnostics_storage_queue_ = std::make_shared<BlockingQueue<DiagnosticsSnapshotPtr>>(512);
+        diagnostics_storage_queue_ =
+            std::make_shared<BlockingQueue<DiagnosticsSnapshotPtr>>(queue_capacity);
         setupDiagnosticsStorageWorker();
+        debug_info_->diagnostics_storage_queue_capacity = queue_capacity;
     }
+
+    // Simulation Window
+    simulation_window_presenter_ = new SimulationWindowPresenter(simulation_window_, this);
+    simulation_window_presenter_->initLiveMode(rendering_snapshot_, chart_queue_, debug_info_);
 
     // Simulation
     setupSimulationWorker(settings);
@@ -176,7 +183,8 @@ void SimulationRunner::setupSimulationWorker(const Settings& settings) {
                                               rendering_snapshot_,
                                               chart_queue_,
                                               system_storage_queue_,
-                                              diagnostics_storage_queue_);
+                                              diagnostics_storage_queue_,
+                                              debug_info_);
     simulation_thread_ = new QThread(this);
     simulation_worker_->moveToThread(simulation_thread_);
     connect(simulation_thread_, &QThread::finished, simulation_worker_, &QObject::deleteLater);
