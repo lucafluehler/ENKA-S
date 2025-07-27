@@ -69,6 +69,15 @@ public:
                 }};
     }
 
+    /**
+     * @brief Returns the number of currently available buffers in the pool.
+     * @return The number of available (not in-use) buffers.
+     */
+    [[nodiscard]] size_t size() const {
+        std::scoped_lock lock(mtx_);
+        return buffers_.size();
+    }
+
 private:
     void returnBuffer(T* ptr) {
         {
@@ -78,7 +87,7 @@ private:
         cv_.notify_one();
     }
 
-    std::mutex mtx_;
+    mutable std::mutex mtx_;
     std::condition_variable cv_;
     std::queue<T*> buffers_;
 };

@@ -33,8 +33,17 @@ public:
         return item;
     }
 
+    /**
+     * @brief Returns the number of items currently in the queue.
+     * @return The current size of the queue.
+     */
+    [[nodiscard]] size_t size() const {
+        std::scoped_lock lock(mutex_);
+        return buffer_.size();
+    }
+
 private:
-    std::mutex mutex_;
+    mutable std::mutex mutex_;
     std::condition_variable cond_full_;
     std::condition_variable cond_empty_;
     std::deque<T> buffer_;
