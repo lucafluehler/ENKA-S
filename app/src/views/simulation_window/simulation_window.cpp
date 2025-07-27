@@ -10,6 +10,7 @@
 #include "forms/simulation_window/ui_simulation_window.h"
 #include "rendering/particle_renderer.h"
 #include "rendering/render_settings.h"
+#include "widgets/debug_info_widget.h"
 #include "widgets/render_settings_widget.h"
 
 SimulationWindow::SimulationWindow(QWidget* parent)
@@ -31,6 +32,8 @@ SimulationWindow::SimulationWindow(QWidget* parent)
             this,
             &SimulationWindow::saveSettings);
     connect(ui_->btnToggleSettings, &QToolButton::clicked, this, &SimulationWindow::toggleSettings);
+    connect(
+        ui_->btnToggleDebugInfo, &QToolButton::clicked, this, &SimulationWindow::toggleDebugInfo);
     connect(ui_->btnToggleSidebar, &QToolButton::clicked, this, &SimulationWindow::toggleSidebar);
     connect(ui_->btnScreenshot,
             &QToolButton::clicked,
@@ -51,7 +54,7 @@ SimulationWindow::SimulationWindow(QWidget* parent)
     setupCharts();
 }
 
-void SimulationWindow::initLiveMode(double simulation_duration) {
+void SimulationWindow::initLiveMode(std::shared_ptr<LiveDebugInfo> debug_info) {
     ui_->btnJumpToStart->setVisible(false);
     ui_->btnStepBackward->setVisible(false);
     ui_->btnTogglePlayback->setVisible(false);
@@ -60,7 +63,41 @@ void SimulationWindow::initLiveMode(double simulation_duration) {
     ui_->btnChangeSpeed->setVisible(false);
     ui_->hslNavigation->setEnabled(false);
 
-    simulation_duration_ = simulation_duration;
+    live_debug_info_ = debug_info;
+    simulation_duration_ = debug_info->duration;
+
+    static const std::vector<DebugInfoRow<LiveDebugInfo>> live_debug_mapping = {
+        {.name = "System Data Pool",
+         .size_member = &LiveDebugInfo::system_data_pool_size,
+         .capacity_member = &LiveDebugInfo::system_data_pool_capacity,
+         .more_is_better = true},
+        {.name = "Diagnostics Data Pool",
+         .size_member = &LiveDebugInfo::diagnostics_data_pool_size,
+         .capacity_member = &LiveDebugInfo::diagnostics_data_pool_capacity,
+         .more_is_better = true},
+        {.name = "System Snapshot Pool",
+         .size_member = &LiveDebugInfo::system_snapshot_pool_size,
+         .capacity_member = &LiveDebugInfo::system_snapshot_pool_capacity,
+         .more_is_better = true},
+        {.name = "Diagnostics Snapshot Pool",
+         .size_member = &LiveDebugInfo::diagnostics_snapshot_pool_size,
+         .capacity_member = &LiveDebugInfo::diagnostics_snapshot_pool_capacity,
+         .more_is_better = true},
+        {.name = "Chart Queue",
+         .size_member = &LiveDebugInfo::chart_queue_size,
+         .capacity_member = &LiveDebugInfo::chart_queue_capacity,
+         .more_is_better = false},
+        {.name = "System Storage Queue",
+         .size_member = &LiveDebugInfo::system_storage_queue_size,
+         .capacity_member = &LiveDebugInfo::system_storage_queue_capacity,
+         .more_is_better = false},
+        {.name = "Diagnostics Storage Queue",
+         .size_member = &LiveDebugInfo::diagnostics_storage_queue_size,
+         .capacity_member = &LiveDebugInfo::diagnostics_storage_queue_capacity,
+         .more_is_better = false},
+    };
+
+    ui_->wgtDebugInfo->setupInfo<LiveDebugInfo>(live_debug_mapping);
 }
 
 void SimulationWindow::initReplayMode(std::shared_ptr<std::vector<double>> timestamps,
@@ -111,6 +148,16 @@ void SimulationWindow::toggleSettings() {
     }
 }
 
+void SimulationWindow::toggleDebugInfo() {
+    if (ui_->wgtDebugInfo->isVisible()) {
+        ui_->wgtDebugInfo->setVisible(false);
+    } else {
+        ui_->wgtSidebar->setVisible(true);
+        ui_->wgtDebugInfo->setVisible(true);
+        ui_->btnToggleSidebar->setArrowType(Qt::RightArrow);
+    }
+}
+
 void SimulationWindow::toggleMovie(bool checked) {
     if (checked) {
         movie_timer->start();
@@ -132,13 +179,18 @@ void SimulationWindow::updateSystemRendering(SystemSnapshotPtr system_snapshot) 
         return;
     }
 
-    // Update time_progress label
+    // Update time progress
     const double time = system_snapshot->time;
     const auto time_text = QString("%1 / %2").arg(time).arg(simulation_duration_);
     ui_->lblTime->setText(time_text);
 
     // Update horizontal progress slider
     ui_->hslNavigation->setValue(1000.0 * time / simulation_duration_);
+
+    // Update the debug info
+    if (live_debug_info_) {
+        ui_->wgtDebugInfo->updateInfo<LiveDebugInfo>(*live_debug_info_);
+    }
 }
 
 void SimulationWindow::updateDebugInfo(int fps, int sps) {

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <memory>
+
+#include "core/dataflow/debug_info.h"
 #include "core/dataflow/snapshot.h"
 
 class ISimulationWindowView {
@@ -10,9 +13,9 @@ public:
      * @brief Initializes the view for live mode.
      * In live mode, the particle rendering of the simulated system and its diagnostics charts are
      * updated in real-time.
-     * @param simulation_duration The total duration of the simulation, used for time navigation.
+     * @param debug_info Shared pointer to the debug information for live mode.
      */
-    virtual void initLiveMode(double simulation_duration) = 0;
+    virtual void initLiveMode(std::shared_ptr<LiveDebugInfo> debug_info) = 0;
 
     /**
      * @brief Initializes the view for replay mode.
@@ -45,7 +48,7 @@ public:
     /**
      * @brief Updates the debug information displayed in the UI.
      * @param fps The current frames per second to display.
-     * @param sps The current snapshots per second to display.
+     * @param sps The current steps per second to display.
      */
     virtual void updateDebugInfo(int fps, int sps) = 0;
 };

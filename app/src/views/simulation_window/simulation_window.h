@@ -1,11 +1,14 @@
 #pragma once
 
 #include <QElapsedTimer>
+#include <QLabel>
 #include <QMainWindow>
 #include <QString>
 #include <QTimer>
 #include <QVector>
+#include <memory>
 
+#include "core/dataflow/debug_info.h"
 #include "core/dataflow/snapshot.h"
 #include "i_simulation_window_view.h"
 #include "rendering/render_settings.h"
@@ -31,7 +34,7 @@ public:
     explicit SimulationWindow(QWidget *parent = nullptr);
     ~SimulationWindow() override = default;
 
-    void initLiveMode(double simulation_duration) override;
+    void initLiveMode(std::shared_ptr<LiveDebugInfo> debug_info) override;
     void initReplayMode(std::shared_ptr<std::vector<double>> timestamps,
                         std::shared_ptr<DiagnosticsSeries> diagnostics_series) override;
 
@@ -66,6 +69,7 @@ private slots:
     void saveSettings();
     void toggleSidebar();
     void toggleSettings();
+    void toggleDebugInfo();
     void toggleMovie(bool checked);
 
 protected:
@@ -80,8 +84,10 @@ private:
 
     Ui::SimulationWindow *ui_;
 
+    double simulation_duration_ = 0.0;  // Total duration of the simulation
+
     // Stored data for live mode
-    double simulation_duration_ = 0.0;
+    std::shared_ptr<LiveDebugInfo> live_debug_info_ = nullptr;
 
     // Stored data for replay mode
     std::shared_ptr<std::vector<double>> timestamps_ = nullptr;

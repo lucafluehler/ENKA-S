@@ -7,7 +7,9 @@
 #include <memory>
 
 #include "core/dataflow/blocking_queue.h"
+#include "core/dataflow/debug_info.h"
 #include "core/dataflow/snapshot.h"
+#include "workers/queue_storage_worker.h"
 
 class ISimulationWindowView;
 
@@ -24,7 +26,7 @@ public:
      * @param parent Optional parent QObject.
      */
     explicit SimulationWindowPresenter(ISimulationWindowView* view, QObject* parent = nullptr);
-    ~SimulationWindowPresenter() override = default;
+    ~SimulationWindowPresenter() override;
 
     /**
      * @brief Enumeration for the different modes of the simulation window.
@@ -38,11 +40,11 @@ public:
      * @brief Initializes the presenter for live mode.
      * @param rendering_snapshot Shared pointer to the snapshot to be rendered.
      * @param chart_queue Shared pointer to the diagnostics chart queue.
-     * @param simulation_duration Duration of the simulation in seconds.
+     * @param debug_info Shared pointer to the debug information for live mode.
      */
     void initLiveMode(std::shared_ptr<std::atomic<SystemSnapshotPtr>> rendering_snapshot,
                       std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> chart_queue,
-                      double simulation_duration);
+                      std::shared_ptr<LiveDebugInfo> debug_info);
 
     /**
      * @brief Initializes the presenter for replay mode.
@@ -60,6 +62,12 @@ public:
      */
     Mode getMode() const { return mode_; };
 
+signals:
+    /** @signal
+     * @brief Emitted when new chart data is ready to be displayed.
+     */
+    void chartDataReady(DiagnosticsSnapshotPtr snapshot);
+
 public slots:
     /**
      * @brief Updates the rendering of the simulation window.
@@ -70,9 +78,11 @@ public slots:
     /**
      * @brief Updates the charts with the latest diagnostics data.
      */
-    void updateCharts();
+    void updateCharts(DiagnosticsSnapshotPtr diagnostics_snapshot);
 
 private:
+    void setupChartWorker();
+
     ISimulationWindowView* view_;
 
     Mode mode_;
@@ -81,10 +91,14 @@ private:
     const int target_fps_ = 120;
     std::chrono::steady_clock::time_point last_debug_info_update_time_;
     int frame_count_ = 0;
-    int snapshot_count_ = 0;
+    int previous_step_count_ = 0;
 
     std::shared_ptr<std::atomic<SystemSnapshotPtr>> rendering_snapshot_;
 
     // For live mode
+    QueueStorageWorkerBase* chart_worker_ = nullptr;
+    QThread* chart_thread_ = nullptr;
+
     std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> chart_queue_;
+    std::shared_ptr<LiveDebugInfo> debug_info_;
 };
