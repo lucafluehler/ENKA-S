@@ -4,14 +4,12 @@
 #include <QObject>
 #include <QThread>
 
-#include "core/dataflow/blocking_queue.h"
 #include "core/dataflow/debug_info.h"
-#include "core/dataflow/snapshot.h"
 #include "core/settings/settings.h"
 #include "presenters/simulation_window_presenter.h"
 #include "queue_storage_worker.h"
-#include "simulation_worker.h"
 #include "views/simulation_window/simulation_window.h"
+#include "workers/simulation_worker.h"
 
 /**
  * @brief The SimulationRunner class manages the simulation process, including
@@ -102,10 +100,10 @@ private:
     QueueStorageWorkerBase* diagnostics_storage_worker_ = nullptr;
     QThread* diagnostics_storage_thread_ = nullptr;
 
-    std::shared_ptr<std::atomic<SystemSnapshotPtr>> rendering_snapshot_;
-    std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> chart_queue_;
-    std::shared_ptr<BlockingQueue<SystemSnapshotPtr>> system_storage_queue_ = nullptr;
-    std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> diagnostics_storage_queue_ = nullptr;
+    std::shared_ptr<MemoryPools> memory_pools_;
+
+    const size_t pool_size_ = 512;  // Default size for memory pools
+    std::shared_ptr<SimulationOutputs> outputs_;
 
     std::shared_ptr<LiveDebugInfo> debug_info_;
 

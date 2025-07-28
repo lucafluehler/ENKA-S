@@ -14,19 +14,14 @@
 #include "core/settings/settings.h"
 #include "enkas/data/diagnostics.h"
 
-SimulationWorker::SimulationWorker(
-    const Settings& settings,
-    std::shared_ptr<std::atomic<SystemSnapshotPtr>> rendering_snapshot,
-    std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> chart_queue,
-    std::shared_ptr<BlockingQueue<SystemSnapshotPtr>> system_storage_queue,
-    std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> diagnostics_storage_queue,
-    std::shared_ptr<LiveDebugInfo> debug_info,
-    QObject* parent)
+SimulationWorker::SimulationWorker(const Settings& settings,
+                                   std::shared_ptr<MemoryPools> memory_pools,
+                                   std::shared_ptr<SimulationOutputs> outputs,
+                                   std::shared_ptr<LiveDebugInfo> debug_info,
+                                   QObject* parent)
     : QObject(parent),
-      rendering_snapshot_(rendering_snapshot),
-      chart_queue_(chart_queue),
-      system_storage_queue_(system_storage_queue),
-      diagnostics_storage_queue_(diagnostics_storage_queue),
+      memory_pools_(memory_pools),
+      outputs_(outputs),
       debug_info_(debug_info),
       system_step_(settings.get<double>(SettingKey::SystemDataStep)),
       diagnostics_step_(settings.get<double>(SettingKey::DiagnosticsDataStep)),
@@ -47,10 +42,12 @@ SimulationWorker::SimulationWorker(
 
     // Setup memory pools for diagnostics data and snapshots. The system data pool will be
     // initialized later with the particle count from the initial system.
-    diagnostics_data_pool_ = std::make_unique<MemoryPool<enkas::data::Diagnostics>>(pool_size_);
-    system_snapshot_pool_ = std::make_unique<MemoryPool<Snapshot<enkas::data::System>>>(pool_size_);
-    diagnostics_snapshot_pool_ =
-        std::make_unique<MemoryPool<Snapshot<enkas::data::Diagnostics>>>(pool_size_);
+    memory_pools_->diagnostics_data_pool =
+        std::make_shared<MemoryPool<enkas::data::Diagnostics>>(pool_size_);
+    memory_pools_->system_snapshot_pool =
+        std::make_shared<MemoryPool<Snapshot<enkas::data::System>>>(pool_size_);
+    memory_pools_->diagnostics_snapshot_pool =
+        std::make_shared<MemoryPool<Snapshot<enkas::data::Diagnostics>>>(pool_size_);
 
     // Update debug info
     debug_info_->system_data_pool_capacity = pool_size_;
@@ -84,7 +81,7 @@ void SimulationWorker::startGeneration() {
 
     // Initialize the system data pool with the particle count from the initial system
     const size_t particle_count = initial_system_->count();
-    system_data_pool_ =
+    memory_pools_->system_data_pool =
         std::make_unique<MemoryPool<enkas::data::System, size_t>>(pool_size_, particle_count);
 
     ENKAS_LOG_INFO("Initial system generated successfully with {} particles.", particle_count);
@@ -98,10 +95,10 @@ void SimulationWorker::startInitialization() {
     }
 
     // Pass two initial data buffers to the simulator
-    auto initial_system_data = system_data_pool_->acquire();
+    auto initial_system_data = memory_pools_->system_data_pool->acquire();
     *initial_system_data = *initial_system_;
 
-    auto temp_system_buffer = system_data_pool_->acquire();
+    auto temp_system_buffer = memory_pools_->system_data_pool->acquire();
 
     simulator_->initialize(initial_system_data, temp_system_buffer);
 
@@ -130,11 +127,11 @@ void SimulationWorker::runSimulation() {
         std::shared_ptr<enkas::data::Diagnostics> diagnostics_data = nullptr;
 
         if (retrieve_system_data) {
-            system_data = system_data_pool_->acquire();
+            system_data = memory_pools_->system_data_pool->acquire();
         }
 
         if (retrieve_diagnostics_data) {
-            diagnostics_data = diagnostics_data_pool_->acquire();
+            diagnostics_data = memory_pools_->diagnostics_data_pool->acquire();
         }
 
         simulator_->step(system_data, diagnostics_data);
@@ -142,32 +139,32 @@ void SimulationWorker::runSimulation() {
         time_.store(time);
 
         if (retrieve_system_data) {
-            auto system_snapshot = system_snapshot_pool_->acquire();
+            auto system_snapshot = memory_pools_->system_snapshot_pool->acquire();
             system_snapshot->data = std::move(system_data);
             system_snapshot->time = time;
 
-            if (rendering_snapshot_) {
-                rendering_snapshot_->store(system_snapshot, std::memory_order_release);
+            if (outputs_->rendering_snapshot) {
+                outputs_->rendering_snapshot->store(system_snapshot, std::memory_order_release);
             }
 
-            if (system_storage_queue_) {
-                system_storage_queue_->pushBlocking(system_snapshot);
+            if (outputs_->system_storage_queue) {
+                outputs_->system_storage_queue->pushBlocking(system_snapshot);
             }
 
             last_system_update_ = time;
         }
 
         if (retrieve_diagnostics_data) {
-            auto diagnostics_snapshot = diagnostics_snapshot_pool_->acquire();
+            auto diagnostics_snapshot = memory_pools_->diagnostics_snapshot_pool->acquire();
             diagnostics_snapshot->data = std::move(diagnostics_data);
             diagnostics_snapshot->time = time;
 
-            if (chart_queue_) {
-                chart_queue_->pushBlocking(diagnostics_snapshot);
+            if (outputs_->chart_queue) {
+                outputs_->chart_queue->pushBlocking(diagnostics_snapshot);
             }
 
-            if (diagnostics_storage_queue_) {
-                diagnostics_storage_queue_->pushBlocking(diagnostics_snapshot);
+            if (outputs_->diagnostics_storage_queue) {
+                outputs_->diagnostics_storage_queue->pushBlocking(diagnostics_snapshot);
             }
 
             last_diagnostics_update_ = time;
@@ -175,18 +172,20 @@ void SimulationWorker::runSimulation() {
 
         // Update debug info
         debug_info_->current_step.fetch_add(1, std::memory_order_relaxed);
-        debug_info_->system_data_pool_size = system_data_pool_->size();
-        debug_info_->diagnostics_data_pool_size = diagnostics_data_pool_->size();
-        debug_info_->system_snapshot_pool_size = system_snapshot_pool_->size();
-        debug_info_->diagnostics_snapshot_pool_size = diagnostics_snapshot_pool_->size();
-        if (chart_queue_) {
-            debug_info_->chart_queue_size = chart_queue_->size();
+        debug_info_->system_data_pool_size = memory_pools_->system_data_pool->size();
+        debug_info_->diagnostics_data_pool_size = memory_pools_->diagnostics_data_pool->size();
+        debug_info_->system_snapshot_pool_size = memory_pools_->system_snapshot_pool->size();
+        debug_info_->diagnostics_snapshot_pool_size =
+            memory_pools_->diagnostics_snapshot_pool->size();
+        if (outputs_->chart_queue) {
+            debug_info_->chart_queue_size = outputs_->chart_queue->size();
         }
-        if (system_storage_queue_) {
-            debug_info_->system_storage_queue_size = system_storage_queue_->size();
+        if (outputs_->system_storage_queue) {
+            debug_info_->system_storage_queue_size = outputs_->system_storage_queue->size();
         }
-        if (diagnostics_storage_queue_) {
-            debug_info_->diagnostics_storage_queue_size = diagnostics_storage_queue_->size();
+        if (outputs_->diagnostics_storage_queue) {
+            debug_info_->diagnostics_storage_queue_size =
+                outputs_->diagnostics_storage_queue->size();
         }
     }
 

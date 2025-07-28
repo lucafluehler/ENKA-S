@@ -17,6 +17,30 @@
 #include "core/settings/settings.h"
 
 /**
+ * @brief Contains memory pools which contain pre-allocated memory for system and diagnostics data,
+ * as well as snapshots of these data types. This is used to avoid frequent memory allocations and
+ * deep copies during the simulation process, which can be expensive in terms of performance.
+ */
+struct MemoryPools {
+    std::shared_ptr<MemoryPool<enkas::data::System, size_t>> system_data_pool = nullptr;
+    std::shared_ptr<MemoryPool<enkas::data::Diagnostics>> diagnostics_data_pool = nullptr;
+    std::shared_ptr<MemoryPool<Snapshot<enkas::data::System>>> system_snapshot_pool = nullptr;
+    std::shared_ptr<MemoryPool<Snapshot<enkas::data::Diagnostics>>> diagnostics_snapshot_pool =
+        nullptr;
+};
+
+/**
+ * @brief Contains shared pointers which hold snapshot pointers to generated data. This is used to
+ * share data between the producer and the consumers.
+ */
+struct SimulationOutputs {
+    std::shared_ptr<std::atomic<SystemSnapshotPtr>> rendering_snapshot = nullptr;
+    std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> chart_queue = nullptr;
+    std::shared_ptr<BlockingQueue<SystemSnapshotPtr>> system_storage_queue = nullptr;
+    std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> diagnostics_storage_queue = nullptr;
+};
+
+/**
  * @brief The SimulationWorker class is responsible for managing the simulation process,
  * including system generation, initialization, and stepping through the simulation. It is designed
  * to run in a separate thread.
@@ -27,23 +51,16 @@ public:
     /**
      * @brief Constructs a SimulationWorker with the given settings.
      * @param settings The settings to configure the worker.
-     * @param render_queue_slot A shared pointer to the render queue slot for system snapshots.
-     * @param chart_queue A shared pointer to the diagnostics queue for chart data.
-     * @param system_storage_queue A shared pointer to the queue for system snapshots to be stored
-     * in a file.
-     * @param diagnostics_storage_queue A shared pointer to the queue for diagnostics snapshots to
-     * be stored in a file.
+     * @param memory_pools Shared pointers to memory pools for pre-allocated data.
+     * @param outputs Shared pointers to output queues for simulation data.
      * @param debug_info A shared pointer to the debug information for live mode.
      * @param parent The parent QObject.
      */
-    explicit SimulationWorker(
-        const Settings& settings,
-        std::shared_ptr<std::atomic<SystemSnapshotPtr>> rendering_snapshot,
-        std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> chart_queue,
-        std::shared_ptr<BlockingQueue<SystemSnapshotPtr>> system_storage_queue,
-        std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> diagnostics_storage_queue,
-        std::shared_ptr<LiveDebugInfo> debug_info,
-        QObject* parent = nullptr);
+    explicit SimulationWorker(const Settings& settings,
+                              std::shared_ptr<MemoryPools> memory_pools,
+                              std::shared_ptr<SimulationOutputs> outputs,
+                              std::shared_ptr<LiveDebugInfo> debug_info,
+                              QObject* parent = nullptr);
     ~SimulationWorker() override = default;
 
     /**
@@ -93,16 +110,9 @@ private:
 
     std::shared_ptr<LiveDebugInfo> debug_info_;
 
-    const size_t pool_size_ = 512;  // Size of each memory pool
-    std::unique_ptr<MemoryPool<enkas::data::System, size_t>> system_data_pool_;
-    std::unique_ptr<MemoryPool<enkas::data::Diagnostics>> diagnostics_data_pool_;
-    std::unique_ptr<MemoryPool<Snapshot<enkas::data::System>>> system_snapshot_pool_;
-    std::unique_ptr<MemoryPool<Snapshot<enkas::data::Diagnostics>>> diagnostics_snapshot_pool_;
-
-    std::shared_ptr<std::atomic<SystemSnapshotPtr>> rendering_snapshot_;
-    std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> chart_queue_;
-    std::shared_ptr<BlockingQueue<SystemSnapshotPtr>> system_storage_queue_;
-    std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> diagnostics_storage_queue_;
+    const size_t pool_size_ = 512;  // Default size for memory pools
+    std::shared_ptr<MemoryPools> memory_pools_;
+    std::shared_ptr<SimulationOutputs> outputs_;
 
     std::unique_ptr<enkas::data::System> initial_system_;
 
