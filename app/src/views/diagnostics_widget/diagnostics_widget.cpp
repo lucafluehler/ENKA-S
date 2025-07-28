@@ -152,8 +152,15 @@ void DiagnosticsWidget::fillCharts(const DiagnosticsSeries& series) {
         for (size_t i = 0; i < charts_.size(); ++i) {
             series_[i]->clear();
             auto* chart = charts_[i];
-            auto* axisX = qobject_cast<QValueAxis*>(chart->axes(Qt::Horizontal).first());
-            auto* axisY = qobject_cast<QValueAxis*>(chart->axes(Qt::Vertical).first());
+
+            const auto axesX = chart->axes(Qt::Horizontal);
+            const auto axesY = chart->axes(Qt::Vertical);
+
+            QValueAxis* axisX =
+                (!axesX.isEmpty()) ? qobject_cast<QValueAxis*>(axesX.first()) : nullptr;
+            QValueAxis* axisY =
+                (!axesY.isEmpty()) ? qobject_cast<QValueAxis*>(axesY.first()) : nullptr;
+
             if (axisX && axisY) {
                 axisX->setRange(0, 1.0);
                 axisY->setRange(0, 1.0);
@@ -182,18 +189,26 @@ void DiagnosticsWidget::fillCharts(const DiagnosticsSeries& series) {
         series_[i]->replace(all_points[i]);
 
         auto* chart = charts_[i];
-        auto* axisX = qobject_cast<QValueAxis*>(chart->axes(Qt::Horizontal).first());
-        auto* axisY = qobject_cast<QValueAxis*>(chart->axes(Qt::Vertical).first());
+
+        const auto axesX = chart->axes(Qt::Horizontal);
+        const auto axesY = chart->axes(Qt::Vertical);
+
+        QValueAxis* axisX = (!axesX.isEmpty()) ? qobject_cast<QValueAxis*>(axesX.first()) : nullptr;
+        QValueAxis* axisY = (!axesY.isEmpty()) ? qobject_cast<QValueAxis*>(axesY.first()) : nullptr;
 
         if (axisX && axisY) {
             axisX->setRange(0, std::max(max_time_, 1e-9));
 
             const double y_margin = (max_values_[i] - min_values_[i]) * 0.05;
-            axisY->setRange(min_values_[i] - y_margin, max_values_[i] + y_margin);
+            double minY = min_values_[i] - y_margin;
+            double maxY = max_values_[i] + y_margin;
 
-            if (qFuzzyCompare(axisY->min(), axisY->max())) {
-                axisY->setRange(axisY->min() - 1.0, axisY->max() + 1.0);
+            if (qFuzzyCompare(minY, maxY)) {
+                minY -= 1.0;
+                maxY += 1.0;
             }
+
+            axisY->setRange(minY, maxY);
         }
     }
 }
