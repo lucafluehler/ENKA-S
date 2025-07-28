@@ -89,6 +89,12 @@ SimulationRunner::~SimulationRunner() {
     if (simulation_thread_ && simulation_thread_->isRunning()) {
         simulation_thread_->quit();
         simulation_thread_->wait();
+
+        if (simulation_worker_) {
+            simulation_worker_->deleteLater();
+            simulation_worker_ = nullptr;
+        }
+
         ENKAS_LOG_DEBUG("Simulation worker thread joined.");
     }
 
@@ -187,7 +193,6 @@ void SimulationRunner::setupSimulationWorker(const Settings& settings) {
                                               debug_info_);
     simulation_thread_ = new QThread(this);
     simulation_worker_->moveToThread(simulation_thread_);
-    connect(simulation_thread_, &QThread::finished, simulation_worker_, &QObject::deleteLater);
 
     // Signals from Manager to Worker
     connect(this,
