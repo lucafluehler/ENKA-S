@@ -13,6 +13,7 @@
 
 #include "core/dataflow/snapshot.h"
 #include "core/files/data_storage_logic.h"
+#include "core/files/file_constants.h"
 #include "core/settings/settings.h"
 #include "presenters/simulation_window_presenter.h"
 #include "views/simulation_window/simulation_window.h"
@@ -52,6 +53,8 @@ SimulationRunner::SimulationRunner(const Settings& settings, QObject* parent)
     debug_info_->chart_queue_capacity = pool_size_;  // Default capacity for the chart queue
 
     if (save_system_data_) {
+        system_file_writer_ = std::make_unique<CsvFileWriter<SystemSnapshot>>(
+            output_dir_ / file_names::system, csv_headers::system);
         outputs_->system_storage_queue =
             std::make_shared<BlockingQueue<SystemSnapshotPtr>>(pool_size_);
         setupSystemStorageWorker();
@@ -59,6 +62,8 @@ SimulationRunner::SimulationRunner(const Settings& settings, QObject* parent)
     }
 
     if (save_diagnostics_data_) {
+        diagnostics_file_writer_ = std::make_unique<CsvFileWriter<DiagnosticsSnapshot>>(
+            output_dir_ / file_names::diagnostics, csv_headers::diagnostics);
         outputs_->diagnostics_storage_queue =
             std::make_shared<BlockingQueue<DiagnosticsSnapshotPtr>>(pool_size_);
         setupDiagnosticsStorageWorker();
@@ -148,44 +153,59 @@ void SimulationRunner::setupOutputDir() {
 }
 
 void SimulationRunner::setupSystemStorageWorker() {
-    system_storage_worker_ = new QueueStorageWorker<SystemSnapshotPtr>(
-        outputs_->system_storage_queue, [this](auto const& snapshot) {
-            DataStorageLogic::saveSystemData(output_dir_, snapshot->time, *snapshot->data);
-        });
+    auto save_function = [this](const SystemSnapshotPtr& snapshot) {
+        system_file_writer_->write(*snapshot);
+    };
+
+    system_storage_worker_ =
+        new QueueStorageWorker<SystemSnapshotPtr>(outputs_->system_storage_queue, save_function);
+
     system_storage_thread_ = new QThread(this);
     system_storage_worker_->moveToThread(system_storage_thread_);
+
     connect(system_storage_thread_,
             &QThread::started,
             system_storage_worker_,
             &QueueStorageWorkerBase::run);
+    connect(system_storage_worker_,
+            &QueueStorageWorkerBase::workFinished,
+            system_storage_thread_,
+            &QThread::quit);
     connect(
         system_storage_thread_, &QThread::finished, system_storage_worker_, &QObject::deleteLater);
 
     system_storage_thread_->start();
 
-    ENKAS_LOG_INFO("System storage worker started. Data will be saved to: {}",
-                   output_dir_.string());
+    ENKAS_LOG_INFO("System storage worker thread started.");
 }
 
 void SimulationRunner::setupDiagnosticsStorageWorker() {
+    auto save_function = [this](const DiagnosticsSnapshotPtr& snapshot) {
+        diagnostics_file_writer_->write(*snapshot);
+    };
+
     diagnostics_storage_worker_ = new QueueStorageWorker<DiagnosticsSnapshotPtr>(
-        outputs_->diagnostics_storage_queue, [this](auto const& snapshot) {
-            DataStorageLogic::saveDiagnosticsData(output_dir_, snapshot->time, *snapshot->data);
-        });
+        outputs_->diagnostics_storage_queue, save_function);
+
     diagnostics_storage_thread_ = new QThread(this);
     diagnostics_storage_worker_->moveToThread(diagnostics_storage_thread_);
+
     connect(diagnostics_storage_thread_,
             &QThread::started,
             diagnostics_storage_worker_,
             &QueueStorageWorkerBase::run);
+    connect(diagnostics_storage_worker_,
+            &QueueStorageWorkerBase::workFinished,
+            diagnostics_storage_thread_,
+            &QThread::quit);
     connect(diagnostics_storage_thread_,
             &QThread::finished,
             diagnostics_storage_worker_,
             &QObject::deleteLater);
+
     diagnostics_storage_thread_->start();
 
-    ENKAS_LOG_INFO("Diagnostics storage worker started. Data will be saved to: {}",
-                   output_dir_.string());
+    ENKAS_LOG_INFO("Diagnostics storage worker thread started.");
 }
 
 void SimulationRunner::setupSimulationWorker(const Settings& settings) {

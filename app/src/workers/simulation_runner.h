@@ -9,6 +9,7 @@
 #include "presenters/simulation_window_presenter.h"
 #include "queue_storage_worker.h"
 #include "views/simulation_window/simulation_window.h"
+#include "workers/csv_file_writer.h"
 #include "workers/simulation_worker.h"
 
 /**
@@ -97,9 +98,11 @@ private:
 
     QueueStorageWorkerBase* system_storage_worker_ = nullptr;
     QThread* system_storage_thread_ = nullptr;
+    std::unique_ptr<CsvFileWriter<SystemSnapshot>> system_file_writer_ = nullptr;
 
     QueueStorageWorkerBase* diagnostics_storage_worker_ = nullptr;
     QThread* diagnostics_storage_thread_ = nullptr;
+    std::unique_ptr<CsvFileWriter<DiagnosticsSnapshot>> diagnostics_file_writer_ = nullptr;
 
     std::shared_ptr<MemoryPools> memory_pools_;
 
