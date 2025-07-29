@@ -74,6 +74,7 @@ public slots:
 private slots:
     void receivedGenerationCompleted();
     void receivedInitializationCompleted();
+    void updateDebugInfo();
 
 private:
     void setupOutputDir();
@@ -106,6 +107,8 @@ private:
     std::shared_ptr<SimulationOutputs> outputs_;
 
     std::shared_ptr<LiveDebugInfo> debug_info_;
+
+    QTimer* debug_info_timer_ = nullptr;  // Timer for updating debug info
 
     bool aborted_ = false;  // Flag to indicate if the simulation was aborted
 };

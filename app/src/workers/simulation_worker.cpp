@@ -172,21 +172,6 @@ void SimulationWorker::runSimulation() {
 
         // Update debug info
         debug_info_->current_step.fetch_add(1, std::memory_order_relaxed);
-        debug_info_->system_data_pool_size = memory_pools_->system_data_pool->size();
-        debug_info_->diagnostics_data_pool_size = memory_pools_->diagnostics_data_pool->size();
-        debug_info_->system_snapshot_pool_size = memory_pools_->system_snapshot_pool->size();
-        debug_info_->diagnostics_snapshot_pool_size =
-            memory_pools_->diagnostics_snapshot_pool->size();
-        if (outputs_->chart_queue) {
-            debug_info_->chart_queue_size = outputs_->chart_queue->size();
-        }
-        if (outputs_->system_storage_queue) {
-            debug_info_->system_storage_queue_size = outputs_->system_storage_queue->size();
-        }
-        if (outputs_->diagnostics_storage_queue) {
-            debug_info_->diagnostics_storage_queue_size =
-                outputs_->diagnostics_storage_queue->size();
-        }
     }
 
     ENKAS_LOG_INFO("Simulation completed successfully.");

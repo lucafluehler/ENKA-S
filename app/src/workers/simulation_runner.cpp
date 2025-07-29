@@ -26,7 +26,8 @@ SimulationRunner::SimulationRunner(const Settings& settings, QObject* parent)
       save_diagnostics_data_(settings.get<bool>(SettingKey::SaveDiagnosticsData)),
       simulation_window_(new SimulationWindow),
       memory_pools_(std::make_shared<MemoryPools>()),
-      outputs_(std::make_shared<SimulationOutputs>()) {
+      outputs_(std::make_shared<SimulationOutputs>()),
+      debug_info_timer_(new QTimer(this)) {
     const bool save_settings = settings.get<bool>(SettingKey::SaveSettings);
     ENKAS_LOG_DEBUG("Configuration: SaveSettings={}, SaveSystemData={}, SaveDiagnosticsData={}",
                     save_settings,
@@ -71,6 +72,10 @@ SimulationRunner::SimulationRunner(const Settings& settings, QObject* parent)
 
     // Simulation
     setupSimulationWorker(settings);
+
+    // Debug Info Timer
+    connect(debug_info_timer_, &QTimer::timeout, this, &SimulationRunner::updateDebugInfo);
+    debug_info_timer_->start(500);  // Update pool and queue size every 500 ms
 
     ENKAS_LOG_INFO("Simulation runner initialized successfully.");
 }
@@ -216,4 +221,28 @@ void SimulationRunner::setupSimulationWorker(const Settings& settings) {
     simulation_thread_->start();
 
     ENKAS_LOG_INFO("Simulation thread started.");
+}
+
+void SimulationRunner::updateDebugInfo() {
+    if (!debug_info_) {
+        ENKAS_LOG_ERROR("Debug info is not initialized. Cannot update.");
+        return;
+    }
+
+    // Update memory pool sizes
+    debug_info_->system_data_pool_size = memory_pools_->system_data_pool->size();
+    debug_info_->diagnostics_data_pool_size = memory_pools_->diagnostics_data_pool->size();
+    debug_info_->system_snapshot_pool_size = memory_pools_->system_snapshot_pool->size();
+    debug_info_->diagnostics_snapshot_pool_size = memory_pools_->diagnostics_snapshot_pool->size();
+
+    // Update queue sizes
+    if (outputs_->chart_queue) {
+        debug_info_->chart_queue_size = outputs_->chart_queue->size();
+    }
+    if (outputs_->system_storage_queue) {
+        debug_info_->system_storage_queue_size = outputs_->system_storage_queue->size();
+    }
+    if (outputs_->diagnostics_storage_queue) {
+        debug_info_->diagnostics_storage_queue_size = outputs_->diagnostics_storage_queue->size();
+    }
 }
