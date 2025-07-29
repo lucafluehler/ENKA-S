@@ -1,6 +1,9 @@
 #include "core/settings/settings.h"
 
+#include <enkas/logging/logger.h>
+
 #include <algorithm>
+#include <fstream>
 #include <stdexcept>
 #include <string>
 #include <unordered_set>
@@ -148,4 +151,37 @@ void Settings::merge(const Settings& other) {
         const auto& value_to_copy = other.settings_.at(key);
         set(key, SettingValue(value_to_copy));
     }
+}
+
+bool Settings::save(const std::filesystem::path& file_path) const {
+    // Convert the settings object to JSON.
+    auto json_opt = toJson();
+    if (!json_opt) {
+        ENKAS_LOG_ERROR("Failed to convert settings to JSON.");
+        return false;  // JSON conversion failed.
+    }
+
+    // Ensure the parent directory for the file exists.
+    try {
+        if (file_path.has_parent_path()) {
+            std::filesystem::create_directories(file_path.parent_path());
+        }
+    } catch (const std::filesystem::filesystem_error&) {
+        ENKAS_LOG_ERROR("Failed to create parent directory for settings file: {}",
+                        file_path.string());
+        return false;  // Failed to create parent directory.
+    }
+
+    // Open the file and write the JSON data.
+    std::ofstream file(file_path);
+    if (!file.is_open()) {
+        ENKAS_LOG_ERROR("Failed to open settings file for writing: {}", file_path.string());
+        return false;  // Could not open file for writing.
+    }
+
+    const int indent_level = 4;
+    file << json_opt->dump(indent_level);
+
+    ENKAS_LOG_INFO("Settings successfully saved to {}", file_path.string());
+    return !file.fail();
 }

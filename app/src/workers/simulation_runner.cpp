@@ -12,7 +12,6 @@
 #include <format>
 
 #include "core/dataflow/snapshot.h"
-#include "core/files/data_storage_logic.h"
 #include "core/files/file_constants.h"
 #include "core/settings/settings.h"
 #include "presenters/simulation_window_presenter.h"
@@ -37,10 +36,7 @@ SimulationRunner::SimulationRunner(const Settings& settings, QObject* parent)
     // Create output directory
     setupOutputDir();
 
-    if (save_settings) {
-        DataStorageLogic::saveSettings(output_dir_, settings);
-        ENKAS_LOG_INFO("Settings saved to: {}", output_dir_.string());
-    }
+    if (save_settings) settings.save(output_dir_ / file_names::settings);
 
     // Debug Info
     debug_info_ = std::make_shared<LiveDebugInfo>();

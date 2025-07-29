@@ -102,6 +102,14 @@ public:
      */
     void merge(const Settings& other);
 
+    /**
+     * @brief Saves the settings to a JSON file.
+     * @param file_path The full path to the file where settings will be saved.
+     *                  The parent directory will be created if it doesn't exist.
+     * @return True if saving was successful, false otherwise.
+     */
+    bool save(const std::filesystem::path& file_path) const;
+
 private:
     Settings(std::initializer_list<std::pair<SettingKey, SettingValue>> items);
     Settings(const std::vector<std::pair<SettingKey, SettingValue>>& items);
