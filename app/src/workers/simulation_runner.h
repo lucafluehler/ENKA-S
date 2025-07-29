@@ -5,11 +5,11 @@
 #include <QThread>
 
 #include "core/dataflow/debug_info.h"
+#include "core/files/csv_file_writer.h"
 #include "core/settings/settings.h"
 #include "presenters/simulation_window_presenter.h"
 #include "queue_storage_worker.h"
 #include "views/simulation_window/simulation_window.h"
-#include "workers/csv_file_writer.h"
 #include "workers/simulation_worker.h"
 
 /**
