@@ -19,6 +19,7 @@ SimulationWindow::SimulationWindow(QWidget* parent)
     ui_->setupUi(this);
     ui_->wgtSidebar->hide();
     ui_->wgtSettings->hide();
+    ui_->wgtDebugInfo->hide();
 
     // Maximize window on startup. MUST be after ui setup
     setWindowState(windowState() | Qt::WindowMaximized);
