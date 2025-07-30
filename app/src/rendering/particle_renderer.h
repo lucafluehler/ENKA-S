@@ -100,4 +100,7 @@ private:
 
     QMatrix4x4 projection_matrix_;
     QMatrix4x4 view_matrix_;
+
+    std::vector<float> particle_positions_f_;  // Particle positions in float format
+    size_t particle_vbo_capacity_bytes_ = 0;   // Capacity in bytes for the particle position VBO
 };

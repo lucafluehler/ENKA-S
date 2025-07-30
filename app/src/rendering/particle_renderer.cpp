@@ -127,9 +127,6 @@ void ParticleRenderer::paintGL() {
         }
         drawCross(QPointF(0.0f, 0.0f), 0.04f, color);
     }
-
-    // Re-enable depth testing
-    glEnable(GL_DEPTH_TEST);
 }
 
 void ParticleRenderer::mousePressEvent(QMouseEvent* event) {
@@ -203,20 +200,16 @@ void ParticleRenderer::drawParticles() {
     const auto num_particles = system_->data->count();
 
     // Convert to float for GPU processing
-    std::vector<float> positions_f;
-    positions_f.reserve(num_particles * 3);
+    particle_positions_f_.clear();
+    particle_positions_f_.reserve(num_particles * 3);
 
     for (const auto& p : positions_d) {
-        positions_f.push_back(static_cast<float>(p.x));
-        positions_f.push_back(static_cast<float>(p.y));
-        positions_f.push_back(static_cast<float>(p.z));
+        particle_positions_f_.push_back(static_cast<float>(p.x));
+        particle_positions_f_.push_back(static_cast<float>(p.y));
+        particle_positions_f_.push_back(static_cast<float>(p.z));
     }
 
     shader_program_.bind();
-    vao_.bind();
-
-    particle_position_vbo_.bind();
-    particle_position_vbo_.allocate(positions_f.data(), positions_f.size() * sizeof(float));
 
     // Send matrices and settings to the shader
     shader_program_.setUniformValue("u_projection_matrix", projection_matrix_);
@@ -231,6 +224,22 @@ void ParticleRenderer::drawParticles() {
     } else {  // WHITE_FOG
         shader_program_.setUniformValue("u_coloring_method", 1);
         shader_program_.setUniformValue("u_fog_mu", (float)settings_.white_fog_param);
+    }
+
+    vao_.bind();
+    particle_position_vbo_.bind();
+
+    // Determine if we need to reallocate the VBO
+    const size_t required_bytes = particle_positions_f_.size() * sizeof(float);
+    if (required_bytes > particle_vbo_capacity_bytes_) {
+        // The buffer is too small, we must re-allocate.
+        particle_position_vbo_.allocate(particle_positions_f_.data(),
+                                        static_cast<int>(required_bytes));
+        particle_vbo_capacity_bytes_ = required_bytes;
+    } else {
+        // The buffer is large enough, just update its content (fast path).
+        particle_position_vbo_.write(
+            0, particle_positions_f_.data(), static_cast<int>(required_bytes));
     }
 
     glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, num_particles);
@@ -265,7 +274,7 @@ void ParticleRenderer::initializeParticleShader() {
     quad_vbo_.release();
 
     particle_position_vbo_.create();
-    particle_position_vbo_.setUsagePattern(QOpenGLBuffer::StreamDraw);
+    particle_vbo_capacity_bytes_ = 0;
 
     vao_.create();
     vao_.bind();
