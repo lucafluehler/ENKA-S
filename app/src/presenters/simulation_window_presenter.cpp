@@ -47,7 +47,7 @@ void SimulationWindowPresenter::initLiveMode(
 
     view_->initLiveMode(debug_info_);
 
-    render_timer_->start(1000 / target_fps_);
+    render_timer_->start(1000 / view_->getTargetFPS());
 }
 
 void SimulationWindowPresenter::initReplayMode(
@@ -62,7 +62,7 @@ void SimulationWindowPresenter::initReplayMode(
 
     view_->initReplayMode(timestamps, diagnostics_series);
 
-    render_timer_->start(1000 / target_fps_);
+    render_timer_->start(1000 / view_->getTargetFPS());
 }
 
 void SimulationWindowPresenter::updateRendering() {

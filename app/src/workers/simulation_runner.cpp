@@ -70,6 +70,10 @@ SimulationRunner::SimulationRunner(const Settings& settings, QObject* parent)
     simulation_window_presenter_ = new SimulationWindowPresenter(simulation_window_, this);
     simulation_window_presenter_->initLiveMode(
         outputs_->rendering_snapshot, outputs_->chart_queue, debug_info_);
+    connect(simulation_window_,
+            &SimulationWindow::fpsChanged,
+            simulation_window_presenter_,
+            &SimulationWindowPresenter::onFpsChanged);
 
     // Simulation
     setupSimulationWorker(settings);

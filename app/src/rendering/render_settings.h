@@ -41,6 +41,5 @@ struct RenderSettings {
 
     // Rendering
     double particle_size_param = 1;
-    int max_fps = 60;
     int fov = 90;
 };

@@ -40,9 +40,14 @@ RenderSettingsWidget::RenderSettingsWidget(QWidget* parent)
             &QStackedWidget::setCurrentIndex);
 
     // Settings changed
-    connect(ui->chbShowCOM, &QCheckBox::checkStateChanged, this, &RenderSettingsWidget::settingsChanged);
-    connect(
-        ui->chbShowCenter, &QCheckBox::checkStateChanged, this, &RenderSettingsWidget::settingsChanged);
+    connect(ui->chbShowCOM,
+            &QCheckBox::checkStateChanged,
+            this,
+            &RenderSettingsWidget::settingsChanged);
+    connect(ui->chbShowCenter,
+            &QCheckBox::checkStateChanged,
+            this,
+            &RenderSettingsWidget::settingsChanged);
     connect(ui->cbxAnimation,
             &QComboBox::currentIndexChanged,
             this,
@@ -64,14 +69,12 @@ RenderSettingsWidget::RenderSettingsWidget(QWidget* parent)
             this,
             &RenderSettingsWidget::settingsChanged);
     connect(ui->sbxFOV, &QSpinBox::valueChanged, this, &RenderSettingsWidget::settingsChanged);
-    connect(ui->sbxFPS, &QSpinBox::valueChanged, this, &RenderSettingsWidget::settingsChanged);
+    connect(ui->sbxFPS, &QSpinBox::valueChanged, this, &RenderSettingsWidget::fpsChanged);
     connect(ui->dsbParticleSize,
             &QDoubleSpinBox::valueChanged,
             this,
             &RenderSettingsWidget::settingsChanged);
 }
-
-RenderSettingsWidget::~RenderSettingsWidget() { delete ui; }
 
 void RenderSettingsWidget::disableAnimationSpeed(int idx) {
     ui->dsbAnimationSpeed->setEnabled(idx != 0);
@@ -103,7 +106,6 @@ void RenderSettingsWidget::loadRenderSettings(const RenderSettings& settings) {
     ui->dsbWhiteFogParam->setValue(settings.white_fog_param);
 
     ui->sbxFOV->setValue(settings.fov);
-    ui->sbxFPS->setValue(settings.max_fps);
     ui->dsbParticleSize->setValue(settings.particle_size_param);
 }
 
@@ -125,7 +127,6 @@ RenderSettings RenderSettingsWidget::getRenderSettings() const {
     settings.white_fog_param = ui->dsbWhiteFogParam->value();
 
     settings.fov = ui->sbxFOV->value();
-    settings.max_fps = ui->sbxFPS->value();
     settings.particle_size_param = ui->dsbParticleSize->value();
 
     return settings;

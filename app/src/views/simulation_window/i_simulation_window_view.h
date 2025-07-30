@@ -51,4 +51,10 @@ public:
      * @param sps The current steps per second to display.
      */
     virtual void updateDebugInfo(int fps, int sps) = 0;
+
+    /**
+     * @brief Gets the target frames per second for the simulation.
+     * @return The target FPS.
+     */
+    virtual int getTargetFPS() const = 0;
 };

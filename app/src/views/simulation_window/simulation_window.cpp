@@ -32,6 +32,8 @@ SimulationWindow::SimulationWindow(QWidget* parent)
             &RenderSettingsWidget::settingsChanged,
             this,
             &SimulationWindow::saveSettings);
+    connect(
+        ui_->wgtSettings, &RenderSettingsWidget::fpsChanged, this, &SimulationWindow::onFpsChanged);
     connect(ui_->btnToggleSettings, &QToolButton::clicked, this, &SimulationWindow::toggleSettings);
     connect(
         ui_->btnToggleDebugInfo, &QToolButton::clicked, this, &SimulationWindow::toggleDebugInfo);

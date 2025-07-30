@@ -15,14 +15,15 @@ class RenderSettingsWidget : public QWidget {
     Q_OBJECT
 
 public:
-    RenderSettingsWidget(QWidget *parent = nullptr);
-    ~RenderSettingsWidget();
+    explicit RenderSettingsWidget(QWidget *parent = nullptr);
+    ~RenderSettingsWidget() override = default;
 
     void loadRenderSettings(const RenderSettings &settings);
     RenderSettings getRenderSettings() const;
 
 signals:
     void settingsChanged();
+    void fpsChanged(int fps);
 
 private slots:
     void disableAnimationSpeed(int idx);

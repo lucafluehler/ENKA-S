@@ -9,9 +9,8 @@
 #include "core/dataflow/blocking_queue.h"
 #include "core/dataflow/debug_info.h"
 #include "core/dataflow/snapshot.h"
+#include "views/simulation_window/i_simulation_window_view.h"
 #include "workers/queue_storage_worker.h"
-
-class ISimulationWindowView;
 
 /**
  * @brief Handles the logic for the simulation window, including rendering updates and managing
@@ -80,6 +79,11 @@ public slots:
      */
     void updateCharts(DiagnosticsSnapshotPtr diagnostics_snapshot);
 
+    /**
+     * @brief Handles changes in the target frames per second (FPS).
+     */
+    void onFpsChanged() { render_timer_->setInterval(1000 / view_->getTargetFPS()); }
+
 private:
     void setupChartWorker();
 
@@ -88,7 +92,6 @@ private:
     Mode mode_;
     QTimer* render_timer_;
 
-    const int target_fps_ = 120;
     std::chrono::steady_clock::time_point last_debug_info_update_time_;
     int frame_count_ = 0;
     int previous_step_count_ = 0;

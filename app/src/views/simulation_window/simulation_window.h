@@ -44,6 +44,8 @@ public:
     void updateCharts(DiagnosticsSnapshotPtr diagnostics_snapshot) override;
     void fillCharts(const DiagnosticsSeries &series) override;
 
+    int getTargetFPS() const override { return target_fps_; }
+
 signals:
     /** @signal
      * @brief Emitted when the simulation window is closed.
@@ -65,6 +67,21 @@ signals:
      */
     void stepBackward();
 
+    /** @signal
+     * @brief Emitted when the frames per second (FPS) changes.
+     */
+    void fpsChanged();
+
+public slots:
+    /**
+     * @brief Updates the target frames per second for the simulation.
+     * @param fps The new target FPS.
+     */
+    void onFpsChanged(int fps) {
+        target_fps_ = fps;
+        emit fpsChanged();
+    }
+
 private slots:
     void saveSettings();
     void toggleSidebar();
@@ -85,6 +102,7 @@ private:
     Ui::SimulationWindow *ui_;
 
     double simulation_duration_ = 0.0;  // Total duration of the simulation
+    int target_fps_ = 120;              // Target frames per second for the simulation
 
     // Stored data for live mode
     std::shared_ptr<LiveDebugInfo> live_debug_info_ = nullptr;
