@@ -72,8 +72,9 @@ protected:
     void keyPressEvent(QKeyEvent* event) override;
 
 private:
-    void drawParticles();
+    void initializeParticleShader();
     void initializeCrossShader();
+    void drawParticles();
     void drawCross(const QPointF& center, float size, const QVector3D& color);
     QPointF projectWorldToNdc(const enkas::math::Vector3D& world_pos, bool* is_visible);
     void animation();

@@ -63,49 +63,7 @@ void ParticleRenderer::saveScreenshot() {
 
 void ParticleRenderer::initializeGL() {
     initializeOpenGLFunctions();
-
-    // Load shaders
-    shader_program_.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/particle.vert");
-    shader_program_.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/particle.frag");
-    if (!shader_program_.link()) {
-        qCritical() << "Shader link error:" << shader_program_.log();
-        return;
-    }
-
-    // A simple quad that we will draw for each particle
-    const GLfloat quad_vertices[] = {
-        -0.5f,
-        -0.5f,
-        0.5f,
-        -0.5f,
-        -0.5f,
-        0.5f,
-        0.5f,
-        0.5f,
-    };
-    quad_vbo_.create();
-    quad_vbo_.bind();
-    quad_vbo_.allocate(quad_vertices, sizeof(quad_vertices));
-    quad_vbo_.release();
-
-    particle_position_vbo_.create();
-    particle_position_vbo_.setUsagePattern(QOpenGLBuffer::StreamDraw);
-
-    vao_.create();
-    vao_.bind();
-
-    quad_vbo_.bind();
-    shader_program_.enableAttributeArray(0);
-    shader_program_.setAttributeBuffer(0, GL_FLOAT, 0, 2, 0);  // location=0, 2 floats
-
-    particle_position_vbo_.bind();
-    shader_program_.enableAttributeArray(1);
-    shader_program_.setAttributeBuffer(1, GL_FLOAT, 0, 3, 0);  // location=1, 3 floats
-
-    glVertexAttribDivisor(1, 1);
-
-    vao_.release();
-
+    initializeParticleShader();
     initializeCrossShader();
 }
 
@@ -279,6 +237,50 @@ void ParticleRenderer::drawParticles() {
 
     vao_.release();
     shader_program_.release();
+}
+
+void ParticleRenderer::initializeParticleShader() {
+    // Load shaders
+    shader_program_.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/particle.vert");
+    shader_program_.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/particle.frag");
+    if (!shader_program_.link()) {
+        qCritical() << "Shader link error:" << shader_program_.log();
+        return;
+    }
+
+    // A simple quad that we will draw for each particle
+    const GLfloat quad_vertices[] = {
+        -0.5f,
+        -0.5f,
+        0.5f,
+        -0.5f,
+        -0.5f,
+        0.5f,
+        0.5f,
+        0.5f,
+    };
+    quad_vbo_.create();
+    quad_vbo_.bind();
+    quad_vbo_.allocate(quad_vertices, sizeof(quad_vertices));
+    quad_vbo_.release();
+
+    particle_position_vbo_.create();
+    particle_position_vbo_.setUsagePattern(QOpenGLBuffer::StreamDraw);
+
+    vao_.create();
+    vao_.bind();
+
+    quad_vbo_.bind();
+    shader_program_.enableAttributeArray(0);
+    shader_program_.setAttributeBuffer(0, GL_FLOAT, 0, 2, 0);  // location=0, 2 floats
+
+    particle_position_vbo_.bind();
+    shader_program_.enableAttributeArray(1);
+    shader_program_.setAttributeBuffer(1, GL_FLOAT, 0, 3, 0);  // location=1, 3 floats
+
+    glVertexAttribDivisor(1, 1);
+
+    vao_.release();
 }
 
 void ParticleRenderer::initializeCrossShader() {
