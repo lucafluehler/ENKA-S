@@ -3,12 +3,14 @@
 #include <enkas/data/system.h>
 #include <enkas/math/vector3d.h>
 
+#include <QMatrix4x4>
 #include <QMouseEvent>
 #include <QOpenGLBuffer>
 #include <QOpenGLExtraFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLWidget>
+#include <QPointF>
 
 #include "core/dataflow/snapshot.h"
 #include "rendering/camera.h"
@@ -95,4 +97,7 @@ private:
     QOpenGLShaderProgram cross_shader_program_;
     QOpenGLVertexArrayObject cross_vao_;
     QOpenGLBuffer cross_vbo_;
+
+    QMatrix4x4 projection_matrix_;
+    QMatrix4x4 view_matrix_;
 };

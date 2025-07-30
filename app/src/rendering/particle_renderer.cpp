@@ -75,6 +75,20 @@ void ParticleRenderer::paintGL() {
 
     animation();
 
+    projection_matrix_.setToIdentity();
+    projection_matrix_.perspective(
+        settings_.fov, static_cast<float>(width()) / height(), 0.1f, 1000.0f);
+
+    view_matrix_.setToIdentity();
+    view_matrix_.translate(0.0f, 0.0f, -camera_.target_distance);
+    QQuaternion q_rotation = QQuaternion(camera_.rel_rotation.s,
+                                         -camera_.rel_rotation.b_yz,
+                                         camera_.rel_rotation.b_xz,
+                                         camera_.rel_rotation.b_xy)
+                                 .conjugated();
+    view_matrix_.rotate(q_rotation);
+    view_matrix_.translate(-camera_.target_pos.x, -camera_.target_pos.y, -camera_.target_pos.z);
+
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
 
@@ -204,23 +218,9 @@ void ParticleRenderer::drawParticles() {
     particle_position_vbo_.bind();
     particle_position_vbo_.allocate(positions_f.data(), positions_f.size() * sizeof(float));
 
-    QMatrix4x4 projection_matrix;
-    projection_matrix.perspective(
-        settings_.fov, static_cast<float>(width()) / height(), 0.1f, 1000.0f);
-
-    QMatrix4x4 view_matrix;
-    view_matrix.translate(0.0f, 0.0f, -camera_.target_distance);
-    QQuaternion q_rotation = QQuaternion(camera_.rel_rotation.s,
-                                         -camera_.rel_rotation.b_yz,
-                                         camera_.rel_rotation.b_xz,
-                                         camera_.rel_rotation.b_xy)
-                                 .conjugated();
-    view_matrix.rotate(q_rotation);
-    view_matrix.translate(-camera_.target_pos.x, -camera_.target_pos.y, -camera_.target_pos.z);
-
     // Send matrices and settings to the shader
-    shader_program_.setUniformValue("u_projection_matrix", projection_matrix);
-    shader_program_.setUniformValue("u_view_matrix", view_matrix);
+    shader_program_.setUniformValue("u_projection_matrix", projection_matrix_);
+    shader_program_.setUniformValue("u_view_matrix", view_matrix_);
     shader_program_.setUniformValue("u_particle_size",
                                     static_cast<GLfloat>(settings_.particle_size_param / 1000.0f));
     shader_program_.setUniformValue("u_camera_target_distance", (float)camera_.target_distance);
@@ -358,26 +358,9 @@ void ParticleRenderer::drawCross(const QPointF& center, float size, const QVecto
 
 QPointF ParticleRenderer::projectWorldToNdc(const enkas::math::Vector3D& world_pos,
                                             bool* is_visible) {
-    // 1. Create the same View and Projection matrices as in drawParticles()
-    QMatrix4x4 projection_matrix;
-    projection_matrix.perspective(
-        settings_.fov, static_cast<float>(width()) / height(), 0.1f, 1000.0f);
-
-    QMatrix4x4 view_matrix;
-    view_matrix.translate(0.0f, 0.0f, -camera_.target_distance);
-    QQuaternion q_rotation = QQuaternion(camera_.rel_rotation.s,
-                                         -camera_.rel_rotation.b_yz,
-                                         camera_.rel_rotation.b_xz,
-                                         camera_.rel_rotation.b_xy)
-                                 .conjugated();
-    view_matrix.rotate(q_rotation);
-    view_matrix.translate(-camera_.target_pos.x, -camera_.target_pos.y, -camera_.target_pos.z);
-
-    // 2. Transform the world position to Clip Space
     QVector4D world_vec4(world_pos.x, world_pos.y, world_pos.z, 1.0);
-    QVector4D clip_pos = projection_matrix * view_matrix * world_vec4;
+    QVector4D clip_pos = projection_matrix_ * view_matrix_ * world_vec4;
 
-    // 3. Perform Perspective Division to get Normalized Device Coordinates (NDC)
     // If w is zero or negative, the point is behind or on the camera plane.
     if (clip_pos.w() <= 0.0f) {
         *is_visible = false;
@@ -386,7 +369,6 @@ QPointF ParticleRenderer::projectWorldToNdc(const enkas::math::Vector3D& world_p
 
     QVector3D ndc_pos = clip_pos.toVector3D() / clip_pos.w();
 
-    // 4. Check if the point is within the visible NDC cube
     *is_visible = (std::abs(ndc_pos.x()) <= 1.0f && std::abs(ndc_pos.y()) <= 1.0f &&
                    std::abs(ndc_pos.z()) <= 1.0f);
 
