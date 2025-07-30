@@ -37,6 +37,14 @@ public:
     void updateData(SystemSnapshotPtr system);
 
     /**
+     * @brief Updates the center of mass position.
+     * @param com_position The new center of mass position in world coordinates.
+     */
+    void updateCenterOfMass(const enkas::math::Vector3D& com_position) {
+        com_position_ = com_position;
+    }
+
+    /**
      * @brief Redraws the widget with the given settings.
      * @param settings The rendering settings to apply.
      */
@@ -65,22 +73,25 @@ protected:
 
 private:
     void drawParticles();
-    void drawCross(float x, float y, float size);
-    enkas::math::Vector3D getRelPos(const enkas::math::Vector3D& pos);
+    void initializeCrossShader();
+    void drawCross(const QPointF& center, float size, const QVector3D& color);
+    QPointF projectWorldToNdc(const enkas::math::Vector3D& world_pos, bool* is_visible);
     void animation();
-
     void setBackgroundColor();
-    void setCOMColor();
-    void setCenterColor();
 
     QPoint last_mouse_pos_;
 
     RenderSettings settings_;
     SystemSnapshotPtr system_;
+    enkas::math::Vector3D com_position_;  // Center of mass position in world coordinates
     Camera camera_;
 
     QOpenGLVertexArrayObject vao_;
     QOpenGLBuffer particle_position_vbo_;  // Holds all particle 3D positions
     QOpenGLBuffer quad_vbo_;               // Holds the 4 vertices of a simple square
     QOpenGLShaderProgram shader_program_;
+
+    QOpenGLShaderProgram cross_shader_program_;
+    QOpenGLVertexArrayObject cross_vao_;
+    QOpenGLBuffer cross_vbo_;
 };

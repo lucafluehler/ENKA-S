@@ -204,9 +204,10 @@ void SimulationWindow::updateDebugInfo(int fps, int sps) {
     ui_->lblSPS->setText(sps_text);
 }
 
-void SimulationWindow::updateCharts(DiagnosticsSnapshotPtr diagnostics_snapshot) {
+void SimulationWindow::updateDiagnostics(DiagnosticsSnapshotPtr diagnostics_snapshot) {
     if (!diagnostics_snapshot) return;
     ui_->wgtDiagnostics->updateData(*diagnostics_snapshot);
+    ui_->oglParticleRenderer->updateCenterOfMass(diagnostics_snapshot->data->com_pos);
 }
 
 void SimulationWindow::fillCharts(const DiagnosticsSeries& series) {

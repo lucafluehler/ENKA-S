@@ -100,13 +100,13 @@ void SimulationWindowPresenter::updateRendering() {
     last_debug_info_update_time_ = now;
 }
 
-void SimulationWindowPresenter::updateCharts(DiagnosticsSnapshotPtr diagnostics_snapshot) {
-    view_->updateCharts(diagnostics_snapshot);
+void SimulationWindowPresenter::updateDiagnostics(DiagnosticsSnapshotPtr diagnostics_snapshot) {
+    view_->updateDiagnostics(diagnostics_snapshot);
 }
 
 void SimulationWindowPresenter::setupChartWorker() {
     chart_worker_ = new QueueStorageWorker<DiagnosticsSnapshotPtr>(
-        chart_queue_, [this](auto const& snapshot) { emit chartDataReady(snapshot); });
+        chart_queue_, [this](auto const& snapshot) { emit diagnosticsReady(snapshot); });
     chart_thread_ = new QThread(this);
     chart_worker_->moveToThread(chart_thread_);
     connect(chart_thread_, &QThread::started, chart_worker_, &QueueStorageWorkerBase::run);
@@ -115,8 +115,8 @@ void SimulationWindowPresenter::setupChartWorker() {
     // We need to use signals and slots to communicate between the worker and the presenter,
     // as the worker runs in a separate thread.
     connect(this,
-            &SimulationWindowPresenter::chartDataReady,
+            &SimulationWindowPresenter::diagnosticsReady,
             this,
-            &SimulationWindowPresenter::updateCharts);
+            &SimulationWindowPresenter::updateDiagnostics);
     chart_thread_->start();
 }

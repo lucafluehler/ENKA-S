@@ -41,7 +41,7 @@ public:
     void updateSystemRendering(SystemSnapshotPtr system_snapshot) override;
     void updateDebugInfo(int fps, int sps) override;
 
-    void updateCharts(DiagnosticsSnapshotPtr diagnostics_snapshot) override;
+    void updateDiagnostics(DiagnosticsSnapshotPtr diagnostics_snapshot) override;
     void fillCharts(const DiagnosticsSeries &series) override;
 
     int getTargetFPS() const override { return target_fps_; }

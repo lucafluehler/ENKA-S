@@ -48,5 +48,7 @@
     <qresource prefix="/shaders">
         <file alias="particle.vert">shaders/particle.vert</file>
         <file alias="particle.frag">shaders/particle.frag</file>
+        <file alias="cross.vert">shaders/cross.vert</file>
+        <file alias="cross.frag">shaders/cross.frag</file>
     </qresource>
 </RCC>

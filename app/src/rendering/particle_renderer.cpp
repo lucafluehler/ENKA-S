@@ -110,6 +110,8 @@ void ParticleRenderer::initializeGL() {
     glVertexAttribDivisor(1, 1);
 
     vao_.release();
+
+    initializeCrossShader();
 }
 
 void ParticleRenderer::resizeGL(int w, int h) { glViewport(0, 0, w, h); }
@@ -125,22 +127,42 @@ void ParticleRenderer::paintGL() {
 
     drawParticles();
 
-    // if (settings_.show_center_of_mass) {
-    //     setCOMColor();
-    //     enkas::math::Vector3D rel_pos = getRelPos(data.com_position);
+    glDisable(GL_DEPTH_TEST);
 
-    //     const float c_ASPECT_RATIO = static_cast<float>(width()) / height();
-    //     const float c_HALF_TAN_FOV = std::tan(settings_.fov * M_PI / 180.0f / 2.0f);
+    if (settings_.show_center_of_mass) {
+        bool is_visible;
+        // Use the new, correct projection function
+        QPointF com_ndc = projectWorldToNdc(com_position_, &is_visible);
 
-    //     bool is_visible;
-    //     QPointF com = convertPosToLoc(c_ASPECT_RATIO, c_HALF_TAN_FOV, rel_pos, &is_visible);
-    //     if (is_visible) drawCross(com.x(), com.y(), 0.02f);
-    // }
+        if (is_visible) {
+            QVector3D color;
+            switch (settings_.coloring_method) {
+                case ColoringMethod::BlackFog:
+                    color = QVector3D(1.0f, 1.0f, 0.0f);  // Yellow
+                    break;
+                case ColoringMethod::WhiteFog:
+                    color = QVector3D(0.0f, 220.0f / 255.0f, 0.0f);  // Green
+                    break;
+            }
+            drawCross(com_ndc, 0.04f, color);
+        }
+    }
 
-    // if (settings_.show_center_of_screen && camera_.target_distance > 0) {
-    //     setCenterColor();
-    //     drawCross(0.0f, 0.0f, 0.02f);
-    // }
+    if (settings_.show_center_of_screen) {
+        QVector3D color;
+        switch (settings_.coloring_method) {
+            case ColoringMethod::BlackFog:
+                color = QVector3D(1.0f, 1.0f, 1.0f);  // White
+                break;
+            case ColoringMethod::WhiteFog:
+                color = QVector3D(0.1f, 0.1f, 220.0f / 255.0f);  // Blue
+                break;
+        }
+        drawCross(QPointF(0.0f, 0.0f), 0.04f, color);
+    }
+
+    // Re-enable depth testing
+    glEnable(GL_DEPTH_TEST);
 }
 
 void ParticleRenderer::mousePressEvent(QMouseEvent* event) {
@@ -175,34 +197,34 @@ void ParticleRenderer::wheelEvent(QWheelEvent* event) {
 }
 
 void ParticleRenderer::keyPressEvent(QKeyEvent* event) {
-    enkas::math::Vector3D movement;
+    enkas::math::Vector3D displacement;
 
-    const float c_MOVE = 0.02 * camera_.target_distance;
+    const float distance = 0.02 * camera_.target_distance;
 
     switch (event->key()) {
         case Qt::Key_W:
-            movement.y = -c_MOVE;
+            displacement.y = -distance;
             break;
         case Qt::Key_A:
-            movement.x = c_MOVE;
+            displacement.x = distance;
             break;
         case Qt::Key_S:
-            movement.y = c_MOVE;
+            displacement.y = distance;
             break;
         case Qt::Key_D:
-            movement.x = -c_MOVE;
+            displacement.x = -distance;
             break;
         case Qt::Key_Q:
-            movement.z = -c_MOVE;
+            displacement.z = -distance;
             break;
         case Qt::Key_E:
-            movement.z = c_MOVE;
+            displacement.z = distance;
             break;
         default:
             break;
     }
 
-    camera_.target_pos += camera_.rel_rotation.get_reverse().rotate(movement);
+    camera_.target_pos += camera_.rel_rotation.get_reverse().rotate(displacement);
 }
 
 void ParticleRenderer::drawParticles() {
@@ -264,75 +286,114 @@ void ParticleRenderer::drawParticles() {
     shader_program_.release();
 }
 
-// void ParticleRenderer::drawCross(float x, float y, float size) {
-//     float thickness = size / 6.0;
+void ParticleRenderer::initializeCrossShader() {
+    cross_shader_program_.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/cross.vert");
+    cross_shader_program_.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/cross.frag");
+    if (!cross_shader_program_.link()) {
+        qCritical() << "Cross shader link error:" << cross_shader_program_.log();
+        return;
+    }
 
-//     float x_aspect = 1.0f;
-//     float y_aspect = 1.0f;
-//     if (width() < height()) {
-//         y_aspect = static_cast<float>(width()) / height();
-//     } else {
-//         x_aspect = static_cast<float>(height()) / width();
-//     }
+    // Geometry for a cross made of two rectangles
+    const float thickness = 1.0f / 12.0f;
+    const GLfloat cross_vertices[] = {// Horizontal bar
+                                      -0.5f,
+                                      -thickness,
+                                      0.5f,
+                                      -thickness,
+                                      0.5f,
+                                      thickness,
+                                      -0.5f,
+                                      -thickness,
+                                      0.5f,
+                                      thickness,
+                                      -0.5f,
+                                      thickness,
+                                      // Vertical bar
+                                      -thickness,
+                                      -0.5f,
+                                      thickness,
+                                      -0.5f,
+                                      thickness,
+                                      0.5f,
+                                      -thickness,
+                                      -0.5f,
+                                      thickness,
+                                      0.5f,
+                                      -thickness,
+                                      0.5f};
 
-//     float x_hor = size * x_aspect;
-//     float x_ver = thickness * x_aspect;
-//     float y_hor = thickness * y_aspect;
-//     float y_ver = size * y_aspect;
+    cross_vao_.create();
+    cross_vao_.bind();
+    cross_vbo_.create();
+    cross_vbo_.bind();
+    cross_vbo_.allocate(cross_vertices, sizeof(cross_vertices));
 
-//     // Define vertices for the rectangle using two triangles
-//     // Horizontal Rectangle
-//     GLfloat vertices[] = {
-//         // Horizontal Rectangle
-//         x - x_hor,
-//         y - y_hor,
-//         x + x_hor,
-//         y - y_hor,
-//         x + x_hor,
-//         y + y_hor,
-//         x - x_hor,
-//         y - y_hor,
-//         x + x_hor,
-//         y + y_hor,
-//         x - x_hor,
-//         y + y_hor,
+    cross_shader_program_.enableAttributeArray(0);
+    cross_shader_program_.setAttributeBuffer(0, GL_FLOAT, 0, 2, 0);
 
-//         // Vertical Rectangle
-//         x - x_ver,
-//         y - y_ver,
-//         x + x_ver,
-//         y - y_ver,
-//         x + x_ver,
-//         y + y_ver,
-//         x - x_ver,
-//         y - y_ver,
-//         x + x_ver,
-//         y + y_ver,
-//         x - x_ver,
-//         y + y_ver,
-//     };
+    cross_vao_.release();
+    cross_vbo_.release();
+}
 
-//     // VBO goes brrrrrrrrrrrr
-//     GLuint vbo;
-//     glGenBuffers(1, &vbo);
+void ParticleRenderer::drawCross(const QPointF& center, float size, const QVector3D& color) {
+    cross_shader_program_.bind();
+    cross_vao_.bind();
 
-//     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-//     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    // Adjust size based on aspect ratio to keep the cross square
+    float size_x = size;
+    float size_y = size;
+    if (width() > height()) {
+        size_x *= static_cast<float>(height()) / width();
+    } else {
+        size_y *= static_cast<float>(width()) / height();
+    }
 
-//     glEnableVertexAttribArray(0);
-//     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+    cross_shader_program_.setUniformValue("u_center", QVector2D(center));
+    cross_shader_program_.setUniformValue("u_size", QVector2D(size_x, size_y));
+    cross_shader_program_.setUniformValue("u_color", color);
 
-//     glDrawArrays(GL_TRIANGLES, 0, 12);
+    glDrawArrays(GL_TRIANGLES, 0, 12);
 
-//     glDisableVertexAttribArray(0);
-//     glBindBuffer(GL_ARRAY_BUFFER, 0);
-//     glDeleteBuffers(1, &vbo);
-// }
+    cross_vao_.release();
+    cross_shader_program_.release();
+}
 
-enkas::math::Vector3D ParticleRenderer::getRelPos(const enkas::math::Vector3D& pos) {
-    enkas::math::Vector3D rel_pos = camera_.rel_rotation.rotate(camera_.target_pos - pos) -
-                                    enkas::math::Vector3D(0.0, 0.0, -camera_.target_distance);
-    return rel_pos;
+QPointF ParticleRenderer::projectWorldToNdc(const enkas::math::Vector3D& world_pos,
+                                            bool* is_visible) {
+    // 1. Create the same View and Projection matrices as in drawParticles()
+    QMatrix4x4 projection_matrix;
+    projection_matrix.perspective(
+        settings_.fov, static_cast<float>(width()) / height(), 0.1f, 1000.0f);
+
+    QMatrix4x4 view_matrix;
+    view_matrix.translate(0.0f, 0.0f, -camera_.target_distance);
+    QQuaternion q_rotation = QQuaternion(camera_.rel_rotation.s,
+                                         -camera_.rel_rotation.b_yz,
+                                         camera_.rel_rotation.b_xz,
+                                         camera_.rel_rotation.b_xy)
+                                 .conjugated();
+    view_matrix.rotate(q_rotation);
+    view_matrix.translate(-camera_.target_pos.x, -camera_.target_pos.y, -camera_.target_pos.z);
+
+    // 2. Transform the world position to Clip Space
+    QVector4D world_vec4(world_pos.x, world_pos.y, world_pos.z, 1.0);
+    QVector4D clip_pos = projection_matrix * view_matrix * world_vec4;
+
+    // 3. Perform Perspective Division to get Normalized Device Coordinates (NDC)
+    // If w is zero or negative, the point is behind or on the camera plane.
+    if (clip_pos.w() <= 0.0f) {
+        *is_visible = false;
+        return QPointF();
+    }
+
+    QVector3D ndc_pos = clip_pos.toVector3D() / clip_pos.w();
+
+    // 4. Check if the point is within the visible NDC cube
+    *is_visible = (std::abs(ndc_pos.x()) <= 1.0f && std::abs(ndc_pos.y()) <= 1.0f &&
+                   std::abs(ndc_pos.z()) <= 1.0f);
+
+    return QPointF(ndc_pos.x(), ndc_pos.y());
 }
 
 void ParticleRenderer::animation() {
@@ -383,29 +444,3 @@ void ParticleRenderer::setBackgroundColor() {
             break;
     }
 }
-
-// void ParticleRenderer::setCOMColor() {
-//     switch (settings_.coloring_method) {
-//         case ColoringMethod::BlackFog:
-//             glColor3ub(255, 255, 0);
-//             break;
-//         case ColoringMethod::WhiteFog:
-//             glColor3ub(0, 220, 0);
-//             break;
-//         default:
-//             break;
-//     }
-// }
-
-// void ParticleRenderer::setCenterColor() {
-//     switch (settings_.coloring_method) {
-//         case ColoringMethod::BlackFog:
-//             glColor3ub(255, 255, 255);
-//             break;
-//         case ColoringMethod::WhiteFog:
-//             glColor3ub(0, 0, 160);
-//             break;
-//         default:
-//             break;
-//     }
-// }

@@ -34,10 +34,10 @@ public:
     virtual void updateSystemRendering(SystemSnapshotPtr system_snapshot) = 0;
 
     /**
-     * @brief Updates the charts with the latest diagnostics data.
+     * @brief Updates the charts and the particle renderer with the latest diagnostics data.
      * @param diagnostics_snapshot The snapshot of the diagnostics data to render.
      */
-    virtual void updateCharts(DiagnosticsSnapshotPtr diagnostics_snapshot) = 0;
+    virtual void updateDiagnostics(DiagnosticsSnapshotPtr diagnostics_snapshot) = 0;
 
     /**
      * @brief Populate the charts with a batch of diagnostics data.

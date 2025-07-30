@@ -1,6 +1,5 @@
 #version 410 core
 
-// NEW: This is received from the vertex shader
 in vec2 v_quad_coord;
 
 in float v_distance_to_camera;
@@ -12,13 +11,6 @@ uniform int u_coloring_method;
 out vec4 frag_color;
 
 void main() {
-    // OLD and WRONG:
-    // vec2 coord = gl_PointCoord - vec2(0.5);
-
-    // NEW and CORRECT:
-    // v_quad_coord is from -0.5 to 0.5. dot(v_quad_coord, v_quad_coord)
-    // gives the squared distance from the center. The radius is 0.5, so the
-    // squared radius is 0.25.
     if (dot(v_quad_coord, v_quad_coord) > 0.25) {
         discard; // Discard fragment if it's outside the circle
     }

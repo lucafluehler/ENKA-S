@@ -63,9 +63,9 @@ public:
 
 signals:
     /** @signal
-     * @brief Emitted when new chart data is ready to be displayed.
+     * @brief Emitted when new diagnostics data is ready to be displayed.
      */
-    void chartDataReady(DiagnosticsSnapshotPtr snapshot);
+    void diagnosticsReady(DiagnosticsSnapshotPtr snapshot);
 
 public slots:
     /**
@@ -77,7 +77,7 @@ public slots:
     /**
      * @brief Updates the charts with the latest diagnostics data.
      */
-    void updateCharts(DiagnosticsSnapshotPtr diagnostics_snapshot);
+    void updateDiagnostics(DiagnosticsSnapshotPtr diagnostics_snapshot);
 
     /**
      * @brief Handles changes in the target frames per second (FPS).
