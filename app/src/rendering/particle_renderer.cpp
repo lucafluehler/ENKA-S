@@ -46,24 +46,19 @@ void ParticleRenderer::clearData() {
 }
 
 void ParticleRenderer::saveScreenshot() {
-    QImage screenshot(size(), QImage::Format_RGB32);
-
-    QPainter painter(&screenshot);
-
-    render(&painter);
+    QImage screenshot = this->grabFramebuffer();
 
     QDir video_dir(QStandardPaths::writableLocation(QStandardPaths::DownloadLocation));
-    video_dir.mkpath("VIDEO");
-    video_dir.cd("VIDEO");
+    if (video_dir.mkpath("VIDEO") && video_dir.cd("VIDEO")) {
+        QString filename = QString("ENKAS_%1_%2.png")
+                               .arg(QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss"))
+                               .arg(system_ ? system_->time : 0.0);
+        QString save_path = video_dir.filePath(filename);
 
-    QString filename = QString("ENKAS_%1_%2.png")
-                           .arg(QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss"))
-                           .arg(system_->time);
-    QString save_path = video_dir.filePath(filename);
-
-    if (QFile(save_path).exists()) return;
-
-    screenshot.save(save_path);
+        if (!QFile(save_path).exists()) {
+            screenshot.save(save_path);
+        }
+    }
 }
 
 void ParticleRenderer::initializeGL() {
