@@ -103,5 +103,5 @@ private:
     QThread* chart_thread_ = nullptr;
 
     std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> chart_queue_;
-    std::shared_ptr<LiveDebugInfo> debug_info_;
+    std::shared_ptr<LiveDebugInfo> live_debug_info_;
 };

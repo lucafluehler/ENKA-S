@@ -41,11 +41,11 @@ void SimulationWindowPresenter::initLiveMode(
 
     rendering_snapshot_ = rendering_snapshot;
     chart_queue_ = std::move(chart_queue);
-    debug_info_ = debug_info;
+    live_debug_info_ = debug_info;
 
     setupChartWorker();
 
-    view_->initLiveMode(debug_info_);
+    view_->initLiveMode(live_debug_info_);
 
     render_timer_->start(1000 / view_->getTargetFPS());
 }
@@ -90,10 +90,14 @@ void SimulationWindowPresenter::updateRendering() {
     const int fps = static_cast<int>(frame_count_ / elapsed_seconds);
 
     // Calculate SPS (Steps Per Second)
-    const int current_step_count = debug_info_->current_step.load(std::memory_order_relaxed);
-    const int steps_since_last_update = current_step_count - previous_step_count_;
-    previous_step_count_ = current_step_count;
-    const int sps = static_cast<int>(steps_since_last_update / elapsed_seconds);
+    int sps = -1;  // Indicates SPS is not applicable in replay mode
+    if (live_debug_info_) {
+        const int current_step_count =
+            live_debug_info_->current_step.load(std::memory_order_relaxed);
+        const int steps_since_last_update = current_step_count - previous_step_count_;
+        previous_step_count_ = current_step_count;
+        sps = static_cast<int>(steps_since_last_update / elapsed_seconds);
+    }
 
     view_->updateDebugInfo(fps, sps);
     frame_count_ = 0;  // Reset frame count for the next interval

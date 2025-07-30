@@ -200,6 +200,10 @@ void SimulationWindow::updateDebugInfo(int fps, int sps) {
     const auto fps_text = QString::number(fps) + " FPS";
     ui_->lblFPS->setText(fps_text);
 
+    if (sps < 0) {
+        ui_->lblSPS->setText("");
+        return;  // SPS is not applicable in replay mode
+    }
     const auto sps_text = QString::number(sps) + " SPS";
     ui_->lblSPS->setText(sps_text);
 }
