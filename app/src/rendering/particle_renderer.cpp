@@ -247,7 +247,7 @@ void ParticleRenderer::drawParticles() {
     shader_program_.setUniformValue("u_projection_matrix", projection_matrix);
     shader_program_.setUniformValue("u_view_matrix", view_matrix);
     shader_program_.setUniformValue("u_particle_size",
-                                    static_cast<GLfloat>(settings_.particle_size_param / 10.0f));
+                                    static_cast<GLfloat>(settings_.particle_size_param / 1000.0f));
     shader_program_.setUniformValue("u_camera_target_distance", (float)camera_.target_distance);
 
     if (settings_.coloring_method == ColoringMethod::BlackFog) {

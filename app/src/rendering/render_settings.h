@@ -40,6 +40,6 @@ struct RenderSettings {
     double white_fog_param = 6;
 
     // Rendering
-    double particle_size_param = 1;
+    double particle_size_param = 100;
     int fov = 90;
 };

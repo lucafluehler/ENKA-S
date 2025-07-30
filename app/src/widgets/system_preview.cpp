@@ -12,7 +12,6 @@
 #include "core/settings/generation_method.h"
 #include "rendering/particle_renderer.h"
 
-
 SystemPreview::SystemPreview(QWidget* parent) : ParticleRenderer(parent) {
     // Set default Render Settings
     RenderSettings render_settings;
@@ -117,7 +116,7 @@ void SystemPreview::setMethodSettings() {
     render_settings.show_center_of_mass = false;
     render_settings.show_center_of_screen = false;
     render_settings.fov = 50;
-    render_settings.particle_size_param = 1.2;
+    render_settings.particle_size_param = 120;
 
     redraw(render_settings);
 }
@@ -131,7 +130,7 @@ void SystemPreview::setHomeScreenSettings() {
     render_settings.show_center_of_mass = false;
     render_settings.show_center_of_screen = false;
     render_settings.fov = 60;
-    render_settings.particle_size_param = 0.7;
+    render_settings.particle_size_param = 70;
 
     redraw(render_settings);
 }
