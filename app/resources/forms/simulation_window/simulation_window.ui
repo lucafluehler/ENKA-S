@@ -173,6 +173,9 @@
           </item>
           <item>
            <widget class="QToolButton" name="btnStepBackward">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -219,12 +222,15 @@
             </property>
             <property name="icon">
              <iconset resource="../../resources.qrc">
-              <normaloff>:/controls/icons/play.png</normaloff>:/controls/icons/play.png</iconset>
+              <normaloff>:/controls/icons/pause.png</normaloff>:/controls/icons/pause.png</iconset>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QToolButton" name="btnStepForward">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>

@@ -88,6 +88,7 @@ private slots:
     void toggleSettings();
     void toggleDebugInfo();
     void toggleMovie(bool checked);
+    void onTogglePlayback();
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -109,4 +110,5 @@ private:
 
     // Stored data for replay mode
     std::shared_ptr<std::vector<double>> timestamps_ = nullptr;
+    bool playback_active_ = true;  // Indicates if the playback is active
 };

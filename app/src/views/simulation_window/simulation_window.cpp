@@ -46,7 +46,7 @@ SimulationWindow::SimulationWindow(QWidget* parent)
 
     // Replay controls
     connect(
-        ui_->btnTogglePlayback, &QPushButton::clicked, this, [this]() { emit togglePlayback(); });
+        ui_->btnTogglePlayback, &QPushButton::clicked, this, &SimulationWindow::onTogglePlayback);
     connect(ui_->btnStepForward, &QPushButton::clicked, this, [this]() { emit stepForward(); });
     connect(ui_->btnStepBackward, &QPushButton::clicked, this, [this]() { emit stepBackward(); });
 
@@ -113,6 +113,7 @@ void SimulationWindow::initReplayMode(std::shared_ptr<std::vector<double>> times
     ui_->btnJumpToEnd->setVisible(true);
     ui_->btnChangeSpeed->setVisible(true);
     ui_->hslNavigation->setEnabled(true);
+    ui_->btnToggleDebugInfo->setVisible(false);
 
     // Store the timestamps and load the chart data
     if (timestamps) {
@@ -167,6 +168,20 @@ void SimulationWindow::toggleMovie(bool checked) {
     } else {
         movie_timer->stop();
     }
+}
+
+void SimulationWindow::onTogglePlayback() {
+    ui_->btnStepForward->setEnabled(playback_active_);
+    ui_->btnStepBackward->setEnabled(playback_active_);
+    playback_active_ = !playback_active_;
+
+    if (playback_active_) {
+        ui_->btnTogglePlayback->setIcon(QIcon(":/controls/icons/pause.png"));
+    } else {
+        ui_->btnTogglePlayback->setIcon(QIcon(":/controls/icons/play.png"));
+    }
+
+    emit togglePlayback();
 }
 
 void SimulationWindow::updateSystemRendering(SystemSnapshotPtr system_snapshot) {
