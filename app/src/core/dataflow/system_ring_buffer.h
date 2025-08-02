@@ -1,6 +1,5 @@
 #pragma once
 
-#include <condition_variable>
 #include <mutex>
 #include <optional>
 #include <vector>
@@ -102,7 +101,6 @@ private:
     size_t head_ = 0;  // Right after the last written
 
     mutable std::mutex mtx_;
-    std::condition_variable cv_;
 
-    std::atomic<bool> is_shutting_down_ = false;
+    bool is_shutting_down_ = false;
 };

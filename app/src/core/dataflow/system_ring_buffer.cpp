@@ -1,6 +1,5 @@
 #include "core/dataflow/system_ring_buffer.h"
 
-#include <condition_variable>
 #include <mutex>
 #include <optional>
 #include <vector>
@@ -11,15 +10,13 @@ SystemRingBuffer::SystemRingBuffer(size_t capacity, size_t retain_count)
 bool SystemRingBuffer::pushHead(SystemSnapshotPtr snapshot) {
     std::unique_lock lock(mtx_);
 
-    // We cannot push if the buffer is full, so we wait until space is available
-    cv_.wait(lock, [&] { return !isFull() || is_shutting_down_.load(); });
-
-    if (is_shutting_down_.load()) return false;
+    if (isFull() || is_shutting_down_) {
+        return false;
+    }
 
     buffer_[head_] = std::move(snapshot);
     head_ = advance(head_);
 
-    cv_.notify_all();
     return true;
 }
 
@@ -28,6 +25,8 @@ bool SystemRingBuffer::pushTail(SystemSnapshotPtr snapshot) {
 
     // If the buffer is full, we must also retreat the head pointer
     if (isFull()) {
+        // If the reader has caught up, we cannot push back the head, so we cannot push to the tail.
+        if (hasReaderCaughtUp()) return false;
         head_ = retreat(head_);
     }
 
@@ -41,20 +40,23 @@ bool SystemRingBuffer::pushTail(SystemSnapshotPtr snapshot) {
         read_ = retreat(read_);
     }
 
-    cv_.notify_all();
     return true;
 }
 
 std::optional<double> SystemRingBuffer::headTime() const {
     std::unique_lock lock(mtx_);
     if (isEmpty()) return std::nullopt;
-    return buffer_[retreat(head_)]->time;
+    const auto& snapshot = buffer_[retreat(head_)];
+    if (!snapshot) return std::nullopt;
+    return snapshot->time;
 }
 
 std::optional<double> SystemRingBuffer::tailTime() const {
     std::unique_lock lock(mtx_);
     if (isEmpty()) return std::nullopt;
-    return buffer_[tail_]->time;
+    const auto& snapshot = buffer_[tail_];
+    if (!snapshot) return std::nullopt;
+    return snapshot->time;
 }
 
 std::optional<SystemSnapshotPtr> SystemRingBuffer::readForward() {
@@ -65,13 +67,9 @@ std::optional<SystemSnapshotPtr> SystemRingBuffer::readForward() {
     read_ = advance(read_);
 
     // Ensure we maintain retain_count_ behind read_
-    bool space_freed = false;
     while (distance(tail_, read_) > retain_count_) {
         tail_ = advance(tail_);
-        space_freed = true;
     }
-
-    if (space_freed) cv_.notify_all();
 
     return result;
 }
@@ -88,14 +86,11 @@ void SystemRingBuffer::clear() {
     std::unique_lock lock(mtx_);
     tail_ = read_ = head_ = 0;
     buffer_.assign(buffer_.size(), nullptr);
-    is_shutting_down_ = false;
-    cv_.notify_all();
 }
 
 void SystemRingBuffer::shutdown() {
     std::unique_lock lock(mtx_);
     is_shutting_down_ = true;
-    cv_.notify_all();
 }
 
 bool SystemRingBuffer::isFull() const { return advance(head_) == tail_; }
