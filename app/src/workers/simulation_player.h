@@ -65,7 +65,7 @@ private:
     SystemBufferWorker* system_buffer_worker_;
     QThread* system_buffer_thread_;
 
-    QTimer* data_update_timer_ = nullptr;
+    bool is_playing_ = false;
     std::shared_ptr<std::atomic<SystemSnapshotPtr>> rendering_snapshot_;
 
     std::shared_ptr<SystemRingBuffer> system_ring_buffer_ = nullptr;

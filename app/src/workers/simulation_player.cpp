@@ -16,7 +16,6 @@
 SimulationPlayer::SimulationPlayer(QObject* parent)
     : QObject(parent),
       simulation_window_(new SimulationWindow()),
-      data_update_timer_(new QTimer(this)),
       rendering_snapshot_(std::make_shared<std::atomic<SystemSnapshotPtr>>(SystemSnapshotPtr{})) {
     // Setup simulation window
     const auto& win = simulation_window_;
@@ -83,22 +82,24 @@ void SimulationPlayer::setupSystemBufferWorker() {
 }
 
 void SimulationPlayer::setupDataUpdateTimer() {
-    data_update_timer_ = new QTimer(this);
-    connect(data_update_timer_, &QTimer::timeout, this, &SimulationPlayer::onStepForward);
-    onTogglePlayback();  // Start the timer in active mode
+    onTogglePlayback();  // Start playback immediately
 }
 
 void SimulationPlayer::onTogglePlayback() {
-    if (data_update_timer_->isActive()) {
-        data_update_timer_->stop();
-    } else {
-        data_update_timer_->start(1000 / 30);  // 30 snapshots per second (SPS)
+    is_playing_ = !is_playing_;
+
+    if (is_playing_) {
+        onStepForward();
     }
 }
 
 void SimulationPlayer::onStepForward() {
     if (auto system_snapshot = system_ring_buffer_->readForward()) {
         rendering_snapshot_->store(*system_snapshot, std::memory_order_release);
+    }
+
+    if (is_playing_) {
+        QTimer::singleShot(1000 / 30, this, &SimulationPlayer::onStepForward);
     }
 }
 
