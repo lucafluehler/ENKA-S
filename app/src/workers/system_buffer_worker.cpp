@@ -49,14 +49,22 @@ void SystemBufferWorker::run() {
 void SystemBufferWorker::stepBackward() {
     if (auto tail_time = buffer_->tailTime()) {
         if (auto snapshot = stream_->getPrecedingSnapshot(*tail_time)) {
-            buffer_->pushTail(std::make_shared<SystemSnapshot>(*snapshot));
+            bool success = buffer_->pushTail(std::make_shared<SystemSnapshot>(*snapshot));
+            if (buffer_->isFull() && success) stream_->retreatIndexIterator();
         }
     }
 }
 
 void SystemBufferWorker::stepForward() {
+    // If the buffer is full, we cannot push to the head.
+    if (buffer_->isFull()) return;
+
     if (auto snapshot = stream_->getNextSnapshot()) {
         last_timestamp_ = snapshot->time;
-        buffer_->pushHead(std::make_shared<SystemSnapshot>(*snapshot));
+        bool success = buffer_->pushHead(std::make_shared<SystemSnapshot>(*snapshot));
+
+        // If pushing failed for any reason, retreat the index iterator to ensure no snapshot is
+        // dropped.
+        if (!success) stream_->retreatIndexIterator();
     }
 }
