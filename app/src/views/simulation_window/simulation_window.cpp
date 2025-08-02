@@ -21,6 +21,14 @@ SimulationWindow::SimulationWindow(QWidget* parent)
     ui_->wgtSettings->hide();
     ui_->wgtDebugInfo->hide();
 
+    // Setup the steps per second slider
+    const int min_sps = 1;
+    const int max_sps = 1000;
+    const int default_sps = 30;
+    ui_->hslStepsPerSecond->setRange(min_sps, max_sps);
+    ui_->hslStepsPerSecond->setValue(default_sps);
+    onStepsPerSecondChanged(default_sps);
+
     // Maximize window on startup. MUST be after ui setup
     setWindowState(windowState() | Qt::WindowMaximized);
 
@@ -43,6 +51,10 @@ SimulationWindow::SimulationWindow(QWidget* parent)
             ui_->oglParticleRenderer,
             &ParticleRenderer::saveScreenshot);
     connect(ui_->btnMovie, &QToolButton::toggled, this, &SimulationWindow::toggleMovie);
+    connect(ui_->hslStepsPerSecond,
+            &QSlider::valueChanged,
+            this,
+            &SimulationWindow::onStepsPerSecondChanged);
 
     // Replay controls
     connect(
@@ -63,7 +75,7 @@ void SimulationWindow::initLiveMode(std::shared_ptr<LiveDebugInfo> debug_info) {
     ui_->btnTogglePlayback->setVisible(false);
     ui_->btnStepForward->setVisible(false);
     ui_->btnJumpToEnd->setVisible(false);
-    ui_->btnChangeSpeed->setVisible(false);
+    ui_->hslStepsPerSecond->setVisible(false);
     ui_->hslNavigation->setEnabled(false);
 
     live_debug_info_ = debug_info;
@@ -111,7 +123,7 @@ void SimulationWindow::initReplayMode(std::shared_ptr<std::vector<double>> times
     ui_->btnTogglePlayback->setVisible(true);
     ui_->btnStepForward->setVisible(true);
     ui_->btnJumpToEnd->setVisible(true);
-    ui_->btnChangeSpeed->setVisible(true);
+    ui_->hslStepsPerSecond->setVisible(true);
     ui_->hslNavigation->setEnabled(true);
     ui_->btnToggleDebugInfo->setVisible(false);
 
@@ -216,7 +228,6 @@ void SimulationWindow::updateDebugInfo(int fps, int sps) {
     ui_->lblFPS->setText(fps_text);
 
     if (sps < 0) {
-        ui_->lblSPS->setText("");
         return;  // SPS is not applicable in replay mode
     }
     const auto sps_text = QString::number(sps) + " SPS";
@@ -281,4 +292,11 @@ void SimulationWindow::setupCharts() {
                       .value_extractor = [](DiagnosticsSnapshot& s) { return s.data->t_cr; }});
 
     ui_->wgtDiagnostics->setupCharts(std::move(charts), "H_T");
+}
+
+void SimulationWindow::onStepsPerSecondChanged(int sps) {
+    const auto sps_text = QString::number(sps) + " SPS";
+    ui_->lblSPS->setText(sps_text);
+
+    emit stepsPerSecondChanged(sps);
 }

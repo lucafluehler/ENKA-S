@@ -72,6 +72,11 @@ signals:
      */
     void fpsChanged();
 
+    /** @signal
+     * @brief Emitted when the steps per second changes.
+     */
+    void stepsPerSecondChanged(int sps);
+
 public slots:
     /**
      * @brief Updates the target frames per second for the simulation.
@@ -89,6 +94,7 @@ private slots:
     void toggleDebugInfo();
     void toggleMovie(bool checked);
     void onTogglePlayback();
+    void onStepsPerSecondChanged(int sps);
 
 protected:
     void closeEvent(QCloseEvent *event) override;

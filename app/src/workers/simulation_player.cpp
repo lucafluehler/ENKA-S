@@ -23,6 +23,9 @@ SimulationPlayer::SimulationPlayer(QObject* parent)
     connect(win, &SimulationWindow::stepForward, this, &SimulationPlayer::onStepForward);
     connect(win, &SimulationWindow::stepBackward, this, &SimulationPlayer::onStepBackward);
     connect(win, &SimulationWindow::windowClosed, this, [this]() { emit windowClosed(); });
+    connect(win, &SimulationWindow::stepsPerSecondChanged, this, [this](int sps) {
+        step_delay_ms_ = 1000 / sps;
+    });
     simulation_window_presenter_ = new SimulationWindowPresenter(win, this);
 }
 
@@ -99,7 +102,7 @@ void SimulationPlayer::onStepForward() {
     }
 
     if (is_playing_) {
-        QTimer::singleShot(1000 / 30, this, &SimulationPlayer::onStepForward);
+        QTimer::singleShot(step_delay_ms_, this, &SimulationPlayer::onStepForward);
     }
 }
 
