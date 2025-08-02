@@ -16,12 +16,7 @@
 #include "core/charts/downsampling.h"
 #include "core/dataflow/snapshot.h"
 
-DiagnosticsWidget::DiagnosticsWidget(QWidget* parent)
-    : QWidget(parent), refresh_timer_(new QTimer(this)) {
-    createBaseUi();
-    connect(refresh_timer_, &QTimer::timeout, this, &DiagnosticsWidget::refreshCharts);
-    refresh_timer_->start(1000 / 5);  // Refresh rate: 5 Hz
-}
+DiagnosticsWidget::DiagnosticsWidget(QWidget* parent) : QWidget(parent) { createBaseUi(); }
 
 void DiagnosticsWidget::createBaseUi() {
     this->setFixedWidth(600);
@@ -119,6 +114,9 @@ void DiagnosticsWidget::setupCharts(std::vector<ChartDefinition> chart_definitio
         x_axes_.push_back(axisX);
         y_axes_.push_back(axisY);
     }
+
+    refresh_automatically_ = true;
+    refreshCharts();
 }
 
 void DiagnosticsWidget::updateData(DiagnosticsSnapshot& diag) {
@@ -142,6 +140,8 @@ void DiagnosticsWidget::fillCharts(const DiagnosticsSeries& series) {
     if (definitions_.empty()) {
         return;
     }
+
+    refresh_automatically_ = false;
 
     max_time_ = 0.0;
     std::fill(min_values_.begin(), min_values_.end(), std::numeric_limits<double>::max());
@@ -214,7 +214,7 @@ void DiagnosticsWidget::fillCharts(const DiagnosticsSeries& series) {
 }
 
 void DiagnosticsWidget::refreshCharts() {
-    if (definitions_.empty()) {
+    if (definitions_.empty() || !refresh_automatically_) {
         return;
     }
 
@@ -256,4 +256,6 @@ void DiagnosticsWidget::refreshCharts() {
             axisY->setRange(axisY->min() - 1.0, axisY->max() + 1.0);
         }
     }
+
+    QTimer::singleShot(200, this, &DiagnosticsWidget::refreshCharts);
 }

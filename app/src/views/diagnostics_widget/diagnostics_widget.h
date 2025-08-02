@@ -40,8 +40,6 @@ private:
     void createBaseUi();
     void clearCharts();
 
-    QTimer* refresh_timer_;
-
     QVBoxLayout* container_layout_;
     QScrollArea* scroll_area_;
     QWidget* scroll_area_widget_contents_;
@@ -60,4 +58,6 @@ private:
     std::vector<double> max_values_;
 
     std::vector<std::vector<QPointF>> full_data_;
+
+    bool refresh_automatically_ = true;
 };
