@@ -320,3 +320,16 @@ std::optional<SystemSnapshot> SystemSnapshotStream::parseSnapshotFromIndex(
 
     return SystemSnapshot{std::move(system), timestamp};
 }
+
+void SystemSnapshotStream::retreatIndexIterator() {
+    if (!is_initialized_ || index_.empty() || current_index_iterator_ == index_.begin()) {
+        current_index_iterator_ = index_.end();
+        return;
+    }
+
+    if (current_index_iterator_ == index_.end()) {
+        current_index_iterator_ = std::prev(index_.end());
+    } else {
+        --current_index_iterator_;
+    }
+}

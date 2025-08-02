@@ -75,6 +75,11 @@ public:
      */
     std::vector<double> getAllTimestamps() const;
 
+    /**
+     * @brief Retreats the current index iterator by one position.
+     */
+    void retreatIndexIterator();
+
 private:
     struct SnapshotIndexEntry {
         std::streampos file_offset;  // Byte offset where the first row of the snapshot starts
