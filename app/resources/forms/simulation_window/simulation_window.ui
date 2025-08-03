@@ -655,7 +655,7 @@
   <customwidget>
    <class>DiagnosticsWidget</class>
    <extends>QWidget</extends>
-   <header>views/diagnostics_widget/diagnostics_widget.h</header>
+   <header>widgets/diagnostics_widget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
