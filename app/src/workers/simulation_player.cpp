@@ -27,6 +27,7 @@ SimulationPlayer::SimulationPlayer(QObject* parent)
     connect(win, &SimulationWindow::stepsPerSecondChanged, this, [this](int sps) {
         step_delay_ms_ = 1000 / sps;
     });
+    connect(win, &SimulationWindow::requestJump, this, &SimulationPlayer::onJump);
     simulation_window_presenter_ = new SimulationWindowPresenter(win, this);
 
     connect(buffer_value_update_timer_, &QTimer::timeout, this, [this]() {
@@ -128,5 +129,11 @@ void SimulationPlayer::onStepBackward() {
 
     if (system_buffer_worker_) {
         system_buffer_worker_->requestStepBackward();
+    }
+}
+
+void SimulationPlayer::onJump(double timestamp) {
+    if (system_buffer_worker_) {
+        system_buffer_worker_->requestJump(timestamp);
     }
 }

@@ -61,6 +61,43 @@ SimulationWindow::SimulationWindow(QWidget* parent)
         ui_->btnTogglePlayback, &QPushButton::clicked, this, &SimulationWindow::onTogglePlayback);
     connect(ui_->btnStepForward, &QPushButton::clicked, this, [this]() { emit stepForward(); });
     connect(ui_->btnStepBackward, &QPushButton::clicked, this, [this]() { emit stepBackward(); });
+    connect(ui_->hslPlaybackBar, &PlaybackBar::sliderPressed, this, [this]() {
+        if (playback_active_) {
+            halt_for_jump = playback_active_;
+            emit togglePlayback();
+        }
+    });
+    connect(ui_->hslPlaybackBar, &PlaybackBar::sliderReleased, this, [this]() {
+        if (timestamps_ && !timestamps_->empty()) {
+            const int value = ui_->hslPlaybackBar->value();
+            const int timestamps_size = static_cast<int>(timestamps_->size());
+            const int max_slider = 1000;
+
+            double fraction = double(value - 1) / double(max_slider - 1);
+            int idx = static_cast<int>(std::lround(fraction * (timestamps_size - 1)));
+
+            idx = std::clamp(idx, 0, timestamps_size - 1);
+
+            emit requestJump(timestamps_->at(idx));
+
+            if (halt_for_jump) {
+                halt_for_jump = false;
+                emit togglePlayback();
+            }
+        }
+    });
+    connect(ui_->btnJumpToStart, &QPushButton::clicked, this, [this]() {
+        if (timestamps_ && !timestamps_->empty()) {
+            if (playback_active_) onTogglePlayback();
+            emit requestJump(timestamps_->front());
+        }
+    });
+    connect(ui_->btnJumpToEnd, &QPushButton::clicked, this, [this]() {
+        if (timestamps_ && !timestamps_->empty()) {
+            if (playback_active_) onTogglePlayback();
+            emit requestJump(timestamps_->back());
+        }
+    });
 
     connect(
         movie_timer, &QTimer::timeout, ui_->oglParticleRenderer, &ParticleRenderer::saveScreenshot);
@@ -204,10 +241,9 @@ void SimulationWindow::updateSystemRendering(SystemSnapshotPtr system_snapshot) 
     // Redraw Particles even if no system snapshot is available, in order to avoid frame drops.
     ui_->oglParticleRenderer->redraw(settings_);
 
-    if (!system_snapshot) {
-        // If no system snapshot is available we cannot update the time progress.
-        return;
-    }
+    // If no system snapshot is available we cannot update the time progress.
+    // Also, if the playback is currently halted due to a jump, we do not want to update the slider.
+    if (!system_snapshot || halt_for_jump) return;
 
     // Update time progress
     const double time = system_snapshot->time;

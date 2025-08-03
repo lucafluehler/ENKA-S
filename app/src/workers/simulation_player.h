@@ -57,6 +57,12 @@ public slots:
      */
     void onStepBackward();
 
+    /**
+     * @brief Jumps to a specific value in the playback bar.
+     * @param timestamp The timestamp to jump to.
+     */
+    void onJump(double timestamp);
+
 private:
     void setupSystemBufferWorker();
     void setupDataUpdateTimer();

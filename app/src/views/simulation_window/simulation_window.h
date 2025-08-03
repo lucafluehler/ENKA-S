@@ -55,7 +55,7 @@ signals:
     void windowClosed();
 
     /** @signal
-     * @brief Emitted when the play / pause button is prressed.
+     * @brief Emitted when the play / pause button is pressed.
      */
     void togglePlayback();
 
@@ -78,6 +78,12 @@ signals:
      * @brief Emitted when the steps per second changes.
      */
     void stepsPerSecondChanged(int sps);
+
+    /** @signal
+     * @brief Emitted when the user requests to jump to a specific value in the playback bar.
+     * @param timestamp The timestamp to jump to.
+     */
+    void requestJump(double timestamp);
 
 public slots:
     /**
@@ -119,4 +125,5 @@ private:
     // Stored data for replay mode
     std::shared_ptr<std::vector<double>> timestamps_ = nullptr;
     bool playback_active_ = true;  // Indicates if the playback is active
+    bool halt_for_jump = false;    // Indicates if the playback was active before a jump
 };
