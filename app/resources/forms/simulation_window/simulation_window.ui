@@ -292,7 +292,7 @@
              <number>1</number>
             </property>
             <property name="maximum">
-             <number>1000</number>
+             <number>4096</number>
             </property>
             <property name="value">
              <number>30</number>
@@ -618,7 +618,7 @@
      </layout>
     </item>
     <item>
-     <widget class="QSlider" name="hslNavigation">
+     <widget class="PlaybackBar" name="hslPlaybackBar">
       <property name="enabled">
        <bool>true</bool>
       </property>
@@ -626,33 +626,7 @@
        <cursorShape>ArrowCursor</cursorShape>
       </property>
       <property name="styleSheet">
-       <string notr="true">QSlider::groove:horizontal {
-    height: 8px; /* Thickness of the groove */
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                                stop:0 #CCCCCC, stop:1 #CCCCCC); /* Background gradient of the groove */
-}
-
-QSlider::sub-page:horizontal {
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                                stop:0 #77A8D6, stop:1 #77A8D6); /* Color of the groove after the handle */
-}
-
-QSlider::add-page:horizontal {
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                                stop:0 #DDDDDD, stop:1 #DDDDDD); /* Color of the groove before the handle */
-}
-
-QSlider::handle:horizontal {
-    background: #333333; /* Color of the handle */
-    width: 12px; /* Width of the handle */
-    height: 20px; /* Height of the handle */
-    margin-top: -6px; /* Adjust the vertical position of the handle */
-    margin-bottom: -6px; /* Adjust the vertical position of the handle */
-}
-
-QSlider::handle:horizontal:hover {
-    background: #666666; /* Color of the handle */
-}</string>
+       <string notr="true"/>
       </property>
       <property name="locale">
        <locale language="C" country="AnyTerritory"/>
@@ -694,6 +668,11 @@ QSlider::handle:horizontal:hover {
    <extends>QWidget</extends>
    <header>widgets/debug_info_widget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>PlaybackBar</class>
+   <extends>QSlider</extends>
+   <header>widgets/playback_bar.h</header>
   </customwidget>
  </customwidgets>
  <resources>

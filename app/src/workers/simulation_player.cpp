@@ -16,7 +16,8 @@
 SimulationPlayer::SimulationPlayer(QObject* parent)
     : QObject(parent),
       simulation_window_(new SimulationWindow()),
-      rendering_snapshot_(std::make_shared<std::atomic<SystemSnapshotPtr>>(SystemSnapshotPtr{})) {
+      rendering_snapshot_(std::make_shared<std::atomic<SystemSnapshotPtr>>(SystemSnapshotPtr{})),
+      buffer_value_update_timer_(new QTimer(this)) {
     // Setup simulation window
     const auto& win = simulation_window_;
     connect(win, &SimulationWindow::togglePlayback, this, &SimulationPlayer::onTogglePlayback);
@@ -27,6 +28,14 @@ SimulationPlayer::SimulationPlayer(QObject* parent)
         step_delay_ms_ = 1000 / sps;
     });
     simulation_window_presenter_ = new SimulationWindowPresenter(win, this);
+
+    connect(buffer_value_update_timer_, &QTimer::timeout, this, [this]() {
+        if (system_ring_buffer_ && total_snapshots_count_ > 0) {
+            const int buffer_size = system_ring_buffer_->size();
+            const int buffer_value = 1000 * buffer_size / total_snapshots_count_;
+            simulation_window_->updateBufferValue(buffer_value);
+        }
+    });
 }
 
 SimulationPlayer::~SimulationPlayer() {
@@ -66,6 +75,12 @@ void SimulationPlayer::run(const std::filesystem::path& system_file_path,
     simulation_window_->show();
 
     setupDataUpdateTimer();
+
+    if (timestamps) {
+        total_snapshots_count_ = timestamps->size();
+        simulation_window_->updateBufferValue(total_snapshots_count_);
+        buffer_value_update_timer_->start(200);
+    }
 }
 
 void SimulationPlayer::setupSystemBufferWorker() {

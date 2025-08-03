@@ -73,4 +73,7 @@ private:
 
     std::shared_ptr<SystemRingBuffer> system_ring_buffer_ = nullptr;
     std::filesystem::path system_file_path_ = "";
+
+    QTimer* buffer_value_update_timer_ = nullptr;
+    int total_snapshots_count_ = 0;
 };

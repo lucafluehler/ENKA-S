@@ -24,7 +24,7 @@ SimulationWindow::SimulationWindow(QWidget* parent)
     // Setup the steps per second slider
     const int min_sps = 1;
     const int max_sps = 1000;
-    const int default_sps = 30;
+    const int default_sps = 60;
     ui_->hslStepsPerSecond->setRange(min_sps, max_sps);
     ui_->hslStepsPerSecond->setValue(default_sps);
     onStepsPerSecondChanged(default_sps);
@@ -76,7 +76,7 @@ void SimulationWindow::initLiveMode(std::shared_ptr<LiveDebugInfo> debug_info) {
     ui_->btnStepForward->setVisible(false);
     ui_->btnJumpToEnd->setVisible(false);
     ui_->hslStepsPerSecond->setVisible(false);
-    ui_->hslNavigation->setEnabled(false);
+    ui_->hslPlaybackBar->setEnabled(false);
 
     live_debug_info_ = debug_info;
     simulation_duration_ = debug_info->duration;
@@ -124,7 +124,7 @@ void SimulationWindow::initReplayMode(std::shared_ptr<std::vector<double>> times
     ui_->btnStepForward->setVisible(true);
     ui_->btnJumpToEnd->setVisible(true);
     ui_->hslStepsPerSecond->setVisible(true);
-    ui_->hslNavigation->setEnabled(true);
+    ui_->hslPlaybackBar->setEnabled(true);
     ui_->btnToggleDebugInfo->setVisible(false);
 
     // Store the timestamps and load the chart data
@@ -215,7 +215,7 @@ void SimulationWindow::updateSystemRendering(SystemSnapshotPtr system_snapshot) 
     ui_->lblTime->setText(time_text);
 
     // Update horizontal progress slider
-    ui_->hslNavigation->setValue(1000.0 * time / simulation_duration_);
+    ui_->hslPlaybackBar->setValue(1000.0 * time / simulation_duration_);
 
     // Update the debug info
     if (live_debug_info_) {
@@ -299,4 +299,8 @@ void SimulationWindow::onStepsPerSecondChanged(int sps) {
     ui_->lblSPS->setText(sps_text);
 
     emit stepsPerSecondChanged(sps);
+}
+
+void SimulationWindow::updateBufferValue(int buffer_value) {
+    ui_->hslPlaybackBar->setBufferValue(buffer_value);
 }

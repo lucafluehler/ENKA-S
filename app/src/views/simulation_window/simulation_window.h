@@ -46,6 +46,8 @@ public:
 
     int getTargetFPS() const override { return target_fps_; }
 
+    void updateBufferValue(int buffer_value);
+
 signals:
     /** @signal
      * @brief Emitted when the simulation window is closed.
