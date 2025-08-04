@@ -14,8 +14,8 @@
 #include "core/dataflow/snapshot.h"
 #include "core/files/file_constants.h"
 #include "core/settings/settings.h"
-#include "presenters/simulation_window_presenter.h"
-#include "views/simulation_window/simulation_window.h"
+#include "presenters/live_simulation_window_presenter.h"
+#include "views/live_simulation_window/live_simulation_window.h"
 #include "workers/queue_storage_worker.h"
 #include "workers/simulation_worker.h"
 
@@ -24,7 +24,6 @@ SimulationRunner::SimulationRunner(const Settings& settings, QObject* parent)
       duration_(settings.get<double>(SettingKey::Duration)),
       save_system_data_(settings.get<bool>(SettingKey::SaveSystemData)),
       save_diagnostics_data_(settings.get<bool>(SettingKey::SaveDiagnosticsData)),
-      simulation_window_(new SimulationWindow),
       memory_pools_(std::make_shared<MemoryPools>()),
       outputs_(std::make_shared<SimulationOutputs>()),
       debug_info_timer_(new QTimer(this)) {
@@ -67,13 +66,13 @@ SimulationRunner::SimulationRunner(const Settings& settings, QObject* parent)
     }
 
     // Simulation Window
-    simulation_window_presenter_ = new SimulationWindowPresenter(simulation_window_, this);
-    simulation_window_presenter_->initLiveMode(
-        outputs_->rendering_snapshot, outputs_->chart_queue, debug_info_);
+    simulation_window_ = new LiveSimulationWindow(debug_info_);
+    simulation_window_presenter_ = new LiveSimulationWindowPresenter(
+        simulation_window_, outputs_->rendering_snapshot, outputs_->chart_queue, debug_info_, this);
     connect(simulation_window_,
-            &SimulationWindow::fpsChanged,
+            &LiveSimulationWindow::fpsChanged,
             simulation_window_presenter_,
-            &SimulationWindowPresenter::onFpsChanged);
+            &LiveSimulationWindowPresenter::onFpsChanged);
 
     // Simulation
     setupSimulationWorker(settings);

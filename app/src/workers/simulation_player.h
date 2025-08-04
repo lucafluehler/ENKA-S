@@ -7,8 +7,8 @@
 
 #include "core/dataflow/snapshot.h"
 #include "core/dataflow/system_ring_buffer.h"
-#include "presenters/simulation_window_presenter.h"
-#include "views/simulation_window/simulation_window.h"
+#include "presenters/replay_simulation_window_presenter.h"
+#include "views/replay_simulation_window/replay_simulation_window.h"
 #include "workers/system_buffer_worker.h"
 
 /**
@@ -66,9 +66,11 @@ public slots:
 private:
     void setupSystemBufferWorker();
     void setupDataUpdateTimer();
+    void setupSimulationWindow(const std::shared_ptr<std::vector<double>>& timestamps,
+                               const std::shared_ptr<DiagnosticsSeries>& diagnostics_series);
 
-    SimulationWindow* simulation_window_;
-    SimulationWindowPresenter* simulation_window_presenter_;
+    ReplaySimulationWindow* simulation_window_ = nullptr;
+    ReplaySimulationWindowPresenter* simulation_window_presenter_ = nullptr;
 
     SystemBufferWorker* system_buffer_worker_;
     QThread* system_buffer_thread_;

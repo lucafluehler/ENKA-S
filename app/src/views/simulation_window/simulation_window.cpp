@@ -21,158 +21,33 @@ SimulationWindow::SimulationWindow(QWidget* parent)
     ui_->wgtSettings->hide();
     ui_->wgtDebugInfo->hide();
 
-    // Setup the steps per second slider
-    const int min_sps = 1;
-    const int max_sps = 1000;
-    const int default_sps = 60;
-    ui_->hslStepsPerSecond->setRange(min_sps, max_sps);
-    ui_->hslStepsPerSecond->setValue(default_sps);
-    onStepsPerSecondChanged(default_sps);
-
     // Maximize window on startup. MUST be after ui setup
     setWindowState(windowState() | Qt::WindowMaximized);
 
     // Movie timer
+    connect(ui_->btnMovie, &QToolButton::toggled, this, &SimulationWindow::toggleMovie);
+    connect(
+        movie_timer, &QTimer::timeout, ui_->oglParticleRenderer, &ParticleRenderer::saveScreenshot);
     movie_timer->setInterval(1000 / 2);
 
-    // Signal Management
+    // Handle settings changes
     connect(ui_->wgtSettings,
             &RenderSettingsWidget::settingsChanged,
             this,
             &SimulationWindow::saveSettings);
     connect(
         ui_->wgtSettings, &RenderSettingsWidget::fpsChanged, this, &SimulationWindow::onFpsChanged);
+
+    // Buttons
     connect(ui_->btnToggleSettings, &QToolButton::clicked, this, &SimulationWindow::toggleSettings);
-    connect(
-        ui_->btnToggleDebugInfo, &QToolButton::clicked, this, &SimulationWindow::toggleDebugInfo);
     connect(ui_->btnToggleSidebar, &QToolButton::clicked, this, &SimulationWindow::toggleSidebar);
     connect(ui_->btnScreenshot,
             &QToolButton::clicked,
             ui_->oglParticleRenderer,
             &ParticleRenderer::saveScreenshot);
-    connect(ui_->btnMovie, &QToolButton::toggled, this, &SimulationWindow::toggleMovie);
-    connect(ui_->hslStepsPerSecond,
-            &QSlider::valueChanged,
-            this,
-            &SimulationWindow::onStepsPerSecondChanged);
-
-    // Replay controls
-    connect(
-        ui_->btnTogglePlayback, &QPushButton::clicked, this, &SimulationWindow::onTogglePlayback);
-    connect(ui_->btnStepForward, &QPushButton::clicked, this, [this]() { emit stepForward(); });
-    connect(ui_->btnStepBackward, &QPushButton::clicked, this, [this]() { emit stepBackward(); });
-    connect(ui_->hslPlaybackBar, &PlaybackBar::sliderPressed, this, [this]() {
-        if (playback_active_) {
-            halt_for_jump = playback_active_;
-            emit togglePlayback();
-        }
-    });
-    connect(ui_->hslPlaybackBar, &PlaybackBar::sliderReleased, this, [this]() {
-        if (timestamps_ && !timestamps_->empty()) {
-            const int value = ui_->hslPlaybackBar->value();
-            const int timestamps_size = static_cast<int>(timestamps_->size());
-            const int max_slider = 1000;
-
-            double fraction = double(value - 1) / double(max_slider - 1);
-            int idx = static_cast<int>(std::lround(fraction * (timestamps_size - 1)));
-
-            idx = std::clamp(idx, 0, timestamps_size - 1);
-
-            emit requestJump(timestamps_->at(idx));
-
-            if (halt_for_jump) {
-                halt_for_jump = false;
-                emit togglePlayback();
-            }
-        }
-    });
-    connect(ui_->btnJumpToStart, &QPushButton::clicked, this, [this]() {
-        if (timestamps_ && !timestamps_->empty()) {
-            if (playback_active_) onTogglePlayback();
-            emit requestJump(timestamps_->front());
-        }
-    });
-    connect(ui_->btnJumpToEnd, &QPushButton::clicked, this, [this]() {
-        if (timestamps_ && !timestamps_->empty()) {
-            if (playback_active_) onTogglePlayback();
-            emit requestJump(timestamps_->back());
-        }
-    });
-
-    connect(
-        movie_timer, &QTimer::timeout, ui_->oglParticleRenderer, &ParticleRenderer::saveScreenshot);
 
     // Add charts for displaying the diagnostics data
     setupCharts();
-}
-
-void SimulationWindow::initLiveMode(std::shared_ptr<LiveDebugInfo> debug_info) {
-    ui_->btnJumpToStart->setVisible(false);
-    ui_->btnStepBackward->setVisible(false);
-    ui_->btnTogglePlayback->setVisible(false);
-    ui_->btnStepForward->setVisible(false);
-    ui_->btnJumpToEnd->setVisible(false);
-    ui_->hslStepsPerSecond->setVisible(false);
-    ui_->hslPlaybackBar->setEnabled(false);
-
-    live_debug_info_ = debug_info;
-    simulation_duration_ = debug_info->duration;
-
-    static const std::vector<DebugInfoRow<LiveDebugInfo>> live_debug_mapping = {
-        {.name = "System Data Pool",
-         .size_member = &LiveDebugInfo::system_data_pool_size,
-         .capacity_member = &LiveDebugInfo::system_data_pool_capacity,
-         .more_is_better = true},
-        {.name = "Diagnostics Data Pool",
-         .size_member = &LiveDebugInfo::diagnostics_data_pool_size,
-         .capacity_member = &LiveDebugInfo::diagnostics_data_pool_capacity,
-         .more_is_better = true},
-        {.name = "System Snapshot Pool",
-         .size_member = &LiveDebugInfo::system_snapshot_pool_size,
-         .capacity_member = &LiveDebugInfo::system_snapshot_pool_capacity,
-         .more_is_better = true},
-        {.name = "Diagnostics Snapshot Pool",
-         .size_member = &LiveDebugInfo::diagnostics_snapshot_pool_size,
-         .capacity_member = &LiveDebugInfo::diagnostics_snapshot_pool_capacity,
-         .more_is_better = true},
-        {.name = "Chart Queue",
-         .size_member = &LiveDebugInfo::chart_queue_size,
-         .capacity_member = &LiveDebugInfo::chart_queue_capacity,
-         .more_is_better = false},
-        {.name = "System Storage Queue",
-         .size_member = &LiveDebugInfo::system_storage_queue_size,
-         .capacity_member = &LiveDebugInfo::system_storage_queue_capacity,
-         .more_is_better = false},
-        {.name = "Diagnostics Storage Queue",
-         .size_member = &LiveDebugInfo::diagnostics_storage_queue_size,
-         .capacity_member = &LiveDebugInfo::diagnostics_storage_queue_capacity,
-         .more_is_better = false},
-    };
-
-    ui_->wgtDebugInfo->setupInfo<LiveDebugInfo>(live_debug_mapping);
-}
-
-void SimulationWindow::initReplayMode(std::shared_ptr<std::vector<double>> timestamps,
-                                      std::shared_ptr<DiagnosticsSeries> diagnostics_series) {
-    // Setup the UI for replay mode
-    ui_->btnJumpToStart->setVisible(true);
-    ui_->btnStepBackward->setVisible(true);
-    ui_->btnTogglePlayback->setVisible(true);
-    ui_->btnStepForward->setVisible(true);
-    ui_->btnJumpToEnd->setVisible(true);
-    ui_->hslStepsPerSecond->setVisible(true);
-    ui_->hslPlaybackBar->setEnabled(true);
-    ui_->btnToggleDebugInfo->setVisible(false);
-
-    // Store the timestamps and load the chart data
-    if (timestamps) {
-        timestamps_ = std::move(timestamps);
-        simulation_duration_ = timestamps_->back();
-    }
-
-    if (diagnostics_series) {
-        ui_->wgtDiagnostics->fillCharts(*diagnostics_series);
-    }
 }
 
 void SimulationWindow::saveSettings() {
@@ -201,16 +76,6 @@ void SimulationWindow::toggleSettings() {
     }
 }
 
-void SimulationWindow::toggleDebugInfo() {
-    if (ui_->wgtDebugInfo->isVisible()) {
-        ui_->wgtDebugInfo->setVisible(false);
-    } else {
-        ui_->wgtSidebar->setVisible(true);
-        ui_->wgtDebugInfo->setVisible(true);
-        ui_->btnToggleSidebar->setArrowType(Qt::RightArrow);
-    }
-}
-
 void SimulationWindow::toggleMovie(bool checked) {
     if (checked) {
         movie_timer->start();
@@ -219,21 +84,10 @@ void SimulationWindow::toggleMovie(bool checked) {
     }
 }
 
-void SimulationWindow::onTogglePlayback() {
-    ui_->btnStepForward->setEnabled(playback_active_);
-    ui_->btnStepBackward->setEnabled(playback_active_);
-    playback_active_ = !playback_active_;
+void SimulationWindow::updateFPS(int fps) { ui_->lblFPS->setText(QString::number(fps) + " FPS"); }
 
-    if (playback_active_) {
-        ui_->btnTogglePlayback->setIcon(QIcon(":/controls/icons/pause.png"));
-    } else {
-        ui_->btnTogglePlayback->setIcon(QIcon(":/controls/icons/play.png"));
-    }
-
-    emit togglePlayback();
-}
-
-void SimulationWindow::updateSystemRendering(SystemSnapshotPtr system_snapshot) {
+void SimulationWindow::updateSystemRendering(SystemSnapshotPtr system_snapshot,
+                                             double simulation_duration) {
     if (system_snapshot) {
         ui_->oglParticleRenderer->updateData(system_snapshot);
     }
@@ -243,41 +97,15 @@ void SimulationWindow::updateSystemRendering(SystemSnapshotPtr system_snapshot) 
 
     // If no system snapshot is available we cannot update the time progress.
     // Also, if the playback is currently halted due to a jump, we do not want to update the slider.
-    if (!system_snapshot || halt_for_jump) return;
+    if (!system_snapshot || !updateProgress()) return;
 
     // Update time progress
     const double time = system_snapshot->time;
-    const auto time_text = QString("%1 / %2").arg(time).arg(simulation_duration_);
+    const auto time_text = QString("%1 / %2").arg(time).arg(simulation_duration);
     ui_->lblTime->setText(time_text);
 
     // Update horizontal progress slider
-    ui_->hslPlaybackBar->setValue(1000.0 * time / simulation_duration_);
-
-    // Update the debug info
-    if (live_debug_info_) {
-        ui_->wgtDebugInfo->updateInfo<LiveDebugInfo>(*live_debug_info_);
-    }
-}
-
-void SimulationWindow::updateDebugInfo(int fps, int sps) {
-    const auto fps_text = QString::number(fps) + " FPS";
-    ui_->lblFPS->setText(fps_text);
-
-    if (sps < 0) {
-        return;  // SPS is not applicable in replay mode
-    }
-    const auto sps_text = QString::number(sps) + " SPS";
-    ui_->lblSPS->setText(sps_text);
-}
-
-void SimulationWindow::updateDiagnostics(DiagnosticsSnapshotPtr diagnostics_snapshot) {
-    if (!diagnostics_snapshot) return;
-    ui_->wgtDiagnostics->updateData(*diagnostics_snapshot);
-    ui_->oglParticleRenderer->updateCenterOfMass(diagnostics_snapshot->data->com_pos);
-}
-
-void SimulationWindow::fillCharts(const DiagnosticsSeries& series) {
-    ui_->wgtDiagnostics->fillCharts(series);
+    ui_->hslPlaybackBar->setValue(1000.0 * time / simulation_duration);
 }
 
 void SimulationWindow::closeEvent(QCloseEvent* event) {
@@ -328,15 +156,4 @@ void SimulationWindow::setupCharts() {
                       .value_extractor = [](DiagnosticsSnapshot& s) { return s.data->t_cr; }});
 
     ui_->wgtDiagnostics->setupCharts(std::move(charts), "H_T");
-}
-
-void SimulationWindow::onStepsPerSecondChanged(int sps) {
-    const auto sps_text = QString::number(sps) + " SPS";
-    ui_->lblSPS->setText(sps_text);
-
-    emit stepsPerSecondChanged(sps);
-}
-
-void SimulationWindow::updateBufferValue(int buffer_value) {
-    ui_->hslPlaybackBar->setBufferValue(buffer_value);
 }

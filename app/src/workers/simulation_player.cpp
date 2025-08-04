@@ -9,27 +9,14 @@
 #include <vector>
 
 #include "core/dataflow/system_ring_buffer.h"
-#include "presenters/simulation_window_presenter.h"
-#include "views/simulation_window/simulation_window.h"
+#include "presenters/replay_simulation_window_presenter.h"
+#include "views/replay_simulation_window/replay_simulation_window.h"
 #include "workers/system_buffer_worker.h"
 
 SimulationPlayer::SimulationPlayer(QObject* parent)
     : QObject(parent),
-      simulation_window_(new SimulationWindow()),
       rendering_snapshot_(std::make_shared<std::atomic<SystemSnapshotPtr>>(SystemSnapshotPtr{})),
       buffer_value_update_timer_(new QTimer(this)) {
-    // Setup simulation window
-    const auto& win = simulation_window_;
-    connect(win, &SimulationWindow::togglePlayback, this, &SimulationPlayer::onTogglePlayback);
-    connect(win, &SimulationWindow::stepForward, this, &SimulationPlayer::onStepForward);
-    connect(win, &SimulationWindow::stepBackward, this, &SimulationPlayer::onStepBackward);
-    connect(win, &SimulationWindow::windowClosed, this, [this]() { emit windowClosed(); });
-    connect(win, &SimulationWindow::stepsPerSecondChanged, this, [this](int sps) {
-        step_delay_ms_ = 1000 / sps;
-    });
-    connect(win, &SimulationWindow::requestJump, this, &SimulationPlayer::onJump);
-    simulation_window_presenter_ = new SimulationWindowPresenter(win, this);
-
     connect(buffer_value_update_timer_, &QTimer::timeout, this, [this]() {
         if (system_ring_buffer_ && total_snapshots_count_ > 0) {
             const int buffer_size = system_ring_buffer_->size();
@@ -71,8 +58,7 @@ void SimulationPlayer::run(const std::filesystem::path& system_file_path,
         setupSystemBufferWorker();
     }
 
-    simulation_window_presenter_->initReplayMode(
-        rendering_snapshot_, timestamps, diagnostics_series);
+    setupSimulationWindow(timestamps, diagnostics_series);
     simulation_window_->show();
 
     setupDataUpdateTimer();
@@ -110,6 +96,29 @@ void SimulationPlayer::onTogglePlayback() {
     if (is_playing_) {
         onStepForward();
     }
+}
+
+void SimulationPlayer::setupSimulationWindow(
+    const std::shared_ptr<std::vector<double>>& timestamps,
+    const std::shared_ptr<DiagnosticsSeries>& diagnostics_series) {
+    simulation_window_ = new ReplaySimulationWindow(timestamps, diagnostics_series);
+    const auto w = simulation_window_;
+    connect(w, &ReplaySimulationWindow::togglePlayback, this, &SimulationPlayer::onTogglePlayback);
+    connect(w, &ReplaySimulationWindow::stepForward, this, &SimulationPlayer::onStepForward);
+    connect(w, &ReplaySimulationWindow::stepBackward, this, &SimulationPlayer::onStepBackward);
+    connect(w, &ReplaySimulationWindow::windowClosed, this, [this]() { emit windowClosed(); });
+    connect(w, &ReplaySimulationWindow::requestJump, this, &SimulationPlayer::onJump);
+    connect(w, &ReplaySimulationWindow::stepsPerSecondChanged, this, [this](int sps) {
+        step_delay_ms_ = 1000 / sps;
+    });
+
+    double simulation_duration = 0.0;
+    if (timestamps) {
+        simulation_duration = timestamps->back();
+    }
+
+    simulation_window_presenter_ =
+        new ReplaySimulationWindowPresenter(w, rendering_snapshot_, simulation_duration, this);
 }
 
 void SimulationPlayer::onStepForward() {

@@ -7,9 +7,9 @@
 #include "core/dataflow/debug_info.h"
 #include "core/files/csv_file_writer.h"
 #include "core/settings/settings.h"
-#include "presenters/simulation_window_presenter.h"
+#include "presenters/live_simulation_window_presenter.h"
 #include "queue_storage_worker.h"
-#include "views/simulation_window/simulation_window.h"
+#include "views/live_simulation_window/live_simulation_window.h"
 #include "workers/simulation_worker.h"
 
 /**
@@ -90,8 +90,8 @@ private:
 
     std::filesystem::path output_dir_;  // Output directory for saving data
 
-    SimulationWindow* simulation_window_;
-    SimulationWindowPresenter* simulation_window_presenter_;
+    LiveSimulationWindow* simulation_window_ = nullptr;
+    LiveSimulationWindowPresenter* simulation_window_presenter_ = nullptr;
 
     SimulationWorker* simulation_worker_ = nullptr;
     QThread* simulation_thread_ = nullptr;
