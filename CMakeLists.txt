@@ -1,6 +1,6 @@
 # --- Project description ---
 cmake_minimum_required(VERSION 3.24)
-project(Enkas VERSION 2.0 LANGUAGES CXX)
+project(ENKA-S VERSION 2.0 LANGUAGES CXX)
 
 # --- C++ Standard ---
 set(CMAKE_CXX_STANDARD 23)
@@ -16,6 +16,7 @@ find_package(Qt6 6.2 REQUIRED COMPONENTS
     OpenGLWidgets
     Gui
     Charts
+    Test
 )
 
 # --- Dependencies ---
@@ -37,6 +38,6 @@ add_subdirectory(app)
 # --- Testing ---
 option(ENKAS_BUILD_TESTS "Build the unit tests" ON)
 if(ENKAS_BUILD_TESTS)
-    enable_testing() # Enables CTest support
+    enable_testing()
     add_subdirectory(tests)
 endif()
