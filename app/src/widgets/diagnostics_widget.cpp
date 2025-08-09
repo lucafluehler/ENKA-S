@@ -15,6 +15,7 @@
 
 #include "core/charts/downsampling.h"
 #include "core/dataflow/snapshot.h"
+#include "rendering/is_darkmode.h"
 
 DiagnosticsWidget::DiagnosticsWidget(QWidget* parent) : QWidget(parent) { createBaseUi(); }
 
@@ -64,6 +65,8 @@ void DiagnosticsWidget::setupCharts(std::vector<ChartDefinition> chart_definitio
 
     full_data_.resize(definitions_.size());
 
+    const auto theme = isDarkMode() ? QChart::ChartThemeDark : QChart::ChartThemeLight;
+
     for (const auto& def : definitions_) {
         auto series = new QLineSeries();
 
@@ -74,6 +77,9 @@ void DiagnosticsWidget::setupCharts(std::vector<ChartDefinition> chart_definitio
         series->setPen(pen);
 
         auto chart = new QChart();
+
+        // Set theme
+        chart->setTheme(theme);
 
         // Add big, bold title
         chart->setTitle(def.title);
