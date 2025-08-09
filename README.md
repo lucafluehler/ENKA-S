@@ -12,42 +12,25 @@ A simple desktop application for running and analyzing N-body particle simulatio
 
 ## Gallery
       
-<table>
-  <tr>
-    <td align="center">
-      <em>Home Screen</em>
-    </td>
-    <td align="center">
-      <em>New Simulation Configuration</em>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <img src=".github/assets/enkas_home_screen.gif" alt="ENKA-S Home Screen" width="600">
-    </td>
-    <td>
-      <img src=".github/assets/enkas_new_simulation.gif" alt="ENKA-S New Simulation Tab" width="600">
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <em>Loading a Previous Simulation</em>
-    </td>
-    <td align="center">
-      <em>Live Simulation & Data Visualization</em>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <img src=".github/assets/enkas_load_simulation.gif" alt="ENKA-S Load Simulation Tab" width="600">
-    </td>
-    <td>
-      <img src=".github/assets/enkas_simulation.gif" alt="ENKA-S Simulation Window" width="600">
-    </td>
-  </tr>
-</table>
+<div style="text-align: center; margin-bottom: 2rem;">
+  <em>Home Screen</em><br>
+  <img src=".github/assets/enkas_home_screen.gif" alt="ENKA-S Home Screen" width="600">
+</div>
 
-    
+<div style="text-align: center; margin-bottom: 2rem;">
+  <em>New Simulation Configuration</em><br>
+  <img src=".github/assets/enkas_new_simulation.gif" alt="ENKA-S New Simulation Tab" width="600">
+</div>
+
+<div style="text-align: center; margin-bottom: 2rem;">
+  <em>Loading a Previous Simulation</em><br>
+  <img src=".github/assets/enkas_load_simulation.gif" alt="ENKA-S Load Simulation Tab" width="600">
+</div>
+
+<div style="text-align: center; margin-bottom: 2rem;">
+  <em>Live Simulation & Data Visualization</em><br>
+  <img src=".github/assets/enkas_simulation.gif" alt="ENKA-S Simulation Window" width="600">
+</div>  
 
 ## Key Features
 
