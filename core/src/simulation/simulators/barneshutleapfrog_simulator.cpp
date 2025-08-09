@@ -94,7 +94,8 @@ void BarnesHutLeapfrogSimulator::calculateNextSystemState() {
 
 void BarnesHutLeapfrogSimulator::updateForces(const data::System& system) {
     barneshut_tree_.build(system);
-    barneshut_tree_.updateForces(system, theta_mac_sqr_, softening_sqr_, accelerations_);
+    potential_energy_ =
+        barneshut_tree_.updateForces(system, theta_mac_sqr_, softening_sqr_, accelerations_);
 }
 
 }  // namespace enkas::simulation

@@ -31,11 +31,12 @@ public:
      * @param theta_mac_sqr The squared multipole acceptance criterion.
      * @param softening_sqr The squared softening parameter.
      * @param out_acc Output vector to store calculated accelerations.
+     * @return The total potential energy of the system.
      */
-    void updateForces(const data::System& system,
-                      double theta_mac_sqr,
-                      double softening_sqr,
-                      std::vector<math::Vector3D>& out_acc) const;
+    double updateForces(const data::System& system,
+                        double theta_mac_sqr,
+                        double softening_sqr,
+                        std::vector<math::Vector3D>& out_acc) const;
 
 private:
     std::unique_ptr<BarnesHutNode> root_;

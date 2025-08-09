@@ -62,19 +62,27 @@ void updateMassRecursive(BarnesHutNode& node, const data::System& system) {
     }
 }
 
-math::Vector3D sumAccRecursive(const BarnesHutNode& node,
-                               const math::Vector3D& target_pos,
-                               size_t target_index,
-                               const data::System& system,
-                               double theta_sqr,
-                               double softening_sqr) {
+math::Vector3D sumForcesRecursive(const BarnesHutNode& node,
+                                  const math::Vector3D& target_pos,
+                                  const double target_mass,
+                                  size_t target_index,
+                                  double& out_potential_energy,  // Accumulator
+                                  const data::System& system,
+                                  double theta_sqr,
+                                  double softening_sqr) {
     // If this is a leaf node with one particle...
     if (node.num_particles == 1) {
         // ...and it's not the target particle itself...
         if (node.particle_index != target_index) {
             const math::Vector3D r = system.positions[node.particle_index] - target_pos;
             const double dist_sq = r.norm2() + softening_sqr;
-            return r * (system.masses[node.particle_index] / (dist_sq * std::sqrt(dist_sq)));
+            const double dist_inv = 1.0 / std::sqrt(dist_sq);
+
+            // Accumulate potential energy (U = -m1*m2/r)
+            out_potential_energy -= system.masses[node.particle_index] * target_mass * dist_inv;
+
+            // Return acceleration (a = F/m1 = m2*r_vec/r^3)
+            return r * (system.masses[node.particle_index] * dist_inv / dist_sq);
         }
         return {};  // Return zero vector if it's the same particle
     }
@@ -85,15 +93,27 @@ math::Vector3D sumAccRecursive(const BarnesHutNode& node,
         // Node is far enough away, treat as a single mass
         const math::Vector3D r = node.center_of_mass - target_pos;
         const double dist_sq = r.norm2() + softening_sqr;
-        return r * (node.total_mass / (dist_sq * std::sqrt(dist_sq)));
+        const double dist_inv = 1.0 / std::sqrt(dist_sq);
+
+        // Accumulate potential energy
+        out_potential_energy -= node.total_mass * target_mass * dist_inv;
+
+        // Return acceleration
+        return r * (node.total_mass * dist_inv / dist_sq);
     }
 
     // Node is too close, recurse into its children
     math::Vector3D acc;
     for (const auto& child : node.children) {
         if (child) {
-            acc +=
-                sumAccRecursive(*child, target_pos, target_index, system, theta_sqr, softening_sqr);
+            acc += sumForcesRecursive(*child,
+                                      target_pos,
+                                      target_mass,
+                                      target_index,
+                                      out_potential_energy,
+                                      system,
+                                      theta_sqr,
+                                      softening_sqr);
         }
     }
 
@@ -242,20 +262,35 @@ void BarnesHutTree::build(const data::System& system) {
     updateMassRecursive(*root_, system);
 }
 
-void BarnesHutTree::updateForces(const data::System& system,
-                                 double theta_mac_sqr,
-                                 double softening_sqr,
-                                 std::vector<math::Vector3D>& out_acc) const {
+double BarnesHutTree::updateForces(const data::System& system,
+                                   double theta_mac_sqr,
+                                   double softening_sqr,
+                                   std::vector<math::Vector3D>& out_acc) const {
     const size_t particle_count = system.count();
-    if (!root_ || particle_count == 0) return;
+    if (!root_ || particle_count == 0) return 0.0;
 
     // Reset accelerations to zero
     std::fill(out_acc.begin(), out_acc.end(), math::Vector3D{});
 
+    double total_potential_energy = 0.0;
+
     for (size_t i = 0; i < particle_count; ++i) {
-        out_acc[i] =
-            sumAccRecursive(*root_, system.positions[i], i, system, theta_mac_sqr, softening_sqr);
+        double particle_potential_energy = 0.0;
+
+        out_acc[i] = sumForcesRecursive(*root_,
+                                        system.positions[i],
+                                        system.masses[i],
+                                        i,
+                                        particle_potential_energy,
+                                        system,
+                                        theta_mac_sqr,
+                                        softening_sqr);
+
+        total_potential_energy += particle_potential_energy;
     }
+
+    // Each pair (i,j) was counted twice, so we must divide by 2.
+    return total_potential_energy * 0.5;
 }
 
 }  // namespace enkas::simulation
