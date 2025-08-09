@@ -10,6 +10,7 @@
 #include <chrono>
 #include <filesystem>
 #include <format>
+#include <memory>
 
 #include "core/dataflow/snapshot.h"
 #include "core/files/file_constants.h"
@@ -66,12 +67,12 @@ SimulationRunner::SimulationRunner(const Settings& settings, QObject* parent)
     }
 
     // Simulation Window
-    simulation_window_ = new LiveSimulationWindow(debug_info_);
-    simulation_window_presenter_ = new LiveSimulationWindowPresenter(
-        simulation_window_, outputs_->rendering_snapshot, outputs_->chart_queue, debug_info_, this);
-    connect(simulation_window_,
+    simulation_window_ = std::make_unique<LiveSimulationWindow>(debug_info_);
+    simulation_window_presenter_ = std::make_unique<LiveSimulationWindowPresenter>(
+        simulation_window_.get(), outputs_->rendering_snapshot, outputs_->chart_queue, debug_info_);
+    connect(simulation_window_.get(),
             &LiveSimulationWindow::fpsChanged,
-            simulation_window_presenter_,
+            simulation_window_presenter_.get(),
             &LiveSimulationWindowPresenter::onFpsChanged);
 
     // Simulation
@@ -87,6 +88,11 @@ SimulationRunner::SimulationRunner(const Settings& settings, QObject* parent)
 SimulationRunner::~SimulationRunner() {
     ENKAS_LOG_INFO("Simulation runner is being destroyed. Aborting any ongoing processes...");
     aborted_ = true;
+
+    if (simulation_window_presenter_) {
+        simulation_window_presenter_.reset();
+        ENKAS_LOG_DEBUG("Simulation window presenter deleted.");
+    }
 
     if (simulation_window_) {
         simulation_window_->close();

@@ -15,7 +15,6 @@
 #include "workers/file_parse_worker.h"
 #include "workers/simulation_runner.h"
 
-
 NewSimulationPresenter::NewSimulationPresenter(INewSimulationView* view, QObject* parent)
     : QObject(parent),
       view_(view),
