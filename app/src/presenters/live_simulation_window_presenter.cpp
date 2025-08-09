@@ -14,7 +14,8 @@ LiveSimulationWindowPresenter::LiveSimulationWindowPresenter(
       chart_thread_(nullptr),
       chart_queue_(std::move(chart_queue)),
       debug_info_timer_(new QTimer(this)),
-      debug_info_(debug_info) {
+      debug_info_(debug_info),
+      last_debug_info_update_time_(std::chrono::steady_clock::now()) {
     // Setup chart worker in seperate thread
     chart_worker_ =
         new QueueStorageWorker<DiagnosticsSnapshotPtr>(chart_queue_, [this](auto const& snapshot) {
@@ -32,6 +33,7 @@ LiveSimulationWindowPresenter::LiveSimulationWindowPresenter(
     // Setup debug info timer
     connect(
         debug_info_timer_, &QTimer::timeout, this, &LiveSimulationWindowPresenter::updateDebugInfo);
+    debug_info_timer_->start(100);
 }
 
 LiveSimulationWindowPresenter::~LiveSimulationWindowPresenter() {
@@ -46,6 +48,7 @@ LiveSimulationWindowPresenter::~LiveSimulationWindowPresenter() {
 void LiveSimulationWindowPresenter::updateDebugInfo() {
     const auto now = std::chrono::steady_clock::now();
     const auto elapsed_time = now - last_debug_info_update_time_;
+    last_debug_info_update_time_ = now;
     const double elapsed_seconds = std::chrono::duration<double>(elapsed_time).count();
     const int current_step_count = debug_info_->current_step.load(std::memory_order_relaxed);
     const int steps_since_last_update = current_step_count - previous_step_count_;
