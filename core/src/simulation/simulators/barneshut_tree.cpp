@@ -137,34 +137,65 @@ void createAndInsertIntoChild(BarnesHutNode& parent,
     insertRecursive(*parent.children[octant_index], particle_index, system);
 }
 
-void insertRecursive(BarnesHutNode& node, size_t new_particle_index, const data::System& system) {
-    // If the node is not empty, we need to decide where the new particle goes.
-    if (node.num_particles > 0) {
-        // If it's a leaf, we must move the existing particle down.
-        if (node.num_particles == 1) {
-            // Handle coincident particles to prevent infinite recursion.
-            if (system.positions[node.particle_index] == system.positions[new_particle_index]) {
-                // For simplicity, we can just "stack" the new particle here without
-                // further subdivision. The mass properties will be correct.
-                node.num_particles++;
-                return;
+void insertRecursive(BarnesHutNode& node,
+                     size_t new_particle_index,
+                     const math::Vector3D& new_particle_pos,
+                     const data::System& system) {
+    // If the node is an empty leaf, place the particle here.
+    if (node.num_particles == 0) {
+        node.particle_index = new_particle_index;
+        node.num_particles = 1;  // It now has one particle
+        return;
+    }
+
+    // If the node is a leaf with a particle, we must subdivide.
+    if (node.num_particles == 1) {
+        // Check for coincident particles.
+        if (system.positions[node.particle_index] == new_particle_pos) {
+            constexpr double pert_scale = 1e-6;
+            const double pert_val = node.edge_length_sqr > 0
+                                        ? std::sqrt(node.edge_length_sqr) * pert_scale
+                                        : 1e-9;  // Fallback for zero-size nodes
+
+            // Create a unique perturbation vector based on the particle's index
+            math::Vector3D perturbation;
+            switch (new_particle_index % 3) {
+                case 0:
+                    perturbation.x = pert_val;
+                    break;
+                case 1:
+                    perturbation.y = pert_val;
+                    break;
+                default:
+                    perturbation.z = pert_val;
+                    break;
             }
-            const math::Vector3D center = (node.max_point + node.min_point) * 0.5;
-            const int old_idx = getOctantIndex(system.positions[node.particle_index], center);
-            createAndInsertIntoChild(node, old_idx, node.particle_index, system);
-            node.particle_index = BarnesHutNode::NO_PARTICLE;  // No longer a leaf
+
+            // Recursively call this function again for the new particle, but with the
+            // perturbed position. The original particle remains untouched.
+            insertRecursive(node, new_particle_index, new_particle_pos + perturbation, system);
+            return;
         }
 
-        // Now, insert the new particle into the correct child octant.
+        // The node is a leaf, but the particles are not coincident.
+        // Move the original particle down into a child.
         const math::Vector3D center = (node.max_point + node.min_point) * 0.5;
-        const int new_idx = getOctantIndex(system.positions[new_particle_index], center);
-        createAndInsertIntoChild(node, new_idx, new_particle_index, system);
+        const int old_idx = getOctantIndex(system.positions[node.particle_index], center);
+        createAndInsertIntoChild(node, old_idx, node.particle_index, system);
+
+        node.particle_index = BarnesHutNode::NO_PARTICLE;
     }
-    // If the node is an empty leaf, place the particle here.
-    else {
-        node.particle_index = new_particle_index;
-        node.num_particles++;
-    }
+
+    // Insert the new particle into the correct child octant using its geometric position.
+    const math::Vector3D center = (node.max_point + node.min_point) * 0.5;
+    const int new_idx = getOctantIndex(new_particle_pos, center);
+    createAndInsertIntoChild(node, new_idx, new_particle_index, system);
+
+    node.num_particles++;
+}
+
+void insertRecursive(BarnesHutNode& node, size_t new_particle_index, const data::System& system) {
+    insertRecursive(node, new_particle_index, system.positions[new_particle_index], system);
 }
 
 }  // End of anonymous namespace
