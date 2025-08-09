@@ -68,6 +68,9 @@ void LoadSimulationPresenter::onSystemFileOpened(
     const std::optional<std::vector<double>>& timestamps) {
     if (timestamps) {
         timestamps_ = std::make_shared<std::vector<double>>(*timestamps);
+    } else {
+        // Inform the view about the missing initial system snapshot
+        view_->onInitialSystemParsed(std::nullopt);
     }
     emit requestInitialSnapshot();
 }
