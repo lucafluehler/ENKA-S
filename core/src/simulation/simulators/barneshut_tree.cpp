@@ -243,11 +243,12 @@ void BarnesHutTree::build(const data::System& system) {
         min_p.z = std::min(pos.z, min_p.z);
     }
 
-    math::Vector3D center = (max_p + min_p) * 0.5;
-    double edge_length = (max_p - min_p).norm();
-    edge_length *= 1.1;  // Add a small buffer
+    const math::Vector3D extent = max_p - min_p;
+    double max_edge = std::max({extent.x, extent.y, extent.z});
+    max_edge *= 1.1;  // Add a small buffer to prevent particles on the boundary
 
-    math::Vector3D half_edge = edge_length * 0.5 * math::Vector3D{1.0, 1.0, 1.0};
+    math::Vector3D center = (max_p + min_p) * 0.5;
+    math::Vector3D half_edge = {max_edge * 0.5, max_edge * 0.5, max_edge * 0.5};
 
     math::Vector3D root_max = center + half_edge;
     math::Vector3D root_min = center - half_edge;
