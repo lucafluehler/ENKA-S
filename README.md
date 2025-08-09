@@ -11,26 +11,26 @@
 A simple desktop application for running and analyzing N-body particle simulations, built with C++23 and Qt 6.
 
 ## Gallery
-      
-<div style="text-align: center; margin-bottom: 2rem;">
-  <em>Home Screen</em><br>
+    
+<p align="center">
+  <em>Home Screen</em><br/>
   <img src=".github/assets/enkas_home_screen.gif" alt="ENKA-S Home Screen" width="600">
-</div>
+</p>
 
-<div style="text-align: center; margin-bottom: 2rem;">
-  <em>New Simulation Configuration</em><br>
+<p align="center">
+  <em>New Simulation Configuration</em><br/>
   <img src=".github/assets/enkas_new_simulation.gif" alt="ENKA-S New Simulation Tab" width="600">
-</div>
+</p>
 
-<div style="text-align: center; margin-bottom: 2rem;">
-  <em>Loading a Previous Simulation</em><br>
+<p align="center">
+  <em>Loading a Previous Simulation</em><br/>
   <img src=".github/assets/enkas_load_simulation.gif" alt="ENKA-S Load Simulation Tab" width="600">
-</div>
+</p>
 
-<div style="text-align: center; margin-bottom: 2rem;">
-  <em>Live Simulation & Data Visualization</em><br>
+<p align="center">
+  <em>Live Simulation &amp; Data Visualization</em><br/>
   <img src=".github/assets/enkas_simulation.gif" alt="ENKA-S Simulation Window" width="600">
-</div>  
+</p>
 
 ## Key Features
 
