@@ -136,24 +136,26 @@ void createAndInsertIntoChild(BarnesHutNode& parent,
                               size_t particle_index,
                               const data::System& system) {
     if (!parent.children[octant_index]) {
-        const math::Vector3D center = (parent.max_point + parent.min_point) * 0.5;
-        const double child_edge_length = (parent.max_point.x - center.x);
+        const math::Vector3D parent_center = (parent.max_point + parent.min_point) * 0.5;
+        const math::Vector3D half_parent_edge = (parent.max_point - parent_center);
+        const math::Vector3D quarter_parent_edge = half_parent_edge * 0.5;
 
-        math::Vector3D child_min = center;
-        math::Vector3D child_max = parent.max_point;
-        // This logic can be simplified by calculating the new center and half-edge
-        math::Vector3D offset;
-        offset.x = ((octant_index & 4) ? 1 : -1) * child_edge_length / 2.0;
-        offset.y = ((octant_index & 2) ? 1 : -1) * child_edge_length / 2.0;
-        offset.z = ((octant_index & 1) ? 1 : -1) * child_edge_length / 2.0;
+        // Calculate the center of the new child cell
+        math::Vector3D child_center;
+        child_center.x = (octant_index & 4) ? parent_center.x + quarter_parent_edge.x
+                                            : parent_center.x - quarter_parent_edge.x;
+        child_center.y = (octant_index & 2) ? parent_center.y + quarter_parent_edge.y
+                                            : parent_center.y - quarter_parent_edge.y;
+        child_center.z = (octant_index & 1) ? parent_center.z + quarter_parent_edge.z
+                                            : parent_center.z - quarter_parent_edge.z;
 
-        math::Vector3D child_center = center + offset;
-        math::Vector3D half_child_edge = child_edge_length * 0.5 * math::Vector3D{1.0, 1.0, 1.0};
-        child_min = child_center - half_child_edge;
-        child_max = child_center + half_child_edge;
+        // The child's min/max are its center +/- its half-edge (which is quarter_parent_edge)
+        math::Vector3D child_min = child_center - quarter_parent_edge;
+        math::Vector3D child_max = child_center + quarter_parent_edge;
 
         parent.children[octant_index] = std::make_unique<BarnesHutNode>(child_max, child_min);
     }
+
     insertRecursive(*parent.children[octant_index], particle_index, system);
 }
 
