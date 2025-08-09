@@ -8,7 +8,7 @@ class PlaybackBar : public QSlider {
     Q_OBJECT
 
 public:
-    explicit PlaybackBar(QWidget* parent = nullptr) : QSlider(parent) {};
+    explicit PlaybackBar(QWidget* parent = nullptr);
     ~PlaybackBar() override = default;
 
     void setBufferValue(int buffer_value) {
@@ -24,15 +24,15 @@ protected:
     void paintEvent(QPaintEvent* ev) override;
 
 private:
-    const QColor progress_color_ = QRgb(0x77A8D6);
-    const QColor buffer_color_ = QRgb(0xAAAAAA);
-    const QColor groove_color_ = QRgb(0xDDDDDD);
+    QColor progress_color_;
+    QColor buffer_color_;
+    QColor groove_color_;
     const int groove_height_ = 12;
     const int groove_radius_ = 0;
 
-    const QColor handle_color = QRgb(0x333333);
-    const QColor handle_hover_color = QRgb(0x666666);
-    const QColor handle_pressed_color = QRgb(0x111111);
+    QColor handle_color;
+    QColor handle_hover_color;
+    QColor handle_pressed_color;
     const int handle_height = 20;
     const int handle_width = 12;
 

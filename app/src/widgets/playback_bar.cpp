@@ -5,6 +5,28 @@
 #include <QStyleOption>
 #include <QStyleOptionSlider>
 
+#include "rendering/is_darkmode.h"
+
+PlaybackBar::PlaybackBar(QWidget* parent) : QSlider(parent) {
+    if (isDarkMode()) {
+        progress_color_ = QColor(0x6CACDE);
+        buffer_color_ = QColor(0x555555);
+        groove_color_ = QColor(0x3F3F3F);
+
+        handle_color = QColor(0xD0D0D0);
+        handle_hover_color = QColor(0xFFFFFF);
+        handle_pressed_color = QColor(0xB0B0B0);
+    } else {
+        progress_color_ = QRgb(0x77A8D6);
+        buffer_color_ = QRgb(0xAAAAAA);
+        groove_color_ = QRgb(0xDDDDDD);
+
+        handle_color = QRgb(0x333333);
+        handle_hover_color = QRgb(0x666666);
+        handle_pressed_color = QRgb(0x111111);
+    }
+};
+
 QSize PlaybackBar::sizeHint() const {
     QSize base_size = QSlider::sizeHint();
 
@@ -64,10 +86,10 @@ void PlaybackBar::paintEvent(QPaintEvent* ev) {
 
     if (value() > minimum()) {
         const int progress_end_pos = valueToPixel(value());
-        QRect progress_rect(groove_rect.x(),
-                            groove_rect.y(),
-                            progress_end_pos - groove_rect.x(),
-                            groove_rect.height());
+        const int progress_width = progress_end_pos - groove_rect.x() + handle_width / 2;
+
+        QRect progress_rect(groove_rect.x(), groove_rect.y(), progress_width, groove_rect.height());
+
         painter.setBrush(progress_color_);
         painter.drawRect(progress_rect.intersected(groove_rect));
     }
