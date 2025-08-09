@@ -12,7 +12,6 @@
 #include "workers/file_parse_worker.h"
 #include "workers/simulation_player.h"
 
-
 LoadSimulationPresenter::LoadSimulationPresenter(ILoadSimulationView* view, QObject* parent)
     : QObject(parent), view_(view), preview_timer_(new QTimer(this)) {
     Q_ASSERT(view_ != nullptr);
@@ -27,6 +26,8 @@ LoadSimulationPresenter::LoadSimulationPresenter(ILoadSimulationView* view, QObj
 }
 
 LoadSimulationPresenter::~LoadSimulationPresenter() {
+    endSimulationPlayback();
+
     if (file_parse_thread_) {
         file_parse_thread_->quit();
         file_parse_thread_->wait();
