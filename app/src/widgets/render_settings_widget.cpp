@@ -27,7 +27,7 @@ RenderSettingsWidget::RenderSettingsWidget(QWidget* parent)
     addColoringMethod("White Fog", ColoringMethod::WhiteFog);
 
     // Load defaults
-    // loadRenderSettings(RenderSettings());
+    loadRenderSettings(RenderSettings());
 
     // Signal Management
     connect(ui->cbxAnimation,

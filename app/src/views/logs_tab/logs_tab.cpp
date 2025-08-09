@@ -1,7 +1,6 @@
 #include "logs_tab.h"
 
 #include <enkas/logging/logger.h>
-#include <qnamespace.h>
 
 #include <QBrush>
 #include <QFontMetrics>
@@ -9,6 +8,8 @@
 #include <QTableWidget>
 #include <QVBoxLayout>
 #include <QWidget>
+
+#include "rendering/is_darkmode.h"
 
 LogsTab::LogsTab(QWidget* parent) : QWidget(parent) {
     log_font_ = QFont("Consolas", 10);
@@ -41,21 +42,23 @@ void LogsTab::setupUi() {
 }
 
 QColor LogsTab::getColorForLevel(enkas::logging::LogLevel level) const {
+    bool dark_mode = isDarkMode();
+
     switch (level) {
         case enkas::logging::LogLevel::TRACE:
-            return Qt::gray;
+            return dark_mode ? QColor(169, 169, 169) : Qt::gray;
         case enkas::logging::LogLevel::DEBUG:
-            return Qt::blue;
+            return dark_mode ? QColor(135, 206, 250) : Qt::blue;
         case enkas::logging::LogLevel::INFO:
-            return Qt::black;
+            return dark_mode ? Qt::white : Qt::black;
         case enkas::logging::LogLevel::WARNING:
-            return QColor(255, 165, 0);  // Orange
+            return QColor(255, 165, 0);
         case enkas::logging::LogLevel::ERROR:
             return Qt::red;
         case enkas::logging::LogLevel::CRITICAL:
-            return QColor(139, 0, 0);  // Dark Red
+            return dark_mode ? QColor(255, 69, 0) : QColor(139, 0, 0);
         default:
-            return Qt::black;
+            return dark_mode ? Qt::white : Qt::black;
     }
 }
 

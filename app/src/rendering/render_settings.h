@@ -1,5 +1,7 @@
 #pragma once
 
+#include "rendering/is_darkmode.h"
+
 /**
  * @brief Defines animation styles for particle rendering.
  * These styles determine how the system rotates relative to the camera. For example, Right means
@@ -35,11 +37,14 @@ struct RenderSettings {
     double animation_speed = 1;
 
     // Coloring
-    ColoringMethod coloring_method = ColoringMethod::WhiteFog;
+    ColoringMethod coloring_method;
     double black_fog_param = 5;
     double white_fog_param = 6;
 
     // Rendering
     double particle_size_param = 100;
     int fov = 90;
+
+    RenderSettings()
+        : coloring_method(isDarkMode() ? ColoringMethod::BlackFog : ColoringMethod::WhiteFog) {}
 };
