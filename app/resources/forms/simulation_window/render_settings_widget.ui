@@ -300,7 +300,7 @@
       <locale language="C" country="AnyTerritory"/>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="BlackFog">
       <layout class="QFormLayout" name="formLayout">
@@ -328,12 +328,12 @@
        <item row="0" column="0">
         <widget class="QLabel" name="label_8">
          <property name="text">
-          <string>Nebel-Parameter</string>
+          <string>Fog Parameter</string>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QDoubleSpinBox" name="dsbWhiteFogParam"/>
+        <widget class="FancyDoubleSpinBox" name="dsbWhiteFogParam"/>
        </item>
       </layout>
      </widget>
