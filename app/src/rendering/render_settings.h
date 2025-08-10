@@ -29,7 +29,7 @@ enum class ColoringMethod {
 
 struct RenderSettings {
     // Toggles
-    bool show_center_of_mass = true;
+    bool show_center_of_mass = false;
     bool show_center_of_screen = false;
 
     // Animation
