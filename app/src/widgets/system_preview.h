@@ -10,6 +10,9 @@
 #include "core/settings/generation_method.h"
 #include "rendering/particle_renderer.h"
 
+/**
+ * @brief A widget for displaying a preview of some particle system.
+ */
 class SystemPreview : public ParticleRenderer {
     Q_OBJECT
 

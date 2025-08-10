@@ -2,6 +2,9 @@
 
 #include <QLabel>
 
+/**
+ * @brief A label that displays file states with different icons.
+ */
 class FileCheckIcon : public QLabel {
     Q_OBJECT
 

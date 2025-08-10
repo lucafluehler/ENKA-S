@@ -13,6 +13,9 @@
 
 #include "core/dataflow/snapshot.h"
 
+/**
+ * @brief A widget that displays diagnostic information as charts.
+ */
 class DiagnosticsWidget : public QWidget {
     Q_OBJECT
 
@@ -27,10 +30,24 @@ public:
 
     ~DiagnosticsWidget() override = default;
 
+    /**
+     * @brief Sets up the charts based on the provided definitions.
+     * @param chart_definitions The definitions for the charts to create.
+     * @param time_unit The time unit to use for the x-axis.
+     */
     void setupCharts(std::vector<ChartDefinition> chart_definitions, const QString& time_unit);
 
 public slots:
+    /**
+     * @brief Appends new diagnostic data to the charts.
+     * @param diagnostics The new diagnostic data to display.
+     */
     void updateData(DiagnosticsSnapshot& diagnostics);
+
+    /**
+     * @brief Fills the charts with the provided diagnostic series.
+     * @param series The diagnostic series to display.
+     */
     void fillCharts(const DiagnosticsSeries& series);
 
 private slots:

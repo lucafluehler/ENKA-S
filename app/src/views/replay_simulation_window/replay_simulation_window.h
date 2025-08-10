@@ -15,13 +15,36 @@ public:
 
     void fillCharts(const DiagnosticsSeries& series) override;
 
+    /**
+     * @brief Update the buffer value displayed in the progress bar.
+     * @param buffer_value The new buffer value to display.
+     */
     void updateBufferValue(int buffer_value);
 
 signals:
+    /** @signal
+     * @brief Emitted when the playback is toggled.
+     */
     void togglePlayback();
+
+    /** @signal
+     * @brief Emitted when the simulation is stepped forward.
+     */
     void stepForward();
+
+    /** @signal
+     * @brief Emitted when the simulation is stepped backward.
+     */
     void stepBackward();
+
+    /** @signal
+     * @brief Emitted when the number of steps per second is changed by the user.
+     */
     void stepsPerSecondChanged(int sps);
+
+    /** @signal
+     * @brief Emitted when a jump is requested.
+     */
     void requestJump(double timestamp);
 
 protected:

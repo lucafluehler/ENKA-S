@@ -11,6 +11,9 @@ class RenderSettingsWidget;
 }
 QT_END_NAMESPACE
 
+/**
+ * @brief A widget for adjusting render settings.
+ */
 class RenderSettingsWidget : public QWidget {
     Q_OBJECT
 

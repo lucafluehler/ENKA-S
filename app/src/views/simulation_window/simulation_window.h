@@ -30,10 +30,21 @@ public:
     int getTargetFPS() const override { return target_fps_; }
 
 signals:
+    /** @signal
+     * @brief Emitted when the window is closed.
+     */
     void windowClosed();
+
+    /** @signal
+     * @brief Emitted when the FPS is changed.
+     */
     void fpsChanged();
 
 public slots:
+    /**
+     * @brief Changes the target frames per second to the specified value.
+     * @param fps The new target FPS.
+     */
     void onFpsChanged(int fps) {
         target_fps_ = fps;
         emit fpsChanged();

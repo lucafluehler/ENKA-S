@@ -6,6 +6,9 @@
 #include <string_view>
 #include <vector>
 
+/**
+ * @brief A progress bar that changes color based on its value.
+ */
 class ColoredProgressBar : public QProgressBar {
 public:
     explicit ColoredProgressBar(QWidget* parent = nullptr)
@@ -61,6 +64,12 @@ private:
     bool more_is_better_;
 };
 
+/**
+ * @brief A widget that displays a value bar with current and maximum values.
+ *
+ * This widget is used to visualize the size and capacity of a data structure,
+ * such as queues or buffers, in a compact form.
+ */
 class ValueBarWidget : public QWidget {
 public:
     explicit ValueBarWidget(bool moreIsBetter, QWidget* parent = nullptr)
@@ -132,6 +141,9 @@ struct DebugInfoRow {
     bool more_is_better = false;  // If true, higher values are better
 };
 
+/**
+ * @brief A widget that displays debug information for multiple data structures.
+ */
 class DebugInfoWidget : public QWidget {
     Q_OBJECT
 

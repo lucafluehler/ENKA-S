@@ -10,7 +10,6 @@
 #include "core/files/system_snapshot_stream.h"
 #include "core/settings/settings.h"
 
-
 class FileParseWorker : public QObject {
     Q_OBJECT
 

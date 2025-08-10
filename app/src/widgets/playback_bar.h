@@ -4,6 +4,9 @@
 #include <QObject>
 #include <QSlider>
 
+/**
+ * @brief A custom playback bar widget for media controls.
+ */
 class PlaybackBar : public QSlider {
     Q_OBJECT
 

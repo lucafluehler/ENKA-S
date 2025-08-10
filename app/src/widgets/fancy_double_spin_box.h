@@ -2,6 +2,11 @@
 
 #include <QDoubleSpinBox>
 
+/**
+ * @brief A double spin box with enhanced formatting.
+ *
+ * Trailing zeros are removed.
+ */
 class FancyDoubleSpinBox : public QDoubleSpinBox {
     Q_OBJECT
 
