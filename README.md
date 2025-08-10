@@ -139,3 +139,4 @@ This project uses the following third-party libraries. Their license texts and c
 - The project as a whole is distributed under GPL-3.0. MIT-licensed components are compatible with GPL: you may distribute the combined work under GPL, **but you must** preserve the original MIT copyright and permission notices from those libraries.
 - If you dynamically link Qt libraries, provide the required relinking information (as required by GPL and Qt distribution practices). See the [LICENSE](LICENSE) file for details.
 
+© 2025 Luca Flühler. Licensed under the GNU GPLv3.
