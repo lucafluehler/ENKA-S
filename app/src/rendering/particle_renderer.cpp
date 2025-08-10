@@ -1,5 +1,6 @@
 #include "rendering/particle_renderer.h"
 
+#include <enkas/logging/logger.h>
 #include <enkas/math/rotor3d.h>
 #include <enkas/math/vector3d.h>
 
@@ -253,7 +254,7 @@ void ParticleRenderer::initializeParticleShader() {
     shader_program_.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/particle.vert");
     shader_program_.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/particle.frag");
     if (!shader_program_.link()) {
-        qCritical() << "Shader link error:" << shader_program_.log();
+        ENKAS_LOG_CRITICAL("Shader link error: {}", shader_program_.log().toStdString());
         return;
     }
 
@@ -296,7 +297,8 @@ void ParticleRenderer::initializeCrossShader() {
     cross_shader_program_.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/cross.vert");
     cross_shader_program_.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/cross.frag");
     if (!cross_shader_program_.link()) {
-        qCritical() << "Cross shader link error:" << cross_shader_program_.log();
+        ENKAS_LOG_CRITICAL("Cross shader link error: {}",
+                           cross_shader_program_.log().toStdString());
         return;
     }
 
