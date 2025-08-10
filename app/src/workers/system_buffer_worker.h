@@ -19,7 +19,11 @@ class SystemBufferWorker : public QObject {
 public:
     SystemBufferWorker(std::shared_ptr<SystemRingBuffer> buffer,
                        const std::filesystem::path& file_path,
-                       QObject* parent = nullptr);
+                       QObject* parent = nullptr)
+        : QObject(parent),
+          buffer_(std::move(buffer)),
+          file_path_(file_path),
+          stream_(std::make_unique<SystemSnapshotStream>(file_path)) {}
 
     /**
      * @brief Aborts the worker, stopping any further processing and shutting down the buffer.

@@ -4,20 +4,10 @@
 
 #include "core/dataflow/snapshot.h"
 
-SystemBufferWorker::SystemBufferWorker(std::shared_ptr<SystemRingBuffer> buffer,
-                                       const std::filesystem::path& file_path,
-                                       QObject* parent)
-    : QObject(parent), buffer_(std::move(buffer)), file_path_(file_path) {
-    stream_ = std::make_unique<SystemSnapshotStream>(file_path_);
-    if (!stream_->initialize()) {
+void SystemBufferWorker::run() {
+    if (!stream_ || !stream_->initialize()) {
         ENKAS_LOG_ERROR("Failed to initialize SystemSnapshotStream for file: {}",
                         file_path_.string());
-    }
-}
-
-void SystemBufferWorker::run() {
-    if (!stream_ || !stream_->isInitialized()) {
-        ENKAS_LOG_ERROR("SystemSnapshotStream is not initialized. Cannot run worker.");
         return;
     }
 
