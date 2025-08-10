@@ -117,9 +117,9 @@ void SimulationWindow::setupCharts() {
     std::vector<DiagnosticsWidget::ChartDefinition> charts;
 
     charts.push_back(
-        {.title = "Total Energy", .unit = "J", .value_extractor = [](DiagnosticsSnapshot& s) {
-             return s.data->e_kin + s.data->e_pot;
-         }});
+        {.title = "Total Energy",
+         .unit = "H_M*H_L^2/H_T^2",
+         .value_extractor = [](DiagnosticsSnapshot& s) { return s.data->e_kin + s.data->e_pot; }});
 
     charts.push_back({.title = "Total Energy Change",
                       .unit = "%",
@@ -127,15 +127,15 @@ void SimulationWindow::setupCharts() {
                           [](DiagnosticsSnapshot& s) { return s.data->e_kin + s.data->e_pot; })});
 
     charts.push_back({.title = "Kinetic Energy",
-                      .unit = "J",
+                      .unit = "H_M*H_L^2/H_T^2",
                       .value_extractor = [](DiagnosticsSnapshot& s) { return s.data->e_kin; }});
 
     charts.push_back({.title = "Potential Energy",
-                      .unit = "J",
+                      .unit = "H_M*H_L^2/H_T^2",
                       .value_extractor = [](DiagnosticsSnapshot& s) { return s.data->e_pot; }});
 
     charts.push_back({.title = "Total Angular Momentum",
-                      .unit = "kg*m^2/s",
+                      .unit = "H_M*H_L^2/H_T",
                       .value_extractor = [](DiagnosticsSnapshot& s) { return s.data->L_tot; }});
 
     charts.push_back({.title = "Total Angular Momentum Change",
@@ -144,11 +144,11 @@ void SimulationWindow::setupCharts() {
                           [](DiagnosticsSnapshot& s) { return s.data->L_tot; })});
 
     charts.push_back({.title = "Virial Radius",
-                      .unit = "kpc",
+                      .unit = "H_L",
                       .value_extractor = [](DiagnosticsSnapshot& s) { return s.data->r_vir; }});
 
     charts.push_back({.title = "Mean Square Velocity",
-                      .unit = "H_L/H_T",
+                      .unit = "H_L^2/H_T^2",
                       .value_extractor = [](DiagnosticsSnapshot& s) { return s.data->ms_vel; }});
 
     charts.push_back({.title = "Crossing Time",
