@@ -11,9 +11,9 @@
 
 #include "core/dataflow/snapshot.h"
 #include "core/settings/settings.h"
+#include "managers/simulation_runner.h"
 #include "views/new_simulation_tab/i_new_simulation_view.h"
 #include "workers/file_parse_worker.h"
-#include "workers/simulation_runner.h"
 
 NewSimulationPresenter::NewSimulationPresenter(INewSimulationView* view, QObject* parent)
     : QObject(parent),
