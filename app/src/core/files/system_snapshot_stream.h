@@ -44,11 +44,21 @@ public:
     bool isInitialized() const { return is_initialized_; }
 
     /**
-     * @brief Retrieves a snapshot at or just after the specified timestamp.
-     * @param timestamp The target time.
+     * @brief Retrieves a snapshot based on its relative position in the full snapshot data.
+     *
+     * This function selects a snapshot using a normalized position parameter @p mu where:
+     * - mu = 0.0 corresponds to the first snapshot,
+     * - mu = 1.0 corresponds to the last snapshot,
+     * - intermediate values select proportionally between them.
+     *
+     * The index is computed as:
+     *    floor(mu * (N - 1))
+     * where N is the number of available snapshots.
+     *
+     * @param mu The target fraction (0.0 to 1.0).
      * @return The corresponding snapshot, or std::nullopt if none is found.
      */
-    std::optional<SystemSnapshot> getSnapshotAt(double timestamp);
+    std::optional<SystemSnapshot> getSnapshotAtFraction(double mu);
 
     /**
      * @brief Retrieves the snapshot immediately following the last one that was read.

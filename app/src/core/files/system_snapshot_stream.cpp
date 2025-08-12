@@ -168,15 +168,20 @@ bool SystemSnapshotStream::buildIndex() {
     return !index_.empty();
 }
 
-std::optional<SystemSnapshot> SystemSnapshotStream::getSnapshotAt(double timestamp) {
+std::optional<SystemSnapshot> SystemSnapshotStream::getSnapshotAtFraction(double mu) {
     if (!is_initialized_) return std::nullopt;
 
-    auto it = index_.lower_bound(timestamp);
-    if (it == index_.end()) {
+    if (mu < 0.0 || mu > 1.0) {
+        ENKAS_LOG_ERROR("Fraction must be between 0.0 and 1.0, got: {}", mu);
         return std::nullopt;
     }
 
+    const std::size_t idx = static_cast<std::size_t>(std::floor(mu * (index_.size() - 1)));
+
+    // Move iterator to the desired position
+    auto it = std::next(index_.cbegin(), idx);
     current_index_iterator_ = it;
+
     return parseSnapshotFromIndex(it->second, it->first);
 }
 
