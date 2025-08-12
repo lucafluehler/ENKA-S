@@ -6,9 +6,9 @@
 #include <QLayoutItem>
 #include <QLineEdit>
 #include <QMap>
-#include <QPushButton>
 #include <QRandomGenerator>
 #include <QSpinBox>
+#include <QToolButton>
 #include <QVector>
 #include <QWidget>
 #include <string>
@@ -47,10 +47,12 @@ void SettingsWidget::setSchema(const QVector<SettingDescriptor>& schema) {
                 connect(le, &QLineEdit::editingFinished, this, [=, this]() {
                     emit settingChanged(desc.key, le->text());
                 });
-                auto* btn = new QPushButton("…");
+                auto* btn = new QToolButton;
+                btn->setIcon(QIcon(":/others/icons/load.png"));
+                btn->setToolTip("Select file");
                 lay->addWidget(le);
                 lay->addWidget(btn);
-                connect(btn, &QPushButton::clicked, this, [this, le, desc]() {
+                connect(btn, &QToolButton::clicked, this, [this, le, desc]() {
                     QString f = QFileDialog::getOpenFileName(le, "Select file");
                     if (!f.isEmpty()) le->setText(f);
                     emit settingChanged(desc.key, f);
@@ -72,11 +74,13 @@ void SettingsWidget::setSchema(const QVector<SettingDescriptor>& schema) {
                     QRandomGenerator::global()->bounded(desc.min.toInt(), desc.max.toInt() + 1);
                 spinBox->setValue(randomized);
 
-                auto* button = new QPushButton("Randomize");
+                auto* button = new QToolButton;
+                button->setIcon(QIcon(":/others/icons/randomize.png"));
+                button->setToolTip("Randomize");
                 layout->addWidget(spinBox);
                 layout->addWidget(button);
 
-                connect(button, &QPushButton::clicked, this, [=]() {
+                connect(button, &QToolButton::clicked, this, [=]() {
                     int val = QRandomGenerator::global()->bounded(spinBox->minimum(),
                                                                   spinBox->maximum() + 1);
                     spinBox->setValue(val);
