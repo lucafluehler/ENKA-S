@@ -1,5 +1,3 @@
-#include "core/files/file_parse_logic.h"
-
 #include <enkas/data/system.h>
 #include <enkas/logging/logger.h>
 
@@ -10,9 +8,10 @@
 
 #include "core/dataflow/snapshot.h"
 #include "core/files/file_constants.h"
+#include "core/files/file_parser.h"
 #include "core/settings/settings.h"
 
-std::optional<Settings> FileParseLogic::parseSettings(const std::filesystem::path& file_path) {
+std::optional<Settings> FileParser::parseSettings(const std::filesystem::path& file_path) {
     std::ifstream file(file_path);
     if (!file.is_open()) {
         ENKAS_LOG_ERROR("Failed to open settings file: {}", file_path.string());
@@ -32,7 +31,7 @@ std::optional<Settings> FileParseLogic::parseSettings(const std::filesystem::pat
     }
 }
 
-std::optional<DiagnosticsSeries> FileParseLogic::parseDiagnosticsSeries(
+std::optional<DiagnosticsSeries> FileParser::parseDiagnosticsSeries(
     const std::filesystem::path& file_path) {
     if (!std::filesystem::exists(file_path)) {
         ENKAS_LOG_ERROR("File does not exist: {}", file_path.string());
@@ -85,7 +84,7 @@ std::optional<DiagnosticsSeries> FileParseLogic::parseDiagnosticsSeries(
     }
 }
 
-std::optional<enkas::data::System> FileParseLogic::parseInitialSystem(
+std::optional<enkas::data::System> FileParser::parseInitialSystem(
     const std::filesystem::path& file_path) {
     if (!std::filesystem::exists(file_path)) {
         ENKAS_LOG_ERROR("File does not exist: {}", file_path.string());
@@ -137,7 +136,7 @@ std::optional<enkas::data::System> FileParseLogic::parseInitialSystem(
     }
 }
 
-std::optional<int> FileParseLogic::countSnapshots(const std::filesystem::path& file_path) {
+std::optional<int> FileParser::countSnapshots(const std::filesystem::path& file_path) {
     if (!std::filesystem::exists(file_path)) {
         ENKAS_LOG_ERROR("File does not exist: {}", file_path.string());
         return std::nullopt;
@@ -169,7 +168,7 @@ std::optional<int> FileParseLogic::countSnapshots(const std::filesystem::path& f
     }
 }
 
-std::optional<double> FileParseLogic::retrieveSimulationDuration(
+std::optional<double> FileParser::retrieveSimulationDuration(
     const std::filesystem::path& file_path) {
     if (!std::filesystem::exists(file_path)) {
         ENKAS_LOG_ERROR("File does not exist: {}", file_path.string());
