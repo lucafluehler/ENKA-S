@@ -7,6 +7,7 @@
 
 #include "core/dataflow/snapshot.h"
 #include "core/files/file_constants.h"
+#include "enkas/data/system.h"
 #include "enkas/logging/logger.h"
 #include "managers/simulation_player.h"
 #include "views/load_simulation_tab/i_load_simulation_view.h"
@@ -44,8 +45,10 @@ void LoadSimulationPresenter::checkFiles() {
         if (file_path.endsWith(file_names::settings)) {
             emit requestParseSettings(file_path);
         } else if (file_path.endsWith(file_names::system)) {
-            system_file_path_ = file_path.toStdString();
-            emit requestOpenSystemFile(file_path);
+            system_data_.file_path = file_path.toStdString();
+            emit requestParseInitialSystem(file_path);
+            emit requestCountSnapshots(file_path);
+            emit requestRetrieveSimulationDuration(file_path);
         } else if (file_path.endsWith(file_names::diagnostics)) {
             emit requestParseDiagnosticsSeries(file_path);
         }
@@ -56,23 +59,13 @@ void LoadSimulationPresenter::onSettingsParsed(const std::optional<Settings>& se
     view_->onSettingsParsed(settings);
 }
 
-void LoadSimulationPresenter::onInitialSystemParsed(const std::optional<SystemSnapshot>& snapshot) {
-    if (snapshot) {
-        view_->onInitialSystemParsed(*snapshot->data);
+void LoadSimulationPresenter::onInitialSystemParsed(
+    const std::optional<enkas::data::System>& system) {
+    if (system) {
+        view_->onInitialSystemParsed(*system);
     } else {
         view_->onInitialSystemParsed(std::nullopt);
     }
-}
-
-void LoadSimulationPresenter::onSystemFileOpened(
-    const std::optional<std::vector<double>>& timestamps) {
-    if (timestamps) {
-        timestamps_ = std::make_shared<std::vector<double>>(*timestamps);
-    } else {
-        // Inform the view about the missing initial system snapshot
-        view_->onInitialSystemParsed(std::nullopt);
-    }
-    emit requestInitialSnapshot();
 }
 
 void LoadSimulationPresenter::onDiagnosticsSeriesParsed(
@@ -80,12 +73,20 @@ void LoadSimulationPresenter::onDiagnosticsSeriesParsed(
     view_->onDiagnosticsSeriesParsed(series.has_value());
 
     if (series) {
-        diagnostics_series_ = std::make_shared<DiagnosticsSeries>(*series);
+        diagnostics_data_.diagnostics_series = std::make_shared<DiagnosticsSeries>(*series);
     }
 }
 
+void LoadSimulationPresenter::onSnapshotsCounted(std::optional<int> count) {
+    if (count) system_data_.total_snapshots_count = *count;
+}
+
+void LoadSimulationPresenter::onSimulationDurationRetrieved(std::optional<double> duration) {
+    if (duration) system_data_.simulation_duration = *duration;
+}
+
 void LoadSimulationPresenter::playSimulation() {
-    if ((!timestamps_ || system_file_path_.empty()) && !diagnostics_series_) {
+    if (system_data_.file_path.empty() && diagnostics_data_.diagnostics_series) {
         ENKAS_LOG_ERROR("No valid simulation data to play.");
         return;
     }
@@ -103,7 +104,7 @@ void LoadSimulationPresenter::playSimulation() {
             this,
             &LoadSimulationPresenter::endSimulationPlayback);
 
-    simulation_player_->run(system_file_path_, timestamps_, diagnostics_series_);
+    simulation_player_->run(system_data_, diagnostics_data_);
 }
 
 void LoadSimulationPresenter::endSimulationPlayback() {
@@ -125,21 +126,22 @@ void LoadSimulationPresenter::setupFileParseWorker() {
             &LoadSimulationPresenter::requestParseSettings,
             file_parse_worker_,
             &FileParseWorker::parseSettings);
-
-    connect(this,
-            &LoadSimulationPresenter::requestOpenSystemFile,
-            file_parse_worker_,
-            &FileParseWorker::openSystemFile);
-
     connect(this,
             &LoadSimulationPresenter::requestParseDiagnosticsSeries,
             file_parse_worker_,
             &FileParseWorker::parseDiagnosticsSeries);
-
     connect(this,
-            &LoadSimulationPresenter::requestInitialSnapshot,
+            &LoadSimulationPresenter::requestParseInitialSystem,
             file_parse_worker_,
-            &FileParseWorker::requestInitialSnapshot);
+            &FileParseWorker::parseInitialSystem);
+    connect(this,
+            &LoadSimulationPresenter::requestCountSnapshots,
+            file_parse_worker_,
+            &FileParseWorker::countSnapshots);
+    connect(this,
+            &LoadSimulationPresenter::requestRetrieveSimulationDuration,
+            file_parse_worker_,
+            &FileParseWorker::retrieveSimulationDuration);
 
     connect(file_parse_worker_,
             &FileParseWorker::settingsParsed,
@@ -150,13 +152,17 @@ void LoadSimulationPresenter::setupFileParseWorker() {
             this,
             &LoadSimulationPresenter::onDiagnosticsSeriesParsed);
     connect(file_parse_worker_,
-            &FileParseWorker::snapshotReady,
+            &FileParseWorker::initialSystemParsed,
             this,
             &LoadSimulationPresenter::onInitialSystemParsed);
     connect(file_parse_worker_,
-            &FileParseWorker::systemFileOpened,
+            &FileParseWorker::snapshotsCounted,
             this,
-            &LoadSimulationPresenter::onSystemFileOpened);
+            &LoadSimulationPresenter::onSnapshotsCounted);
+    connect(file_parse_worker_,
+            &FileParseWorker::simulationDurationRetrieved,
+            this,
+            &LoadSimulationPresenter::onSimulationDurationRetrieved);
 
     file_parse_thread_->start();
 }

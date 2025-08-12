@@ -4,16 +4,15 @@
 
 #include <QObject>
 #include <QTimer>
-#include <memory>
 #include <optional>
 
 #include "core/dataflow/snapshot.h"
+#include "managers/simulation_player.h"
 #include "views/load_simulation_tab/i_load_simulation_view.h"
 
 class QThread;
 class ILoadSimulationView;
 class FileParseWorker;
-class SimulationPlayer;
 
 /**
  * @brief LoadSimulationPresenter handles the logic for loading and parsing simulation files.
@@ -33,8 +32,9 @@ public:
 signals:
     void requestParseSettings(const QString& file_path);
     void requestParseDiagnosticsSeries(const QString& file_path);
-    void requestOpenSystemFile(const QString& file_path);
-    void requestInitialSnapshot();
+    void requestParseInitialSystem(const QString& file_path);
+    void requestCountSnapshots(const QString& file_path);
+    void requestRetrieveSimulationDuration(const QString& file_path);
 
 public slots:
     /**
@@ -70,9 +70,10 @@ public slots:
 private slots:
     void updateInitialSystemPreview() { view_->updateInitialSystemPreview(); }
     void onSettingsParsed(const std::optional<Settings>& settings);
-    void onInitialSystemParsed(const std::optional<SystemSnapshot>& snapshot);
-    void onSystemFileOpened(const std::optional<std::vector<double>>& timestamps);
+    void onInitialSystemParsed(const std::optional<enkas::data::System>& snapshot);
     void onDiagnosticsSeriesParsed(const std::optional<DiagnosticsSeries>& series);
+    void onSnapshotsCounted(std::optional<int> count);
+    void onSimulationDurationRetrieved(std::optional<double> duration);
 
 private:
     void setupFileParseWorker();
@@ -84,9 +85,8 @@ private:
     FileParseWorker* file_parse_worker_ = nullptr;
     QThread* file_parse_thread_ = nullptr;
 
-    std::filesystem::path system_file_path_;
-    std::shared_ptr<std::vector<double>> timestamps_ = nullptr;
-    std::shared_ptr<DiagnosticsSeries> diagnostics_series_ = nullptr;
+    SimulationPlayer::SystemData system_data_;
+    SimulationPlayer::DiagnosticsData diagnostics_data_;
 
     SimulationPlayer* simulation_player_ = nullptr;
 };

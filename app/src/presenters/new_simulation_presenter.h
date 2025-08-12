@@ -6,7 +6,6 @@
 #include <QTimer>
 #include <optional>
 
-#include "core/dataflow/snapshot.h"
 #include "core/settings/settings.h"
 #include "views/new_simulation_tab/i_new_simulation_view.h"
 
@@ -38,15 +37,10 @@ signals:
     void requestParseSettings(const QString& file_path);
 
     /**
-     * @brief Requests to open a system file for simulation.
-     * @param file_path The path to the system file.
+     * @brief Requests to parse the initial system.
+     * @param file_path The path to the initial system file.
      */
-    void requestOpenSystemFile(const QString& file_path);
-
-    /**
-     * @brief Requests to parse the initial snapshot.
-     */
-    void requestInitialSnapshot();
+    void requestParseInitialSystem(const QString& file_path);
 
 public slots:
     /**
@@ -93,8 +87,7 @@ private slots:
     void updatePreview();
     void updateProgress();
     void onSettingsParsed(const std::optional<Settings>& settings);
-    void onInitialSystemParsed(const std::optional<SystemSnapshot>& snapshot);
-    void onSystemFileOpened(const std::optional<std::vector<double>>& timestamps);
+    void onInitialSystemParsed(const std::optional<enkas::data::System>& system);
     void onInitializationCompleted();
 
 private:

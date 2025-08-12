@@ -9,7 +9,6 @@
 #include <QTimer>
 #include <optional>
 
-#include "core/dataflow/snapshot.h"
 #include "core/settings/settings.h"
 #include "managers/simulation_runner.h"
 #include "views/new_simulation_tab/i_new_simulation_view.h"
@@ -51,7 +50,7 @@ void NewSimulationPresenter::updateProgress() {
 }
 
 void NewSimulationPresenter::checkInitialSystemFile() {
-    emit requestOpenSystemFile(view_->getInitialSystemPath());
+    emit requestParseInitialSystem(view_->getInitialSystemPath());
 }
 
 void NewSimulationPresenter::checkSettingsFile() {
@@ -62,17 +61,13 @@ void NewSimulationPresenter::onSettingsParsed(const std::optional<Settings>& set
     view_->processSettings(settings);
 }
 
-void NewSimulationPresenter::onInitialSystemParsed(const std::optional<SystemSnapshot>& snapshot) {
-    if (snapshot) {
-        view_->processInitialSystem(*snapshot->data);
+void NewSimulationPresenter::onInitialSystemParsed(
+    const std::optional<enkas::data::System>& system) {
+    if (system) {
+        view_->processInitialSystem(*system);
     } else {
         view_->processInitialSystem(std::nullopt);
     }
-}
-
-void NewSimulationPresenter::onSystemFileOpened(
-    const std::optional<std::vector<double>>& timestamps) {
-    emit requestInitialSnapshot();
 }
 
 void NewSimulationPresenter::startSimulation() {
@@ -143,25 +138,16 @@ void NewSimulationPresenter::setupFileParseWorker() {
             file_parse_worker_,
             &FileParseWorker::parseSettings);
     connect(this,
-            &NewSimulationPresenter::requestOpenSystemFile,
+            &NewSimulationPresenter::requestParseInitialSystem,
             file_parse_worker_,
-            &FileParseWorker::openSystemFile);
-
-    connect(this,
-            &NewSimulationPresenter::requestInitialSnapshot,
-            file_parse_worker_,
-            &FileParseWorker::requestInitialSnapshot);
+            &FileParseWorker::parseInitialSystem);
 
     connect(file_parse_worker_,
             &FileParseWorker::settingsParsed,
             this,
             &NewSimulationPresenter::onSettingsParsed);
     connect(file_parse_worker_,
-            &FileParseWorker::systemFileOpened,
-            this,
-            &NewSimulationPresenter::onSystemFileOpened);
-    connect(file_parse_worker_,
-            &FileParseWorker::snapshotReady,
+            &FileParseWorker::initialSystemParsed,
             this,
             &NewSimulationPresenter::onInitialSystemParsed);
 
