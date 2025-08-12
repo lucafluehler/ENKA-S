@@ -24,7 +24,6 @@ target_link_libraries(enkas-app PUBLIC
     Qt6::OpenGLWidgets
     Qt6::Gui
     Qt6::Charts
-    Qt6::Concurrent
 )
 
 # --- Include directories ---
