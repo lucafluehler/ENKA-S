@@ -5,11 +5,9 @@
 
 #include <filesystem>
 #include <optional>
-#include <vector>
 
 #include "core/dataflow/snapshot.h"
 #include "core/settings/settings.h"
-
 
 class FileParseLogic {
 public:
@@ -21,22 +19,11 @@ public:
     static std::optional<Settings> parseSettings(const std::filesystem::path& file_path);
 
     /**
-     * @brief Reads the system snapshot just after the specified timestamp from the CSV file.
-     * @param previous_timestamp The timestamp after which to read the next snapshot. If 0.0, reads
-     * the first snapshot.
-     * @return An optional SystemSnapshot object containing the timestamp and system data.
+     * @brief Reads the diagnostics data series from the CSV file.
+     * @return An optional DiagnosticsSeries object containing timestamps and diagnostics data.
      */
-    static std::optional<SystemSnapshot> parseNextSystemSnapshot(
-        const std::filesystem::path& file_path, double previous_timestamp);
-
-    /**
-     * @brief Reads the system snapshot just before the specified timestamp from the CSV file.
-     * @param current_timestamp The timestamp before which to read the next snapshot. If 0.0, reads
-     * std::nullopt.
-     * @return An optional SystemSnapshot object containing the timestamp and system data.
-     */
-    static std::optional<SystemSnapshot> parsePreviousSystemSnapshot(
-        const std::filesystem::path& file_path, double current_timestamp);
+    static std::optional<DiagnosticsSeries> parseDiagnosticsSeries(
+        const std::filesystem::path& file_path);
 
     /**
      * @brief Reads the initial system data from the CSV file.
@@ -47,16 +34,16 @@ public:
         const std::filesystem::path& file_path);
 
     /**
-     * @brief Reads the timestamps of a system file.
-     * @return An optional System object containing the initial system data.
+     * @brief Counts the number of snapshots in the specified file.
+     * @param file_path The path to the CSV file.
+     * @return An optional integer containing the snapshot count.
      */
-    static std::optional<std::vector<double>> parseSystemTimestamps(
-        const std::filesystem::path& file_path);
+    static std::optional<int> countSnapshots(const std::filesystem::path& file_path);
 
     /**
-     * @brief Reads the diagnostics data series from the CSV file.
-     * @return An optional DiagnosticsSeries object containing timestamps and diagnostics data.
+     * @brief Retrieves the simulation duration from the specified file.
+     * @param file_path The path to the CSV file.
+     * @return An optional double containing the simulation duration.
      */
-    static std::optional<DiagnosticsSeries> parseDiagnosticsSeries(
-        const std::filesystem::path& file_path);
+    static std::optional<double> retrieveSimulationDuration(const std::filesystem::path& file_path);
 };

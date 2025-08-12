@@ -32,168 +32,6 @@ std::optional<Settings> FileParseLogic::parseSettings(const std::filesystem::pat
     }
 }
 
-std::optional<SystemSnapshot> FileParseLogic::parseNextSystemSnapshot(
-    const std::filesystem::path& file_path, double previous_timestamp) {
-    if (!std::filesystem::exists(file_path)) {
-        ENKAS_LOG_ERROR("File does not exist: {}", file_path.string());
-        return std::nullopt;
-    }
-
-    try {
-        auto format =
-            csv::CSVFormat().header_row(0).variable_columns(csv::VariableColumnPolicy::THROW);
-        csv::CSVReader reader(file_path.string(), format);
-
-        // Header validation
-        if (reader.get_col_names() != csv_headers::system) {
-            ENKAS_LOG_ERROR("Invalid CSV header in file: {}", file_path.string());
-            return std::nullopt;
-        }
-
-        enkas::data::System system;
-        double timestamp = 0.0;
-        bool found_target_snapshot = false;
-
-        for (const auto& row : reader) {
-            double current_time = row["time"].get<double>();
-
-            if (current_time > previous_timestamp) {
-                // This is the first row of the snapshot we want.
-                if (!found_target_snapshot) {
-                    found_target_snapshot = true;
-                    timestamp = current_time;
-                }
-
-                // If the time changes again, we've finished the snapshot.
-                if (current_time != timestamp) {
-                    break;
-                }
-
-                // Add particle data to the snapshot
-                system.positions.emplace_back(row["pos_x"].get<double>(),
-                                              row["pos_y"].get<double>(),
-                                              row["pos_z"].get<double>());
-                system.velocities.emplace_back(row["vel_x"].get<double>(),
-                                               row["vel_y"].get<double>(),
-                                               row["vel_z"].get<double>());
-                system.masses.push_back(row["mass"].get<double>());
-            }
-        }
-
-        if (found_target_snapshot) {
-            // ENKAS_LOG_INFO("Successfully parsed system snapshot from file: {}",
-            // file_path.string());
-            return SystemSnapshot(std::move(system), timestamp);
-        }
-
-        // No snapshot was found after the given timestamp.
-        ENKAS_LOG_INFO("No new system snapshot found after timestamp: {}", previous_timestamp);
-        return std::nullopt;
-
-    } catch (const std::exception& e) {
-        ENKAS_LOG_ERROR("Error occurred while parsing system snapshot: {}", e.what());
-        return std::nullopt;
-    }
-}
-
-std::optional<SystemSnapshot> FileParseLogic::parsePreviousSystemSnapshot(
-    const std::filesystem::path& file_path, double current_timestamp) {
-    auto timestamps_opt = parseSystemTimestamps(file_path);
-    if (!timestamps_opt) {
-        ENKAS_LOG_INFO("Timestamps could not be parsed. Cannot find previous snapshot.");
-        return std::nullopt;
-    }
-
-    const auto& timestamps = *timestamps_opt;
-    if (timestamps.empty() || current_timestamp <= timestamps.front()) {
-        ENKAS_LOG_INFO("No previous snapshot available for timestamp: {}", current_timestamp);
-        return std::nullopt;
-    }
-
-    // Find index of the timestamp just before current_timestamp
-    auto it = std::lower_bound(timestamps.begin(), timestamps.end(), current_timestamp);
-    if (it == timestamps.begin()) {
-        ENKAS_LOG_INFO("No previous snapshot available for timestamp: {}", current_timestamp);
-        return std::nullopt;
-    }
-    --it;
-    double target_timestamp = *it;
-
-    try {
-        csv::CSVReader reader(file_path.string(), csv::CSVFormat().header_row(0));
-
-        enkas::data::System system;
-
-        for (const auto& row : reader) {
-            double time = row["time"].get<double>();
-            if (time == target_timestamp) {
-                system.positions.emplace_back(row["pos_x"].get<double>(),
-                                              row["pos_y"].get<double>(),
-                                              row["pos_z"].get<double>());
-                system.velocities.emplace_back(row["vel_x"].get<double>(),
-                                               row["vel_y"].get<double>(),
-                                               row["vel_z"].get<double>());
-                system.masses.push_back(row["mass"].get<double>());
-            }
-        }
-
-        return system;
-
-    } catch (const std::exception& e) {
-        ENKAS_LOG_ERROR("Error occurred while parsing snapshot: {}", e.what());
-        return std::nullopt;
-    }
-}
-
-std::optional<enkas::data::System> FileParseLogic::parseInitialSystem(
-    const std::filesystem::path& file_path) {
-    auto snapshot = parseNextSystemSnapshot(file_path, 0.0);
-    if (snapshot) {
-        ENKAS_LOG_INFO("Successfully parsed initial system from file: {}", file_path.string());
-        return *snapshot->data;
-    }
-    ENKAS_LOG_ERROR("Failed to parse initial system from file: {}", file_path.string());
-    return std::nullopt;
-}
-
-std::optional<std::vector<double>> FileParseLogic::parseSystemTimestamps(
-    const std::filesystem::path& file_path) {
-    if (!std::filesystem::exists(file_path)) {
-        ENKAS_LOG_ERROR("File does not exist: {}", file_path.string());
-        return std::nullopt;
-    }
-
-    try {
-        auto format = csv::CSVFormat().header_row(0);
-        csv::CSVReader reader(file_path.string(), format);
-
-        // Header validation
-        if (reader.get_col_names() != csv_headers::system) {
-            ENKAS_LOG_ERROR("Invalid CSV header in file: {}", file_path.string());
-            return std::nullopt;
-        }
-
-        std::set<double> unique_timestamps;
-        for (const auto& row : reader) {
-            unique_timestamps.insert(row["time"].get<double>());
-        }
-
-        if (unique_timestamps.empty()) {
-            ENKAS_LOG_ERROR("No timestamps found in file: {}", file_path.string());
-            return std::nullopt;  // No timestamps found
-        }
-
-        ENKAS_LOG_INFO("Successfully parsed {} unique timestamps from file: {}",
-                       unique_timestamps.size(),
-                       file_path.string());
-        return std::vector<double>(unique_timestamps.begin(), unique_timestamps.end());
-
-    } catch (const std::exception& e) {
-        ENKAS_LOG_ERROR("Error occurred while parsing system timestamps: {}", e.what());
-        return std::nullopt;
-    }
-}
-
 std::optional<DiagnosticsSeries> FileParseLogic::parseDiagnosticsSeries(
     const std::filesystem::path& file_path) {
     if (!std::filesystem::exists(file_path)) {
@@ -243,6 +81,125 @@ std::optional<DiagnosticsSeries> FileParseLogic::parseDiagnosticsSeries(
 
     } catch (const std::exception& e) {
         ENKAS_LOG_ERROR("Error occurred while parsing diagnostics series: {}", e.what());
+        return std::nullopt;
+    }
+}
+
+std::optional<enkas::data::System> FileParseLogic::parseInitialSystem(
+    const std::filesystem::path& file_path) {
+    if (!std::filesystem::exists(file_path)) {
+        ENKAS_LOG_ERROR("File does not exist: {}", file_path.string());
+        return std::nullopt;
+    }
+
+    try {
+        auto format =
+            csv::CSVFormat().header_row(0).variable_columns(csv::VariableColumnPolicy::THROW);
+        csv::CSVReader reader(file_path.string(), format);
+
+        if (reader.get_col_names() != csv_headers::system) {
+            ENKAS_LOG_ERROR("Invalid CSV header in file: {}", file_path.string());
+            return std::nullopt;
+        }
+
+        enkas::data::System system;
+        std::optional<double> initial_timestamp;
+
+        for (const auto& row : reader) {
+            double current_time = row["time"].get<double>();
+
+            if (!initial_timestamp.has_value()) {
+                initial_timestamp = current_time;
+            }
+
+            if (current_time != *initial_timestamp) {
+                break;
+            }
+
+            system.positions.emplace_back(
+                row["pos_x"].get<double>(), row["pos_y"].get<double>(), row["pos_z"].get<double>());
+            system.velocities.emplace_back(
+                row["vel_x"].get<double>(), row["vel_y"].get<double>(), row["vel_z"].get<double>());
+            system.masses.push_back(row["mass"].get<double>());
+        }
+
+        if (system.masses.empty()) {
+            ENKAS_LOG_ERROR("No initial system data found in file: {}", file_path.string());
+            return std::nullopt;
+        }
+
+        ENKAS_LOG_INFO("Successfully parsed initial system from file: {}", file_path.string());
+        return system;
+
+    } catch (const std::exception& e) {
+        ENKAS_LOG_ERROR("Error occurred while parsing initial system: {}", e.what());
+        return std::nullopt;
+    }
+}
+
+std::optional<int> FileParseLogic::countSnapshots(const std::filesystem::path& file_path) {
+    if (!std::filesystem::exists(file_path)) {
+        ENKAS_LOG_ERROR("File does not exist: {}", file_path.string());
+        return std::nullopt;
+    }
+
+    try {
+        auto format =
+            csv::CSVFormat().header_row(0).variable_columns(csv::VariableColumnPolicy::THROW);
+        csv::CSVReader reader(file_path.string(), format);
+
+        if (reader.get_col_names() != csv_headers::system) {
+            ENKAS_LOG_ERROR("Invalid CSV header in file: {}", file_path.string());
+            return std::nullopt;
+        }
+
+        std::set<double> unique_timestamps;
+        for (const auto& row : reader) {
+            unique_timestamps.insert(row["time"].get<double>());
+        }
+
+        ENKAS_LOG_INFO("Counted {} unique snapshots in file: {}",
+                       unique_timestamps.size(),
+                       file_path.string());
+        return static_cast<int>(unique_timestamps.size());
+
+    } catch (const std::exception& e) {
+        ENKAS_LOG_ERROR("Error occurred while counting snapshots: {}", e.what());
+        return std::nullopt;
+    }
+}
+
+std::optional<double> FileParseLogic::retrieveSimulationDuration(
+    const std::filesystem::path& file_path) {
+    if (!std::filesystem::exists(file_path)) {
+        ENKAS_LOG_ERROR("File does not exist: {}", file_path.string());
+        return std::nullopt;
+    }
+
+    try {
+        // We only care about the header row to find the 'time' column
+        csv::CSVReader reader(file_path.string(), csv::CSVFormat().header_row(0));
+
+        std::optional<double> last_timestamp;
+        for (const auto& row : reader) {
+            // This will continuously overwrite the value, leaving the timestamp from the last row
+            last_timestamp = row["time"].get<double>();
+        }
+
+        if (!last_timestamp) {
+            ENKAS_LOG_ERROR("No data rows with a 'time' column found in file: {}",
+                            file_path.string());
+            return std::nullopt;
+        }
+
+        ENKAS_LOG_INFO(
+            "Retrieved simulation duration {} from file: {}", *last_timestamp, file_path.string());
+        return last_timestamp;
+
+    } catch (const std::exception& e) {
+        ENKAS_LOG_ERROR(
+            "Error occurred while retrieving simulation duration (is 'time' column missing?): {}",
+            e.what());
         return std::nullopt;
     }
 }

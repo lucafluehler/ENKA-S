@@ -1,13 +1,12 @@
 #pragma once
 
 #include <enkas/data/system.h>
+#include <qobject.h>
 
 #include <QObject>
 #include <optional>
-#include <vector>
 
 #include "core/dataflow/snapshot.h"
-#include "core/files/system_snapshot_stream.h"
 #include "core/settings/settings.h"
 
 class FileParseWorker : public QObject {
@@ -20,44 +19,38 @@ public:
 public slots:
     /**
      * @brief Parses settings from the specified file.
+     * Emits settingsParsed() with an optional Settings object.
      * @param file_path The path to the CSV file.
      */
     void parseSettings(const QString& file_path);
 
     /**
      * @brief Parses the diagnostics data series from the specified file.
-     * Emits diagnosticsSeriesParsed() on success or parsingFailed() on error.
+     * Emits diagnosticsSeriesParsed() with an optional DiagnosticsSeries.
      * @param file_path The path to the CSV file.
      */
     void parseDiagnosticsSeries(const QString& file_path);
 
     /**
      * @brief Opens the system file and initializes the snapshot provider.
+     * Emits initialSystemParsed() with the parsed initial system data.
      * @param file_path The path to the CSV file.
      */
-    void openSystemFile(const QString& file_path);
+    void parseInitialSystem(const QString& file_path);
 
     /**
-     * @brief Requests the initial system snapshot.
+     * @brief Counts the number of snapshots in the specified file.
+     * Emits snapshotCounted() with the count.
+     * @param file_path The path to the CSV file.
      */
-    void requestInitialSnapshot();
+    void countSnapshots(const QString& file_path);
 
     /**
-     * @brief Requests a system snapshot at the specified timestamp.
-     * @param timestamp The timestamp of the snapshot to request.
+     * @brief Retrieves the simulation duration from the specified file.
+     * Emits simulationDurationRetrieved() with the duration if successful.
+     * @param file_path The path to the CSV file.
      */
-    void requestSnapshotAt(double timestamp);
-
-    /**
-     * @brief Requests the next system snapshot.
-     */
-    void requestNextSnapshot();
-
-    /**
-     * @brief Requests the previous system snapshot.
-     * @param timestamp The timestamp to find the preceding snapshot for.
-     */
-    void requestPrecedingSnapshot(double timestamp);
+    void retrieveSimulationDuration(const QString& file_path);
 
 signals:
     /** @signal
@@ -76,14 +69,17 @@ signals:
      * @brief Emitted when the system file is opened successfully.
      * @param timestamps The timestamps of the system snapshots.
      */
-    void systemFileOpened(const std::optional<std::vector<double>>& timestamps);
+    void initialSystemParsed(const std::optional<enkas::data::System>& initial_system);
 
     /** @signal
-     * @brief Emitted when a system snapshot is ready.
-     * @param snapshot The requested system snapshot if available.
+     * @brief Emitted when the number of snapshots has been counted.
+     * @param count The number of snapshots found.
      */
-    void snapshotReady(const std::optional<SystemSnapshot>& snapshot);
+    void snapshotsCounted(std::optional<int> count);
 
-private:
-    std::unique_ptr<SystemSnapshotStream> snapshot_provider_;
+    /** @signal
+     * @brief Emitted when the simulation duration has been retrieved.
+     * @param duration The simulation duration in seconds.
+     */
+    void simulationDurationRetrieved(std::optional<double> duration);
 };
