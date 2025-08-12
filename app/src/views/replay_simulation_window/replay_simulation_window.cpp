@@ -6,21 +6,20 @@
 #include "forms/simulation_window/ui_simulation_window.h"
 
 ReplaySimulationWindow::ReplaySimulationWindow(
-    std::shared_ptr<std::vector<double>> timestamps,
+    bool enable_playback_elements,
     std::shared_ptr<DiagnosticsSeries> diagnostics_series,
     QWidget* parent)
-    : SimulationWindow(parent), timestamps_(std::move(timestamps)) {
+    : SimulationWindow(parent), enable_playback_elements_(enable_playback_elements) {
     // Setup the UI for replay mode
     ui_->btnToggleDebugInfo->setVisible(false);
 
-    const bool has_timestamps = timestamps_ && !timestamps_->empty();
-    ui_->btnJumpToStart->setVisible(has_timestamps);
-    ui_->btnStepBackward->setVisible(has_timestamps);
-    ui_->btnTogglePlayback->setVisible(has_timestamps);
-    ui_->btnStepForward->setVisible(has_timestamps);
-    ui_->btnJumpToEnd->setVisible(has_timestamps);
-    ui_->hslStepsPerSecond->setVisible(has_timestamps);
-    ui_->hslPlaybackBar->setEnabled(has_timestamps);
+    ui_->btnJumpToStart->setVisible(enable_playback_elements);
+    ui_->btnStepBackward->setVisible(enable_playback_elements);
+    ui_->btnTogglePlayback->setVisible(enable_playback_elements);
+    ui_->btnStepForward->setVisible(enable_playback_elements);
+    ui_->btnJumpToEnd->setVisible(enable_playback_elements);
+    ui_->hslStepsPerSecond->setVisible(enable_playback_elements);
+    ui_->hslPlaybackBar->setEnabled(enable_playback_elements);
 
     // Setup the steps per second slider
     const int min_sps = 1;
@@ -30,11 +29,7 @@ ReplaySimulationWindow::ReplaySimulationWindow(
     ui_->hslStepsPerSecond->setValue(default_sps);
     onStepsPerSecondChanged(default_sps);
 
-    // Store the timestamps and load the chart data
-    if (timestamps) {
-        timestamps_ = std::move(timestamps);
-    }
-
+    // Load the chart data
     if (diagnostics_series) {
         ui_->wgtDiagnostics->fillCharts(*diagnostics_series);
     }
@@ -53,17 +48,11 @@ ReplaySimulationWindow::ReplaySimulationWindow(
         }
     });
     connect(ui_->hslPlaybackBar, &PlaybackBar::sliderReleased, this, [this]() {
-        if (timestamps_ && !timestamps_->empty()) {
-            const int value = ui_->hslPlaybackBar->value();
-            const int timestamps_size = static_cast<int>(timestamps_->size());
-            const int max_slider = 1000;
+        if (enable_playback_elements_) {
+            float fraction = float(ui_->hslPlaybackBar->value() - ui_->hslPlaybackBar->minimum()) /
+                             float(ui_->hslPlaybackBar->maximum() - ui_->hslPlaybackBar->minimum());
 
-            double fraction = double(value - 1) / double(max_slider - 1);
-            int idx = static_cast<int>(std::lround(fraction * (timestamps_size - 1)));
-
-            idx = std::clamp(idx, 0, timestamps_size - 1);
-
-            emit requestJump(timestamps_->at(idx));
+            emit requestJump(fraction);
 
             if (halt_for_jump) {
                 halt_for_jump = false;
@@ -72,15 +61,15 @@ ReplaySimulationWindow::ReplaySimulationWindow(
         }
     });
     connect(ui_->btnJumpToStart, &QPushButton::clicked, this, [this]() {
-        if (timestamps_ && !timestamps_->empty()) {
+        if (enable_playback_elements_) {
             if (playback_active_) onTogglePlayback();
-            emit requestJump(timestamps_->front());
+            emit requestJump(0.0f);
         }
     });
     connect(ui_->btnJumpToEnd, &QPushButton::clicked, this, [this]() {
-        if (timestamps_ && !timestamps_->empty()) {
+        if (enable_playback_elements_) {
             if (playback_active_) onTogglePlayback();
-            emit requestJump(timestamps_->back());
+            emit requestJump(1.0f);
         }
     });
     connect(ui_->hslStepsPerSecond,

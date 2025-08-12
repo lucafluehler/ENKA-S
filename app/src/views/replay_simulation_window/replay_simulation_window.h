@@ -8,7 +8,7 @@ class ReplaySimulationWindow : public SimulationWindow, public IReplaySimulation
     Q_OBJECT
 
 public:
-    explicit ReplaySimulationWindow(std::shared_ptr<std::vector<double>> timestamps,
+    explicit ReplaySimulationWindow(bool enable_playback_elements,
                                     std::shared_ptr<DiagnosticsSeries> diagnostics_series,
                                     QWidget* parent = nullptr);
     ~ReplaySimulationWindow() override = default;
@@ -44,8 +44,9 @@ signals:
 
     /** @signal
      * @brief Emitted when a jump is requested.
+     * @param fraction The fraction to jump to (0.0 to 1.0).
      */
-    void requestJump(double timestamp);
+    void requestJump(float fraction);
 
 protected:
     bool updateProgress() const override { return !halt_for_jump; }
@@ -55,7 +56,7 @@ private slots:
     void onStepsPerSecondChanged(int sps);
 
 private:
-    std::shared_ptr<std::vector<double>> timestamps_ = nullptr;
-    bool playback_active_ = true;  // Indicates if the playback is active
-    bool halt_for_jump = false;    // Indicates if the playback was active before a jump
+    bool enable_playback_elements_ = false;  // Indicates if playback elements are enabled
+    bool playback_active_ = true;            // Indicates if the playback is active
+    bool halt_for_jump = false;              // Indicates if the playback was active before a jump
 };
