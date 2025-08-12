@@ -1,22 +1,32 @@
 #include "load_simulation_presenter.h"
 
+#include <enkas/logging/logger.h>
+
 #include <QObject>
 #include <QThread>
 #include <QTimer>
 #include <optional>
 
-#include "core/concurrency/run.h"
+#include "core/concurrency/i_task_runner.h"
 #include "core/dataflow/snapshot.h"
 #include "core/files/file_constants.h"
-#include "core/files/file_parse_logic.h"
-#include "enkas/data/system.h"
-#include "enkas/logging/logger.h"
+#include "core/files/i_file_parse_logic.h"
 #include "managers/simulation_player.h"
 #include "views/load_simulation_tab/i_load_simulation_view.h"
 
-LoadSimulationPresenter::LoadSimulationPresenter(ILoadSimulationView* view, QObject* parent)
-    : QObject(parent), view_(view), preview_timer_(new QTimer(this)) {
+LoadSimulationPresenter::LoadSimulationPresenter(ILoadSimulationView* view,
+                                                 IFileParseLogic* parser,
+                                                 ITaskRunner* runner,
+                                                 QObject* parent)
+    : QObject(parent),
+      view_(view),
+      parser_(parser),
+      runner_(runner),
+      preview_timer_(new QTimer(this)) {
     Q_ASSERT(view_ != nullptr);
+    Q_ASSERT(parser_ != nullptr);
+    Q_ASSERT(runner_ != nullptr);
+
     // Set up timer for preview updates
     connect(preview_timer_,
             &QTimer::timeout,
@@ -34,39 +44,39 @@ void LoadSimulationPresenter::checkFiles() {
 
     for (const auto& file_path : file_paths) {
         if (file_path.endsWith(file_names::settings)) {
-            app::concurrency::run(
+            runner_->run(
                 this,
-                &FileParseLogic::parseSettings,
-                [this](const auto& result) { this->onSettingsParsed(result); },
-                file_path.toStdString());
+                [this, path = file_path.toStdString()]() { return parser_->parseSettings(path); },
+                [this](const auto& result) { this->onSettingsParsed(result); });
 
         } else if (file_path.endsWith(file_names::system)) {
             system_data_.file_path = file_path.toStdString();
 
-            app::concurrency::run(
+            runner_->run(
                 this,
-                &FileParseLogic::parseInitialSystem,
-                [this](const auto& result) { this->onInitialSystemParsed(result); },
-                file_path.toStdString());
+                [this, path = file_path.toStdString()]() {
+                    return parser_->parseInitialSystem(path);
+                },
+                [this](const auto& result) { this->onInitialSystemParsed(result); });
 
-            app::concurrency::run(
+            runner_->run(
                 this,
-                &FileParseLogic::countSnapshots,
-                [this](const auto& result) { this->onSnapshotsCounted(result); },
-                file_path.toStdString());
+                [this, path = file_path.toStdString()]() { return parser_->countSnapshots(path); },
+                [this](const auto& result) { this->onSnapshotsCounted(result); });
 
-            app::concurrency::run(
+            runner_->run(
                 this,
-                &FileParseLogic::retrieveSimulationDuration,
-                [this](const auto& result) { this->onSimulationDurationRetrieved(result); },
-                file_path.toStdString());
-
+                [this, path = file_path.toStdString()]() {
+                    return parser_->retrieveSimulationDuration(path);
+                },
+                [this](const auto& result) { this->onSimulationDurationRetrieved(result); });
         } else if (file_path.endsWith(file_names::diagnostics)) {
-            app::concurrency::run(
+            runner_->run(
                 this,
-                &FileParseLogic::parseDiagnosticsSeries,
-                [this](const auto& result) { this->onDiagnosticsSeriesParsed(result); },
-                file_path.toStdString());
+                [this, path = file_path.toStdString()]() {
+                    return parser_->parseDiagnosticsSeries(path);
+                },
+                [this](const auto& result) { this->onDiagnosticsSeriesParsed(result); });
         }
     }
 }

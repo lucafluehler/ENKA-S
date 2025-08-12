@@ -6,7 +6,9 @@
 #include <QTimer>
 #include <optional>
 
+#include "core/concurrency/i_task_runner.h"
 #include "core/dataflow/snapshot.h"
+#include "core/files/i_file_parse_logic.h"
 #include "managers/simulation_player.h"
 #include "views/load_simulation_tab/i_load_simulation_view.h"
 
@@ -23,9 +25,14 @@ public:
     /**
      * @brief Constructs the presenter with a view and initializes the file parsing worker.
      * @param view The view to interact with.
+     * @param parser The file parser logic to be used for parsing files.
+     * @param runner The task runner to be used for running tasks.
      * @param parent The parent QObject.
      */
-    explicit LoadSimulationPresenter(ILoadSimulationView* view, QObject* parent = nullptr);
+    explicit LoadSimulationPresenter(ILoadSimulationView* view,
+                                     IFileParseLogic* parser,
+                                     ITaskRunner* runner,
+                                     QObject* parent = nullptr);
     ~LoadSimulationPresenter();
 
 public slots:
@@ -74,6 +81,9 @@ private:
 
     SimulationPlayer::SystemData system_data_;
     SimulationPlayer::DiagnosticsData diagnostics_data_;
+
+    IFileParseLogic* parser_;
+    ITaskRunner* runner_;
 
     SimulationPlayer* simulation_player_ = nullptr;
 };

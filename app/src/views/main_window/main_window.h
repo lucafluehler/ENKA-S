@@ -2,6 +2,8 @@
 
 #include <QMainWindow>
 
+#include "core/concurrency/concurrent_runner.h"
+#include "core/files/file_parser.h"
 #include "i_main_window_view.h"
 
 QT_BEGIN_NAMESPACE
@@ -36,4 +38,7 @@ private:
 
     LoadSimulationPresenter *load_simulation_presenter_ = nullptr;
     NewSimulationPresenter *new_simulation_presenter_ = nullptr;
+
+    std::unique_ptr<ConcurrentRunner> concurrent_runner_ = std::make_unique<ConcurrentRunner>();
+    std::unique_ptr<FileParser> file_parser_ = std::make_unique<FileParser>();
 };

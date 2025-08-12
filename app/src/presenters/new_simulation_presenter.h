@@ -6,6 +6,8 @@
 #include <QTimer>
 #include <optional>
 
+#include "core/concurrency/i_task_runner.h"
+#include "core/files/i_file_parse_logic.h"
 #include "core/settings/settings.h"
 #include "views/new_simulation_tab/i_new_simulation_view.h"
 
@@ -23,9 +25,14 @@ public:
      * @brief Initializes the presenter with the given view and sets up necessary workers and
      * timers.
      * @param view The new simulation view to be managed.
+     * @param parser The file parser logic to be used for parsing files.
+     * @param runner The task runner to be used for running tasks.
      * @param parent The parent QObject, defaults to nullptr.
      */
-    explicit NewSimulationPresenter(INewSimulationView* view, QObject* parent = nullptr);
+    explicit NewSimulationPresenter(INewSimulationView* view,
+                                    IFileParseLogic* parser,
+                                    ITaskRunner* runner,
+                                    QObject* parent = nullptr);
     ~NewSimulationPresenter() override = default;
 
 public slots:
@@ -83,6 +90,9 @@ private:
 
     QTimer* preview_timer_ = nullptr;
     QTimer* progress_timer_ = nullptr;
+
+    ITaskRunner* runner_ = nullptr;
+    IFileParseLogic* parser_ = nullptr;
 
     SimulationRunner* simulation_runner_ = nullptr;
 };

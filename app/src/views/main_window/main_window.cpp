@@ -15,7 +15,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui_(new Ui::MainW
     ui_->tabWidget->setCurrentIndex(0);
 
     // Initialize the load simulation tab
-    load_simulation_presenter_ = new LoadSimulationPresenter(ui_->tabLoadSimulation, this);
+    load_simulation_presenter_ = new LoadSimulationPresenter(
+        ui_->tabLoadSimulation, file_parser_.get(), concurrent_runner_.get(), this);
     connect(ui_->tabLoadSimulation,
             &LoadSimulationTab::requestFilesCheck,
             load_simulation_presenter_,
@@ -40,7 +41,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui_(new Ui::MainW
     });
 
     // Initialize the new simulation tab
-    new_simulation_presenter_ = new NewSimulationPresenter(ui_->tabNewSimulation, this);
+    new_simulation_presenter_ = new NewSimulationPresenter(
+        ui_->tabNewSimulation, file_parser_.get(), concurrent_runner_.get(), this);
     connect(ui_->tabNewSimulation,
             &NewSimulationTab::checkInitialSystemFile,
             new_simulation_presenter_,
