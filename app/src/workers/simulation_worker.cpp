@@ -10,9 +10,8 @@
 #include "core/dataflow/snapshot.h"
 #include "core/factories/generator_factory.h"
 #include "core/factories/simulator_factory.h"
-#include "core/files/file_parse_logic.h"
+#include "core/files/file_parser.h"
 #include "core/settings/settings.h"
-#include "enkas/data/diagnostics.h"
 
 SimulationWorker::SimulationWorker(const Settings& settings,
                                    std::shared_ptr<MemoryPools> memory_pools,
@@ -61,7 +60,7 @@ SimulationWorker::SimulationWorker(const Settings& settings,
 void SimulationWorker::startGeneration() {
     if (file_mode_) {
         // Load the initial system from a file
-        auto initial_system_opt = FileParseLogic::parseInitialSystem(file_path_);
+        auto initial_system_opt = FileParser().parseInitialSystem(file_path_);
 
         if (!initial_system_opt) {
             ENKAS_LOG_ERROR("Failed to parse initial system from file: {}", file_path_.string());

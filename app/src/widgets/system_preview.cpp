@@ -8,7 +8,7 @@
 #include <memory>
 
 #include "core/dataflow/snapshot.h"
-#include "core/files/file_parse_logic.h"
+#include "core/files/file_parser.h"
 #include "core/settings/generation_method.h"
 #include "rendering/particle_renderer.h"
 
@@ -65,7 +65,7 @@ void SystemPreview::initializeProcedural(GenerationMethod method) {
 void SystemPreview::initializeFromFile(const QString& system_path) {
     setMethodSettings();
 
-    auto system = FileParseLogic::parseInitialSystem(system_path.toStdString());
+    auto system = FileParser().parseInitialSystem(system_path.toStdString());
 
     if (!system) {
         ENKAS_LOG_ERROR("Failed to parse initial system from file: {}", system_path.toStdString());
