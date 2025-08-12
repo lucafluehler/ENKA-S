@@ -21,10 +21,10 @@ void SystemBufferWorker::run() {
             }
         }
 
-        const double jump_timestamp = jump_timestamp_.load(std::memory_order_acquire);
-        if (!std::isnan(jump_timestamp)) {
+        const float jump_fraction = jump_fraction_.load(std::memory_order_acquire);
+        if (!std::isnan(jump_fraction)) {
             jump();
-            jump_timestamp_.store(jump_unset_, std::memory_order_release);
+            jump_fraction_.store(jump_unset_, std::memory_order_release);
         }
 
         if (!stop_requested_.load(std::memory_order_acquire)) {
@@ -57,10 +57,10 @@ void SystemBufferWorker::stepForward() {
 }
 
 void SystemBufferWorker::jump() {
-    double jump_timestamp = jump_timestamp_.load(std::memory_order_acquire);
-    if (std::isnan(jump_timestamp)) return;  // No valid jump requested
+    float jump_fraction = jump_fraction_.load(std::memory_order_acquire);
+    if (std::isnan(jump_fraction)) return;  // No valid jump requested
 
-    if (auto snapshot = stream_->getSnapshotAt(jump_timestamp)) {
+    if (auto snapshot = stream_->getSnapshotAtFraction(jump_fraction)) {
         last_timestamp_ = snapshot->time;
         buffer_->clear();  // Reset the buffer before jumping
         buffer_->pushHead(std::make_shared<SystemSnapshot>(*snapshot));

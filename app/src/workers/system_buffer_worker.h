@@ -40,10 +40,10 @@ public:
     void requestStepBackward() { backward_steps_.fetch_add(1, std::memory_order_release); }
 
     /**
-     * @brief Requests jumping to a specific timestamp in the playback bar. This will reset the
+     * @brief Requests jumping to a specific fraction of the playback bar. This will reset the
      * buffer.
      */
-    void requestJump(double timestamp) { jump_timestamp_.store(timestamp); }
+    void requestJump(float fraction) { jump_fraction_.store(fraction); }
 
 public slots:
     /**
@@ -63,8 +63,8 @@ private:
     std::atomic<int> backward_steps_ = 0;
     std::atomic<bool> stop_requested_ = false;
 
-    static constexpr double jump_unset_ = std::numeric_limits<double>::quiet_NaN();
-    std::atomic<double> jump_timestamp_ = jump_unset_;
+    static constexpr float jump_unset_ = std::numeric_limits<float>::quiet_NaN();
+    std::atomic<float> jump_fraction_ = jump_unset_;
 
     std::unique_ptr<SystemSnapshotStream> stream_ = nullptr;
     double last_timestamp_ = 0.0;
