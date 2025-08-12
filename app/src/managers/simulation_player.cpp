@@ -6,7 +6,6 @@
 #include <QTimer>
 #include <filesystem>
 #include <memory>
-#include <vector>
 
 #include "core/dataflow/system_ring_buffer.h"
 #include "presenters/replay_simulation_window_presenter.h"
@@ -42,32 +41,32 @@ SimulationPlayer::~SimulationPlayer() {
     }
 }
 
-void SimulationPlayer::run(const std::filesystem::path& system_file_path,
-                           std::shared_ptr<std::vector<double>> timestamps,
-                           std::shared_ptr<DiagnosticsSeries> diagnostics_series) {
-    if ((system_file_path.empty() || !timestamps) && !diagnostics_series) {
-        ENKAS_LOG_ERROR("Invalid input. Nothing to replay.");
-        return;
-    }
+void SimulationPlayer::run(std::optional<SystemData> system_data,
+                           std::optional<DiagnosticsData> diagnostics_data) {
+    const bool has_system_data = system_data.has_value();
+    const bool has_diagnostics_data = diagnostics_data.has_value();
 
-    if (!system_file_path.empty()) {
+    auto simulation_duration = system_data ? system_data->simulation_duration : 0.0;
+    auto diagnostics_series = diagnostics_data ? diagnostics_data->diagnostics_series : nullptr;
+
+    setupSimulationWindow(simulation_duration, diagnostics_series);
+    simulation_window_->show();
+
+    if (has_system_data) {
+        // Setup system buffer worker
         constexpr size_t capacity = 512;
         constexpr size_t retain_count = 8;
         system_ring_buffer_ = std::make_shared<SystemRingBuffer>(capacity, retain_count);
-        system_file_path_ = system_file_path;
+        system_file_path_ = system_data->file_path;
         setupSystemBufferWorker();
-    }
 
-    setupSimulationWindow(timestamps, diagnostics_series);
-    simulation_window_->show();
-
-    setupDataUpdateTimer();
-
-    if (timestamps) {
-        total_snapshots_count_ = timestamps->size();
+        // Update buffer value every 200 ms
+        total_snapshots_count_ = system_data->total_snapshots_count;
         simulation_window_->updateBufferValue(total_snapshots_count_);
         buffer_value_update_timer_->start(200);
     }
+
+    setupDataUpdateTimer();
 }
 
 void SimulationPlayer::setupSystemBufferWorker() {
@@ -99,9 +98,8 @@ void SimulationPlayer::onTogglePlayback() {
 }
 
 void SimulationPlayer::setupSimulationWindow(
-    const std::shared_ptr<std::vector<double>>& timestamps,
-    const std::shared_ptr<DiagnosticsSeries>& diagnostics_series) {
-    simulation_window_ = new ReplaySimulationWindow(timestamps, diagnostics_series);
+    double simulation_duration, const std::shared_ptr<DiagnosticsSeries>& diagnostics_series) {
+    simulation_window_ = new ReplaySimulationWindow(simulation_duration > 0.0, diagnostics_series);
     const auto w = simulation_window_;
     connect(w, &ReplaySimulationWindow::togglePlayback, this, &SimulationPlayer::onTogglePlayback);
     connect(w, &ReplaySimulationWindow::stepForward, this, &SimulationPlayer::onStepForward);
@@ -111,11 +109,6 @@ void SimulationPlayer::setupSimulationWindow(
     connect(w, &ReplaySimulationWindow::stepsPerSecondChanged, this, [this](int sps) {
         step_delay_ms_ = 1000 / sps;
     });
-
-    double simulation_duration = 0.0;
-    if (timestamps) {
-        simulation_duration = timestamps->back();
-    }
 
     simulation_window_presenter_ =
         new ReplaySimulationWindowPresenter(w, rendering_snapshot_, simulation_duration, this);
@@ -141,8 +134,8 @@ void SimulationPlayer::onStepBackward() {
     }
 }
 
-void SimulationPlayer::onJump(double timestamp) {
+void SimulationPlayer::onJump(float fraction) {
     if (system_buffer_worker_) {
-        system_buffer_worker_->requestJump(timestamp);
+        system_buffer_worker_->requestJump(fraction);
     }
 }

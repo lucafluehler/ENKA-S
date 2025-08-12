@@ -3,7 +3,6 @@
 #include <QObject>
 #include <filesystem>
 #include <memory>
-#include <vector>
 
 #include "core/dataflow/snapshot.h"
 #include "core/dataflow/system_ring_buffer.h"
@@ -21,7 +20,27 @@ public:
     explicit SimulationPlayer(QObject* parent = nullptr);
     ~SimulationPlayer();
 
+    /**
+     * @brief Sets the playback speed in steps per second.
+     * @param steps_per_second The desired steps per second.
+     */
     void setStepsPerSecond(int steps_per_second) { step_delay_ms_ = 1000 / steps_per_second; }
+
+    /**
+     * @brief Struct representing required system data for the simulation replay.
+     */
+    struct SystemData {
+        std::filesystem::path file_path = "";
+        double simulation_duration = 0.0;
+        std::size_t total_snapshots_count = 0;
+    };
+
+    /**
+     * @brief Struct representing required diagnostics data for the simulation replay.
+     */
+    struct DiagnosticsData {
+        std::shared_ptr<DiagnosticsSeries> diagnostics_series = nullptr;
+    };
 
 signals:
     /** @signal
@@ -32,15 +51,13 @@ signals:
 public slots:
     /**
      * @brief Initializes the simulation player with the loaded data.
-     * @param system_file_path Optional path to the system file to load.
-     * @param timestamps Optional shared pointer to a vector of timestamps for the simulation.
-     * @param diagnostics_series Optional shared pointer to a DiagnosticsSeries for additional data.
-     * @note Atleast one of the parameters must be provided to initialize the player. For system
-     * playback, both the system file path and timestamps must be provided.
+     * @param system_data Optional system data containing the file path, duration, and total
+     * snapshot count.
+     * @param diagnostics_data Optional diagnostics data containing the shared pointer to a
+     * DiagnosticsSeries.
      */
-    void run(const std::filesystem::path& system_file_path = "",
-             std::shared_ptr<std::vector<double>> timestamps = nullptr,
-             std::shared_ptr<DiagnosticsSeries> diagnostics_series = nullptr);
+    void run(std::optional<SystemData> system_data,
+             std::optional<DiagnosticsData> diagnostics_data);
 
     /**
      * @brief Handles the pausing or resuming of the simulation playback.
@@ -58,15 +75,15 @@ public slots:
     void onStepBackward();
 
     /**
-     * @brief Jumps to a specific value in the playback bar.
-     * @param timestamp The timestamp to jump to.
+     * @brief Jumps to a fraction of the playback bar.
+     * @param fraction The fraction to jump to (0.0 to 1.0).
      */
-    void onJump(double timestamp);
+    void onJump(float fraction);
 
 private:
     void setupSystemBufferWorker();
     void setupDataUpdateTimer();
-    void setupSimulationWindow(const std::shared_ptr<std::vector<double>>& timestamps,
+    void setupSimulationWindow(double simulation_duration,
                                const std::shared_ptr<DiagnosticsSeries>& diagnostics_series);
 
     ReplaySimulationWindow* simulation_window_ = nullptr;
