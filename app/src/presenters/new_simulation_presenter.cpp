@@ -9,10 +9,11 @@
 #include <QTimer>
 #include <optional>
 
+#include "core/concurrency/run.h"
+#include "core/files/file_parse_logic.h"
 #include "core/settings/settings.h"
 #include "managers/simulation_runner.h"
 #include "views/new_simulation_tab/i_new_simulation_view.h"
-#include "workers/file_parse_worker.h"
 
 NewSimulationPresenter::NewSimulationPresenter(INewSimulationView* view, QObject* parent)
     : QObject(parent),
@@ -23,16 +24,6 @@ NewSimulationPresenter::NewSimulationPresenter(INewSimulationView* view, QObject
     // Initialize Timers
     connect(preview_timer_, &QTimer::timeout, this, &NewSimulationPresenter::updatePreview);
     connect(progress_timer_, &QTimer::timeout, this, &NewSimulationPresenter::updateProgress);
-
-    // Initialize file parse worker
-    setupFileParseWorker();
-}
-
-NewSimulationPresenter::~NewSimulationPresenter() {
-    if (file_parse_thread_->isRunning()) {
-        file_parse_thread_->quit();
-        file_parse_thread_->wait();
-    }
 }
 
 void NewSimulationPresenter::updatePreview() { view_->updatePreview(); }
@@ -50,11 +41,19 @@ void NewSimulationPresenter::updateProgress() {
 }
 
 void NewSimulationPresenter::checkInitialSystemFile() {
-    emit requestParseInitialSystem(view_->getInitialSystemPath());
+    app::concurrency::run(
+        this,
+        &FileParseLogic::parseInitialSystem,
+        [this](const auto& result) { this->onInitialSystemParsed(result); },
+        view_->getInitialSystemPath().toStdString());
 }
 
 void NewSimulationPresenter::checkSettingsFile() {
-    emit requestParseSettings(view_->getSettingsPath());
+    app::concurrency::run(
+        this,
+        &FileParseLogic::parseSettings,
+        [this](const auto& result) { this->onSettingsParsed(result); },
+        view_->getSettingsPath().toStdString());
 }
 
 void NewSimulationPresenter::onSettingsParsed(const std::optional<Settings>& settings) {
@@ -125,31 +124,4 @@ void NewSimulationPresenter::openSimulationWindow() {
     } else {
         ENKAS_LOG_ERROR("Simulation manager is not initialized, cannot open simulation window.");
     }
-}
-
-void NewSimulationPresenter::setupFileParseWorker() {
-    file_parse_worker_ = new FileParseWorker();
-    file_parse_thread_ = new QThread(this);
-    file_parse_worker_->moveToThread(file_parse_thread_);
-    connect(file_parse_thread_, &QThread::finished, file_parse_worker_, &QObject::deleteLater);
-
-    connect(this,
-            &NewSimulationPresenter::requestParseSettings,
-            file_parse_worker_,
-            &FileParseWorker::parseSettings);
-    connect(this,
-            &NewSimulationPresenter::requestParseInitialSystem,
-            file_parse_worker_,
-            &FileParseWorker::parseInitialSystem);
-
-    connect(file_parse_worker_,
-            &FileParseWorker::settingsParsed,
-            this,
-            &NewSimulationPresenter::onSettingsParsed);
-    connect(file_parse_worker_,
-            &FileParseWorker::initialSystemParsed,
-            this,
-            &NewSimulationPresenter::onInitialSystemParsed);
-
-    file_parse_thread_->start();
 }

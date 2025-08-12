@@ -5,13 +5,14 @@
 #include <QTimer>
 #include <optional>
 
+#include "core/concurrency/run.h"
 #include "core/dataflow/snapshot.h"
 #include "core/files/file_constants.h"
+#include "core/files/file_parse_logic.h"
 #include "enkas/data/system.h"
 #include "enkas/logging/logger.h"
 #include "managers/simulation_player.h"
 #include "views/load_simulation_tab/i_load_simulation_view.h"
-#include "workers/file_parse_worker.h"
 
 LoadSimulationPresenter::LoadSimulationPresenter(ILoadSimulationView* view, QObject* parent)
     : QObject(parent), view_(view), preview_timer_(new QTimer(this)) {
@@ -21,19 +22,9 @@ LoadSimulationPresenter::LoadSimulationPresenter(ILoadSimulationView* view, QObj
             &QTimer::timeout,
             this,
             &LoadSimulationPresenter::updateInitialSystemPreview);
-
-    // Initialize file parse worker
-    setupFileParseWorker();
 }
 
-LoadSimulationPresenter::~LoadSimulationPresenter() {
-    endSimulationPlayback();
-
-    if (file_parse_thread_) {
-        file_parse_thread_->quit();
-        file_parse_thread_->wait();
-    }
-}
+LoadSimulationPresenter::~LoadSimulationPresenter() { endSimulationPlayback(); }
 
 void LoadSimulationPresenter::checkFiles() {
     const auto& file_paths = view_->getFilesToCheck();
@@ -43,14 +34,39 @@ void LoadSimulationPresenter::checkFiles() {
 
     for (const auto& file_path : file_paths) {
         if (file_path.endsWith(file_names::settings)) {
-            emit requestParseSettings(file_path);
+            app::concurrency::run(
+                this,
+                &FileParseLogic::parseSettings,
+                [this](const auto& result) { this->onSettingsParsed(result); },
+                file_path.toStdString());
+
         } else if (file_path.endsWith(file_names::system)) {
             system_data_.file_path = file_path.toStdString();
-            emit requestParseInitialSystem(file_path);
-            emit requestCountSnapshots(file_path);
-            emit requestRetrieveSimulationDuration(file_path);
+
+            app::concurrency::run(
+                this,
+                &FileParseLogic::parseInitialSystem,
+                [this](const auto& result) { this->onInitialSystemParsed(result); },
+                file_path.toStdString());
+
+            app::concurrency::run(
+                this,
+                &FileParseLogic::countSnapshots,
+                [this](const auto& result) { this->onSnapshotsCounted(result); },
+                file_path.toStdString());
+
+            app::concurrency::run(
+                this,
+                &FileParseLogic::retrieveSimulationDuration,
+                [this](const auto& result) { this->onSimulationDurationRetrieved(result); },
+                file_path.toStdString());
+
         } else if (file_path.endsWith(file_names::diagnostics)) {
-            emit requestParseDiagnosticsSeries(file_path);
+            app::concurrency::run(
+                this,
+                &FileParseLogic::parseDiagnosticsSeries,
+                [this](const auto& result) { this->onDiagnosticsSeriesParsed(result); },
+                file_path.toStdString());
         }
     }
 }
@@ -77,11 +93,11 @@ void LoadSimulationPresenter::onDiagnosticsSeriesParsed(
     }
 }
 
-void LoadSimulationPresenter::onSnapshotsCounted(std::optional<int> count) {
+void LoadSimulationPresenter::onSnapshotsCounted(const std::optional<int>& count) {
     if (count) system_data_.total_snapshots_count = *count;
 }
 
-void LoadSimulationPresenter::onSimulationDurationRetrieved(std::optional<double> duration) {
+void LoadSimulationPresenter::onSimulationDurationRetrieved(const std::optional<double>& duration) {
     if (duration) system_data_.simulation_duration = *duration;
 }
 
@@ -114,55 +130,4 @@ void LoadSimulationPresenter::endSimulationPlayback() {
     }
 
     active();  // Restart the preview timer
-}
-
-void LoadSimulationPresenter::setupFileParseWorker() {
-    file_parse_worker_ = new FileParseWorker();
-    file_parse_thread_ = new QThread(this);
-    file_parse_worker_->moveToThread(file_parse_thread_);
-    connect(file_parse_thread_, &QThread::finished, file_parse_worker_, &QObject::deleteLater);
-
-    connect(this,
-            &LoadSimulationPresenter::requestParseSettings,
-            file_parse_worker_,
-            &FileParseWorker::parseSettings);
-    connect(this,
-            &LoadSimulationPresenter::requestParseDiagnosticsSeries,
-            file_parse_worker_,
-            &FileParseWorker::parseDiagnosticsSeries);
-    connect(this,
-            &LoadSimulationPresenter::requestParseInitialSystem,
-            file_parse_worker_,
-            &FileParseWorker::parseInitialSystem);
-    connect(this,
-            &LoadSimulationPresenter::requestCountSnapshots,
-            file_parse_worker_,
-            &FileParseWorker::countSnapshots);
-    connect(this,
-            &LoadSimulationPresenter::requestRetrieveSimulationDuration,
-            file_parse_worker_,
-            &FileParseWorker::retrieveSimulationDuration);
-
-    connect(file_parse_worker_,
-            &FileParseWorker::settingsParsed,
-            this,
-            &LoadSimulationPresenter::onSettingsParsed);
-    connect(file_parse_worker_,
-            &FileParseWorker::diagnosticsSeriesParsed,
-            this,
-            &LoadSimulationPresenter::onDiagnosticsSeriesParsed);
-    connect(file_parse_worker_,
-            &FileParseWorker::initialSystemParsed,
-            this,
-            &LoadSimulationPresenter::onInitialSystemParsed);
-    connect(file_parse_worker_,
-            &FileParseWorker::snapshotsCounted,
-            this,
-            &LoadSimulationPresenter::onSnapshotsCounted);
-    connect(file_parse_worker_,
-            &FileParseWorker::simulationDurationRetrieved,
-            this,
-            &LoadSimulationPresenter::onSimulationDurationRetrieved);
-
-    file_parse_thread_->start();
 }

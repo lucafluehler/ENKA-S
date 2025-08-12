@@ -11,7 +11,6 @@
 
 class QThread;
 class INewSimulationView;
-class FileParseWorker;
 class SimulationRunner;
 
 /**
@@ -27,20 +26,7 @@ public:
      * @param parent The parent QObject, defaults to nullptr.
      */
     explicit NewSimulationPresenter(INewSimulationView* view, QObject* parent = nullptr);
-    ~NewSimulationPresenter();
-
-signals:
-    /**
-     * @brief Requests to parse settings from a file.
-     * @param file_path The path to the settings file.
-     */
-    void requestParseSettings(const QString& file_path);
-
-    /**
-     * @brief Requests to parse the initial system.
-     * @param file_path The path to the initial system file.
-     */
-    void requestParseInitialSystem(const QString& file_path);
+    ~NewSimulationPresenter() override = default;
 
 public slots:
     /**
@@ -97,9 +83,6 @@ private:
 
     QTimer* preview_timer_ = nullptr;
     QTimer* progress_timer_ = nullptr;
-
-    FileParseWorker* file_parse_worker_ = nullptr;
-    QThread* file_parse_thread_ = nullptr;
 
     SimulationRunner* simulation_runner_ = nullptr;
 };

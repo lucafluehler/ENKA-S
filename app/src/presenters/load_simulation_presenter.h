@@ -12,7 +12,6 @@
 
 class QThread;
 class ILoadSimulationView;
-class FileParseWorker;
 
 /**
  * @brief LoadSimulationPresenter handles the logic for loading and parsing simulation files.
@@ -28,13 +27,6 @@ public:
      */
     explicit LoadSimulationPresenter(ILoadSimulationView* view, QObject* parent = nullptr);
     ~LoadSimulationPresenter();
-
-signals:
-    void requestParseSettings(const QString& file_path);
-    void requestParseDiagnosticsSeries(const QString& file_path);
-    void requestParseInitialSystem(const QString& file_path);
-    void requestCountSnapshots(const QString& file_path);
-    void requestRetrieveSimulationDuration(const QString& file_path);
 
 public slots:
     /**
@@ -72,18 +64,13 @@ private slots:
     void onSettingsParsed(const std::optional<Settings>& settings);
     void onInitialSystemParsed(const std::optional<enkas::data::System>& snapshot);
     void onDiagnosticsSeriesParsed(const std::optional<DiagnosticsSeries>& series);
-    void onSnapshotsCounted(std::optional<int> count);
-    void onSimulationDurationRetrieved(std::optional<double> duration);
+    void onSnapshotsCounted(const std::optional<int>& count);
+    void onSimulationDurationRetrieved(const std::optional<double>& duration);
 
 private:
-    void setupFileParseWorker();
-
     ILoadSimulationView* view_ = nullptr;
 
     QTimer* preview_timer_ = nullptr;
-
-    FileParseWorker* file_parse_worker_ = nullptr;
-    QThread* file_parse_thread_ = nullptr;
 
     SimulationPlayer::SystemData system_data_;
     SimulationPlayer::DiagnosticsData diagnostics_data_;
