@@ -8,6 +8,8 @@
 
 class IFileParseLogic {
 public:
+    virtual ~IFileParseLogic() = default;
+
     /**
      * @brief Reads the settings from a CSV file.
      * @param file_path The path to the CSV file containing settings data.
