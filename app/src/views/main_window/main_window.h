@@ -2,8 +2,6 @@
 
 #include <QMainWindow>
 
-#include "core/concurrency/concurrent_runner.h"
-#include "core/files/file_parser.h"
 #include "i_main_window_view.h"
 
 QT_BEGIN_NAMESPACE
@@ -12,8 +10,9 @@ class MainWindow;
 }
 QT_END_NAMESPACE
 
-class LoadSimulationPresenter;
-class NewSimulationPresenter;
+class LoadSimulationTab;
+class NewSimulationTab;
+class LogsTab;
 
 /**
  * @brief MainWindow is the main application window.
@@ -33,12 +32,15 @@ public:
 
     void updateHomeScreen() override;
 
+    int getCurrentTabIndex() const;
+
+    LoadSimulationTab *getLoadSimulationTab() const;
+    NewSimulationTab *getNewSimulationTab() const;
+    LogsTab *getLogsTab() const;
+
+signals:
+    void tabSwitched();
+
 private:
     Ui::MainWindow *ui_;
-
-    LoadSimulationPresenter *load_simulation_presenter_ = nullptr;
-    NewSimulationPresenter *new_simulation_presenter_ = nullptr;
-
-    std::unique_ptr<ConcurrentRunner> concurrent_runner_ = std::make_unique<ConcurrentRunner>();
-    std::unique_ptr<FileParser> file_parser_ = std::make_unique<FileParser>();
 };

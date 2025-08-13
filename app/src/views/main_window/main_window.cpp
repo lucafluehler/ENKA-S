@@ -1,71 +1,27 @@
 #include "main_window.h"
 
-#include <QPushButton>
-
 #include "forms/main_window/ui_main_window.h"
-#include "presenters/load_simulation_presenter.h"
-#include "presenters/new_simulation_presenter.h"
 #include "views/load_simulation_tab/load_simulation_tab.h"
+#include "views/logs_tab/logs_tab.h"
 #include "views/new_simulation_tab/new_simulation_tab.h"
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui_(new Ui::MainWindow) {
     ui_->setupUi(this);
 
-    // Ensure home screen is shown first
+    // Setup tab widget
     ui_->tabWidget->setCurrentIndex(0);
-
-    // Initialize the load simulation tab
-    load_simulation_presenter_ = new LoadSimulationPresenter(
-        ui_->tabLoadSimulation, file_parser_.get(), concurrent_runner_.get(), this);
-    connect(ui_->tabLoadSimulation,
-            &LoadSimulationTab::requestFilesCheck,
-            load_simulation_presenter_,
-            &LoadSimulationPresenter::checkFiles);
-    connect(ui_->tabLoadSimulation,
-            &LoadSimulationTab::playSimulation,
-            load_simulation_presenter_,
-            &LoadSimulationPresenter::playSimulation);
-
-    connect(ui_->tabWidget, &QTabWidget::currentChanged, this, [this](int index) {
-        QWidget* current = ui_->tabWidget->widget(index);
-        if (current == ui_->tabLoadSimulation) {
-            load_simulation_presenter_->active();
-            new_simulation_presenter_->inactive();
-        } else if (current == ui_->tabNewSimulation) {
-            load_simulation_presenter_->inactive();
-            new_simulation_presenter_->active();
-        } else {
-            load_simulation_presenter_->inactive();
-            new_simulation_presenter_->inactive();
-        }
-    });
-
-    // Initialize the new simulation tab
-    new_simulation_presenter_ = new NewSimulationPresenter(
-        ui_->tabNewSimulation, file_parser_.get(), concurrent_runner_.get(), this);
-    connect(ui_->tabNewSimulation,
-            &NewSimulationTab::checkInitialSystemFile,
-            new_simulation_presenter_,
-            &NewSimulationPresenter::checkInitialSystemFile);
-    connect(ui_->tabNewSimulation,
-            &NewSimulationTab::checkSettingsFile,
-            new_simulation_presenter_,
-            &NewSimulationPresenter::checkSettingsFile);
-    connect(ui_->tabNewSimulation,
-            &NewSimulationTab::requestSimulationStart,
-            new_simulation_presenter_,
-            &NewSimulationPresenter::startSimulation);
-    connect(ui_->tabNewSimulation,
-            &NewSimulationTab::requestSimulationAbort,
-            new_simulation_presenter_,
-            &NewSimulationPresenter::abortSimulation);
-    connect(ui_->tabNewSimulation,
-            &NewSimulationTab::requestOpenSimulationWindow,
-            new_simulation_presenter_,
-            &NewSimulationPresenter::openSimulationWindow);
+    connect(ui_->tabWidget, &QTabWidget::currentChanged, this, &MainWindow::tabSwitched);
 
     ui_->oglHomeScreen->initializeHomeScreen();
 }
+
+int MainWindow::getCurrentTabIndex() const { return ui_->tabWidget->currentIndex(); }
+
+LoadSimulationTab* MainWindow::getLoadSimulationTab() const { return ui_->tabLoadSimulation; }
+
+NewSimulationTab* MainWindow::getNewSimulationTab() const { return ui_->tabNewSimulation; }
+
+LogsTab* MainWindow::getLogsTab() const { return ui_->tabLogs; }
 
 void MainWindow::updateHomeScreen() {
     if (ui_->tabWidget->currentIndex() == 0) {
