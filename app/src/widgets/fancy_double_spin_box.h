@@ -17,7 +17,6 @@ protected:
     QString textFromValue(double value) const override;
 
 private:
-    QRegularExpression trailingZeros;
-    QRegularExpression trailingDot;
-    QRegularExpression thousandsSeperators;
+    QRegularExpression trailing_zeros;
+    QRegularExpression trailing_dot;
 };
