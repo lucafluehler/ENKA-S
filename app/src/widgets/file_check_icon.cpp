@@ -2,8 +2,6 @@
 
 #include <QMovie>
 
-FileCheckIcon::FileCheckIcon(QWidget *parent) : QLabel(parent) { setMode(Mode::NotFound); }
-
 void FileCheckIcon::setMode(Mode new_mode) {
     mode = new_mode;
     updateIcon();

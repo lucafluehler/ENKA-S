@@ -9,7 +9,8 @@ class FileCheckIcon : public QLabel {
     Q_OBJECT
 
 public:
-    FileCheckIcon(QWidget *parent = nullptr);
+    explicit FileCheckIcon(QWidget *parent = nullptr) : QLabel(parent) {}
+    ~FileCheckIcon() override = default;
 
     enum class Mode { NotFound, Loading, Checked, Corrupted };
 
@@ -19,5 +20,5 @@ public:
 private:
     void updateIcon();
 
-    Mode mode;
+    Mode mode = Mode::NotFound;
 };
