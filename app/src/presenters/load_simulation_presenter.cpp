@@ -128,10 +128,9 @@ void LoadSimulationPresenter::playSimulation() {
 
     inactive();  // Stop the preview timer
 
-    simulation_player_ = simulation_player_factory_->create().release();
-    simulation_player_->setParent(this);
+    simulation_player_ = simulation_player_factory_->create();
 
-    connect(simulation_player_,
+    connect(simulation_player_.get(),
             &ISimulationPlayer::windowClosed,
             this,
             &LoadSimulationPresenter::endSimulationPlayback);
@@ -140,10 +139,6 @@ void LoadSimulationPresenter::playSimulation() {
 }
 
 void LoadSimulationPresenter::endSimulationPlayback() {
-    if (simulation_player_) {
-        simulation_player_->deleteLater();
-        simulation_player_ = nullptr;
-    }
-
+    simulation_player_.reset();
     active();  // Restart the preview timer
 }

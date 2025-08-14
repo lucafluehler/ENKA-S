@@ -90,10 +90,9 @@ void NewSimulationPresenter::startSimulation() {
     auto settings = view_->fetchSettings();
 
     // Initialize Simulation Manager
-    simulation_runner_ = simulation_runner_factory_->create(settings).release();
-    simulation_runner_->setParent(this);
+    simulation_runner_ = simulation_runner_factory_->create(settings);
 
-    connect(simulation_runner_,
+    connect(simulation_runner_.get(),
             &ISimulationRunner::initializationCompleted,
             this,
             &NewSimulationPresenter::onInitializationCompleted);
@@ -119,8 +118,7 @@ void NewSimulationPresenter::abortSimulation() {
 
     ENKAS_LOG_INFO("Aborting simulation...");
 
-    simulation_runner_->deleteLater();
-    simulation_runner_ = nullptr;
+    simulation_runner_.reset();
 
     // Restart preview timer to resume preview animations
     preview_timer_->start();

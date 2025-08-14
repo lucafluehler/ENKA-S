@@ -89,5 +89,5 @@ private:
     ITaskRunner* runner_;
 
     std::unique_ptr<ISimulationPlayerFactory> simulation_player_factory_;
-    ISimulationPlayer* simulation_player_ = nullptr;
+    std::unique_ptr<ISimulationPlayer> simulation_player_;
 };
