@@ -5,7 +5,7 @@
 #include "views/main_window/main_window.h"
 
 class ITaskRunner;
-class IFileParseLogic;
+class IFileParser;
 class ISimulationRunnerFactory;
 class ISimulationPlayerFactory;
 class MainWindowPresenter;
@@ -27,7 +27,7 @@ private:
     void connectSignals();
 
     std::unique_ptr<ITaskRunner> concurrent_runner_;
-    std::unique_ptr<IFileParseLogic> file_parser_;
+    std::unique_ptr<IFileParser> file_parser_;
 
     std::unique_ptr<ISimulationRunnerFactory> simulation_runner_factory_;
     std::unique_ptr<ISimulationPlayerFactory> simulation_player_factory_;

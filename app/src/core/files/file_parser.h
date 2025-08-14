@@ -1,8 +1,8 @@
 #pragma once
 
-#include "core/files/i_file_parse_logic.h"
+#include "core/files/i_file_parser.h"
 
-class FileParser : public IFileParseLogic {
+class FileParser : public IFileParser {
 public:
     /**
      * @brief Reads the settings from a CSV file.

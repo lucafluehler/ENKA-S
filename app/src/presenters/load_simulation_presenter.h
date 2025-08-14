@@ -9,7 +9,7 @@
 
 #include "core/concurrency/i_task_runner.h"
 #include "core/dataflow/snapshot.h"
-#include "core/files/i_file_parse_logic.h"
+#include "core/files/i_file_parser.h"
 #include "factories/i_simulation_player_factory.h"
 #include "managers/i_simulation_player.h"
 #include "views/load_simulation_tab/i_load_simulation_view.h"
@@ -32,7 +32,7 @@ public:
      * @param parent The parent QObject.
      */
     explicit LoadSimulationPresenter(ILoadSimulationView* view,
-                                     IFileParseLogic* parser,
+                                     IFileParser* parser,
                                      ITaskRunner* runner,
                                      std::unique_ptr<ISimulationPlayerFactory> factory,
                                      QObject* parent = nullptr);
@@ -85,7 +85,7 @@ private:
     ISimulationPlayer::SystemData system_data_;
     ISimulationPlayer::DiagnosticsData diagnostics_data_;
 
-    IFileParseLogic* parser_;
+    IFileParser* parser_;
     ITaskRunner* runner_;
 
     std::unique_ptr<ISimulationPlayerFactory> simulation_player_factory_;

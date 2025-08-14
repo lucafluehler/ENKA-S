@@ -2,9 +2,9 @@
 
 #include <gmock/gmock.h>
 
-#include "core/files/i_file_parse_logic.h"
+#include "core/files/i_file_parser.h"
 
-class MockFileParser : public IFileParseLogic {
+class MockFileParser : public IFileParser {
 public:
     MOCK_METHOD(std::optional<Settings>, parseSettings, (const std::filesystem::path&), (override));
     MOCK_METHOD(std::optional<DiagnosticsSeries>,

@@ -8,7 +8,7 @@
 #include <optional>
 
 #include "core/concurrency/i_task_runner.h"
-#include "core/files/i_file_parse_logic.h"
+#include "core/files/i_file_parser.h"
 #include "core/settings/settings.h"
 #include "factories/i_simulation_runner_factory.h"
 #include "views/new_simulation_tab/i_new_simulation_view.h"
@@ -33,7 +33,7 @@ public:
      * @param parent The parent QObject, defaults to nullptr.
      */
     explicit NewSimulationPresenter(INewSimulationView* view,
-                                    IFileParseLogic* parser,
+                                    IFileParser* parser,
                                     ITaskRunner* runner,
                                     std::unique_ptr<ISimulationRunnerFactory> factory,
                                     QObject* parent = nullptr);
@@ -96,7 +96,7 @@ private:
     QTimer* progress_timer_ = nullptr;
 
     ITaskRunner* runner_ = nullptr;
-    IFileParseLogic* parser_ = nullptr;
+    IFileParser* parser_ = nullptr;
 
     std::unique_ptr<ISimulationRunnerFactory> simulation_runner_factory_;
     std::unique_ptr<ISimulationRunner> simulation_runner_;

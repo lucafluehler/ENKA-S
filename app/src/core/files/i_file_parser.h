@@ -6,9 +6,9 @@
 #include "core/dataflow/snapshot.h"
 #include "core/settings/settings.h"
 
-class IFileParseLogic {
+class IFileParser {
 public:
-    virtual ~IFileParseLogic() = default;
+    virtual ~IFileParser() = default;
 
     /**
      * @brief Reads the settings from a CSV file.

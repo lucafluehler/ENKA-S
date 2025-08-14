@@ -10,14 +10,14 @@
 #include <optional>
 
 #include "core/concurrency/i_task_runner.h"
-#include "core/files/i_file_parse_logic.h"
+#include "core/files/i_file_parser.h"
 #include "core/settings/settings.h"
 #include "factories/i_simulation_runner_factory.h"
 #include "managers/i_simulation_runner.h"
 #include "views/new_simulation_tab/i_new_simulation_view.h"
 
 NewSimulationPresenter::NewSimulationPresenter(INewSimulationView* view,
-                                               IFileParseLogic* parser,
+                                               IFileParser* parser,
                                                ITaskRunner* runner,
                                                std::unique_ptr<ISimulationRunnerFactory> factory,
                                                QObject* parent)
