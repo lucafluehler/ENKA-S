@@ -4,11 +4,13 @@
 
 #include <QObject>
 #include <QTimer>
+#include <memory>
 #include <optional>
 
 #include "core/concurrency/i_task_runner.h"
 #include "core/files/i_file_parse_logic.h"
 #include "core/settings/settings.h"
+#include "factories/i_simulation_runner_factory.h"
 #include "views/new_simulation_tab/i_new_simulation_view.h"
 
 class QThread;
@@ -27,11 +29,13 @@ public:
      * @param view The new simulation view to be managed.
      * @param parser The file parser logic to be used for parsing files.
      * @param runner The task runner to be used for running tasks.
+     * @param factory The factory for creating simulation runners.
      * @param parent The parent QObject, defaults to nullptr.
      */
     explicit NewSimulationPresenter(INewSimulationView* view,
                                     IFileParseLogic* parser,
                                     ITaskRunner* runner,
+                                    std::unique_ptr<ISimulationRunnerFactory> factory,
                                     QObject* parent = nullptr);
     ~NewSimulationPresenter() override = default;
 
@@ -94,5 +98,6 @@ private:
     ITaskRunner* runner_ = nullptr;
     IFileParseLogic* parser_ = nullptr;
 
+    std::unique_ptr<ISimulationRunnerFactory> simulation_runner_factory_;
     SimulationRunner* simulation_runner_ = nullptr;
 };

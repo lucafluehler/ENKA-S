@@ -12,22 +12,26 @@
 #include "core/concurrency/i_task_runner.h"
 #include "core/files/i_file_parse_logic.h"
 #include "core/settings/settings.h"
+#include "factories/i_simulation_runner_factory.h"
 #include "managers/simulation_runner.h"
 #include "views/new_simulation_tab/i_new_simulation_view.h"
 
 NewSimulationPresenter::NewSimulationPresenter(INewSimulationView* view,
                                                IFileParseLogic* parser,
                                                ITaskRunner* runner,
+                                               std::unique_ptr<ISimulationRunnerFactory> factory,
                                                QObject* parent)
     : QObject(parent),
       view_(view),
       parser_(parser),
       runner_(runner),
+      simulation_runner_factory_(std::move(factory)),
       preview_timer_(new QTimer(this)),
       progress_timer_(new QTimer(this)) {
     Q_ASSERT(view_ != nullptr);
     Q_ASSERT(parser_ != nullptr);
     Q_ASSERT(runner_ != nullptr);
+    Q_ASSERT(simulation_runner_factory_ != nullptr);
 
     // Initialize Timers
     connect(preview_timer_, &QTimer::timeout, this, &NewSimulationPresenter::updatePreview);
@@ -86,7 +90,8 @@ void NewSimulationPresenter::startSimulation() {
     auto settings = view_->fetchSettings();
 
     // Initialize Simulation Manager
-    simulation_runner_ = new SimulationRunner(settings, this);
+    simulation_runner_ = simulation_runner_factory_->create(settings).release();
+    simulation_runner_->setParent(this);
 
     connect(simulation_runner_,
             &SimulationRunner::initializationCompleted,

@@ -4,16 +4,19 @@
 
 #include <QObject>
 #include <QTimer>
+#include <memory>
 #include <optional>
 
 #include "core/concurrency/i_task_runner.h"
 #include "core/dataflow/snapshot.h"
 #include "core/files/i_file_parse_logic.h"
+#include "factories/i_simulation_player_factory.h"
 #include "managers/simulation_player.h"
 #include "views/load_simulation_tab/i_load_simulation_view.h"
 
 class QThread;
 class ILoadSimulationView;
+class SimulationPlayer;
 
 /**
  * @brief LoadSimulationPresenter handles the logic for loading and parsing simulation files.
@@ -32,6 +35,7 @@ public:
     explicit LoadSimulationPresenter(ILoadSimulationView* view,
                                      IFileParseLogic* parser,
                                      ITaskRunner* runner,
+                                     std::unique_ptr<ISimulationPlayerFactory> factory,
                                      QObject* parent = nullptr);
     ~LoadSimulationPresenter();
 
@@ -85,5 +89,6 @@ private:
     IFileParseLogic* parser_;
     ITaskRunner* runner_;
 
+    std::unique_ptr<ISimulationPlayerFactory> simulation_player_factory_;
     SimulationPlayer* simulation_player_ = nullptr;
 };

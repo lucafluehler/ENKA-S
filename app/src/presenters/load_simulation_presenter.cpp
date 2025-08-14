@@ -11,21 +11,25 @@
 #include "core/dataflow/snapshot.h"
 #include "core/files/file_constants.h"
 #include "core/files/i_file_parse_logic.h"
+#include "factories/i_simulation_player_factory.h"
 #include "managers/simulation_player.h"
 #include "views/load_simulation_tab/i_load_simulation_view.h"
 
 LoadSimulationPresenter::LoadSimulationPresenter(ILoadSimulationView* view,
                                                  IFileParseLogic* parser,
                                                  ITaskRunner* runner,
+                                                 std::unique_ptr<ISimulationPlayerFactory> factory,
                                                  QObject* parent)
     : QObject(parent),
       view_(view),
       parser_(parser),
       runner_(runner),
+      simulation_player_factory_(std::move(factory)),
       preview_timer_(new QTimer(this)) {
     Q_ASSERT(view_ != nullptr);
     Q_ASSERT(parser_ != nullptr);
     Q_ASSERT(runner_ != nullptr);
+    Q_ASSERT(simulation_player_factory_ != nullptr);
 
     // Set up timer for preview updates
     connect(preview_timer_,
@@ -124,7 +128,9 @@ void LoadSimulationPresenter::playSimulation() {
 
     inactive();  // Stop the preview timer
 
-    simulation_player_ = new SimulationPlayer();
+    simulation_player_ = simulation_player_factory_->create().release();
+    simulation_player_->setParent(this);
+
     connect(simulation_player_,
             &SimulationPlayer::windowClosed,
             this,

@@ -6,6 +6,8 @@
 
 class ITaskRunner;
 class IFileParseLogic;
+class ISimulationRunnerFactory;
+class ISimulationPlayerFactory;
 class MainWindowPresenter;
 class LoadSimulationPresenter;
 class NewSimulationPresenter;
@@ -19,12 +21,16 @@ public:
 
 private:
     void setupServices();
+    void setupFactories();
     void setupPresenters();
     void setupLogging();
     void connectSignals();
 
     std::unique_ptr<ITaskRunner> concurrent_runner_;
     std::unique_ptr<IFileParseLogic> file_parser_;
+
+    std::unique_ptr<ISimulationRunnerFactory> simulation_runner_factory_;
+    std::unique_ptr<ISimulationPlayerFactory> simulation_player_factory_;
 
     MainWindow main_window_;
 

@@ -7,6 +7,8 @@
 
 #include "core/concurrency/concurrent_runner.h"
 #include "core/files/file_parser.h"
+#include "factories/simulation_player_factory.h"
+#include "factories/simulation_runner_factory.h"
 #include "logging/qt_log_sink.h"
 #include "presenters/load_simulation_presenter.h"
 #include "presenters/main_window_presenter.h"
@@ -21,6 +23,7 @@ AppInitializer::~AppInitializer() = default;
 
 void AppInitializer::run() {
     setupServices();
+    setupFactories();
     setupPresenters();
     setupLogging();
     connectSignals();
@@ -34,6 +37,11 @@ void AppInitializer::setupServices() {
     file_parser_ = std::make_unique<FileParser>();
 }
 
+void AppInitializer::setupFactories() {
+    simulation_runner_factory_ = std::make_unique<SimulationRunnerFactory>();
+    simulation_player_factory_ = std::make_unique<SimulationPlayerFactory>();
+}
+
 void AppInitializer::setupPresenters() {
     main_window_presenter_ = std::make_unique<MainWindowPresenter>(&main_window_, &main_window_);
 
@@ -41,12 +49,14 @@ void AppInitializer::setupPresenters() {
         std::make_unique<LoadSimulationPresenter>(main_window_.getLoadSimulationTab(),
                                                   file_parser_.get(),
                                                   concurrent_runner_.get(),
+                                                  std::move(simulation_player_factory_),
                                                   &main_window_);
 
     new_simulation_presenter_ =
         std::make_unique<NewSimulationPresenter>(main_window_.getNewSimulationTab(),
                                                  file_parser_.get(),
                                                  concurrent_runner_.get(),
+                                                 std::move(simulation_runner_factory_),
                                                  &main_window_);
 }
 
