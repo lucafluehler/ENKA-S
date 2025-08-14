@@ -38,6 +38,11 @@ struct System {
         velocities.resize(n);
         masses.resize(n);
     }
+
+    bool operator==(const System& other) const {
+        return positions == other.positions && velocities == other.velocities &&
+               masses == other.masses;
+    }
 };
 
 }  // namespace enkas::data

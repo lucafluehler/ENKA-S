@@ -110,6 +110,8 @@ public:
      */
     bool save(const std::filesystem::path& file_path) const;
 
+    bool operator==(const Settings& other) const { return settings_ == other.settings_; }
+
 private:
     Settings(std::initializer_list<std::pair<SettingKey, SettingValue>> items);
     Settings(const std::vector<std::pair<SettingKey, SettingValue>>& items);
