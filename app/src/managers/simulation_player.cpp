@@ -13,10 +13,21 @@
 #include "views/replay_simulation_window/replay_simulation_window.h"
 #include "workers/system_buffer_worker.h"
 
+namespace {
+// --- Buffer Constants ---
+constexpr size_t kSystemRingBufferCapacity = 512;
+constexpr size_t kSystemRingBufferRetainCount = 8;
+
+// --- Refresh rates ---
+constexpr int kBufferUpdateIntervalMs = 200;
+constexpr int kDefaultStepsPerSecond = 30;
+}  // namespace
+
 SimulationPlayer::SimulationPlayer(QObject* parent)
     : ISimulationPlayer(parent),
       rendering_snapshot_(std::make_shared<std::atomic<SystemSnapshotPtr>>(SystemSnapshotPtr{})),
-      buffer_value_update_timer_(new QTimer(this)) {
+      buffer_value_update_timer_(new QTimer(this)),
+      step_delay_ms_(1000 / kDefaultStepsPerSecond) {
     connect(buffer_value_update_timer_, &QTimer::timeout, this, [this]() {
         if (system_ring_buffer_ && total_snapshots_count_ > 0) {
             const int buffer_size = system_ring_buffer_->size();
@@ -55,16 +66,15 @@ void SimulationPlayer::run(std::optional<ISimulationPlayer::SystemData> system_d
 
     if (has_system_data) {
         // Setup system buffer worker
-        constexpr size_t capacity = 512;
-        constexpr size_t retain_count = 8;
-        system_ring_buffer_ = std::make_shared<SystemRingBuffer>(capacity, retain_count);
+        system_ring_buffer_ = std::make_shared<SystemRingBuffer>(kSystemRingBufferCapacity,
+                                                                 kSystemRingBufferRetainCount);
         system_file_path_ = system_data->file_path;
         setupSystemBufferWorker();
 
-        // Update buffer value every 200 ms
+        // Update buffer value regularly
         total_snapshots_count_ = system_data->total_snapshots_count;
         simulation_window_->updateBufferValue(total_snapshots_count_);
-        buffer_value_update_timer_->start(200);
+        buffer_value_update_timer_->start(kBufferUpdateIntervalMs);
     }
 
     setupDataUpdateTimer();

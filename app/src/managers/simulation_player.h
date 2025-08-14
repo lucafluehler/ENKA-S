@@ -67,7 +67,7 @@ private:
 
     bool is_playing_ = false;
     std::shared_ptr<std::atomic<SystemSnapshotPtr>> rendering_snapshot_;
-    int step_delay_ms_ = 1000 / 30;  // 30 steps per second
+    int step_delay_ms_;
 
     std::shared_ptr<SystemRingBuffer> system_ring_buffer_ = nullptr;
     std::filesystem::path system_file_path_ = "";

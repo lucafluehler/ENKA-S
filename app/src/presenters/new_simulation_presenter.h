@@ -44,16 +44,13 @@ public slots:
      * @brief Called when the tab becomes active, starting the timer for updating the particle
      * rendering.
      */
-    void active() {
-        const int fps = 30;
-        preview_timer_->start(1000 / fps);
-    }
+    void active();
 
     /**
      * @brief Called when the tab becomes inactive, stopping the timer for updating the
      * particle rendering.
      */
-    void inactive() { preview_timer_->stop(); }
+    void inactive();
 
     /**
      * @brief Checks the initial system file and starts parsing it.

@@ -21,11 +21,30 @@
 
 #include "core/dataflow/snapshot.h"
 
+namespace {
+// --- OpenGL Settings ---
+constexpr int kOpenGlVersionMajor = 4;
+constexpr int kOpenGlVersionMinor = 1;
+constexpr int kMsaaSampleCount = 4;
+
+// --- Clip planes ---
+constexpr float kNearClipPlane = 0.1f;
+constexpr float kFarClipPlane = 1000.0f;
+
+// --- Mouse and Camera Settings ---
+constexpr double kMouseRotationSensitivity = 0.0006;
+constexpr double kCameraPanSpeedFactor = 0.02;
+constexpr double kBaseAnimationSpeed = 0.002;
+
+// --- Draw Settings ---
+constexpr float kCrosshairNdcSize = 0.04f;
+}  // namespace
+
 ParticleRenderer::ParticleRenderer(QWidget* parent) : QOpenGLWidget(parent) {
     QSurfaceFormat format;
-    format.setVersion(4, 1);
+    format.setVersion(kOpenGlVersionMajor, kOpenGlVersionMinor);
     format.setProfile(QSurfaceFormat::CoreProfile);
-    format.setSamples(4);
+    format.setSamples(kMsaaSampleCount);
     setFormat(format);
 
     setFocusPolicy(Qt::StrongFocus);
@@ -78,7 +97,7 @@ void ParticleRenderer::paintGL() {
 
     projection_matrix_.setToIdentity();
     projection_matrix_.perspective(
-        settings_.fov, static_cast<float>(width()) / height(), 0.1f, 1000.0f);
+        settings_.fov, static_cast<float>(width()) / height(), kNearClipPlane, kFarClipPlane);
 
     view_matrix_.setToIdentity();
     view_matrix_.translate(0.0f, 0.0f, -camera_.target_distance);
@@ -139,7 +158,7 @@ void ParticleRenderer::mouseMoveEvent(QMouseEvent* event) {
     int dx = event->pos().x() - last_mouse_pos_.x();
     int dy = event->pos().y() - last_mouse_pos_.y();
 
-    const float mu = 0.0006;  // Mouse sensitivity
+    const float mu = kMouseRotationSensitivity;
 
     if (event->buttons() & Qt::LeftButton) {
         camera_.rel_rotation = enkas::math::Rotor3D(1.0, 0.0, -dx * mu, dy * mu * 1.5).normalize() *
@@ -164,7 +183,7 @@ void ParticleRenderer::wheelEvent(QWheelEvent* event) {
 void ParticleRenderer::keyPressEvent(QKeyEvent* event) {
     enkas::math::Vector3D displacement;
 
-    const float distance = 0.02 * camera_.target_distance;
+    const float distance = kCameraPanSpeedFactor * camera_.target_distance;
 
     switch (event->key()) {
         case Qt::Key_W:
@@ -387,7 +406,7 @@ QPointF ParticleRenderer::projectWorldToNdc(const enkas::math::Vector3D& world_p
 }
 
 void ParticleRenderer::animation() {
-    double s = 0.002 * settings_.animation_speed;  // speed parameter
+    double s = kBaseAnimationSpeed * settings_.animation_speed;  // speed parameter
 
     enkas::math::Rotor3D animation;
 

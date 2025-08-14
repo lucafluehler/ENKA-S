@@ -5,6 +5,13 @@
 
 #include "forms/simulation_window/ui_simulation_window.h"
 
+namespace {
+// --- Constants for Steps Per Second Slider ---
+constexpr int kMinStepsPerSecond = 1;
+constexpr int kMaxStepsPerSecond = 1000;
+constexpr int kDefaultStepsPerSecond = 60;
+}  // namespace
+
 ReplaySimulationWindow::ReplaySimulationWindow(
     bool enable_playback_elements,
     std::shared_ptr<DiagnosticsSeries> diagnostics_series,
@@ -22,12 +29,9 @@ ReplaySimulationWindow::ReplaySimulationWindow(
     ui_->hslPlaybackBar->setEnabled(enable_playback_elements);
 
     // Setup the steps per second slider
-    const int min_sps = 1;
-    const int max_sps = 1000;
-    const int default_sps = 60;
-    ui_->hslStepsPerSecond->setRange(min_sps, max_sps);
-    ui_->hslStepsPerSecond->setValue(default_sps);
-    onStepsPerSecondChanged(default_sps);
+    ui_->hslStepsPerSecond->setRange(kMinStepsPerSecond, kMaxStepsPerSecond);
+    ui_->hslStepsPerSecond->setValue(kDefaultStepsPerSecond);
+    onStepsPerSecondChanged(kDefaultStepsPerSecond);
 
     // Load the chart data
     if (diagnostics_series) {

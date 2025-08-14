@@ -16,6 +16,12 @@
 #include "managers/i_simulation_runner.h"
 #include "views/new_simulation_tab/i_new_simulation_view.h"
 
+namespace {
+// --- Refresh Rates ---
+constexpr int kPreviewRefreshRateFps = 30;
+constexpr int kProgressRefreshRateFps = 60;
+}  // namespace
+
 NewSimulationPresenter::NewSimulationPresenter(INewSimulationView* view,
                                                IFileParser* parser,
                                                ITaskRunner* runner,
@@ -37,6 +43,10 @@ NewSimulationPresenter::NewSimulationPresenter(INewSimulationView* view,
     connect(preview_timer_, &QTimer::timeout, this, &NewSimulationPresenter::updatePreview);
     connect(progress_timer_, &QTimer::timeout, this, &NewSimulationPresenter::updateProgress);
 }
+
+void NewSimulationPresenter::active() { preview_timer_->start(1000 / kPreviewRefreshRateFps); }
+
+void NewSimulationPresenter::inactive() { preview_timer_->stop(); }
 
 void NewSimulationPresenter::updatePreview() { view_->updatePreview(); }
 
@@ -104,8 +114,7 @@ void NewSimulationPresenter::startSimulation() {
 }
 
 void NewSimulationPresenter::onInitializationCompleted() {
-    const int fps = 20;  // Frames per second
-    progress_timer_->start(1000 / fps);
+    progress_timer_->start(1000 / kProgressRefreshRateFps);
 
     view_->showSimulationProgress();
 }

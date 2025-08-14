@@ -17,10 +17,26 @@
 #include "core/dataflow/snapshot.h"
 #include "rendering/is_darkmode.h"
 
+namespace {
+// --- Widget Layout ---
+constexpr int kDefaultWidgetWidth = 600;
+constexpr int kMinimumChartHeight = 400;
+
+// --- Chart Visuals ---
+const QColor kChartLineColor(139, 0, 0);  // Dark red color for lines
+constexpr int kChartLineWidth = 2;
+constexpr int kChartTitleFontSize = 12;
+
+// --- Chart Behavior ---
+constexpr int kYAxisTickCount = 10;
+constexpr double kYAxisMarginFactor = 0.05;
+constexpr int kChartRefreshIntervalMs = 200;
+}  // namespace
+
 DiagnosticsWidget::DiagnosticsWidget(QWidget* parent) : QWidget(parent) { createBaseUi(); }
 
 void DiagnosticsWidget::createBaseUi() {
-    this->setFixedWidth(600);
+    this->setFixedWidth(kDefaultWidgetWidth);
 
     container_layout_ = new QVBoxLayout(this);
     container_layout_->setContentsMargins(0, 0, 0, 0);
@@ -72,8 +88,8 @@ void DiagnosticsWidget::setupCharts(std::vector<ChartDefinition> chart_definitio
 
         // Thicker, dark red line
         QPen pen;
-        pen.setColor(QColor(139, 0, 0));
-        pen.setWidth(2);
+        pen.setColor(kChartLineColor);
+        pen.setWidth(kChartLineWidth);
         series->setPen(pen);
 
         auto chart = new QChart();
@@ -84,7 +100,7 @@ void DiagnosticsWidget::setupCharts(std::vector<ChartDefinition> chart_definitio
         // Add big, bold title
         chart->setTitle(def.title);
         QFont titleFont;
-        titleFont.setPointSize(12);
+        titleFont.setPointSize(kChartTitleFontSize);
         titleFont.setBold(true);
         chart->setTitleFont(titleFont);
 
@@ -102,7 +118,7 @@ void DiagnosticsWidget::setupCharts(std::vector<ChartDefinition> chart_definitio
         auto axisY = new QValueAxis();
         axisY->setTitleText(def.title + " / " + def.unit);
         axisY->setLabelFormat("%.2e");
-        axisY->setTickCount(10);
+        axisY->setTickCount(kYAxisTickCount);
         chart->addAxis(axisY, Qt::AlignLeft);
         series->attachAxis(axisY);
 
@@ -110,7 +126,7 @@ void DiagnosticsWidget::setupCharts(std::vector<ChartDefinition> chart_definitio
         auto chartView = new QChartView(chart);
         chartView->setRenderHint(QPainter::Antialiasing);
         chartView->setRubberBand(QChartView::HorizontalRubberBand);
-        chartView->setMinimumHeight(400);
+        chartView->setMinimumHeight(kMinimumChartHeight);
 
         charts_layout_->addWidget(chartView);
 
@@ -205,7 +221,7 @@ void DiagnosticsWidget::fillCharts(const DiagnosticsSeries& series) {
         if (axisX && axisY) {
             axisX->setRange(0, std::max(max_time_, 1e-9));
 
-            const double y_margin = (max_values_[i] - min_values_[i]) * 0.05;
+            const double y_margin = (max_values_[i] - min_values_[i]) * kYAxisMarginFactor;
             double minY = min_values_[i] - y_margin;
             double maxY = max_values_[i] + y_margin;
 
@@ -255,7 +271,7 @@ void DiagnosticsWidget::refreshCharts() {
 
         axisX->setRange(0, std::max(max_time_, 1e-9));
 
-        const double y_margin = (max_values_[i] - min_values_[i]) * 0.05;
+        const double y_margin = (max_values_[i] - min_values_[i]) * kYAxisMarginFactor;
         axisY->setRange(min_values_[i] - y_margin, max_values_[i] + y_margin);
 
         if (qFuzzyCompare(axisY->min(), axisY->max())) {
@@ -263,5 +279,5 @@ void DiagnosticsWidget::refreshCharts() {
         }
     }
 
-    QTimer::singleShot(200, this, &DiagnosticsWidget::refreshCharts);
+    QTimer::singleShot(kChartRefreshIntervalMs, this, &DiagnosticsWidget::refreshCharts);
 }
