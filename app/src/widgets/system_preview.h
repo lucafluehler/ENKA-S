@@ -52,10 +52,7 @@ private:
     void setMethodSettings();
     void setHomeScreenSettings();
 
-    enkas::generation::UniformCubeSettings getUniformCubeSettings();
-    enkas::generation::NormalSphereSettings getNormalSphereSettings();
-    enkas::generation::UniformSphereSettings getUniformSphereSettings();
-    enkas::generation::PlummerSphereSettings getPlummerSphereSettings();
-    enkas::generation::SpiralGalaxySettings getSpiralGalaxySettings();
-    enkas::generation::CollisionModelSettings getCollisionModelSettings();
+    using SettingsFactoryFunc = std::function<enkas::generation::Settings()>;
+
+    std::map<GenerationMethod, SettingsFactoryFunc> settings_factories_;
 };
