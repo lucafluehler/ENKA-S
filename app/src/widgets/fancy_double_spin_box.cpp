@@ -17,11 +17,5 @@ QString FancyDoubleSpinBox::textFromValue(double value) const {
     QString text = QString::number(value, 'f', decimals());
     text.remove(trailingZeros);
     text.remove(trailingDot);
-    //    text.replace(thousandsDelimiter, "\\1'");
-
-    //    QLocale locale(QLocale::German);
-    //    text = locale.toString(text.toDouble());
-    //    text.replace(locale.groupSeparator(), "'");
-    //    text.replace(locale.decimalPoint(), ".");
     return text;
 }
