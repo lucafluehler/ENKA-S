@@ -9,7 +9,7 @@
  */
 class SimulationPlayerFactory : public ISimulationPlayerFactory {
 public:
-    std::unique_ptr<SimulationPlayer> create() override {
+    std::unique_ptr<ISimulationPlayer> create() override {
         return std::make_unique<SimulationPlayer>();
     }
 };

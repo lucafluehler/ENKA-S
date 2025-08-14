@@ -11,12 +11,11 @@
 #include "core/dataflow/snapshot.h"
 #include "core/files/i_file_parse_logic.h"
 #include "factories/i_simulation_player_factory.h"
-#include "managers/simulation_player.h"
+#include "managers/i_simulation_player.h"
 #include "views/load_simulation_tab/i_load_simulation_view.h"
 
 class QThread;
 class ILoadSimulationView;
-class SimulationPlayer;
 
 /**
  * @brief LoadSimulationPresenter handles the logic for loading and parsing simulation files.
@@ -83,12 +82,12 @@ private:
 
     QTimer* preview_timer_ = nullptr;
 
-    SimulationPlayer::SystemData system_data_;
-    SimulationPlayer::DiagnosticsData diagnostics_data_;
+    ISimulationPlayer::SystemData system_data_;
+    ISimulationPlayer::DiagnosticsData diagnostics_data_;
 
     IFileParseLogic* parser_;
     ITaskRunner* runner_;
 
     std::unique_ptr<ISimulationPlayerFactory> simulation_player_factory_;
-    SimulationPlayer* simulation_player_ = nullptr;
+    ISimulationPlayer* simulation_player_ = nullptr;
 };

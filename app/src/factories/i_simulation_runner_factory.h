@@ -4,7 +4,7 @@
 
 #include "core/settings/settings.h"
 
-class SimulationRunner;
+class ISimulationRunner;
 
 /**
  * @brief An interface for a factory that creates SimulationRunner instances.
@@ -18,5 +18,5 @@ public:
      * @param settings The runtime settings configured by the user.
      * @return A unique_ptr to the created SimulationRunner.
      */
-    virtual std::unique_ptr<SimulationRunner> create(const Settings& settings) = 0;
+    virtual std::unique_ptr<ISimulationRunner> create(const Settings& settings) = 0;
 };

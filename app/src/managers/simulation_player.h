@@ -6,6 +6,8 @@
 
 #include "core/dataflow/snapshot.h"
 #include "core/dataflow/system_ring_buffer.h"
+#include "i_simulation_player.h"
+#include "managers/i_simulation_player.h"
 #include "presenters/replay_simulation_window_presenter.h"
 #include "views/replay_simulation_window/replay_simulation_window.h"
 #include "workers/system_buffer_worker.h"
@@ -14,7 +16,7 @@
  * @brief The SimulationPlayer class is responsible for managing the simulation playback,
  * including loading system files and handling playback controls.
  */
-class SimulationPlayer : public QObject {
+class SimulationPlayer : public ISimulationPlayer {
     Q_OBJECT
 public:
     explicit SimulationPlayer(QObject* parent = nullptr);
@@ -26,38 +28,9 @@ public:
      */
     void setStepsPerSecond(int steps_per_second) { step_delay_ms_ = 1000 / steps_per_second; }
 
-    /**
-     * @brief Struct representing required system data for the simulation replay.
-     */
-    struct SystemData {
-        std::filesystem::path file_path = "";
-        double simulation_duration = 0.0;
-        std::size_t total_snapshots_count = 0;
-    };
-
-    /**
-     * @brief Struct representing required diagnostics data for the simulation replay.
-     */
-    struct DiagnosticsData {
-        std::shared_ptr<DiagnosticsSeries> diagnostics_series = nullptr;
-    };
-
-signals:
-    /** @signal
-     * @brief Emitted when the simulation window is closed.
-     */
-    void windowClosed();
-
 public slots:
-    /**
-     * @brief Initializes the simulation player with the loaded data.
-     * @param system_data Optional system data containing the file path, duration, and total
-     * snapshot count.
-     * @param diagnostics_data Optional diagnostics data containing the shared pointer to a
-     * DiagnosticsSeries.
-     */
-    void run(std::optional<SystemData> system_data,
-             std::optional<DiagnosticsData> diagnostics_data);
+    void run(std::optional<ISimulationPlayer::SystemData> system_data,
+             std::optional<ISimulationPlayer::DiagnosticsData> diagnostics_data) override;
 
     /**
      * @brief Handles the pausing or resuming of the simulation playback.

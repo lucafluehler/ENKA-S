@@ -15,13 +15,14 @@
 #include "core/dataflow/snapshot.h"
 #include "core/files/file_constants.h"
 #include "core/settings/settings.h"
+#include "managers/i_simulation_runner.h"
 #include "presenters/live_simulation_window_presenter.h"
 #include "views/live_simulation_window/live_simulation_window.h"
 #include "workers/queue_storage_worker.h"
 #include "workers/simulation_worker.h"
 
 SimulationRunner::SimulationRunner(const Settings& settings, QObject* parent)
-    : QObject(parent),
+    : ISimulationRunner(parent),
       duration_(settings.get<double>(SettingKey::Duration)),
       save_system_data_(settings.get<bool>(SettingKey::SaveSystemData)),
       save_diagnostics_data_(settings.get<bool>(SettingKey::SaveDiagnosticsData)),
@@ -254,11 +255,25 @@ void SimulationRunner::updateDebugInfo() {
         return;
     }
 
+    if (!memory_pools_) {
+        ENKAS_LOG_ERROR("Memory pools are not initialized. Cannot update.");
+        return;
+    }
+
     // Update memory pool sizes
-    debug_info_->system_data_pool_size = memory_pools_->system_data_pool->size();
-    debug_info_->diagnostics_data_pool_size = memory_pools_->diagnostics_data_pool->size();
-    debug_info_->system_snapshot_pool_size = memory_pools_->system_snapshot_pool->size();
-    debug_info_->diagnostics_snapshot_pool_size = memory_pools_->diagnostics_snapshot_pool->size();
+    if (memory_pools_->system_data_pool) {
+        debug_info_->system_data_pool_size = memory_pools_->system_data_pool->size();
+    }
+    if (memory_pools_->diagnostics_data_pool) {
+        debug_info_->diagnostics_data_pool_size = memory_pools_->diagnostics_data_pool->size();
+    }
+    if (memory_pools_->system_snapshot_pool) {
+        debug_info_->system_snapshot_pool_size = memory_pools_->system_snapshot_pool->size();
+    }
+    if (memory_pools_->diagnostics_snapshot_pool) {
+        debug_info_->diagnostics_snapshot_pool_size =
+            memory_pools_->diagnostics_snapshot_pool->size();
+    }
 
     // Update queue sizes
     if (outputs_->chart_queue) {

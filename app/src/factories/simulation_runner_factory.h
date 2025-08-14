@@ -9,7 +9,7 @@
  */
 class SimulationRunnerFactory : public ISimulationRunnerFactory {
 public:
-    std::unique_ptr<SimulationRunner> create(const Settings& settings) override {
+    std::unique_ptr<ISimulationRunner> create(const Settings& settings) override {
         return std::make_unique<SimulationRunner>(settings);
     }
 };

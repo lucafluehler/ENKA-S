@@ -12,7 +12,7 @@
 #include "core/files/file_constants.h"
 #include "core/files/i_file_parse_logic.h"
 #include "factories/i_simulation_player_factory.h"
-#include "managers/simulation_player.h"
+#include "managers/i_simulation_player.h"
 #include "views/load_simulation_tab/i_load_simulation_view.h"
 
 LoadSimulationPresenter::LoadSimulationPresenter(ILoadSimulationView* view,
@@ -132,7 +132,7 @@ void LoadSimulationPresenter::playSimulation() {
     simulation_player_->setParent(this);
 
     connect(simulation_player_,
-            &SimulationPlayer::windowClosed,
+            &ISimulationPlayer::windowClosed,
             this,
             &LoadSimulationPresenter::endSimulationPlayback);
 

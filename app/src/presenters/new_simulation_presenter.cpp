@@ -13,7 +13,7 @@
 #include "core/files/i_file_parse_logic.h"
 #include "core/settings/settings.h"
 #include "factories/i_simulation_runner_factory.h"
-#include "managers/simulation_runner.h"
+#include "managers/i_simulation_runner.h"
 #include "views/new_simulation_tab/i_new_simulation_view.h"
 
 NewSimulationPresenter::NewSimulationPresenter(INewSimulationView* view,
@@ -94,7 +94,7 @@ void NewSimulationPresenter::startSimulation() {
     simulation_runner_->setParent(this);
 
     connect(simulation_runner_,
-            &SimulationRunner::initializationCompleted,
+            &ISimulationRunner::initializationCompleted,
             this,
             &NewSimulationPresenter::onInitializationCompleted);
 

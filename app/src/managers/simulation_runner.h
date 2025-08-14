@@ -7,6 +7,7 @@
 #include "core/dataflow/debug_info.h"
 #include "core/files/csv_file_writer.h"
 #include "core/settings/settings.h"
+#include "managers/i_simulation_runner.h"
 #include "presenters/live_simulation_window_presenter.h"
 #include "views/live_simulation_window/live_simulation_window.h"
 #include "workers/queue_storage_worker.h"
@@ -16,61 +17,39 @@
  * @brief The SimulationRunner class manages the simulation process, including
  *        initialization, running the simulation, and handling data storage.
  */
-class SimulationRunner : public QObject {
+class SimulationRunner : public ISimulationRunner {
     Q_OBJECT
 public:
     explicit SimulationRunner(const Settings& settings, QObject* parent = nullptr);
     ~SimulationRunner();
 
-    /**
-     * @brief Starts a new simulation.
-     */
-    void startSimulationProcedure() { emit requestGeneration(); }
+    void startSimulationProcedure() override { emit requestGeneration(); }
 
-    /**
-     * @brief Returns the total duration of the simulation.
-     * @return The duration in time step units.
-     */
-    double getDuration() const { return duration_; }
+    double getDuration() const override { return duration_; }
 
-    /**
-     * @brief Returns the current simulation time.
-     * @return The current time in time step units.
-     */
-    double getTime() const { return simulation_worker_ ? simulation_worker_->getTime() : 0.0; }
+    double getTime() const override {
+        return simulation_worker_ ? simulation_worker_->getTime() : 0.0;
+    }
 
 signals:
-    /**
+    /** @signal
      * @brief Requests the generation of a new initial system.
      */
     void requestGeneration();
 
-    /**
+    /** @signal
      * @brief Requests the initialization of the simulator with the previously generated initial
      * system.
      */
     void requestInitialization();
 
-    /**
+    /** @signal
      * @brief Requests the simulation to start.
      */
     void requestSimulationStart();
 
-    /**
-     * @brief Emitted when the generation of a new initial system is completed.
-     */
-    void generationCompleted();
-
-    /**
-     * @brief Emitted when the initialization of the simulator is completed.
-     */
-    void initializationCompleted();
-
 public slots:
-    /**
-     * @brief Opens the simulation window.
-     */
-    void openSimulationWindow();
+    void openSimulationWindow() override;
 
 private slots:
     void receivedGenerationCompleted();

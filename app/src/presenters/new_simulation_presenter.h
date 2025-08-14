@@ -99,5 +99,5 @@ private:
     IFileParseLogic* parser_ = nullptr;
 
     std::unique_ptr<ISimulationRunnerFactory> simulation_runner_factory_;
-    SimulationRunner* simulation_runner_ = nullptr;
+    ISimulationRunner* simulation_runner_ = nullptr;
 };
