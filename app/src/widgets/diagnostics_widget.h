@@ -42,7 +42,7 @@ public slots:
      * @brief Appends new diagnostic data to the charts.
      * @param diagnostics The new diagnostic data to display.
      */
-    void updateData(DiagnosticsSnapshot& diagnostics);
+    void updateData(const DiagnosticsSnapshot& diagnostics);
 
     /**
      * @brief Fills the charts with the provided diagnostic series.

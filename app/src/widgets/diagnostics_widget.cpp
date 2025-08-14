@@ -125,16 +125,16 @@ void DiagnosticsWidget::setupCharts(std::vector<ChartDefinition> chart_definitio
     refreshCharts();
 }
 
-void DiagnosticsWidget::updateData(DiagnosticsSnapshot& diag) {
+void DiagnosticsWidget::updateData(const DiagnosticsSnapshot& diagnostics) {
     if (definitions_.empty()) {
         return;
     }
 
-    const double timestamp = diag.time;
+    const double timestamp = diagnostics.time;
     max_time_ = std::max(max_time_, timestamp);
 
     for (size_t i = 0; i < definitions_.size(); ++i) {
-        const double value = definitions_[i].value_extractor(diag);
+        const double value = definitions_[i].value_extractor(diagnostics);
         full_data_[i].push_back(QPointF(timestamp, value));
 
         min_values_[i] = std::min(min_values_[i], value);
