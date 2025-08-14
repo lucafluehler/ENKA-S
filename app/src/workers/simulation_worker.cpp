@@ -81,7 +81,7 @@ void SimulationWorker::startGeneration() {
     // Initialize the system data pool with the particle count from the initial system
     const size_t particle_count = initial_system_->count();
     memory_pools_->system_data_pool =
-        std::make_unique<MemoryPool<enkas::data::System, size_t>>(pool_size_, particle_count);
+        std::make_shared<MemoryPool<enkas::data::System, size_t>>(pool_size_, particle_count);
 
     ENKAS_LOG_INFO("Initial system generated successfully with {} particles.", particle_count);
     emit generationCompleted();
