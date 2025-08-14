@@ -192,7 +192,10 @@ void DiagnosticsWidget::fillCharts(const DiagnosticsSeries& series) {
     }
 
     // Prepare a list of points for each series so we can update them in one go
-    std::vector<QList<QPointF>> all_points(definitions_.size());
+    std::vector<QVector<QPointF>> all_points(definitions_.size());
+    for (auto& points : all_points) {
+        points.reserve(series.size());
+    }
 
     for (const auto& diag_point : series) {
         max_time_ = std::max(max_time_, diag_point.time);
