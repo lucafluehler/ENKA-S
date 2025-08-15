@@ -205,27 +205,6 @@
         </layout>
        </widget>
       </widget>
-      <widget class="NewSimulationTab" name="tabNewSimulation">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <attribute name="title">
-        <string>New Simulation</string>
-       </attribute>
-      </widget>
-      <widget class="LoadSimulationTab" name="tabLoadSimulation">
-       <attribute name="title">
-        <string>Load Simulation</string>
-       </attribute>
-      </widget>
-      <widget class="LogsTab" name="tabLogs">
-       <attribute name="title">
-        <string>Logs</string>
-       </attribute>
-      </widget>
      </widget>
     </item>
    </layout>
@@ -236,24 +215,6 @@
    <class>SystemPreview</class>
    <extends>QOpenGLWidget</extends>
    <header>widgets/system_preview.h</header>
-  </customwidget>
-  <customwidget>
-   <class>LoadSimulationTab</class>
-   <extends>QWidget</extends>
-   <header>views/load_simulation_tab/load_simulation_tab.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>NewSimulationTab</class>
-   <extends>QWidget</extends>
-   <header>views/new_simulation_tab/new_simulation_tab.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>LogsTab</class>
-   <extends>QWidget</extends>
-   <header>views/logs_tab/logs_tab.h</header>
-   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>

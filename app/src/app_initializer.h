@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QPointer>
 #include <memory>
 
 #include "views/main_window/main_window.h"
@@ -8,6 +9,9 @@ class ITaskRunner;
 class IFileParser;
 class ISimulationRunnerFactory;
 class ISimulationPlayerFactory;
+class NewSimulationTab;
+class LoadSimulationTab;
+class LogsTab;
 class MainWindowPresenter;
 class LoadSimulationPresenter;
 class NewSimulationPresenter;
@@ -32,9 +36,12 @@ private:
     std::unique_ptr<ISimulationRunnerFactory> simulation_runner_factory_;
     std::unique_ptr<ISimulationPlayerFactory> simulation_player_factory_;
 
-    MainWindow main_window_;
+    std::unique_ptr<MainWindow> main_window_;
+    QPointer<NewSimulationTab> new_simulation_tab_;
+    QPointer<LoadSimulationTab> load_simulation_tab_;
+    QPointer<LogsTab> logs_tab_;
 
-    std::unique_ptr<MainWindowPresenter> main_window_presenter_;
-    std::unique_ptr<LoadSimulationPresenter> load_simulation_presenter_;
-    std::unique_ptr<NewSimulationPresenter> new_simulation_presenter_;
+    QPointer<MainWindowPresenter> main_window_presenter_;
+    QPointer<LoadSimulationPresenter> load_simulation_presenter_;
+    QPointer<NewSimulationPresenter> new_simulation_presenter_;
 };

@@ -25,22 +25,28 @@ class MainWindow : public QMainWindow, public IMainWindowView {
 public:
     /**
      * @brief Initializes the MainWindow UI and connects tabs to their presenters.
+     * @param new_simulation_tab_ The new simulation ui tab.
+     * @param load_simulation_tab_ The load simulation ui tab.
+     * @param logs_tab_ The logs ui tab.
      * @param parent The parent widget.
      */
-    explicit MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(NewSimulationTab *new_simulation_tab_,
+                        LoadSimulationTab *load_simulation_tab_,
+                        LogsTab *logs_tab_,
+                        QWidget *parent = nullptr);
     ~MainWindow() override = default;
 
     void updateHomeScreen() override;
 
     int getCurrentTabIndex() const;
 
-    LoadSimulationTab *getLoadSimulationTab() const;
-    NewSimulationTab *getNewSimulationTab() const;
-    LogsTab *getLogsTab() const;
-
 signals:
     void tabSwitched();
 
 private:
     Ui::MainWindow *ui_;
+
+    NewSimulationTab *new_simulation_tab_;
+    LoadSimulationTab *load_simulation_tab_;
+    LogsTab *logs_tab_;
 };

@@ -22,6 +22,13 @@ AppInitializer::AppInitializer() {}
 AppInitializer::~AppInitializer() = default;
 
 void AppInitializer::run() {
+    new_simulation_tab_ = new NewSimulationTab();
+    load_simulation_tab_ = new LoadSimulationTab();
+    logs_tab_ = new LogsTab();
+
+    main_window_ =
+        std::make_unique<MainWindow>(new_simulation_tab_, load_simulation_tab_, logs_tab_);
+
     setupServices();
     setupFactories();
     setupPresenters();
@@ -29,7 +36,7 @@ void AppInitializer::run() {
     connectSignals();
 
     ENKAS_LOG_INFO("Application starting up...");
-    main_window_.show();
+    main_window_->show();
 }
 
 void AppInitializer::setupServices() {
@@ -43,21 +50,19 @@ void AppInitializer::setupFactories() {
 }
 
 void AppInitializer::setupPresenters() {
-    main_window_presenter_ = std::make_unique<MainWindowPresenter>(&main_window_, &main_window_);
+    main_window_presenter_ = new MainWindowPresenter(main_window_.get(), main_window_.get());
 
-    load_simulation_presenter_ =
-        std::make_unique<LoadSimulationPresenter>(main_window_.getLoadSimulationTab(),
-                                                  file_parser_.get(),
-                                                  concurrent_runner_.get(),
-                                                  std::move(simulation_player_factory_),
-                                                  &main_window_);
+    load_simulation_presenter_ = new LoadSimulationPresenter(load_simulation_tab_,
+                                                             file_parser_.get(),
+                                                             concurrent_runner_.get(),
+                                                             std::move(simulation_player_factory_),
+                                                             main_window_.get());
 
-    new_simulation_presenter_ =
-        std::make_unique<NewSimulationPresenter>(main_window_.getNewSimulationTab(),
-                                                 file_parser_.get(),
-                                                 concurrent_runner_.get(),
-                                                 std::move(simulation_runner_factory_),
-                                                 &main_window_);
+    new_simulation_presenter_ = new NewSimulationPresenter(new_simulation_tab_,
+                                                           file_parser_.get(),
+                                                           concurrent_runner_.get(),
+                                                           std::move(simulation_runner_factory_),
+                                                           main_window_.get());
 }
 
 void AppInitializer::setupLogging() {
@@ -78,10 +83,9 @@ void AppInitializer::setupLogging() {
     getLogger().configure(LogLevel::INFO, std::static_pointer_cast<LogSink>(multi_sink));
 #endif
 
-    auto *logs_tab = main_window_.getLogsTab();
-    if (logs_tab) {
+    if (logs_tab_) {
         QObject::connect(
-            qt_sink.get(), &QtLogSink::messageLogged, logs_tab, &LogsTab::addLogMessage);
+            qt_sink.get(), &QtLogSink::messageLogged, logs_tab_, &LogsTab::addLogMessage);
         ENKAS_LOG_INFO("UI Logger successfully initialized and connected.");
     } else {
         ENKAS_LOG_WARNING("Could not find LogsTab to connect to QtLogSink.");
@@ -90,40 +94,40 @@ void AppInitializer::setupLogging() {
 
 void AppInitializer::connectSignals() {
     // Connect NewSimulationTab to its presenter
-    QObject::connect(main_window_.getNewSimulationTab(),
+    QObject::connect(new_simulation_tab_,
                      &NewSimulationTab::checkInitialSystemFile,
-                     new_simulation_presenter_.get(),
+                     new_simulation_presenter_,
                      &NewSimulationPresenter::checkInitialSystemFile);
-    QObject::connect(main_window_.getNewSimulationTab(),
+    QObject::connect(new_simulation_tab_,
                      &NewSimulationTab::checkSettingsFile,
-                     new_simulation_presenter_.get(),
+                     new_simulation_presenter_,
                      &NewSimulationPresenter::checkSettingsFile);
-    QObject::connect(main_window_.getNewSimulationTab(),
+    QObject::connect(new_simulation_tab_,
                      &NewSimulationTab::requestSimulationStart,
-                     new_simulation_presenter_.get(),
+                     new_simulation_presenter_,
                      &NewSimulationPresenter::startSimulation);
-    QObject::connect(main_window_.getNewSimulationTab(),
+    QObject::connect(new_simulation_tab_,
                      &NewSimulationTab::requestSimulationAbort,
-                     new_simulation_presenter_.get(),
+                     new_simulation_presenter_,
                      &NewSimulationPresenter::abortSimulation);
-    QObject::connect(main_window_.getNewSimulationTab(),
+    QObject::connect(new_simulation_tab_,
                      &NewSimulationTab::requestOpenSimulationWindow,
-                     new_simulation_presenter_.get(),
+                     new_simulation_presenter_,
                      &NewSimulationPresenter::openSimulationWindow);
 
     // Connect LoadSimulationTab to its presenter
-    QObject::connect(main_window_.getLoadSimulationTab(),
+    QObject::connect(load_simulation_tab_,
                      &LoadSimulationTab::requestFilesCheck,
-                     load_simulation_presenter_.get(),
+                     load_simulation_presenter_,
                      &LoadSimulationPresenter::checkFiles);
-    QObject::connect(main_window_.getLoadSimulationTab(),
+    QObject::connect(load_simulation_tab_,
                      &LoadSimulationTab::playSimulation,
-                     load_simulation_presenter_.get(),
+                     load_simulation_presenter_,
                      &LoadSimulationPresenter::playSimulation);
 
     // Handle tab switches in the main window
-    QObject::connect(&main_window_, &MainWindow::tabSwitched, &main_window_, [this]() {
-        auto index = main_window_.getCurrentTabIndex();
+    QObject::connect(main_window_.get(), &MainWindow::tabSwitched, main_window_.get(), [this]() {
+        auto index = main_window_->getCurrentTabIndex();
         if (index == 2) {
             load_simulation_presenter_->active();
             new_simulation_presenter_->inactive();
