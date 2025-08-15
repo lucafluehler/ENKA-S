@@ -1,9 +1,10 @@
-#include "app_initializer.h"
+#include "composition_root.h"
 
 #include <enkas/logging/logger.h>
 #include <enkas/logging/sinks.h>
 
 #include <QObject>
+#include <memory>
 
 #include "core/concurrency/concurrent_runner.h"
 #include "core/files/file_parser.h"
@@ -18,10 +19,10 @@
 #include "views/main_window/main_window.h"
 #include "views/new_simulation_tab/new_simulation_tab.h"
 
-AppInitializer::AppInitializer() {}
-AppInitializer::~AppInitializer() = default;
+CompositionRoot::CompositionRoot() {}
+CompositionRoot::~CompositionRoot() = default;
 
-void AppInitializer::run() {
+std::unique_ptr<AppLogic> CompositionRoot::compose() {
     new_simulation_tab_ = new NewSimulationTab();
     load_simulation_tab_ = new LoadSimulationTab();
     logs_tab_ = new LogsTab();
@@ -35,37 +36,37 @@ void AppInitializer::run() {
     setupLogging();
     connectSignals();
 
-    ENKAS_LOG_INFO("Application starting up...");
-    main_window_->show();
+    return std::make_unique<AppLogic>(std::move(main_window_), std::move(main_window_presenter_));
 }
 
-void AppInitializer::setupServices() {
+void CompositionRoot::setupServices() {
     concurrent_runner_ = std::make_unique<ConcurrentRunner>();
     file_parser_ = std::make_unique<FileParser>();
 }
 
-void AppInitializer::setupFactories() {
+void CompositionRoot::setupFactories() {
     simulation_runner_factory_ = std::make_unique<SimulationRunnerFactory>();
     simulation_player_factory_ = std::make_unique<SimulationPlayerFactory>();
 }
 
-void AppInitializer::setupPresenters() {
-    main_window_presenter_ = new MainWindowPresenter(main_window_.get(), main_window_.get());
-
+void CompositionRoot::setupPresenters() {
     load_simulation_presenter_ = new LoadSimulationPresenter(load_simulation_tab_,
                                                              file_parser_.get(),
                                                              concurrent_runner_.get(),
                                                              std::move(simulation_player_factory_),
-                                                             main_window_.get());
+                                                             load_simulation_tab_);
 
     new_simulation_presenter_ = new NewSimulationPresenter(new_simulation_tab_,
                                                            file_parser_.get(),
                                                            concurrent_runner_.get(),
                                                            std::move(simulation_runner_factory_),
-                                                           main_window_.get());
+                                                           new_simulation_tab_);
+
+    main_window_presenter_ = std::make_unique<MainWindowPresenter>(
+        main_window_.get(), load_simulation_presenter_, new_simulation_presenter_);
 }
 
-void AppInitializer::setupLogging() {
+void CompositionRoot::setupLogging() {
     using namespace enkas::logging;
 
     auto multi_sink = std::make_shared<MultiSink>();
@@ -92,7 +93,7 @@ void AppInitializer::setupLogging() {
     }
 }
 
-void AppInitializer::connectSignals() {
+void CompositionRoot::connectSignals() {
     // Connect NewSimulationTab to its presenter
     QObject::connect(new_simulation_tab_,
                      &NewSimulationTab::checkInitialSystemFile,
@@ -125,18 +126,9 @@ void AppInitializer::connectSignals() {
                      load_simulation_presenter_,
                      &LoadSimulationPresenter::playSimulation);
 
-    // Handle tab switches in the main window
-    QObject::connect(main_window_.get(), &MainWindow::tabSwitched, main_window_.get(), [this]() {
-        auto index = main_window_->getCurrentTabIndex();
-        if (index == 2) {
-            load_simulation_presenter_->active();
-            new_simulation_presenter_->inactive();
-        } else if (index == 1) {
-            load_simulation_presenter_->inactive();
-            new_simulation_presenter_->active();
-        } else {
-            load_simulation_presenter_->inactive();
-            new_simulation_presenter_->inactive();
-        }
-    });
+    // Connect MainWindow to its presenter
+    QObject::connect(main_window_.get(),
+                     &MainWindow::tabSwitched,
+                     main_window_presenter_.get(),
+                     &MainWindowPresenter::onTabSwitched);
 }

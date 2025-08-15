@@ -3,8 +3,10 @@
 #include <QPointer>
 #include <memory>
 
+#include "app_logic.h"
 #include "views/main_window/main_window.h"
 
+class AppLogic;
 class ITaskRunner;
 class IFileParser;
 class ISimulationRunnerFactory;
@@ -16,12 +18,12 @@ class MainWindowPresenter;
 class LoadSimulationPresenter;
 class NewSimulationPresenter;
 
-class AppInitializer {
+class CompositionRoot {
 public:
-    explicit AppInitializer();
-    ~AppInitializer();
+    explicit CompositionRoot();
+    ~CompositionRoot();
 
-    void run();
+    std::unique_ptr<AppLogic> compose();
 
 private:
     void setupServices();
@@ -41,7 +43,7 @@ private:
     QPointer<LoadSimulationTab> load_simulation_tab_;
     QPointer<LogsTab> logs_tab_;
 
-    QPointer<MainWindowPresenter> main_window_presenter_;
+    std::unique_ptr<MainWindowPresenter> main_window_presenter_;
     QPointer<LoadSimulationPresenter> load_simulation_presenter_;
     QPointer<NewSimulationPresenter> new_simulation_presenter_;
 };

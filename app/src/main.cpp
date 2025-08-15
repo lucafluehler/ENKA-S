@@ -1,13 +1,14 @@
 #include <QApplication>
 
-#include "app_initializer.h"
+#include "composition_root.h"
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
     Q_INIT_RESOURCE(resources);
 
-    AppInitializer initializer;
-    initializer.run();
+    CompositionRoot composition_root;
+    auto application = composition_root.compose();
+    application->run();
 
     return app.exec();
 }
