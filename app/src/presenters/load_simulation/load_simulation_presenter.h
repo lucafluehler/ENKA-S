@@ -12,7 +12,7 @@
 #include "core/files/i_file_parser.h"
 #include "factories/i_simulation_player_factory.h"
 #include "managers/i_simulation_player.h"
-#include "presenters/i_load_simulation_presenter.h"
+#include "presenters/load_simulation/i_load_simulation_presenter.h"
 #include "views/load_simulation_tab/i_load_simulation_view.h"
 
 class QThread;

@@ -2,7 +2,7 @@
 
 #include <gmock/gmock.h>
 
-#include "presenters/i_new_simulation_presenter.h"
+#include "presenters/new_simulation/i_new_simulation_presenter.h"
 
 class MockNewSimulationPresenter : public INewSimulationPresenter {
 public:

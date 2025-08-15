@@ -1,4 +1,4 @@
-#include "presenters/simulation_window_presenter.h"
+#include "simulation_window_presenter.h"
 
 #include <enkas/logging/logger.h>
 

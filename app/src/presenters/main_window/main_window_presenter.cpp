@@ -2,8 +2,8 @@
 
 #include <QTimer>
 
-#include "presenters/i_load_simulation_presenter.h"
-#include "presenters/i_new_simulation_presenter.h"
+#include "presenters/load_simulation/i_load_simulation_presenter.h"
+#include "presenters/new_simulation/i_new_simulation_presenter.h"
 #include "views/main_window/i_main_window_view.h"
 
 namespace {

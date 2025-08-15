@@ -8,7 +8,7 @@
 #include "mocks/mock_load_simulation_presenter.h"
 #include "mocks/mock_main_window_view.h"
 #include "mocks/mock_new_simulation_presenter.h"
-#include "presenters/main_window_presenter.h"
+#include "presenters/main_window/main_window_presenter.h"
 
 class MainWindowPresenterTest : public ::testing::Test {
 protected:

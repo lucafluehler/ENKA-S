@@ -11,7 +11,7 @@
 #include "core/files/i_file_parser.h"
 #include "core/settings/settings.h"
 #include "factories/i_simulation_runner_factory.h"
-#include "presenters/i_new_simulation_presenter.h"
+#include "presenters/new_simulation/i_new_simulation_presenter.h"
 #include "views/new_simulation_tab/i_new_simulation_view.h"
 
 class QThread;

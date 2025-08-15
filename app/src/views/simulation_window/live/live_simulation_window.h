@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/dataflow/debug_info.h"
-#include "views/live_simulation_window/i_live_simulation_window_view.h"
+#include "views/simulation_window/live/i_live_simulation_window_view.h"
 #include "views/simulation_window/simulation_window.h"
 
 class LiveSimulationWindow : public SimulationWindow, public ILiveSimulationWindowView {

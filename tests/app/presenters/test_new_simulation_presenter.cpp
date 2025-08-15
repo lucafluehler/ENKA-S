@@ -9,7 +9,7 @@
 #include "mocks/mock_simulation_runner.h"
 #include "mocks/mock_simulation_runner_factory.h"
 #include "mocks/mock_task_runner.h"
-#include "presenters/new_simulation_presenter.h"
+#include "presenters/new_simulation/new_simulation_presenter.h"
 
 using namespace ::testing;
 

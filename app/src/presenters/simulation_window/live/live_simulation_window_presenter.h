@@ -9,8 +9,8 @@
 #include "core/dataflow/blocking_queue.h"
 #include "core/dataflow/debug_info.h"
 #include "core/dataflow/snapshot.h"
-#include "simulation_window_presenter.h"
-#include "views/live_simulation_window/i_live_simulation_window_view.h"
+#include "presenters/simulation_window/simulation_window_presenter.h"
+#include "views/simulation_window/live/i_live_simulation_window_view.h"
 #include "workers/queue_storage_worker.h"
 
 class LiveSimulationWindowPresenter : public SimulationWindowPresenter {

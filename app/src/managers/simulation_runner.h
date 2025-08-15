@@ -8,8 +8,8 @@
 #include "core/files/csv_file_writer.h"
 #include "core/settings/settings.h"
 #include "managers/i_simulation_runner.h"
-#include "presenters/live_simulation_window_presenter.h"
-#include "views/live_simulation_window/live_simulation_window.h"
+#include "presenters/simulation_window/live/live_simulation_window_presenter.h"
+#include "views/simulation_window/live/live_simulation_window.h"
 #include "workers/queue_storage_worker.h"
 #include "workers/simulation_worker.h"
 

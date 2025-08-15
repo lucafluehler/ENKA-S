@@ -1,6 +1,6 @@
 #include <memory>
 
-#include "presenters/main_window_presenter.h"
+#include "presenters/main_window/main_window_presenter.h"
 #include "views/main_window/main_window.h"
 
 class AppLogic {

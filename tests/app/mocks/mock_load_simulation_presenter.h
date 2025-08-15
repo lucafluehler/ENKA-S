@@ -2,7 +2,7 @@
 
 #include <gmock/gmock.h>
 
-#include "presenters/i_load_simulation_presenter.h"
+#include "presenters/load_simulation/i_load_simulation_presenter.h"
 
 class MockLoadSimulationPresenter : public ILoadSimulationPresenter {
 public:

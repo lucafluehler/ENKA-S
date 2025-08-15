@@ -4,8 +4,8 @@
 #include <atomic>
 #include <memory>
 
-#include "simulation_window_presenter.h"
-#include "views/replay_simulation_window/i_replay_simulation_window_view.h"
+#include "presenters/simulation_window/simulation_window_presenter.h"
+#include "views/simulation_window/replay/i_replay_simulation_window_view.h"
 
 class ReplaySimulationWindowPresenter : public SimulationWindowPresenter {
     Q_OBJECT

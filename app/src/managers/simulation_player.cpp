@@ -9,8 +9,8 @@
 
 #include "core/dataflow/system_ring_buffer.h"
 #include "managers/i_simulation_player.h"
-#include "presenters/replay_simulation_window_presenter.h"
-#include "views/replay_simulation_window/replay_simulation_window.h"
+#include "presenters/simulation_window/replay/replay_simulation_window_presenter.h"
+#include "views/simulation_window/replay/replay_simulation_window.h"
 #include "workers/system_buffer_worker.h"
 
 namespace {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/dataflow/snapshot.h"
-#include "views/replay_simulation_window/i_replay_simulation_window_view.h"
+#include "views/simulation_window/replay/i_replay_simulation_window_view.h"
 #include "views/simulation_window/simulation_window.h"
 
 class ReplaySimulationWindow : public SimulationWindow, public IReplaySimulationWindowView {
