@@ -11,6 +11,7 @@
 #include "core/files/i_file_parser.h"
 #include "core/settings/settings.h"
 #include "factories/i_simulation_runner_factory.h"
+#include "presenters/i_new_simulation_presenter.h"
 #include "views/new_simulation_tab/i_new_simulation_view.h"
 
 class QThread;
@@ -20,7 +21,7 @@ class SimulationRunner;
 /**
  * @brief Manages the new simulation view and handles simulation-related operations.
  */
-class NewSimulationPresenter : public QObject {
+class NewSimulationPresenter : public QObject, public INewSimulationPresenter {
     Q_OBJECT
 public:
     /**
@@ -40,42 +41,13 @@ public:
     ~NewSimulationPresenter() override = default;
 
 public slots:
-    /**
-     * @brief Called when the tab becomes active, starting the timer for updating the particle
-     * rendering.
-     */
-    void active();
-
-    /**
-     * @brief Called when the tab becomes inactive, stopping the timer for updating the
-     * particle rendering.
-     */
-    void inactive();
-
-    /**
-     * @brief Checks the initial system file and starts parsing it.
-     */
-    void checkInitialSystemFile();
-
-    /**
-     * @brief Checks the settings file and starts parsing it.
-     */
-    void checkSettingsFile();
-
-    /**
-     * @brief Starts the simulation using the parsed settings and initial system.
-     */
-    void startSimulation();
-
-    /**
-     * @brief Aborts the simulation if it is running.
-     */
-    void abortSimulation();
-
-    /**
-     * @brief Opens the simulation window to display the simulation results.
-     */
-    void openSimulationWindow();
+    void active() override;
+    void inactive() override;
+    void checkInitialSystemFile() override;
+    void checkSettingsFile() override;
+    void startSimulation() override;
+    void abortSimulation() override;
+    void openSimulationWindow() override;
 
 private slots:
     void updatePreview();
