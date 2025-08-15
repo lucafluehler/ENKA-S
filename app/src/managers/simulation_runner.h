@@ -69,8 +69,8 @@ private:
 
     std::filesystem::path output_dir_;  // Output directory for saving data
 
-    std::unique_ptr<LiveSimulationWindow> simulation_window_ = nullptr;
-    std::unique_ptr<LiveSimulationWindowPresenter> simulation_window_presenter_ = nullptr;
+    LiveSimulationWindow* simulation_window_ = nullptr;
+    LiveSimulationWindowPresenter* simulation_window_presenter_ = nullptr;
 
     SimulationWorker* simulation_worker_ = nullptr;
     QThread* simulation_thread_ = nullptr;

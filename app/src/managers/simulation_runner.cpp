@@ -68,12 +68,12 @@ SimulationRunner::SimulationRunner(const Settings& settings, QObject* parent)
     }
 
     // Simulation Window
-    simulation_window_ = std::make_unique<LiveSimulationWindow>(debug_info_);
-    simulation_window_presenter_ = std::make_unique<LiveSimulationWindowPresenter>(
-        simulation_window_.get(), outputs_->rendering_snapshot, outputs_->chart_queue, debug_info_);
-    connect(simulation_window_.get(),
+    simulation_window_ = new LiveSimulationWindow(debug_info_);
+    simulation_window_presenter_ = new LiveSimulationWindowPresenter(
+        simulation_window_, outputs_->rendering_snapshot, outputs_->chart_queue, debug_info_);
+    connect(simulation_window_,
             &LiveSimulationWindow::fpsChanged,
-            simulation_window_presenter_.get(),
+            simulation_window_presenter_,
             &LiveSimulationWindowPresenter::onFpsChanged);
 
     // Simulation
@@ -90,8 +90,11 @@ SimulationRunner::~SimulationRunner() {
     ENKAS_LOG_INFO("Simulation runner is being destroyed. Aborting any ongoing processes...");
     aborted_ = true;
 
+    // This presenter runs a worker which relies on memory provided by the simulation runner.
+    // We must ensure that the presenter is deleted before the runner goes out of scope.
     if (simulation_window_presenter_) {
-        simulation_window_presenter_.reset();
+        simulation_window_presenter_->deleteLater();
+        simulation_window_presenter_ = nullptr;
         ENKAS_LOG_DEBUG("Simulation window presenter deleted.");
     }
 
