@@ -1,20 +1,24 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <QSignalSpy>
 #include <QTest>
 #include <QTimer>
-#include <QSignalSpy>
 
+#include "mocks/mock_load_simulation_presenter.h"
 #include "mocks/mock_main_window_view.h"
+#include "mocks/mock_new_simulation_presenter.h"
 #include "presenters/main_window_presenter.h"
 
 class MainWindowPresenterTest : public ::testing::Test {
 protected:
     MockMainWindowView mock_view;
+    MockLoadSimulationPresenter mock_load_presenter;
+    MockNewSimulationPresenter mock_new_presenter;
 };
 
 TEST_F(MainWindowPresenterTest, ConstructorStartsTimer) {
-    MainWindowPresenter presenter(&mock_view);
+    MainWindowPresenter presenter(&mock_view, &mock_load_presenter, &mock_new_presenter);
 
     QTimer* timer = presenter.findChild<QTimer*>();
     ASSERT_NE(timer, nullptr);
@@ -28,7 +32,7 @@ TEST_F(MainWindowPresenterTest, TimerTimeoutUpdatesHomeScreen) {
     const int expected_updates = 3;
     EXPECT_CALL(mock_view, updateHomeScreen()).Times(expected_updates);
 
-    MainWindowPresenter presenter(&mock_view);
+    MainWindowPresenter presenter(&mock_view, &mock_load_presenter, &mock_new_presenter);
     QTimer* timer = presenter.findChild<QTimer*>();
     ASSERT_NE(timer, nullptr);
 

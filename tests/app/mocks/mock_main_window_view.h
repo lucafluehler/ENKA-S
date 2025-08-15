@@ -7,4 +7,5 @@
 class MockMainWindowView : public IMainWindowView {
 public:
     MOCK_METHOD(void, updateHomeScreen, (), (override));
+    MOCK_METHOD(int, getCurrentTabIndex, (), (const, override));
 };
