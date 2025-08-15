@@ -38,7 +38,7 @@ public:
 
     void updateHomeScreen() override;
 
-    int getCurrentTabIndex() const;
+    int getCurrentTabIndex() const override;
 
 signals:
     void tabSwitched();
