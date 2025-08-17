@@ -4,7 +4,7 @@
 
 #include "core/concurrency/i_task_runner.h"
 
-class MockTaskRunner : public ITaskRunner {
+class FakeSynchronousTaskRunner : public ITaskRunner {
 private:
     void run_impl(QObject* context, std::function<void()>&& work) override { work(); }
 };

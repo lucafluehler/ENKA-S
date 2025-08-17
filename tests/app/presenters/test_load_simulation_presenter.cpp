@@ -4,11 +4,11 @@
 #include <QCoreApplication>
 #include <QObject>
 
+#include "mocks/fake_synchronous_task_runner.h"
 #include "mocks/mock_file_parser.h"
 #include "mocks/mock_load_simulation_view.h"
 #include "mocks/mock_simulation_player.h"
 #include "mocks/mock_simulation_player_factory.h"
-#include "mocks/mock_task_runner.h"
 #include "presenters/load_simulation/load_simulation_presenter.h"
 
 using namespace ::testing;
@@ -17,13 +17,13 @@ class LoadSimulationPresenterTest : public ::testing::Test {
 protected:
     void SetUp() override {
         presenter_ = std::make_unique<LoadSimulationPresenter>(
-            &mock_view_, mock_parser_, mock_runner_, mock_factory_, &parent_object_);
+            &mock_view_, mock_parser_, fake_runner_, mock_factory_, &parent_object_);
     }
 
     QObject parent_object_;
     NiceMock<MockLoadSimulationView> mock_view_;
     NiceMock<MockFileParser> mock_parser_;
-    MockTaskRunner mock_runner_;
+    FakeSynchronousTaskRunner fake_runner_;
 
     NiceMock<MockSimulationPlayerFactory> mock_factory_;
     std::unique_ptr<LoadSimulationPresenter> presenter_;
