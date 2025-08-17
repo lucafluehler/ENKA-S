@@ -32,7 +32,6 @@ std::unique_ptr<AppLogic> CompositionRoot::compose() {
         std::make_unique<MainWindow>(new_simulation_tab_, load_simulation_tab_, logs_tab_);
 
     setupServices();
-    setupFactories();
     setupPresenters();
     setupLogging();
     connectSignals();
@@ -43,9 +42,6 @@ std::unique_ptr<AppLogic> CompositionRoot::compose() {
 void CompositionRoot::setupServices() {
     concurrent_runner_ = std::make_unique<ConcurrentRunner>();
     file_parser_ = std::make_unique<FileParser>();
-}
-
-void CompositionRoot::setupFactories() {
     simulation_runner_factory_ = std::make_unique<SimulationRunnerFactory>();
     simulation_player_factory_ = std::make_unique<SimulationPlayerFactory>();
 }
