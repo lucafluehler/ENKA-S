@@ -1,7 +1,7 @@
 #pragma once
 #include <QThreadPool>
 
-#include "core/concurrency/i_task_runner.h"
+#include "services/task_runner/i_task_runner.h"
 
 class ConcurrentRunner : public ITaskRunner {
 private:

@@ -2,7 +2,7 @@
 
 #include <gmock/gmock.h>
 
-#include "core/concurrency/i_task_runner.h"
+#include "services/task_runner/i_task_runner.h"
 
 class FakeSynchronousTaskRunner : public ITaskRunner {
 private:

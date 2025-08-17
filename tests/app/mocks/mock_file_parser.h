@@ -2,7 +2,7 @@
 
 #include <gmock/gmock.h>
 
-#include "core/files/i_file_parser.h"
+#include "services/file_parser/i_file_parser.h"
 
 class MockFileParser : public IFileParser {
 public:

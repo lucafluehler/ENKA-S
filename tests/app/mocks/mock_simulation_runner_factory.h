@@ -2,8 +2,8 @@
 
 #include <gmock/gmock.h>
 
-#include "factories/i_simulation_runner_factory.h"
 #include "managers/i_simulation_runner.h"
+#include "services/simulation_runner_factory/i_simulation_runner_factory.h"
 
 class MockSimulationRunnerFactory : public ISimulationRunnerFactory {
 public:

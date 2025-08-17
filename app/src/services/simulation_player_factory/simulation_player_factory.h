@@ -1,7 +1,7 @@
 #pragma once
 
-#include "factories/i_simulation_player_factory.h"
 #include "managers/simulation_player.h"
+#include "services/simulation_player_factory/i_simulation_player_factory.h"
 
 /**
  * @brief Concrete factory that constructs a SimulationPlayer with all its

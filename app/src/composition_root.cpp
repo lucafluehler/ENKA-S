@@ -7,14 +7,14 @@
 #include <QPointer>
 #include <memory>
 
-#include "core/concurrency/concurrent_runner.h"
-#include "core/files/file_parser.h"
-#include "factories/simulation_player_factory.h"
-#include "factories/simulation_runner_factory.h"
 #include "logging/qt_log_sink.h"
 #include "presenters/load_simulation/load_simulation_presenter.h"
 #include "presenters/main_window/main_window_presenter.h"
 #include "presenters/new_simulation/new_simulation_presenter.h"
+#include "services/file_parser/file_parser.h"
+#include "services/simulation_player_factory/simulation_player_factory.h"
+#include "services/simulation_runner_factory/simulation_runner_factory.h"
+#include "services/task_runner/concurrent_runner.h"
 #include "views/load_simulation_tab/load_simulation_tab.h"
 #include "views/logs_tab/logs_tab.h"
 #include "views/main_window/main_window.h"

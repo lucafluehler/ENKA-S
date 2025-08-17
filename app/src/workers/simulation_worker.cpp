@@ -10,8 +10,8 @@
 #include "core/dataflow/snapshot.h"
 #include "core/factories/generator_factory.h"
 #include "core/factories/simulator_factory.h"
-#include "core/files/file_parser.h"
 #include "core/settings/settings.h"
+#include "services/file_parser/file_parser.h"
 
 SimulationWorker::SimulationWorker(const Settings& settings,
                                    std::shared_ptr<MemoryPools> memory_pools,

@@ -8,9 +8,9 @@
 #include <memory>
 
 #include "core/dataflow/snapshot.h"
-#include "core/files/file_parser.h"
 #include "core/settings/generation_method.h"
 #include "rendering/particle_renderer.h"
+#include "services/file_parser/file_parser.h"
 
 namespace {
 // --- Default Preview Configuration ---

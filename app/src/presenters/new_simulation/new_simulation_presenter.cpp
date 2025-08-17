@@ -10,11 +10,11 @@
 #include <QTimer>
 #include <optional>
 
-#include "core/concurrency/i_task_runner.h"
-#include "core/files/i_file_parser.h"
 #include "core/settings/settings.h"
-#include "factories/i_simulation_runner_factory.h"
 #include "managers/i_simulation_runner.h"
+#include "services/file_parser/i_file_parser.h"
+#include "services/simulation_runner_factory/i_simulation_runner_factory.h"
+#include "services/task_runner/i_task_runner.h"
 #include "views/new_simulation_tab/i_new_simulation_view.h"
 
 namespace {

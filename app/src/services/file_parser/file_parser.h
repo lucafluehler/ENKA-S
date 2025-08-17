@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/files/i_file_parser.h"
+#include "services/file_parser/i_file_parser.h"
 
 class FileParser : public IFileParser {
 public:

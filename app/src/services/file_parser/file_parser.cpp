@@ -1,3 +1,5 @@
+#include "services/file_parser/file_parser.h"
+
 #include <enkas/data/system.h>
 #include <enkas/logging/logger.h>
 
@@ -8,7 +10,6 @@
 
 #include "core/dataflow/snapshot.h"
 #include "core/files/file_constants.h"
-#include "core/files/file_parser.h"
 #include "core/settings/settings.h"
 
 std::optional<Settings> FileParser::parseSettings(const std::filesystem::path& file_path) {

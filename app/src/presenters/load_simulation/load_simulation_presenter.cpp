@@ -7,12 +7,12 @@
 #include <QTimer>
 #include <optional>
 
-#include "core/concurrency/i_task_runner.h"
 #include "core/dataflow/snapshot.h"
 #include "core/files/file_constants.h"
-#include "core/files/i_file_parser.h"
-#include "factories/i_simulation_player_factory.h"
 #include "managers/i_simulation_player.h"
+#include "services/file_parser/i_file_parser.h"
+#include "services/simulation_player_factory/i_simulation_player_factory.h"
+#include "services/task_runner/i_task_runner.h"
 #include "views/load_simulation_tab/i_load_simulation_view.h"
 
 LoadSimulationPresenter::LoadSimulationPresenter(ILoadSimulationView* view,
