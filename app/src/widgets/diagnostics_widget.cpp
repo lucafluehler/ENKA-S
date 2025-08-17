@@ -10,6 +10,7 @@
 #include <QValueAxis>
 #include <QWidget>
 #include <QtCharts>
+#include <algorithm>
 #include <functional>
 #include <vector>
 
@@ -31,6 +32,9 @@ constexpr int kChartTitleFontSize = 12;
 constexpr int kYAxisTickCount = 10;
 constexpr double kYAxisMarginFactor = 0.05;
 constexpr int kChartRefreshIntervalMs = 200;
+
+// --- Others ---
+constexpr double kEpsilon = 1e-9;
 }  // namespace
 
 DiagnosticsWidget::DiagnosticsWidget(QWidget* parent) : QWidget(parent) { createBaseUi(); }
@@ -84,7 +88,7 @@ void DiagnosticsWidget::setupCharts(std::vector<ChartDefinition> chart_definitio
     const auto theme = isDarkMode() ? QChart::ChartThemeDark : QChart::ChartThemeLight;
 
     for (const auto& def : definitions_) {
-        auto series = new QLineSeries();
+        auto* series = new QLineSeries();
 
         // Thicker, dark red line
         QPen pen;
@@ -92,7 +96,7 @@ void DiagnosticsWidget::setupCharts(std::vector<ChartDefinition> chart_definitio
         pen.setWidth(kChartLineWidth);
         series->setPen(pen);
 
-        auto chart = new QChart();
+        auto* chart = new QChart();
 
         // Set theme
         chart->setTheme(theme);
@@ -108,14 +112,14 @@ void DiagnosticsWidget::setupCharts(std::vector<ChartDefinition> chart_definitio
         chart->legend()->hide();
 
         // Configure X Axis
-        auto axisX = new QValueAxis();
+        auto* axisX = new QValueAxis();
         axisX->setTitleText("Time / " + time_unit);
         axisX->setLabelFormat("%.2f");
         chart->addAxis(axisX, Qt::AlignBottom);
         series->attachAxis(axisX);
 
         // Configure Y Axis
-        auto axisY = new QValueAxis();
+        auto* axisY = new QValueAxis();
         axisY->setTitleText(def.title + " / " + def.unit);
         axisY->setLabelFormat("%.2e");
         axisY->setTickCount(kYAxisTickCount);
@@ -123,7 +127,7 @@ void DiagnosticsWidget::setupCharts(std::vector<ChartDefinition> chart_definitio
         series->attachAxis(axisY);
 
         // Configure chart appearance
-        auto chartView = new QChartView(chart);
+        auto* chartView = new QChartView(chart);
         chartView->setRenderHint(QPainter::Antialiasing);
         chartView->setRubberBand(QChartView::HorizontalRubberBand);
         chartView->setMinimumHeight(kMinimumChartHeight);
@@ -151,7 +155,7 @@ void DiagnosticsWidget::updateData(const DiagnosticsSnapshot& diagnostics) {
 
     for (size_t i = 0; i < definitions_.size(); ++i) {
         const double value = definitions_[i].value_extractor(diagnostics);
-        full_data_[i].push_back(QPointF(timestamp, value));
+        full_data_[i].emplace_back(timestamp, value);
 
         min_values_[i] = std::min(min_values_[i], value);
         max_values_[i] = std::max(max_values_[i], value);
@@ -164,77 +168,19 @@ void DiagnosticsWidget::fillCharts(const DiagnosticsSeries& series) {
     }
 
     refresh_automatically_ = false;
+    resetDataCache();
 
-    max_time_ = 0.0;
-    std::fill(min_values_.begin(), min_values_.end(), std::numeric_limits<double>::max());
-    std::fill(max_values_.begin(), max_values_.end(), std::numeric_limits<double>::lowest());
-
-    // Clear the series if the input series is empty
     if (series.empty()) {
         for (size_t i = 0; i < charts_.size(); ++i) {
-            series_[i]->clear();
-            auto* chart = charts_[i];
-
-            const auto axesX = chart->axes(Qt::Horizontal);
-            const auto axesY = chart->axes(Qt::Vertical);
-
-            QValueAxis* axisX =
-                (!axesX.isEmpty()) ? qobject_cast<QValueAxis*>(axesX.first()) : nullptr;
-            QValueAxis* axisY =
-                (!axesY.isEmpty()) ? qobject_cast<QValueAxis*>(axesY.first()) : nullptr;
-
-            if (axisX && axisY) {
-                axisX->setRange(0, 1.0);
-                axisY->setRange(0, 1.0);
-            }
+            resetChart(i);
         }
         return;
     }
 
-    // Prepare a list of points for each series so we can update them in one go
-    std::vector<QVector<QPointF>> all_points(definitions_.size());
-    for (auto& points : all_points) {
-        points.reserve(series.size());
-    }
-
-    for (const auto& diag_point : series) {
-        max_time_ = std::max(max_time_, diag_point.time);
-
-        for (size_t i = 0; i < definitions_.size(); ++i) {
-            const double value = definitions_[i].value_extractor(diag_point);
-
-            min_values_[i] = std::min(min_values_[i], value);
-            max_values_[i] = std::max(max_values_[i], value);
-
-            all_points[i].append(QPointF(diag_point.time, value));
-        }
-    }
+    const auto all_points = processSeries(series);
 
     for (size_t i = 0; i < definitions_.size(); ++i) {
-        series_[i]->replace(all_points[i]);
-
-        auto* chart = charts_[i];
-
-        const auto axesX = chart->axes(Qt::Horizontal);
-        const auto axesY = chart->axes(Qt::Vertical);
-
-        QValueAxis* axisX = (!axesX.isEmpty()) ? qobject_cast<QValueAxis*>(axesX.first()) : nullptr;
-        QValueAxis* axisY = (!axesY.isEmpty()) ? qobject_cast<QValueAxis*>(axesY.first()) : nullptr;
-
-        if (axisX && axisY) {
-            axisX->setRange(0, std::max(max_time_, 1e-9));
-
-            const double y_margin = (max_values_[i] - min_values_[i]) * kYAxisMarginFactor;
-            double minY = min_values_[i] - y_margin;
-            double maxY = max_values_[i] + y_margin;
-
-            if (qFuzzyCompare(minY, maxY)) {
-                minY -= 1.0;
-                maxY += 1.0;
-            }
-
-            axisY->setRange(minY, maxY);
-        }
+        updateChart(i, all_points[i]);
     }
 }
 
@@ -264,7 +210,9 @@ void DiagnosticsWidget::refreshCharts() {
 
         QList<QPointF> list;
         list.reserve(downsampled_points.size());
-        for (auto& pt : downsampled_points) list.append(pt);
+        for (auto& point : downsampled_points) {
+            list.append(point);
+        }
 
         series_[i]->replace(list);
 
@@ -272,7 +220,7 @@ void DiagnosticsWidget::refreshCharts() {
         auto* axisX = x_axes_[i];
         auto* axisY = y_axes_[i];
 
-        axisX->setRange(0, std::max(max_time_, 1e-9));
+        axisX->setRange(0, std::max(max_time_, kEpsilon));
 
         const double y_margin = (max_values_[i] - min_values_[i]) * kYAxisMarginFactor;
         axisY->setRange(min_values_[i] - y_margin, max_values_[i] + y_margin);
@@ -283,4 +231,56 @@ void DiagnosticsWidget::refreshCharts() {
     }
 
     QTimer::singleShot(kChartRefreshIntervalMs, this, &DiagnosticsWidget::refreshCharts);
+}
+
+void DiagnosticsWidget::resetDataCache() {
+    max_time_ = 0.0;
+    std::ranges::fill(min_values_, std::numeric_limits<double>::max());
+    std::ranges::fill(max_values_, std::numeric_limits<double>::lowest());
+}
+
+void DiagnosticsWidget::resetChart(size_t index) {
+    series_[index]->clear();
+    x_axes_[index]->setRange(0, 1.0);
+    y_axes_[index]->setRange(0, 1.0);
+}
+
+QPair<double, double> DiagnosticsWidget::calculateYRange(double min_val, double max_val) {
+    const double y_margin = (max_val - min_val) * kYAxisMarginFactor;
+    double minY = min_val - y_margin;
+    double maxY = max_val + y_margin;
+
+    if (qFuzzyCompare(minY, maxY)) {
+        minY -= 1.0;
+        maxY += 1.0;
+    }
+    return {minY, maxY};
+}
+
+void DiagnosticsWidget::updateChart(size_t index, const QVector<QPointF>& points) {
+    series_[index]->replace(points);
+
+    x_axes_[index]->setRange(0, std::max(max_time_, kEpsilon));
+
+    const auto [minY, maxY] = calculateYRange(min_values_[index], max_values_[index]);
+    y_axes_[index]->setRange(minY, maxY);
+}
+
+std::vector<QVector<QPointF>> DiagnosticsWidget::processSeries(const DiagnosticsSeries& series) {
+    std::vector<QVector<QPointF>> all_points(definitions_.size());
+    for (auto& points : all_points) {
+        points.reserve(series.size());
+    }
+
+    for (const auto& diag_point : series) {
+        max_time_ = std::max(max_time_, diag_point.time);
+
+        for (size_t i = 0; i < definitions_.size(); ++i) {
+            const double value = definitions_[i].value_extractor(diag_point);
+            min_values_[i] = std::min(min_values_[i], value);
+            max_values_[i] = std::max(max_values_[i], value);
+            all_points[i].append(QPointF(diag_point.time, value));
+        }
+    }
+    return all_points;
 }

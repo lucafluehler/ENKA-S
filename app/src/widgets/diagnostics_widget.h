@@ -37,7 +37,6 @@ public:
      */
     void setupCharts(std::vector<ChartDefinition> chart_definitions, const QString& time_unit);
 
-public slots:
     /**
      * @brief Appends new diagnostic data to the charts.
      * @param diagnostics The new diagnostic data to display.
@@ -50,12 +49,15 @@ public slots:
      */
     void fillCharts(const DiagnosticsSeries& series);
 
-private slots:
-    void refreshCharts();
-
 private:
+    void refreshCharts();
     void createBaseUi();
     void clearCharts();
+    void resetDataCache();
+    void resetChart(size_t index);
+    std::vector<QVector<QPointF>> processSeries(const DiagnosticsSeries& series);
+    void updateChart(size_t index, const QVector<QPointF>& points);
+    static QPair<double, double> calculateYRange(double min_val, double max_val);
 
     QVBoxLayout* container_layout_;
     QScrollArea* scroll_area_;
