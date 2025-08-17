@@ -1,6 +1,7 @@
 # --- Project description ---
 cmake_minimum_required(VERSION 3.24)
 project(ENKA-S VERSION 2.0 LANGUAGES CXX)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # --- C++ Standard ---
 set(CMAKE_CXX_STANDARD 23)
