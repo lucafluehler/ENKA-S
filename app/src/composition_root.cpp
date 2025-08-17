@@ -22,82 +22,16 @@
 #include "views/new_simulation_tab/new_simulation_tab.h"
 
 std::unique_ptr<Application> CompositionRoot::compose() {
-    // --- Setup Services ---
     auto services = setupServices();
+    auto views = setupViews();
+    auto presenters = setupPresenters(*services, *views);
 
-    // --- Setup Views ---
-    auto* new_simulation_tab = new NewSimulationTab();
-    auto* load_simulation_tab = new LoadSimulationTab();
-    auto* logs_tab = new LogsTab();
-    auto main_window =
-        std::make_unique<MainWindow>(new_simulation_tab, load_simulation_tab, logs_tab);
-
-    // --- Setup Presenters ---
-    auto* load_simulation_presenter =
-        new LoadSimulationPresenter(load_simulation_tab,
-                                    *services->file_parser,
-                                    *services->task_runner,
-                                    *services->simulation_player_factory,
-                                    load_simulation_tab);
-
-    auto* new_simulation_presenter =
-        new NewSimulationPresenter(new_simulation_tab,
-                                   *services->file_parser,
-                                   *services->task_runner,
-                                   *services->simulation_runner_factory,
-                                   new_simulation_tab);
-
-    auto main_window_presenter = std::make_unique<MainWindowPresenter>(
-        main_window.get(), load_simulation_presenter, new_simulation_presenter);
-
-    // --- Setup Logging ---
     setupLogging(*services);
+    connectSignals(*services, *views, *presenters);
 
-    // --- Connect signals ---
-    // Connect log sink to logs tab
-    QObject::connect(
-        services->qt_log_sink.get(), &QtLogSink::messageLogged, logs_tab, &LogsTab::addLogMessage);
-
-    // Connect NewSimulationTab to its presenter
-    QObject::connect(new_simulation_tab,
-                     &NewSimulationTab::checkInitialSystemFile,
-                     new_simulation_presenter,
-                     &NewSimulationPresenter::checkInitialSystemFile);
-    QObject::connect(new_simulation_tab,
-                     &NewSimulationTab::checkSettingsFile,
-                     new_simulation_presenter,
-                     &NewSimulationPresenter::checkSettingsFile);
-    QObject::connect(new_simulation_tab,
-                     &NewSimulationTab::requestSimulationStart,
-                     new_simulation_presenter,
-                     &NewSimulationPresenter::startSimulation);
-    QObject::connect(new_simulation_tab,
-                     &NewSimulationTab::requestSimulationAbort,
-                     new_simulation_presenter,
-                     &NewSimulationPresenter::abortSimulation);
-    QObject::connect(new_simulation_tab,
-                     &NewSimulationTab::requestOpenSimulationWindow,
-                     new_simulation_presenter,
-                     &NewSimulationPresenter::openSimulationWindow);
-
-    // Connect LoadSimulationTab to its presenter
-    QObject::connect(load_simulation_tab,
-                     &LoadSimulationTab::requestFilesCheck,
-                     load_simulation_presenter,
-                     &LoadSimulationPresenter::checkFiles);
-    QObject::connect(load_simulation_tab,
-                     &LoadSimulationTab::playSimulation,
-                     load_simulation_presenter,
-                     &LoadSimulationPresenter::playSimulation);
-
-    // Connect MainWindow to its presenter
-    QObject::connect(main_window.get(),
-                     &MainWindow::tabSwitched,
-                     main_window_presenter.get(),
-                     &MainWindowPresenter::onTabSwitched);
-
-    return std::make_unique<Application>(
-        std::move(main_window), std::move(main_window_presenter), std::move(services));
+    return std::make_unique<Application>(std::move(views->main_window),
+                                         std::move(presenters->main_window_presenter),
+                                         std::move(services));
 }
 
 std::unique_ptr<Application::Services> CompositionRoot::setupServices() {
@@ -125,4 +59,88 @@ void CompositionRoot::setupLogging(Application::Services& services) {
     services.multi_sink->addSink(services.qt_log_sink);
 
     getLogger().configure(level_to_set, services.multi_sink);
+}
+
+std::unique_ptr<CompositionRoot::Views> CompositionRoot::setupViews() {
+    auto views = std::make_unique<Views>();
+    views->new_simulation_tab = new NewSimulationTab();
+    views->load_simulation_tab = new LoadSimulationTab();
+    views->logs_tab = new LogsTab();
+    views->main_window = std::make_unique<MainWindow>(
+        views->new_simulation_tab, views->load_simulation_tab, views->logs_tab);
+    return views;
+}
+
+std::unique_ptr<CompositionRoot::Presenters> CompositionRoot::setupPresenters(
+    const Application::Services& services, const Views& views) {
+    auto presenters = std::make_unique<Presenters>();
+
+    presenters->load_simulation_presenter =
+        new LoadSimulationPresenter(views.load_simulation_tab,
+                                    *services.file_parser,
+                                    *services.task_runner,
+                                    *services.simulation_player_factory,
+                                    views.load_simulation_tab);
+
+    presenters->new_simulation_presenter =
+        new NewSimulationPresenter(views.new_simulation_tab,
+                                   *services.file_parser,
+                                   *services.task_runner,
+                                   *services.simulation_runner_factory,
+                                   views.new_simulation_tab);
+
+    presenters->main_window_presenter =
+        std::make_unique<MainWindowPresenter>(views.main_window.get(),
+                                              presenters->load_simulation_presenter,
+                                              presenters->new_simulation_presenter);
+
+    return presenters;
+}
+
+void CompositionRoot::connectSignals(const Application::Services& services,
+                                     const Views& views,
+                                     const Presenters& presenters) {
+    // Connect log sink to logs tab
+    QObject::connect(services.qt_log_sink.get(),
+                     &QtLogSink::messageLogged,
+                     views.logs_tab,
+                     &LogsTab::addLogMessage);
+
+    // Connect NewSimulationTab to its presenter
+    QObject::connect(views.new_simulation_tab,
+                     &NewSimulationTab::checkInitialSystemFile,
+                     presenters.new_simulation_presenter,
+                     &NewSimulationPresenter::checkInitialSystemFile);
+    QObject::connect(views.new_simulation_tab,
+                     &NewSimulationTab::checkSettingsFile,
+                     presenters.new_simulation_presenter,
+                     &NewSimulationPresenter::checkSettingsFile);
+    QObject::connect(views.new_simulation_tab,
+                     &NewSimulationTab::requestSimulationStart,
+                     presenters.new_simulation_presenter,
+                     &NewSimulationPresenter::startSimulation);
+    QObject::connect(views.new_simulation_tab,
+                     &NewSimulationTab::requestSimulationAbort,
+                     presenters.new_simulation_presenter,
+                     &NewSimulationPresenter::abortSimulation);
+    QObject::connect(views.new_simulation_tab,
+                     &NewSimulationTab::requestOpenSimulationWindow,
+                     presenters.new_simulation_presenter,
+                     &NewSimulationPresenter::openSimulationWindow);
+
+    // Connect LoadSimulationTab to its presenter
+    QObject::connect(views.load_simulation_tab,
+                     &LoadSimulationTab::requestFilesCheck,
+                     presenters.load_simulation_presenter,
+                     &LoadSimulationPresenter::checkFiles);
+    QObject::connect(views.load_simulation_tab,
+                     &LoadSimulationTab::playSimulation,
+                     presenters.load_simulation_presenter,
+                     &LoadSimulationPresenter::playSimulation);
+
+    // Connect MainWindow to its presenter
+    QObject::connect(views.main_window.get(),
+                     &MainWindow::tabSwitched,
+                     presenters.main_window_presenter.get(),
+                     &MainWindowPresenter::onTabSwitched);
 }
