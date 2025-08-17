@@ -15,7 +15,7 @@ class QtLogSink : public QObject, public enkas::logging::LogSink {
     Q_OBJECT
 
 public:
-    explicit QtLogSink(QObject* parent) : QObject(parent) {}
+    explicit QtLogSink(QObject* parent = nullptr) : QObject(parent) {}
     ~QtLogSink() override = default;
 
     /**
