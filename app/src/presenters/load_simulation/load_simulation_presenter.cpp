@@ -16,21 +16,17 @@
 #include "views/load_simulation_tab/i_load_simulation_view.h"
 
 LoadSimulationPresenter::LoadSimulationPresenter(ILoadSimulationView* view,
-                                                 IFileParser* parser,
-                                                 ITaskRunner* runner,
-                                                 std::unique_ptr<ISimulationPlayerFactory> factory,
+                                                 IFileParser& parser,
+                                                 ITaskRunner& runner,
+                                                 ISimulationPlayerFactory& factory,
                                                  QObject* parent)
     : QObject(parent),
       view_(view),
       parser_(parser),
       runner_(runner),
-      simulation_player_factory_(std::move(factory)),
+      simulation_player_factory_(factory),
       preview_timer_(new QTimer(this)) {
-    Q_ASSERT(view_ != nullptr);
-    Q_ASSERT(parser_ != nullptr);
-    Q_ASSERT(runner_ != nullptr);
-    Q_ASSERT(simulation_player_factory_ != nullptr);
-
+    Q_ASSERT(view_);
     // Set up timer for preview updates
     connect(preview_timer_,
             &QTimer::timeout,
@@ -48,37 +44,37 @@ void LoadSimulationPresenter::checkFiles() {
 
     for (const auto& file_path : file_paths) {
         if (file_path.endsWith(file_names::settings)) {
-            runner_->run(
+            runner_.run(
                 this,
-                [this, path = file_path.toStdString()]() { return parser_->parseSettings(path); },
+                [this, path = file_path.toStdString()]() { return parser_.parseSettings(path); },
                 [this](const auto& result) { this->onSettingsParsed(result); });
 
         } else if (file_path.endsWith(file_names::system)) {
             system_data_.file_path = file_path.toStdString();
 
-            runner_->run(
+            runner_.run(
                 this,
                 [this, path = file_path.toStdString()]() {
-                    return parser_->parseInitialSystem(path);
+                    return parser_.parseInitialSystem(path);
                 },
                 [this](const auto& result) { this->onInitialSystemParsed(result); });
 
-            runner_->run(
+            runner_.run(
                 this,
-                [this, path = file_path.toStdString()]() { return parser_->countSnapshots(path); },
+                [this, path = file_path.toStdString()]() { return parser_.countSnapshots(path); },
                 [this](const auto& result) { this->onSnapshotsCounted(result); });
 
-            runner_->run(
+            runner_.run(
                 this,
                 [this, path = file_path.toStdString()]() {
-                    return parser_->retrieveSimulationDuration(path);
+                    return parser_.retrieveSimulationDuration(path);
                 },
                 [this](const auto& result) { this->onSimulationDurationRetrieved(result); });
         } else if (file_path.endsWith(file_names::diagnostics)) {
-            runner_->run(
+            runner_.run(
                 this,
                 [this, path = file_path.toStdString()]() {
-                    return parser_->parseDiagnosticsSeries(path);
+                    return parser_.parseDiagnosticsSeries(path);
                 },
                 [this](const auto& result) { this->onDiagnosticsSeriesParsed(result); });
         }
@@ -128,7 +124,7 @@ void LoadSimulationPresenter::playSimulation() {
 
     inactive();  // Stop the preview timer
 
-    simulation_player_ = simulation_player_factory_->create();
+    simulation_player_ = simulation_player_factory_.create();
 
     connect(simulation_player_.get(),
             &ISimulationPlayer::windowClosed,

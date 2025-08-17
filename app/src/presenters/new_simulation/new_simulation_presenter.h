@@ -34,9 +34,9 @@ public:
      * @param parent The parent QObject, defaults to nullptr.
      */
     explicit NewSimulationPresenter(INewSimulationView* view,
-                                    IFileParser* parser,
-                                    ITaskRunner* runner,
-                                    std::unique_ptr<ISimulationRunnerFactory> factory,
+                                    IFileParser& parser,
+                                    ITaskRunner& runner,
+                                    ISimulationRunnerFactory& factory,
                                     QObject* parent = nullptr);
     ~NewSimulationPresenter() override = default;
 
@@ -59,14 +59,14 @@ private slots:
 private:
     void setupFileParseWorker();
 
-    INewSimulationView* view_ = nullptr;
+    INewSimulationView* view_;
 
     QTimer* preview_timer_ = nullptr;
     QTimer* progress_timer_ = nullptr;
 
-    ITaskRunner* runner_ = nullptr;
-    IFileParser* parser_ = nullptr;
+    ITaskRunner& runner_;
+    IFileParser& parser_;
 
-    std::unique_ptr<ISimulationRunnerFactory> simulation_runner_factory_;
+    ISimulationRunnerFactory& simulation_runner_factory_;
     std::unique_ptr<ISimulationRunner> simulation_runner_;
 };

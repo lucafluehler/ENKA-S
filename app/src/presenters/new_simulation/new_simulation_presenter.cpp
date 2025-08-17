@@ -1,6 +1,7 @@
 #include "new_simulation_presenter.h"
 
 #include <enkas/logging/logger.h>
+#include <qassert.h>
 
 #include <QFile>
 #include <QObject>
@@ -23,22 +24,18 @@ constexpr int kProgressRefreshRateFps = 60;
 }  // namespace
 
 NewSimulationPresenter::NewSimulationPresenter(INewSimulationView* view,
-                                               IFileParser* parser,
-                                               ITaskRunner* runner,
-                                               std::unique_ptr<ISimulationRunnerFactory> factory,
+                                               IFileParser& parser,
+                                               ITaskRunner& runner,
+                                               ISimulationRunnerFactory& factory,
                                                QObject* parent)
     : QObject(parent),
       view_(view),
       parser_(parser),
       runner_(runner),
-      simulation_runner_factory_(std::move(factory)),
+      simulation_runner_factory_(factory),
       preview_timer_(new QTimer(this)),
       progress_timer_(new QTimer(this)) {
-    Q_ASSERT(view_ != nullptr);
-    Q_ASSERT(parser_ != nullptr);
-    Q_ASSERT(runner_ != nullptr);
-    Q_ASSERT(simulation_runner_factory_ != nullptr);
-
+    Q_ASSERT(view_);
     // Initialize Timers
     connect(preview_timer_, &QTimer::timeout, this, &NewSimulationPresenter::updatePreview);
     connect(progress_timer_, &QTimer::timeout, this, &NewSimulationPresenter::updateProgress);
@@ -64,17 +61,17 @@ void NewSimulationPresenter::updateProgress() {
 
 void NewSimulationPresenter::checkInitialSystemFile() {
     const auto& file_path = view_->getInitialSystemPath();
-    runner_->run(
+    runner_.run(
         this,
-        [this, path = file_path.toStdString()]() { return parser_->parseInitialSystem(path); },
+        [this, path = file_path.toStdString()]() { return parser_.parseInitialSystem(path); },
         [this](const auto& result) { this->onInitialSystemParsed(result); });
 }
 
 void NewSimulationPresenter::checkSettingsFile() {
     const auto& file_path = view_->getSettingsPath();
-    runner_->run(
+    runner_.run(
         this,
-        [this, path = file_path.toStdString()]() { return parser_->parseSettings(path); },
+        [this, path = file_path.toStdString()]() { return parser_.parseSettings(path); },
         [this](const auto& result) { this->onSettingsParsed(result); });
 }
 
@@ -100,7 +97,7 @@ void NewSimulationPresenter::startSimulation() {
     auto settings = view_->fetchSettings();
 
     // Initialize Simulation Manager
-    simulation_runner_ = simulation_runner_factory_->create(settings);
+    simulation_runner_ = simulation_runner_factory_.create(settings);
 
     connect(simulation_runner_.get(),
             &ISimulationRunner::initializationCompleted,

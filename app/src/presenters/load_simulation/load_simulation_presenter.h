@@ -30,12 +30,13 @@ public:
      * @param view The view to interact with.
      * @param parser The file parser logic to be used for parsing files.
      * @param runner The task runner to be used for running tasks.
+     * @param factory The simulation player factory to be used for creating simulation players.
      * @param parent The parent QObject.
      */
     explicit LoadSimulationPresenter(ILoadSimulationView* view,
-                                     IFileParser* parser,
-                                     ITaskRunner* runner,
-                                     std::unique_ptr<ISimulationPlayerFactory> factory,
+                                     IFileParser& parser,
+                                     ITaskRunner& runner,
+                                     ISimulationPlayerFactory& factory,
                                      QObject* parent = nullptr);
     ~LoadSimulationPresenter();
 
@@ -58,16 +59,16 @@ private slots:
     void onSimulationDurationRetrieved(const std::optional<double>& duration);
 
 private:
-    ILoadSimulationView* view_ = nullptr;
+    ILoadSimulationView* view_;
 
     QTimer* preview_timer_ = nullptr;
 
     ISimulationPlayer::SystemData system_data_;
     ISimulationPlayer::DiagnosticsData diagnostics_data_;
 
-    IFileParser* parser_;
-    ITaskRunner* runner_;
+    IFileParser& parser_;
+    ITaskRunner& runner_;
 
-    std::unique_ptr<ISimulationPlayerFactory> simulation_player_factory_;
+    ISimulationPlayerFactory& simulation_player_factory_;
     std::unique_ptr<ISimulationPlayer> simulation_player_;
 };

@@ -4,6 +4,7 @@
 #include <enkas/logging/sinks.h>
 
 #include <QObject>
+#include <QPointer>
 #include <memory>
 
 #include "core/concurrency/concurrent_runner.h"
@@ -51,15 +52,15 @@ void CompositionRoot::setupFactories() {
 
 void CompositionRoot::setupPresenters() {
     load_simulation_presenter_ = new LoadSimulationPresenter(load_simulation_tab_,
-                                                             file_parser_.get(),
-                                                             concurrent_runner_.get(),
-                                                             std::move(simulation_player_factory_),
+                                                             *file_parser_,
+                                                             *concurrent_runner_,
+                                                             *simulation_player_factory_,
                                                              load_simulation_tab_);
 
     new_simulation_presenter_ = new NewSimulationPresenter(new_simulation_tab_,
-                                                           file_parser_.get(),
-                                                           concurrent_runner_.get(),
-                                                           std::move(simulation_runner_factory_),
+                                                           *file_parser_,
+                                                           *concurrent_runner_,
+                                                           *simulation_runner_factory_,
                                                            new_simulation_tab_);
 
     main_window_presenter_ = std::make_unique<MainWindowPresenter>(

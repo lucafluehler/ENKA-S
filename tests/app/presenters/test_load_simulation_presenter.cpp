@@ -16,11 +16,8 @@ using namespace ::testing;
 class LoadSimulationPresenterTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        auto factory_ptr = std::make_unique<NiceMock<MockSimulationPlayerFactory>>();
-        mock_factory_ = factory_ptr.get();
-
         presenter_ = std::make_unique<LoadSimulationPresenter>(
-            &mock_view_, &mock_parser_, &mock_runner_, std::move(factory_ptr), &parent_object_);
+            &mock_view_, mock_parser_, mock_runner_, mock_factory_, &parent_object_);
     }
 
     QObject parent_object_;
@@ -28,7 +25,7 @@ protected:
     NiceMock<MockFileParser> mock_parser_;
     MockTaskRunner mock_runner_;
 
-    MockSimulationPlayerFactory* mock_factory_;
+    NiceMock<MockSimulationPlayerFactory> mock_factory_;
     std::unique_ptr<LoadSimulationPresenter> presenter_;
 };
 
@@ -83,7 +80,7 @@ TEST_F(LoadSimulationPresenterTest, PlaySimulation_CreatesAndRunsPlayer) {
     // ARRANGE: Factory creates mock player
     auto mock_player_ptr = std::make_unique<NiceMock<MockSimulationPlayer>>();
     auto* raw_mock_player = mock_player_ptr.get();
-    EXPECT_CALL(*mock_factory_, create()).WillOnce(Return(ByMove(std::move(mock_player_ptr))));
+    EXPECT_CALL(mock_factory_, create()).WillOnce(Return(ByMove(std::move(mock_player_ptr))));
 
     // ASSERT: Player is run after creation
     EXPECT_CALL(*raw_mock_player, run(_, _));
@@ -96,7 +93,7 @@ TEST_F(LoadSimulationPresenterTest, EndSimulationPlayback_CleansUpAndResetsState
     // ARRANGE: Start playback to create player instance
     auto mock_player_ptr = std::make_unique<NiceMock<MockSimulationPlayer>>();
     auto* raw_mock_player = mock_player_ptr.get();
-    EXPECT_CALL(*mock_factory_, create()).WillOnce(Return(ByMove(std::move(mock_player_ptr))));
+    EXPECT_CALL(mock_factory_, create()).WillOnce(Return(ByMove(std::move(mock_player_ptr))));
     presenter_->playSimulation();
 
     // ACT: Simulate closing simulation window
@@ -105,6 +102,6 @@ TEST_F(LoadSimulationPresenterTest, EndSimulationPlayback_CleansUpAndResetsState
 
     // ASSERT: Presenter can start a new simulation after cleanup
     auto new_mock_player_ptr = std::make_unique<NiceMock<MockSimulationPlayer>>();
-    EXPECT_CALL(*mock_factory_, create()).WillOnce(Return(ByMove(std::move(new_mock_player_ptr))));
+    EXPECT_CALL(mock_factory_, create()).WillOnce(Return(ByMove(std::move(new_mock_player_ptr))));
     presenter_->playSimulation();  // no crash means reset worked
 }
