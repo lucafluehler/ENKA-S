@@ -8,6 +8,7 @@
 #include <QObject>
 #include <QThread>
 #include <chrono>
+#include <cstddef>
 #include <filesystem>
 #include <format>
 #include <memory>
@@ -21,6 +22,14 @@
 #include "views/simulation_window/live/live_simulation_window.h"
 #include "workers/queue_storage_worker.h"
 #include "workers/simulation_worker.h"
+
+namespace {
+// --- Pool sizes ---
+constexpr size_t kDefaultPoolSize = 512;
+
+// --- Refresh rates ---
+constexpr int kDebugInfoTimerIntervalMs = 500;
+}  // namespace
 
 SimulationRunner::SimulationRunner(const Settings& settings, QObject* parent)
     : ISimulationRunner(parent),
@@ -38,7 +47,9 @@ SimulationRunner::SimulationRunner(const Settings& settings, QObject* parent)
     // Create output directory
     setupOutputDir();
 
-    if (save_settings) settings.save(output_dir_ / file_names::settings);
+    if (save_settings) {
+        settings.save(output_dir_ / file_names::settings);
+    }
 
     // Debug Info
     debug_info_ = std::make_shared<LiveDebugInfo>();
@@ -46,25 +57,26 @@ SimulationRunner::SimulationRunner(const Settings& settings, QObject* parent)
 
     // Populate output queues
     outputs_->rendering_snapshot = std::make_shared<LatestValueSlot<SystemSnapshot>>();
-    outputs_->chart_queue = std::make_shared<BlockingQueue<DiagnosticsSnapshotPtr>>(pool_size_);
-    debug_info_->chart_queue_capacity = pool_size_;  // Default capacity for the chart queue
+    outputs_->chart_queue =
+        std::make_shared<BlockingQueue<DiagnosticsSnapshotPtr>>(kDefaultPoolSize);
+    debug_info_->chart_queue_capacity = kDefaultPoolSize;
 
     if (save_system_data_) {
         system_file_writer_ = std::make_unique<CsvFileWriter<SystemSnapshot>>(
             output_dir_ / file_names::system, csv_headers::system);
         outputs_->system_storage_queue =
-            std::make_shared<BlockingQueue<SystemSnapshotPtr>>(pool_size_);
+            std::make_shared<BlockingQueue<SystemSnapshotPtr>>(kDefaultPoolSize);
         setupSystemStorageWorker();
-        debug_info_->system_storage_queue_capacity = pool_size_;
+        debug_info_->system_storage_queue_capacity = kDefaultPoolSize;
     }
 
     if (save_diagnostics_data_) {
         diagnostics_file_writer_ = std::make_unique<CsvFileWriter<DiagnosticsSnapshot>>(
             output_dir_ / file_names::diagnostics, csv_headers::diagnostics);
         outputs_->diagnostics_storage_queue =
-            std::make_shared<BlockingQueue<DiagnosticsSnapshotPtr>>(pool_size_);
+            std::make_shared<BlockingQueue<DiagnosticsSnapshotPtr>>(kDefaultPoolSize);
         setupDiagnosticsStorageWorker();
-        debug_info_->diagnostics_storage_queue_capacity = pool_size_;
+        debug_info_->diagnostics_storage_queue_capacity = kDefaultPoolSize;
     }
 
     // Simulation Window
@@ -81,7 +93,7 @@ SimulationRunner::SimulationRunner(const Settings& settings, QObject* parent)
 
     // Debug Info Timer
     connect(debug_info_timer_, &QTimer::timeout, this, &SimulationRunner::updateDebugInfo);
-    debug_info_timer_->start(500);  // Update pool and queue size every 500 ms
+    debug_info_timer_->start(kDebugInfoTimerIntervalMs);
 
     ENKAS_LOG_INFO("Simulation runner initialized successfully.");
 }
@@ -92,37 +104,45 @@ SimulationRunner::~SimulationRunner() {
 
     // This presenter runs a worker which relies on memory provided by the simulation runner.
     // We must ensure that the presenter is deleted before the runner goes out of scope.
-    if (simulation_window_presenter_) {
+    if (simulation_window_presenter_ != nullptr) {
         simulation_window_presenter_->deleteLater();
         simulation_window_presenter_ = nullptr;
         ENKAS_LOG_DEBUG("Simulation window presenter deleted.");
     }
 
-    if (simulation_window_) {
+    if (simulation_window_ != nullptr) {
         simulation_window_->close();
         simulation_window_->deleteLater();
         simulation_window_ = nullptr;
         ENKAS_LOG_DEBUG("Simulation window deleted.");
     }
 
-    if (simulation_worker_) simulation_worker_->abort();
-    if (system_storage_worker_) system_storage_worker_->abort();
-    if (diagnostics_storage_worker_) diagnostics_storage_worker_->abort();
+    if (simulation_worker_ != nullptr) {
+        simulation_worker_->abort();
+    }
+
+    if (system_storage_worker_ != nullptr) {
+        system_storage_worker_->abort();
+    }
+
+    if (diagnostics_storage_worker_ != nullptr) {
+        diagnostics_storage_worker_->abort();
+    }
 
     // Join threads
-    if (simulation_thread_ && simulation_thread_->isRunning()) {
+    if (simulation_thread_ != nullptr && simulation_thread_->isRunning()) {
         simulation_thread_->quit();
         simulation_thread_->wait();
         ENKAS_LOG_DEBUG("Simulation worker thread joined.");
     }
 
-    if (system_storage_thread_ && system_storage_thread_->isRunning()) {
+    if (system_storage_thread_ != nullptr && system_storage_thread_->isRunning()) {
         system_storage_thread_->quit();
         system_storage_thread_->wait();
         ENKAS_LOG_DEBUG("System storage worker thread joined.");
     }
 
-    if (diagnostics_storage_thread_ && diagnostics_storage_thread_->isRunning()) {
+    if (diagnostics_storage_thread_ != nullptr && diagnostics_storage_thread_->isRunning()) {
         diagnostics_storage_thread_->quit();
         diagnostics_storage_thread_->wait();
         ENKAS_LOG_DEBUG("Diagnostics storage worker thread joined.");
@@ -132,7 +152,7 @@ SimulationRunner::~SimulationRunner() {
 }
 
 void SimulationRunner::openSimulationWindow() {
-    if (!simulation_window_) {
+    if (simulation_window_ == nullptr) {
         ENKAS_LOG_ERROR("Simulation window is not initialized. Cannot open it.");
         return;
     }
@@ -142,13 +162,21 @@ void SimulationRunner::openSimulationWindow() {
 
 void SimulationRunner::receivedGenerationCompleted() {
     emit generationCompleted();
-    if (aborted_) return;
+
+    if (aborted_) {
+        return;
+    }
+
     emit requestInitialization();
 }
 
 void SimulationRunner::receivedInitializationCompleted() {
     emit initializationCompleted();
-    if (aborted_) return;
+
+    if (aborted_) {
+        return;
+    }
+
     emit requestSimulationStart();
 }
 

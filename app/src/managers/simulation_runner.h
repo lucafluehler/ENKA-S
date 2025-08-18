@@ -25,10 +25,10 @@ public:
 
     void startSimulationProcedure() override { emit requestGeneration(); }
 
-    double getDuration() const override { return duration_; }
+    [[nodiscard]] double getDuration() const override { return duration_; }
 
-    double getTime() const override {
-        return simulation_worker_ ? simulation_worker_->getTime() : 0.0;
+    [[nodiscard]] double getTime() const override {
+        return simulation_worker_ != nullptr ? simulation_worker_->getTime() : 0.0;
     }
 
 signals:
@@ -48,15 +48,12 @@ signals:
      */
     void requestSimulationStart();
 
-public slots:
     void openSimulationWindow() override;
 
-private slots:
+private:
     void receivedGenerationCompleted();
     void receivedInitializationCompleted();
     void updateDebugInfo();
-
-private:
     void setupOutputDir();
     void setupSystemStorageWorker();
     void setupDiagnosticsStorageWorker();
@@ -85,7 +82,6 @@ private:
 
     std::shared_ptr<MemoryPools> memory_pools_;
 
-    const size_t pool_size_ = 512;  // Default size for memory pools
     std::shared_ptr<SimulationOutputs> outputs_;
 
     std::shared_ptr<LiveDebugInfo> debug_info_;
