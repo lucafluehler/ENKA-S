@@ -47,4 +47,7 @@ jobs:
 
       - name: Run clang-format check
         run: |
-          find . -iname '*.h' -o -iname '*.cpp' | xargs clang-format --dry-run -Werror
+          find . \
+            -path './app/src/vendor' -prune -o \
+            -type f \( -iname '*.h' -o -iname '*.cpp' \) -print0 \
+          | xargs -0 --no-run-if-empty clang-format --dry-run -Werror
