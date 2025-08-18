@@ -38,21 +38,6 @@ jobs:
           echo "CPPFLAGS=-I/opt/homebrew/opt/llvm/include" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=/opt/homebrew/opt/llvm/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
 
-      - name: Print compiler and CMake info
-        run: |
-          echo "CMake version:"
-          cmake --version
-
-          echo "Which clang/clang++ on PATH:"
-          which clang || true
-          which clang++ || true
-
-          echo "C compiler version (try CC/C++ env first):"
-          ($CC --version 2>/dev/null) || (clang --version)
-
-          echo "C++ compiler version:"
-          ($CXX --version 2>/dev/null) || (clang++ --version)
-
       - name: Configure CMake
         run: |
           if [ "$RUNNER_OS" = "macOS" ]; then
