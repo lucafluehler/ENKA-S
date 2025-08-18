@@ -25,35 +25,47 @@ jobs:
           version: '6.5.3'
           modules: 'qtcharts'
 
-      - name: Install GCC (macOS only)
+      - name: Install Homebrew LLVM (macOS only)
         if: runner.os == 'macOS'
         run: |
           brew update
-          brew install gcc
-          echo "GCC installed"
-
-      - name: Configure CMake
-        run: |
-          if [[ "$RUNNER_OS" == "macOS" ]]; then
-            export CC=/opt/homebrew/bin/gcc-13
-            export CXX=/opt/homebrew/bin/g++-13
-          fi
-          cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DENKAS_BUILD_TESTS=ON \
-                -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX
+          brew install llvm
+          echo "Installed Homebrew LLVM"
+          # Make brewed clang visible to subsequent steps
+          echo "PATH=/opt/homebrew/opt/llvm/bin:$PATH" >> $GITHUB_ENV
+          # Provide include/lib hints for other tools if needed
+          echo "LDFLAGS=-L/opt/homebrew/opt/llvm/lib" >> $GITHUB_ENV
+          echo "CPPFLAGS=-I/opt/homebrew/opt/llvm/include" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=/opt/homebrew/opt/llvm/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
 
       - name: Print compiler and CMake info
         run: |
           echo "CMake version:"
           cmake --version
 
-          echo "C++ compiler version:"
-          $CXX --version || g++ --version || clang++ --version
+          echo "Which clang/clang++ on PATH:"
+          which clang || true
+          which clang++ || true
 
-          echo "C compiler version:"
-          $CC --version || gcc --version || clang --version
+          echo "C compiler version (try CC/C++ env first):"
+          ($CC --version 2>/dev/null) || (clang --version)
+
+          echo "C++ compiler version:"
+          ($CXX --version 2>/dev/null) || (clang++ --version)
 
       - name: Configure CMake
-        run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DENKAS_BUILD_TESTS=ON
+        run: |
+          if [[ "${{ matrix.os }}" == "macos-latest" ]] || [[ "$RUNNER_OS" == "macOS" ]]; then
+            # Use explicit brewed clang binaries to force CMake to use Homebrew LLVM
+            CMAKE_CC=/opt/homebrew/opt/llvm/bin/clang
+            CMAKE_CXX=/opt/homebrew/opt/llvm/bin/clang++
+          else
+            CMAKE_CC=$CC
+            CMAKE_CXX=$CXX
+          fi
+
+          cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DENKAS_BUILD_TESTS=ON \
+            -DCMAKE_C_COMPILER=${CMAKE_CC} -DCMAKE_CXX_COMPILER=${CMAKE_CXX}
 
       - name: Build
         run: cmake --build build --config Release
