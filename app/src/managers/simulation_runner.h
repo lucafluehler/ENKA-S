@@ -31,6 +31,8 @@ public:
         return simulation_worker_ != nullptr ? simulation_worker_->getTime() : 0.0;
     }
 
+    void openSimulationWindow() override;
+
 signals:
     /** @signal
      * @brief Requests the generation of a new initial system.
@@ -47,8 +49,6 @@ signals:
      * @brief Requests the simulation to start.
      */
     void requestSimulationStart();
-
-    void openSimulationWindow() override;
 
 private:
     void receivedGenerationCompleted();
