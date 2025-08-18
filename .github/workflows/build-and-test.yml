@@ -25,6 +25,15 @@ jobs:
           version: '6.7.0'
           modules: 'qtcharts'
 
+      - name: Install minimal Qt dependencies (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libxcb-cursor0 \
+            libxkbcommon-x11-0 \
+            xvfb
+
       - name: Install Homebrew LLVM (macOS)
         if: runner.os == 'macOS'
         run: |
