@@ -1,5 +1,6 @@
 # ENKA-S
 <p align="center">
+  <img src="https://github.com/lucafluehler/ENKA-S/actions/workflows/build-and-test.yml/badge.svg" alt="Build and Test">
   <img src="https://img.shields.io/badge/C%2B%2B-23-blue.svg" alt="C++23">
   <img src="https://img.shields.io/badge/Qt-6-green.svg" alt="Qt 6">
   <img src="https://img.shields.io/badge/OpenGL-4.1-blueviolet.svg" alt="OpenGL">
