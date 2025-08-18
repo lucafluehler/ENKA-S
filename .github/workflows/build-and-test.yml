@@ -55,17 +55,16 @@ jobs:
 
       - name: Configure CMake
         run: |
-          if [[ "${{ matrix.os }}" == "macos-latest" ]] || [[ "$RUNNER_OS" == "macOS" ]]; then
-            # Use explicit brewed clang binaries to force CMake to use Homebrew LLVM
+          if [ "$RUNNER_OS" = "macOS" ]; then
+            echo "Using brewed clang on macOS"
             CMAKE_CC=/opt/homebrew/opt/llvm/bin/clang
             CMAKE_CXX=/opt/homebrew/opt/llvm/bin/clang++
+            cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DENKAS_BUILD_TESTS=ON \
+              -DCMAKE_C_COMPILER="${CMAKE_CC}" -DCMAKE_CXX_COMPILER="${CMAKE_CXX}"
           else
-            CMAKE_CC=$CC
-            CMAKE_CXX=$CXX
+            echo "Using default system compiler on ${RUNNER_OS}"
+            cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DENKAS_BUILD_TESTS=ON
           fi
-
-          cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DENKAS_BUILD_TESTS=ON \
-            -DCMAKE_C_COMPILER=${CMAKE_CC} -DCMAKE_CXX_COMPILER=${CMAKE_CXX}
 
       - name: Build
         run: cmake --build build --config Release
@@ -85,4 +84,4 @@ jobs:
         uses: jidicula/clang-format-action@v4.15.0
         with:
           check-path: '.'
-          exclude-path: './app/src/vendor'
+          exclude-path: './app/vendor'
