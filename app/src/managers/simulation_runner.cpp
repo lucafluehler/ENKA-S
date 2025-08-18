@@ -45,8 +45,7 @@ SimulationRunner::SimulationRunner(const Settings& settings, QObject* parent)
     debug_info_->duration = duration_;
 
     // Populate output queues
-    outputs_->rendering_snapshot =
-        std::make_shared<LatestValueSlot<SystemSnapshot>>();
+    outputs_->rendering_snapshot = std::make_shared<LatestValueSlot<SystemSnapshot>>();
     outputs_->chart_queue = std::make_shared<BlockingQueue<DiagnosticsSnapshotPtr>>(pool_size_);
     debug_info_->chart_queue_capacity = pool_size_;  // Default capacity for the chart queue
 
