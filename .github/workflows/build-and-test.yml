@@ -29,10 +29,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            libxcb-cursor0 \
-            libxkbcommon-x11-0 \
-            xvfb
+          sudo apt-get install -y libxcb-cursor0 libxkbcommon-x11-0 xvfb
 
       - name: Install Homebrew LLVM (macOS)
         if: runner.os == 'macOS'
@@ -63,7 +60,13 @@ jobs:
       - name: Build
         run: cmake --build build --config Release
 
-      - name: Run Tests
+      - name: Run Tests (Ubuntu)
+        if: runner.os == 'Linux'
+        working-directory: ./build
+        run: xvfb-run -a ctest --build-config Release --output-on-failure
+
+      - name: Run Tests (others)
+        if: runner.os != 'Linux'
         working-directory: ./build
         run: ctest --build-config Release --output-on-failure
 
