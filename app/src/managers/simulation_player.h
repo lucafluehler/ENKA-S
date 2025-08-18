@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <memory>
 
+#include "core/dataflow/latest_value_slot.h"
 #include "core/dataflow/snapshot.h"
 #include "core/dataflow/system_ring_buffer.h"
 #include "i_simulation_player.h"
@@ -28,7 +29,6 @@ public:
      */
     void setStepsPerSecond(int steps_per_second) { step_delay_ms_ = 1000 / steps_per_second; }
 
-public slots:
     void run(std::optional<ISimulationPlayer::SystemData> system_data,
              std::optional<ISimulationPlayer::DiagnosticsData> diagnostics_data) override;
 
@@ -66,7 +66,7 @@ private:
     QThread* system_buffer_thread_;
 
     bool is_playing_ = false;
-    std::shared_ptr<std::atomic<SystemSnapshotPtr>> rendering_snapshot_;
+    std::shared_ptr<LatestValueSlot<SystemSnapshot>> rendering_snapshot_;
     int step_delay_ms_;
 
     std::shared_ptr<SystemRingBuffer> system_ring_buffer_ = nullptr;

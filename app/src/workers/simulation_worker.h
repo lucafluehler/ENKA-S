@@ -12,6 +12,7 @@
 
 #include "core/dataflow/blocking_queue.h"
 #include "core/dataflow/debug_info.h"
+#include "core/dataflow/latest_value_slot.h"
 #include "core/dataflow/memory_pool.h"
 #include "core/dataflow/snapshot.h"
 #include "core/settings/settings.h"
@@ -34,7 +35,7 @@ struct MemoryPools {
  * share data between the producer and the consumers.
  */
 struct SimulationOutputs {
-    std::shared_ptr<std::atomic<SystemSnapshotPtr>> rendering_snapshot = nullptr;
+    std::shared_ptr<LatestValueSlot<SystemSnapshot>> rendering_snapshot = nullptr;
     std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> chart_queue = nullptr;
     std::shared_ptr<BlockingQueue<SystemSnapshotPtr>> system_storage_queue = nullptr;
     std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> diagnostics_storage_queue = nullptr;
@@ -74,7 +75,6 @@ public:
      */
     double getTime() const { return time_.load(); }
 
-public slots:
     /**
      * @brief Starts the generation of the initial system.
      * If the generation method is set to File, it will load the system from a file.

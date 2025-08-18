@@ -2,16 +2,16 @@
 
 #include <QThread>
 
+#include "core/dataflow/latest_value_slot.h"
+
 LiveSimulationWindowPresenter::LiveSimulationWindowPresenter(
     ILiveSimulationWindowView* view,
-    std::shared_ptr<std::atomic<SystemSnapshotPtr>> rendering_snapshot,
+    std::shared_ptr<LatestValueSlot<SystemSnapshot>> rendering_snapshot,
     std::shared_ptr<BlockingQueue<DiagnosticsSnapshotPtr>> chart_queue,
     std::shared_ptr<LiveDebugInfo> debug_info,
     QObject* parent)
     : SimulationWindowPresenter(view, rendering_snapshot, debug_info->duration, parent),
       view_(view),
-      chart_worker_(nullptr),
-      chart_thread_(nullptr),
       chart_queue_(std::move(chart_queue)),
       debug_info_timer_(new QTimer(this)),
       debug_info_(debug_info),

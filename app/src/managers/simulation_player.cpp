@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <memory>
 
+#include "core/dataflow/latest_value_slot.h"
 #include "core/dataflow/system_ring_buffer.h"
 #include "managers/i_simulation_player.h"
 #include "presenters/simulation_window/replay/replay_simulation_window_presenter.h"
@@ -25,7 +26,7 @@ constexpr int kDefaultStepsPerSecond = 30;
 
 SimulationPlayer::SimulationPlayer(QObject* parent)
     : ISimulationPlayer(parent),
-      rendering_snapshot_(std::make_shared<std::atomic<SystemSnapshotPtr>>(SystemSnapshotPtr{})),
+      rendering_snapshot_(std::make_shared<LatestValueSlot<SystemSnapshot>>()),
       buffer_value_update_timer_(new QTimer(this)),
       step_delay_ms_(1000 / kDefaultStepsPerSecond) {
     connect(buffer_value_update_timer_, &QTimer::timeout, this, [this]() {
@@ -127,7 +128,7 @@ void SimulationPlayer::setupSimulationWindow(
 
 void SimulationPlayer::onStepForward() {
     if (auto system_snapshot = system_ring_buffer_->readForward()) {
-        rendering_snapshot_->store(*system_snapshot, std::memory_order_release);
+        rendering_snapshot_->set(*system_snapshot);
     }
 
     if (is_playing_) {
@@ -137,7 +138,7 @@ void SimulationPlayer::onStepForward() {
 
 void SimulationPlayer::onStepBackward() {
     if (auto system_snapshot = system_ring_buffer_->readBackward()) {
-        rendering_snapshot_->store(*system_snapshot, std::memory_order_release);
+        rendering_snapshot_->set(*system_snapshot);
     }
 
     if (system_buffer_worker_) {

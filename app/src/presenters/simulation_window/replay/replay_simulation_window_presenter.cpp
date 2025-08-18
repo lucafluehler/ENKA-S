@@ -2,7 +2,7 @@
 
 ReplaySimulationWindowPresenter::ReplaySimulationWindowPresenter(
     IReplaySimulationWindowView* view,
-    std::shared_ptr<std::atomic<SystemSnapshotPtr>> rendering_snapshot,
+    std::shared_ptr<LatestValueSlot<SystemSnapshot>> rendering_snapshot,
     double simulation_duration,
     QObject* parent)
     : SimulationWindowPresenter(view, rendering_snapshot, simulation_duration, parent),

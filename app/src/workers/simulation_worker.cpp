@@ -143,7 +143,7 @@ void SimulationWorker::runSimulation() {
             system_snapshot->time = time;
 
             if (outputs_->rendering_snapshot) {
-                outputs_->rendering_snapshot->store(system_snapshot, std::memory_order_release);
+                outputs_->rendering_snapshot->set(system_snapshot);
             }
 
             if (outputs_->system_storage_queue) {

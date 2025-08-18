@@ -9,12 +9,13 @@
 #include <chrono>
 #include <memory>
 
+#include "core/dataflow/latest_value_slot.h"
 #include "core/dataflow/snapshot.h"
 #include "views/simulation_window/i_simulation_window_view.h"
 
 SimulationWindowPresenter::SimulationWindowPresenter(
     ISimulationWindowView* view,
-    std::shared_ptr<std::atomic<SystemSnapshotPtr>> rendering_snapshot,
+    std::shared_ptr<LatestValueSlot<SystemSnapshot>> rendering_snapshot,
     double simulation_duration,
     QObject* parent)
     : QObject(parent),
@@ -35,7 +36,7 @@ void SimulationWindowPresenter::updateRendering() {
 
     // If the rendering is faster than the simulation, we do not want to drop frames, but instead
     // pass the nullptr to the view, which must handle it properly.
-    auto system_snapshot = rendering_snapshot_->exchange(nullptr, std::memory_order_acq_rel);
+    auto system_snapshot = rendering_snapshot_->take();
 
     // Update the view with the system snapshot
     view_->updateSystemRendering(system_snapshot, simulation_duration_);

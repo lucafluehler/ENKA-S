@@ -12,6 +12,7 @@
 #include <format>
 #include <memory>
 
+#include "core/dataflow/latest_value_slot.h"
 #include "core/dataflow/snapshot.h"
 #include "core/files/file_constants.h"
 #include "core/settings/settings.h"
@@ -45,7 +46,7 @@ SimulationRunner::SimulationRunner(const Settings& settings, QObject* parent)
 
     // Populate output queues
     outputs_->rendering_snapshot =
-        std::make_shared<std::atomic<SystemSnapshotPtr>>(SystemSnapshotPtr{});
+        std::make_shared<LatestValueSlot<SystemSnapshot>>();
     outputs_->chart_queue = std::make_shared<BlockingQueue<DiagnosticsSnapshotPtr>>(pool_size_);
     debug_info_->chart_queue_capacity = pool_size_;  // Default capacity for the chart queue
 
