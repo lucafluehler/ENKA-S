@@ -2,9 +2,15 @@ name: Build and Test
 
 on:
   push:
-    branches: [ "master" ]
+    paths:
+      - "app/**"
+      - "core/**"
+      - "tests/**"
   pull_request:
-    branches: [ "master" ]
+    paths:
+      - "app/**"
+      - "core/**"
+      - "tests/**"
   workflow_dispatch:
 
 jobs:
