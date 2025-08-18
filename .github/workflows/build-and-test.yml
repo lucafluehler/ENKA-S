@@ -70,4 +70,4 @@ jobs:
         with:
           clang-format-version: 20
           check-path: '.'
-          exclude-path: './app/vendor'
+          exclude-regex: '(^|.*/)app/vendor(/|$)'
