@@ -3,6 +3,7 @@
 #include <QtWidgets>
 #include <any>
 #include <atomic>
+#include <span>
 #include <string_view>
 #include <vector>
 
