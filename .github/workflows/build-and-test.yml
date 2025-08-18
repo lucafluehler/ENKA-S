@@ -25,24 +25,6 @@ jobs:
           version: '6.7.0'
           modules: 'qtcharts'
 
-      - name: Install minimal Qt dependencies (Ubuntu)
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-          libxcb-xfixes0 \
-          libx11-xcb1 \
-          libxrender1 \
-          libxi6 \
-          libxrandr2 \
-          libxfixes3 \
-          libglib2.0-0 \
-          libfontconfig1 \
-          libfreetype6 \
-          libxcb-cursor0 \
-          libxkbcommon-x11-0 \
-          xvfb
-
       - name: Install Homebrew LLVM (macOS)
         if: runner.os == 'macOS'
         run: |
@@ -72,10 +54,19 @@ jobs:
       - name: Build
         run: cmake --build build --config Release
 
+      - name: Run Tests (Ubuntu)
+        if: runner.os == 'Linux'
+        working-directory: ./build
+        env:
+          QT_QPA_PLATFORM: offscreen
+          QT_QPA_PLATFORM_PLUGIN_PATH: /usr/lib/x86_64-linux-gnu/qt6/plugins/platforms
+          QT_DEBUG_PLUGINS: 1
+        run: xvfb-run -a ctest --build-config Release --output-on-failure
+
       - name: Run Tests (others)
+        if: runner.os != 'Linux'
         working-directory: ./build
         run: |
-          export QT_QPA_PLATFORM=offscreen
           ctest --build-config Release --output-on-failure
 
   lint-check:
