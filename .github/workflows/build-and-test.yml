@@ -17,13 +17,40 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v4
+        uses: jurplel/install-qt-action@v4.3.0
         with:
           version: '6.5.3'
           modules: 'qtcharts'
+
+      - name: Install GCC (macOS only)
+        if: runner.os == 'macOS'
+        run: |
+          brew update
+          brew install gcc
+          echo "GCC installed"
+
+      - name: Configure CMake
+        run: |
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            export CC=/opt/homebrew/bin/gcc-13
+            export CXX=/opt/homebrew/bin/g++-13
+          fi
+          cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DENKAS_BUILD_TESTS=ON \
+                -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX
+
+      - name: Print compiler and CMake info
+        run: |
+          echo "CMake version:"
+          cmake --version
+
+          echo "C++ compiler version:"
+          $CXX --version || g++ --version || clang++ --version
+
+          echo "C compiler version:"
+          $CC --version || gcc --version || clang --version
 
       - name: Configure CMake
         run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DENKAS_BUILD_TESTS=ON
@@ -40,14 +67,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install clang-format
-        run: sudo apt-get update && sudo apt-get install -y clang-format
+        uses: actions/checkout@v5
 
       - name: Run clang-format check
-        run: |
-          find . \
-            -path './app/src/vendor' -prune -o \
-            -type f \( -iname '*.h' -o -iname '*.cpp' \) -print0 \
-          | xargs -0 --no-run-if-empty clang-format --dry-run -Werror
+        uses: jidn/clang-format-action@v4.15.0
+        with:
+          check-path: '.'
+          exclude-path: './app/src/vendor'
