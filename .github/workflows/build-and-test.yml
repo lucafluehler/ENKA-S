@@ -25,7 +25,7 @@ jobs:
           version: '6.5.3'
           modules: 'qtcharts'
 
-      - name: Install Homebrew LLVM (macOS only)
+      - name: Install Homebrew LLVM (macOS)
         if: runner.os == 'macOS'
         run: |
           brew update
@@ -38,18 +38,18 @@ jobs:
           echo "CPPFLAGS=-I/opt/homebrew/opt/llvm/include" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=/opt/homebrew/opt/llvm/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
 
-      - name: Configure CMake
+      - name: Configure CMake (macOS)
+        if: runner.os == 'macOS'
         run: |
-          if [ "$RUNNER_OS" = "macOS" ]; then
-            echo "Using brewed clang on macOS"
-            CMAKE_CC=/opt/homebrew/opt/llvm/bin/clang
-            CMAKE_CXX=/opt/homebrew/opt/llvm/bin/clang++
-            cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DENKAS_BUILD_TESTS=ON \
-              -DCMAKE_C_COMPILER="${CMAKE_CC}" -DCMAKE_CXX_COMPILER="${CMAKE_CXX}"
-          else
-            echo "Using default system compiler on ${RUNNER_OS}"
-            cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DENKAS_BUILD_TESTS=ON
-          fi
+          cmake -B build -S . \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DENKAS_BUILD_TESTS=ON \
+            -DCMAKE_C_COMPILER=/opt/homebrew/opt/llvm/bin/clang \
+            -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++
+
+      - name: Configure CMake (other)
+        if: runner.os != 'macOS'
+        run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DENKAS_BUILD_TESTS=ON
 
       - name: Build
         run: cmake --build build --config Release
