@@ -51,16 +51,17 @@ jobs:
         if: runner.os != 'macOS'
         run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DENKAS_BUILD_TESTS=ON
 
-      - name: Build
+      - name: Build (Ubuntu)
+        if: runner.os == 'Linux'
+        run: xvfb-run -a cmake --build build --config Release
+
+      - name: Build (others)
+        if: runner.os != 'Linux'
         run: cmake --build build --config Release
 
       - name: Run Tests (Ubuntu)
         if: runner.os == 'Linux'
         working-directory: ./build
-        env:
-          QT_QPA_PLATFORM: offscreen
-          QT_QPA_PLATFORM_PLUGIN_PATH: /usr/lib/x86_64-linux-gnu/qt6/plugins/platforms
-          QT_DEBUG_PLUGINS: 1
         run: xvfb-run -a ctest --build-config Release --output-on-failure
 
       - name: Run Tests (others)
