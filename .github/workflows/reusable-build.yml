@@ -28,7 +28,7 @@ jobs:
             asset_path: "ENKA-S-*.AppImage"
           - os: windows-latest
             asset_name_suffix: "Windows-Installer.exe"
-            asset_path: "build/ENKA-S-*.exe"
+            asset_path: "staging/ENKA-S-*.exe"
           - os: macos-latest
             asset_name_suffix: "macOS.dmg"
             asset_path: "build/app/enkas.dmg"
@@ -126,4 +126,5 @@ jobs:
         with:
           name: enkas-${{ github.ref_name }}-${{ matrix.asset_name_suffix }}
           path: ${{ matrix.asset_path }}
+          if-no-files-found: error
           retention-days: 1
