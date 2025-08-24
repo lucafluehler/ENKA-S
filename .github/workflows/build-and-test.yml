@@ -34,6 +34,10 @@ jobs:
         with:
           name: build-${{ matrix.os }}
           path: build/
+      
+      - name: Add Execute Permissions to Test Runner (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: chmod +x build/tests/app/run_app_tests
 
       - name: Run Tests (Ubuntu)
         if: runner.os == 'Linux'
