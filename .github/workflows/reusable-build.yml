@@ -94,8 +94,8 @@ jobs:
       - name: Package for Windows (windeployqt + CPack)
         if: runner.os == 'Windows' && inputs.package-release
         run: |
-          cmake --install build --prefix AppDir
-          ${{ env.QT_ROOT_DIR }}/bin/windeployqt.exe --release --no-translations --no-opengl-sw AppDir/bin/enkas.exe
+          cmake --install build --prefix build/AppDir
+          ${{ env.QT_ROOT_DIR }}/bin/windeployqt.exe --release --no-translations --no-opengl-sw build/AppDir/bin/enkas.exe
           cd build
           cpack -G NSIS
 
