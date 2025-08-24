@@ -31,7 +31,6 @@ set(CPACK_PACKAGE_CONTACT "https://github.com/lucafluehler/ENKA-S/issues")
 
 set(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/app/resources/icons/icon.ico")
 set(CPACK_NSIS_MUI_UNIICON "${CMAKE_SOURCE_DIR}/app/resources/icons/icon.ico")
-set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/app/resources/icons/icon.icns")
 
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
@@ -69,6 +68,20 @@ install(TARGETS enkas
     RUNTIME DESTINATION bin 
     BUNDLE DESTINATION .  
 )
+
+# --- Linux specific installation rules ---
+if(UNIX AND NOT APPLE)
+    install(
+        FILES app/resources/icons/icon.png
+        DESTINATION share/icons/hicolor/256x256/apps
+        RENAME ${PROJECT_NAME}.png
+    )
+    install(
+        FILES app/resources/shortcuts/ENKA-S.desktop
+        DESTINATION share/applications
+        RENAME ${PROJECT_NAME}.desktop
+    )
+endif()
 
 # --- Testing ---
 option(ENKAS_BUILD_TESTS "Build the unit tests" ON)
