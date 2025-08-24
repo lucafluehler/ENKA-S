@@ -37,7 +37,7 @@ jobs:
       
       - name: Add Execute Permissions to Test Runner (Linux/macOS)
         if: runner.os != 'Windows'
-        run: chmod +x build/tests/app/run_app_tests
+        run: find build/tests -type f -name "run_*_tests" -exec chmod +x {} +
 
       - name: Run Tests (Ubuntu)
         if: runner.os == 'Linux'
