@@ -17,6 +17,8 @@ jobs:
   build:
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    env:
+      QT_ROOT_DIR: '' # This will be overwritten by jurplel/install-qt-action
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -79,14 +81,14 @@ jobs:
       - name: Package for Windows (windeployqt + CPack)
         if: runner.os == 'Windows' && inputs.package-release
         run: |
-          $QT_DIR/bin/windeployqt.exe --release --no-translations --no-opengl-sw build/app/Release/enkas.exe
+          ${{ env.QT_ROOT_DIR }}/bin/windeployqt.exe --release --no-translations --no-opengl-sw build/app/Release/enkas.exe
           cd build
           cpack -G NSIS
 
       - name: Package for macOS (macdeployqt)
         if: runner.os == 'macOS' && inputs.package-release
         run: |
-          $QT_DIR/bin/macdeployqt build/app/enkas.app -dmg
+          ${{ env.QT_ROOT_DIR }}/bin/macdeployqt build/app/enkas.app -dmg
 
       - name: Package for Linux (linuxdeployqt)
         if: runner.os == 'Linux' && inputs.package-release
