@@ -51,7 +51,7 @@ A simple desktop application for running and analyzing N-body particle simulatio
 
 ## Getting Started
 
-This guide will walk you through setting up your environment, building, and running the application. The building process was tested on Windows 11 with MSVC and on Arch Linux with GCC.
+This guide will walk you through setting up your environment, building, and running the application. The manual building process was tested on Windows 11 with MSVC and on Arch Linux with GCC. Alternatively, there are prebuilt installers available for each release.
 
 ### Prerequisites
 
@@ -64,7 +64,7 @@ Before you begin, ensure you have the following software installed on your syste
 
 -   **CMake:** Version 3.16 or higher.
 
--   **Qt 6:** Version 6.2 or higher. You can download the open-source version from the [official Qt website](https://www.qt.io/download-open-source). When installing, you must select the following modules:
+-   **Qt 6:** Version 6.7 or higher. You can download the open-source version from the [official Qt website](https://www.qt.io/download-open-source). When installing, you must select the following modules:
     -   Qt Core
     -   Qt GUI
     -   Qt Widgets
