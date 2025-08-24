@@ -20,8 +20,6 @@ find_package(Qt6 6.7 REQUIRED COMPONENTS
     Test
 )
 
-qt_standard_project_setup()
-
 # --- CPack Configuration for Packaging ---
 include(CPack)
 
@@ -68,12 +66,6 @@ FetchContent_MakeAvailable(googletest)
 # --- Subdirectories ---
 add_subdirectory(core)
 add_subdirectory(app)
-
-# --- CPack Installation Rules ---
-install(TARGETS enkas
-    RUNTIME DESTINATION bin 
-    BUNDLE DESTINATION .  
-)
 
 # --- Linux specific installation rules ---
 if(UNIX AND NOT APPLE)

@@ -49,19 +49,17 @@ target_link_libraries(enkas PRIVATE
     enkas-app
 )
 
+# --- CPack Installation Rules ---
+install(TARGETS enkas
+    RUNTIME DESTINATION bin 
+    BUNDLE DESTINATION .  
+)
+
 # --- Platform-Specific Icon Configuration ---
 if(WIN32)
     target_sources(enkas PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/resources/enkas.rc
     )
-
-    qt_generate_deploy_app_script(
-        TARGET enkas
-        OUTPUT_SCRIPT deploy_script
-        NO_UNSUPPORTED_PLATFORM_ERROR
-    )
-
-    install(SCRIPT ${deploy_script})
 endif()
 
 if(APPLE)
