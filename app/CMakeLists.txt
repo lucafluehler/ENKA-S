@@ -54,15 +54,7 @@ if(WIN32)
     target_sources(enkas PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/resources/enkas.rc
     )
-endif()
 
-if(APPLE)
-    set_target_properties(enkas PROPERTIES
-        MACOSX_BUNDLE_ICON_FILE ${CMAKE_SOURCE_DIR}/app/resources/icons/icon.icns
-    )
-endif()
-
-if(WIN32 OR APPLE)
     qt_generate_deploy_app_script(
         TARGET enkas
         OUTPUT_SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/deploy_script.cmake"
@@ -70,4 +62,10 @@ if(WIN32 OR APPLE)
     )
 
     install(SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/deploy_script.cmake")
+endif()
+
+if(APPLE)
+    set_target_properties(enkas PROPERTIES
+        MACOSX_BUNDLE_ICON_FILE ${CMAKE_SOURCE_DIR}/app/resources/icons/icon.icns
+    )
 endif()

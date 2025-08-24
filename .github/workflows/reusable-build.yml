@@ -101,9 +101,7 @@ jobs:
       - name: Package for macOS (macdeployqt)
         if: runner.os == 'macOS' && inputs.package-release
         run: |
-          cmake --install build --prefix build/AppDir
-          cd build
-          cpack -G DragNDrop
+          ${{ env.QT_ROOT_DIR }}/bin/macdeployqt build/app/enkas.app -dmg
 
       - name: Install FUSE for AppImage (Linux)
         if: runner.os == 'Linux' && inputs.package-release
