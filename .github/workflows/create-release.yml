@@ -23,6 +23,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-package
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
       - name: Download all release artifacts
         uses: actions/download-artifact@v4
         with:
