@@ -29,6 +29,12 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.7.0'
+          modules: 'qtcharts'
+
       - name: Download Build Artifact
         uses: actions/download-artifact@v4
         with:
