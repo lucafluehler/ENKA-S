@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=ENKA-S
+GenericName=N-Body Simulator
+Comment=Run and analyze N-body particle simulations
+Exec=enkas
+Icon=ENKA-S
+Terminal=false
+Categories=Science;Education;
