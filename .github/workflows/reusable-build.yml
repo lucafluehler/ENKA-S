@@ -94,11 +94,7 @@ jobs:
       - name: Package for Windows (windeployqt + CPack)
         if: runner.os == 'Windows' && inputs.package-release
         run: |
-          mkdir staging
-          cmake --install build --prefix ./staging --config Release
-          ${{ env.QT_ROOT_DIR }}/bin/windeployqt.exe --release --no-translations --no-opengl-sw ./staging/bin/enkas.exe
-          cp build/CPackConfig.cmake ./staging/
-          cd staging
+          cd build
           cpack -G NSIS -C Release
 
       - name: Package for macOS (macdeployqt)

@@ -60,6 +60,8 @@ if(WIN32)
     target_sources(enkas PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/resources/enkas.rc
     )
+    qt_generate_deploy_app_script(TARGET enkas OUTPUT_SCRIPT deploy_script)
+    install(SCRIPT ${deploy_script})
 endif()
 
 if(APPLE)
