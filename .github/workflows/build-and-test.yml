@@ -14,56 +14,26 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-test:
-    name: Build on ${{ matrix.os }}
+  call-build-workflow:
+    name: Build
+    uses: ./.github/workflows/reusable-build.yml
+    with:
+      build-tests: true
+    secrets: inherit 
+
+  test:
+    name: Test on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    needs: call-build-workflow
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
         with:
-          version: '6.7.0'
-          modules: 'qtcharts'
-
-      - name: Install Homebrew LLVM (macOS)
-        if: runner.os == 'macOS'
-        run: |
-          brew update
-          brew install llvm
-          echo "Installed Homebrew LLVM"
-          # Make brewed clang visible to subsequent steps
-          echo "PATH=/opt/homebrew/opt/llvm/bin:$PATH" >> $GITHUB_ENV
-          # Provide include/lib hints for other tools if needed
-          echo "LDFLAGS=-L/opt/homebrew/opt/llvm/lib" >> $GITHUB_ENV
-          echo "CPPFLAGS=-I/opt/homebrew/opt/llvm/include" >> $GITHUB_ENV
-          echo "PKG_CONFIG_PATH=/opt/homebrew/opt/llvm/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
-
-      - name: Configure CMake (macOS)
-        if: runner.os == 'macOS'
-        run: |
-          cmake -B build -S . \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DENKAS_BUILD_TESTS=ON \
-            -DCMAKE_C_COMPILER=/opt/homebrew/opt/llvm/bin/clang \
-            -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++
-
-      - name: Configure CMake (other)
-        if: runner.os != 'macOS'
-        run: cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DENKAS_BUILD_TESTS=ON
-
-      - name: Build (Ubuntu)
-        if: runner.os == 'Linux'
-        run: xvfb-run -a cmake --build build --config Release
-
-      - name: Build (others)
-        if: runner.os != 'Linux'
-        run: cmake --build build --config Release
+          name: build-${{ matrix.os }}
+          path: build/
 
       - name: Run Tests (Ubuntu)
         if: runner.os == 'Linux'
@@ -73,8 +43,7 @@ jobs:
       - name: Run Tests (others)
         if: runner.os != 'Linux'
         working-directory: ./build
-        run: |
-          ctest --build-config Release --output-on-failure
+        run: ctest --build-config Release --output-on-failure
 
   lint-check:
     name: Clang-Format
@@ -86,6 +55,6 @@ jobs:
       - name: Run clang-format check
         uses: jidicula/clang-format-action@v4.15.0
         with:
-          clang-format-version: 20
+          clang-format-version: '20'
           check-path: '.'
           exclude-regex: '(^|.*/)app/vendor(/|$)'

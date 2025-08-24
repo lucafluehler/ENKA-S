@@ -1,0 +1,42 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-package:
+    name: Build and Package Release
+    uses: ./.github/workflows/reusable-build.yml
+    with:
+      build-tests: false
+      package-release: true
+    secrets: inherit
+
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: build-and-package
+    steps:
+      - name: Download all release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+
+      - name: Extract Release Notes from Changelog
+        id: extract_release_notes
+        run: |
+          awk '/^## \['"$GITHUB_REF_NAME"'\]/{f=1;next} f==1&&/^## \[/{f=0} f' CHANGELOG.md > RELEASE_BODY.md
+          echo "body_path=RELEASE_BODY.md" >> $GITHUB_OUTPUT
+
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: ${{ steps.extract_release_notes.outputs.body_path }}
+          draft: true
+          files: release-artifacts/**/*

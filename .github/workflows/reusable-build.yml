@@ -1,0 +1,103 @@
+name: Reusable Build
+
+on:
+  workflow_call:
+    inputs:
+      build-tests:
+        description: 'Build with tests enabled'
+        required: true
+        type: boolean
+      package-release:
+        description: 'Package the release artifacts'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            asset_name_suffix: "Linux.AppImage"
+            asset_path: "ENKA-S-*.AppImage"
+          - os: windows-latest
+            asset_name_suffix: "Windows-Installer.exe"
+            asset_path: "build/ENKA-S-*.exe"
+          - os: macos-latest
+            asset_name_suffix: "macOS.dmg"
+            asset_path: "build/enkas.dmg"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.7.0'
+          modules: 'qtcharts'
+
+      - name: Install Homebrew LLVM (macOS)
+        if: runner.os == 'macOS'
+        run: brew install llvm
+
+      - name: Configure CMake
+        run: |
+          if [[ "${{ runner.os }}" == "macOS" ]]; then
+            echo "PATH=/opt/homebrew/opt/llvm/bin:$PATH" >> $GITHUB_ENV
+          fi
+          
+          if [[ "${{ inputs.build-tests }}" == "true" ]]; then
+            echo "Building with tests ENABLED"
+            cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DENKAS_BUILD_TESTS=ON
+          else
+            echo "Building with tests DISABLED"
+            cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DENKAS_BUILD_TESTS=OFF
+          fi
+
+      - name: Build Project (Linux)
+        if: runner.os == 'Linux'
+        run: xvfb-run -a cmake --build build --config Release
+
+      - name: Build Project (Windows/macOS)
+        if: runner.os != 'Linux'
+        run: cmake --build build --config Release
+
+      - name: Upload Build Artifact for Testing
+        if: ${{ !inputs.package-release }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.os }}
+          path: build/
+          retention-days: 1
+
+      - name: Package for Windows (windeployqt + CPack)
+        if: runner.os == 'Windows' && inputs.package-release
+        run: |
+          $QT_DIR/bin/windeployqt.exe --release --no-translations --no-opengl-sw build/app/Release/enkas.exe
+          cd build
+          cpack -G NSIS
+
+      - name: Package for macOS (macdeployqt)
+        if: runner.os == 'macOS' && inputs.package-release
+        run: |
+          $QT_DIR/bin/macdeployqt build/app/enkas.app -dmg
+
+      - name: Package for Linux (linuxdeployqt)
+        if: runner.os == 'Linux' && inputs.package-release
+        run: |
+          wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+          chmod a+x linuxdeployqt-continuous-x86_64.AppImage
+          ./linuxdeployqt-continuous-x86_64.AppImage build/app/enkas -appimage
+
+      - name: Upload Release Asset Artifact
+        if: ${{ inputs.package-release }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: enkas-${{ github.ref_name }}-${{ matrix.asset_name_suffix }}
+          path: ${{ matrix.asset_path }}
+          retention-days: 1
