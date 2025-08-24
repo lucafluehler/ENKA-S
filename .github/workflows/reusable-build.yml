@@ -31,7 +31,7 @@ jobs:
             asset_path: "build/ENKA-S-*.exe"
           - os: macos-latest
             asset_name_suffix: "macOS.dmg"
-            asset_path: "build/enkas.dmg"
+            asset_path: "build/app/enkas.dmg"
 
     steps:
       - name: Checkout repository
