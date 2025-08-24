@@ -94,9 +94,9 @@ jobs:
       - name: Package for Windows (Install + CPack)
         if: runner.os == 'Windows' && inputs.package-release
         run: |
-          cmake --install build --prefix build/AppDir
+          cmake --install build --config Release --prefix build/AppDir
           cd build
-          cpack -G NSIS
+          cpack -G NSIS -C Release
 
       - name: Package for macOS (macdeployqt)
         if: runner.os == 'macOS' && inputs.package-release

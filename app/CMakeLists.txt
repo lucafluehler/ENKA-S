@@ -57,11 +57,11 @@ if(WIN32)
 
     qt_generate_deploy_app_script(
         TARGET enkas
-        OUTPUT_SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/deploy_script.cmake"
+        OUTPUT_SCRIPT deploy_script
         NO_UNSUPPORTED_PLATFORM_ERROR
     )
 
-    install(SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/deploy_script.cmake")
+    install(SCRIPT ${deploy_script})
 endif()
 
 if(APPLE)
