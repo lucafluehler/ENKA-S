@@ -1,6 +1,6 @@
 # --- Project description ---
 cmake_minimum_required(VERSION 3.24)
-project(ENKA-S VERSION 2.0 LANGUAGES CXX)
+project(ENKA-S VERSION 2.0.0 LANGUAGES CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # --- C++ Standard ---
@@ -39,7 +39,10 @@ set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CPACK_PACKAGE_NAME}")
 
 if(WIN32)
     set(CPACK_GENERATOR "NSIS")
+    set(CPACK_INSTALLED_DIRECTORIES "${CMAKE_BINARY_DIR}/AppDir" "/")
     set(CPACK_NSIS_CREATE_ICONS_EXTRA "CreateShortCut '$DESKTOP\\${CPACK_PACKAGE_NAME}.lnk' '$INSTDIR\\bin\\enkas.exe'")
+    file(READ "${CMAKE_SOURCE_DIR}/LICENSE" LICENSE_TEXT)
+    set(CPACK_NSIS_LICENSE_TEXT "${LICENSE_TEXT}")
 elseif(APPLE)
     set(CPACK_GENERATOR "DragNDrop")
 else()
