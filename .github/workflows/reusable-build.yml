@@ -45,12 +45,13 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install llvm
 
+      - name: Add Homebrew LLVM to PATH (macOS)
+        if: runner.os == 'macOS'
+        run: echo "PATH=/opt/homebrew/opt/llvm/bin:$PATH" >> $GITHUB_ENV
+
       - name: Configure CMake
-        run: |
-          if [[ "${{ runner.os }}" == "macOS" ]]; then
-            echo "PATH=/opt/homebrew/opt/llvm/bin:$PATH" >> $GITHUB_ENV
-          fi
-          
+        shell: bash
+        run: |       
           if [[ "${{ inputs.build-tests }}" == "true" ]]; then
             echo "Building with tests ENABLED"
             cmake -B build -S . -DCMAKE_BUILD_TYPE=Release -DENKAS_BUILD_TESTS=ON
