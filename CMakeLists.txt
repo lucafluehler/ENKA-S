@@ -60,11 +60,21 @@ FetchContent_Declare(
 )
 
 set(gtest_force_shared_crt ON CACHE BOOL "Use shared CRT on Windows" FORCE)
+set(INSTALL_GTEST OFF CACHE BOOL "Disable installation of gtest" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 # --- Subdirectories ---
 add_subdirectory(core)
 add_subdirectory(app)
+
+# --- Generate deployment script ---
+qt_generate_deploy_app_script(
+    TARGET enkas
+    OUTPUT_SCRIPT "${CMAKE_BINARY_DIR}/deploy_script.cmake"
+    NO_UNSUPPORTED_PLATFORM_ERROR
+)
+
+install(SCRIPT "${CMAKE_BINARY_DIR}/deploy_script.cmake")
 
 # --- CPack Installation Rules ---
 install(TARGETS enkas

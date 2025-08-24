@@ -91,11 +91,10 @@ jobs:
           path: build/
           retention-days: 1
 
-      - name: Package for Windows (windeployqt + CPack)
+      - name: Package for Windows (Install + CPack)
         if: runner.os == 'Windows' && inputs.package-release
         run: |
           cmake --install build --prefix build/AppDir
-          ${{ env.QT_ROOT_DIR }}/bin/windeployqt.exe --release --no-translations --no-opengl-sw build/AppDir/bin/enkas.exe
           cd build
           cpack -G NSIS
 
