@@ -48,3 +48,16 @@ set_target_properties(enkas PROPERTIES
 target_link_libraries(enkas PRIVATE
     enkas-app
 )
+
+# --- Platform-Specific Icon Configuration ---
+if(WIN32)
+    target_sources(enkas PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/resources/enkas.rc
+    )
+endif()
+
+if(APPLE)
+    set_target_properties(enkas PROPERTIES
+        MACOSX_BUNDLE_ICON_FILE ${CMAKE_SOURCE_DIR}/app/resources/icons/icon.icns
+    )
+endif()
