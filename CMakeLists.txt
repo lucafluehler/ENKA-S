@@ -20,6 +20,8 @@ find_package(Qt6 6.7 REQUIRED COMPONENTS
     Test
 )
 
+qt_standard_project_setup()
+
 # --- CPack Configuration for Packaging ---
 include(CPack)
 
