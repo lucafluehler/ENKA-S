@@ -61,3 +61,13 @@ if(APPLE)
         MACOSX_BUNDLE_ICON_FILE ${CMAKE_SOURCE_DIR}/app/resources/icons/icon.icns
     )
 endif()
+
+if(WIN32 OR APPLE)
+    qt_generate_deploy_app_script(
+        TARGET enkas
+        OUTPUT_SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/deploy_script.cmake"
+        NO_UNSUPPORTED_PLATFORM_ERROR
+    )
+
+    install(SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/deploy_script.cmake")
+endif()

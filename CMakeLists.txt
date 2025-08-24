@@ -67,15 +67,6 @@ FetchContent_MakeAvailable(googletest)
 add_subdirectory(core)
 add_subdirectory(app)
 
-# --- Generate deployment script ---
-qt_generate_deploy_app_script(
-    TARGET enkas
-    OUTPUT_SCRIPT "${CMAKE_BINARY_DIR}/deploy_script.cmake"
-    NO_UNSUPPORTED_PLATFORM_ERROR
-)
-
-install(SCRIPT "${CMAKE_BINARY_DIR}/deploy_script.cmake")
-
 # --- CPack Installation Rules ---
 install(TARGETS enkas
     RUNTIME DESTINATION bin 
