@@ -20,6 +20,34 @@ find_package(Qt6 6.7 REQUIRED COMPONENTS
     Test
 )
 
+# --- CPack Configuration for Packaging ---
+include(CPack)
+
+set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A simple desktop application for running and analyzing N-body particle simulations.")
+set(CPACK_PACKAGE_VENDOR "ENKA-S Project")
+set(CPACK_PACKAGE_CONTACT "https://github.com/lucafluehler/ENKA-S/issues")
+
+set(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/app/resources/icons/icon.ico")
+set(CPACK_NSIS_MUI_UNIICON "${CMAKE_SOURCE_DIR}/app/resources/icons/icon.ico")
+set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/app/resources/icons/icon.icns")
+
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
+set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
+
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CPACK_PACKAGE_NAME}")
+
+if(WIN32)
+    set(CPACK_GENERATOR "NSIS")
+    set(CPACK_NSIS_CREATE_ICONS_EXTRA "CreateShortCut '$DESKTOP\\${CPACK_PACKAGE_NAME}.lnk' '$INSTDIR\\bin\\enkas.exe'")
+elseif(APPLE)
+    set(CPACK_GENERATOR "DragNDrop")
+else()
+    # For Linux, our GitHub Action will create an AppImage externally.
+    set(CPACK_GENERATOR "DEB")
+endif()
+
 # --- Dependencies ---
 include(FetchContent)
 
@@ -35,6 +63,12 @@ FetchContent_MakeAvailable(googletest)
 # --- Subdirectories ---
 add_subdirectory(core)
 add_subdirectory(app)
+
+# --- CPack Installation Rules ---
+install(TARGETS enkas
+    RUNTIME DESTINATION bin 
+    BUNDLE DESTINATION .  
+)
 
 # --- Testing ---
 option(ENKAS_BUILD_TESTS "Build the unit tests" ON)
