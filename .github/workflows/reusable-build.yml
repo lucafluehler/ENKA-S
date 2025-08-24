@@ -21,9 +21,9 @@ jobs:
       QT_ROOT_DIR: '' # This will be overwritten by jurplel/install-qt-action
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-22.04, windows-latest, macos-latest]
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
             asset_name_suffix: "Linux.AppImage"
             asset_path: "ENKA-S-*.AppImage"
           - os: windows-latest
